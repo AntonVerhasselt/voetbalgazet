@@ -16,11 +16,11 @@ De Voetbalgazet respecteert je privacy. In deze verklaring leggen we uit welke p
 
 De verwerkingsverantwoordelijke is:
 
-**[JURIDISCHE NAAM EN RECHTSVORM]**  
-[MAATSCHAPPELIJKE ZETEL]  
-KBO: [KBO-NUMMER]  
-Btw: [BTW-NUMMER, INDIEN VAN TOEPASSING]  
-E-mail: [PRIVACY- OF SUPPORTADRES]  
+**[JURIDISCHE NAAM EN RECHTSVORM]**<br>
+[MAATSCHAPPELIJKE ZETEL]<br>
+KBO: [KBO-NUMMER]<br>
+Btw: [BTW-NUMMER, INDIEN VAN TOEPASSING]<br>
+E-mail: [PRIVACY- OF SUPPORTADRES]<br>
 Telefoon: [TELEFOONNUMMER]
 
 Voor vragen over deze privacyverklaring of je persoonsgegevens kun je contact opnemen via [PRIVACY- OF SUPPORTADRES].
@@ -125,8 +125,8 @@ Verwijdering gebeurt via support. Na volledige verwijdering vervalt ook je websi
 
 Je kunt ook een klacht indienen bij:
 
-**Gegevensbeschermingsautoriteit (GBA)**  
-Drukpersstraat 35, 1000 Brussel  
+**Gegevensbeschermingsautoriteit (GBA)**<br>
+Drukpersstraat 35, 1000 Brussel<br>
 [www.gegevensbeschermingsautoriteit.be](https://www.gegevensbeschermingsautoriteit.be/)
 
 We vragen je om ons indien mogelijk eerst te contacteren zodat we je vraag kunnen onderzoeken.
@@ -149,13 +149,13 @@ Deze voorwaarden gelden voor het gebruik van de website en nieuwsbrief van De Vo
 
 De website wordt uitgegeven door:
 
-**[JURIDISCHE NAAM EN RECHTSVORM]**  
-[MAATSCHAPPELIJKE ZETEL]  
-KBO: [KBO-NUMMER]  
-Btw: [BTW-NUMMER, INDIEN VAN TOEPASSING]  
-E-mail: [ALGEMEEN CONTACTADRES]  
-Telefoon: [TELEFOONNUMMER]  
-Wettelijke vertegenwoordiger: [NAAM]  
+**[JURIDISCHE NAAM EN RECHTSVORM]**<br>
+[MAATSCHAPPELIJKE ZETEL]<br>
+KBO: [KBO-NUMMER]<br>
+Btw: [BTW-NUMMER, INDIEN VAN TOEPASSING]<br>
+E-mail: [ALGEMEEN CONTACTADRES]<br>
+Telefoon: [TELEFOONNUMMER]<br>
+Wettelijke vertegenwoordiger: [NAAM]<br>
 Verantwoordelijke uitgever / hoofdredactie: [NAAM EN ADRES VOLGENS JURIDISCH ADVIES]
 
 Hosting: Vercel [DEFINITIEVE JURIDISCHE ENTITEIT/CONTACTINFO NAKIJKEN].

@@ -44,7 +44,7 @@ De site is statisch en niet gepersonaliseerd. Subscriberstatus verandert alleen:
 
 Voorgestelde primaire copy:
 
-> **Abonneer om verder te lezen**  
+> **Abonneer om verder te lezen**<br>
 > Dit artikel is gratis, maar je hebt een abonnement op De Voetbalgazet nodig om het volledig te lezen. Eén e-mail per week — lokaal voetbal, geen ruis.
 
 ### Primaire inschrijfflow
