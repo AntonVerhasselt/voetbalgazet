@@ -11,6 +11,7 @@ Dit dossier is de bron van waarheid voor het publieke, lezersgerichte deel van D
 | [03-static-content-and-seo.md](./03-static-content-and-seo.md) | Volledig statische artikels, soft gate, SEO, social en RSS |
 | [04-public-ux-and-analytics.md](./04-public-ux-and-analytics.md) | Publieke flows, voorkeuren en PostHog-meetplan |
 | [05-privacy-and-terms-copy.md](./05-privacy-and-terms-copy.md) | Korte Nederlandstalige conceptteksten voor privacy en voorwaarden |
+| [06-launch-todos.md](./06-launch-todos.md) | Uitgestelde bedrijfsgegevens, leverancierschecks en launchacties |
 
 De oudere hoofdpagina [`../01-news-site.md`](../01-news-site.md) blijft het architecturale overzicht en verwijst voor details naar dit dossier.
 

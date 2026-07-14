@@ -82,7 +82,7 @@ Elke pagina krijgt geldige `NewsArticle` JSON-LD:
   "@type": "NewsArticle",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://voetbalgazet.be/verhalen/voorbeeld"
+    "@id": "https://voetbalgazet.be/nieuws/voorbeeld"
   },
   "headline": "Artikelkop",
   "description": "Dek of korte intro",
@@ -155,9 +155,21 @@ Publiceer `/feed.xml` als RSS 2.0:
 
 Geen tokenized full-content RSS in het MVP. Dit vergroot complexiteit, tokens in feedreaders en supportlast, terwijl newsletterlinks de gewenste frictieloze volledige toegang al bieden.
 
-## Zoekfunctie
+## Archief en zoekfunctie
 
-Aanbevolen MVP:
+`/archief` is een volledig statische index met combineerbare client-side filters:
+
+- categorie;
+- provincie;
+- reeks;
+- club;
+- datum/jaar.
+
+Initiële categorieën: Wedstrijdverslagen, Transfernieuws, Interviews, Analyse, Jeugd en Clubnieuws.
+
+De artikelroute in voorbeelden gebruikt voorlopig het aanbevolen `/nieuws/[slug]`; deze route wacht nog op expliciete bevestiging.
+
+Zoekscope voor het MVP:
 
 - statische Pagefind- of eigen build-index;
 - indexeer headline, dek, kicker, auteur, reeks en publieke lead-in;
@@ -173,7 +185,7 @@ Zo blijft zoeken statisch en voorkom je dat volledige gated passages via zoekres
 2. Publishactie maakt een immutable content snapshot/revisie.
 3. Signed Vercel deploy hook start build.
 4. Build haalt alleen gepubliceerde snapshots uit Convex.
-5. Next.js genereert homepage, archief, artikel, sitemap, RSS en zoekindex.
+5. Next.js genereert homepage, `/archief`, artikel, sitemap, RSS en zoekindex.
 6. Tests controleren metadata, gebroken links, afbeeldingen en schema.
 7. Vercel promoot build atomair.
 

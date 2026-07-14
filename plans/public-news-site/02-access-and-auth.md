@@ -124,7 +124,7 @@ API-respons, statuscode en foutcopy mogen niet bevestigen of een adres bestaat. 
 5. HTTP 303 redirect naar canonieke artikel-URL zonder token.
 6. Artikel opent volledig.
 
-Voorgestelde tokenlevensduur: 30 dagen. Tokens bevatten geen leesbare PII, worden niet naar PostHog gestuurd en worden uit URL/logging verwijderd vóór analytics initialiseert.
+Tokenlevensduur: 30 dagen. Tokens bevatten geen leesbare PII, worden niet naar PostHog gestuurd en worden uit URL/logging verwijderd vóór analytics initialiseert.
 
 ## Flow 5 — nieuwsbrief uitschrijven
 

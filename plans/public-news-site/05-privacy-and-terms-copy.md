@@ -95,9 +95,9 @@ Als gegevens buiten de Europese Economische Ruimte worden verwerkt, gebruiken we
 - Subscriberprofiel, voorkeuren en siteAccess: zolang je website-abonnement actief blijft of tot je om verwijdering vraagt.
 - Nieuwsbriefstatus en bewijs van inschrijving/uitschrijving: zolang nodig om je keuze uit te voeren en naleving te kunnen aantonen.
 - Actieve authenticatiesessies: maximaal 90 dagen na laatste geldige vernieuwing.
-- Beveiligings- en foutlogs: [TERMIJN, BIJVOORBEELD 30–90 DAGEN].
-- Geaggregeerde analyticsgegevens: [TERMIJN].
-- Supportcorrespondentie: [TERMIJN].
+- Beveiligings- en foutlogs: 90 dagen.
+- Geaggregeerde analyticsgegevens: 24 maanden.
+- Supportcorrespondentie: 24 maanden.
 
 We beoordelen bewaartermijnen periodiek en bewaren persoonsgegevens niet langer dan noodzakelijk. Uitschrijven uit de nieuwsbrief verwijdert je account niet omdat je website-toegang apart blijft bestaan.
 
@@ -238,9 +238,9 @@ Vragen over de website of deze voorwaarden kun je sturen naar [ALGEMEEN CONTACTA
 - [ ] Verantwoordelijke uitgever/hoofdredactie juridisch correct vermeld.
 - [ ] Verwerkers, subverwerkers, regio's en internationale doorgiften gecontroleerd.
 - [ ] DPA's/verwerkersovereenkomsten met Convex, Vercel, Resend en PostHog afgesloten.
-- [ ] Concrete log-, analytics- en supportbewaartermijnen gekozen.
+- [x] Concrete log-, analytics- en supportbewaartermijnen gekozen (90 dagen / 24 maanden / 24 maanden).
 - [ ] Consentcopy exact gelijk aan de live UI en versieerbaar opgeslagen.
 - [ ] Uitschrijflink gratis, direct en getest.
 - [ ] Supportproces voor inzage, correctie en verwijdering getest.
 - [ ] Cookiegedrag gecontroleerd; niet-noodzakelijke tracking pas na geldige keuze.
-- [ ] Belgische jurist/privacyprofessional heeft de gecombineerde artikeltoegang + verplichte initiële nieuwsbriefinschrijving beoordeeld.
+- [ ] Belgische jurist/privacyprofessional heeft de gecombineerde artikeltoegang + verplichte initiële nieuwsbriefinschrijving beoordeeld (aanbevolen, geen technische launch blocker).

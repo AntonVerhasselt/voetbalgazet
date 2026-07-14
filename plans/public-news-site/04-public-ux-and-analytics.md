@@ -124,7 +124,7 @@ Gebruik PostHog Cloud EU met:
 - geen autocapture van formuliervelden;
 - URL sanitization vóór capture;
 - property allowlist in plaats van alles blind vastleggen;
-- korte eventretentie die nog productanalyse mogelijk maakt (definitief met privacyreview);
+- eventretentie van 24 maanden;
 - session replay standaard uit.
 
 Een e-mailhash is nog steeds pseudonieme persoonsgegevens en kan worden aangevallen met woordenlijsten. Daarom is **geen e-mailhash** de standaard. Als later cross-device analytics noodzakelijk is, gebruik dan een willekeurige analytics-ID of HMAC met geheime salt, documenteer de rechtsgrond en geef de gebruiker de vereiste keuze.

@@ -49,8 +49,8 @@ De prototypefolder is niet aanwezig op de cloudmachine. Kopieer hem vóór imple
 | Route | Type | Beschrijving |
 |-------|------|--------------|
 | `/` | Statisch | Homepage en inline inschrijving |
-| `/verhalen` | Statisch | Artikelarchief |
-| `/verhalen/[slug]` | Statisch + client gate | Artikel met lead-in en gated body |
+| `/archief` | Statisch | Archief met categorie-, provincie-, reeks-, club- en datum/jaarfilters |
+| `/nieuws/[slug]` (voorstel) | Statisch + client gate | Artikel met lead-in en gated body; nog te bevestigen |
 | `/voorkeuren` | Statische shell + verified session | Alleen via veilige e-maillink |
 | `/privacy` | Statisch | Privacyverklaring |
 | `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
@@ -91,6 +91,8 @@ SEO:
 - Googlebot krijgt dezelfde statische HTML, dus geen cloaking.
 
 RSS bevat metadata en 150–300 woorden lead-in, niet de volledige gated body.
+
+`/archief` biedt combineerbare statische filters voor categorie, provincie, reeks, club en datum/jaar. Initiële categorieën: Wedstrijdverslagen, Transfernieuws, Interviews, Analyse, Jeugd en Clubnieuws. Publieke zoekresultaten gebruiken alleen headline, dek, auteur, kicker/reeks en lead-in; de gated body wordt niet geïndexeerd.
 
 ## Toegangsmodel
 
@@ -142,7 +144,8 @@ type DivisionKey = `${Province}::${string}`;
 
 - minstens één `divisionId`;
 - maximaal één optionele `favoriteTeamId`;
-- teams/reeksen komen uit Convex;
+- teams/reeksen komen later uit officiële Voetbal Vlaanderen-data via Convex;
+- geen standen, wedstrijdwidgets of clubpagina's op de publieke site; VV-data ondersteunt alleen artikelmetadata en voorkeuren;
 - aanpassen via veilige link in de nieuwsbrief;
 - alleen verifiedSubscriber mag bestaande voorkeuren lezen/wijzigen.
 
@@ -205,9 +208,8 @@ Geen raw e-mail, e-mailhash, magic token, vrije formuliertekst of URL-token. Ses
 
 ## Resterende beslissingen
 
-1. Definitieve domein- en bedrijfsgegevens.
-2. Categorieën/filters voor `/verhalen`.
-3. Officiële club- en reeksbron.
-4. Newsletter bootstrap-token: voorstel 30 dagen.
-5. Inactiviteitsbeleid voor actieve siteAccess-profielen.
-6. Juridische goedkeuring van inschrijfcopy en bewaartermijnen.
+1. Definitieve artikelroute; voorstel `/nieuws/[slug]`.
+2. Expliciete aanvaarding van de technisch omzeilbare statische soft gate.
+3. Expliciete aanvaarding van het zwakke membershipsignaal bij het overslaan van voorkeuren voor bekende e-mails.
+
+Bedrijfsgegevens worden later ingevuld via de launch-todo. Juridische review blijft aanbevolen, maar blokkeert de technische lancering niet.

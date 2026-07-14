@@ -14,8 +14,8 @@
 | Route | Type | Beslissing |
 |-------|------|------------|
 | `/` | Statisch | Homepage met inline inschrijfflow |
-| `/verhalen` | Statisch | Artikelarchief; detailfiltering nog te bepalen |
-| `/verhalen/[slug]` | Statisch + client gate | Artikel, lead-in en verplichte gate |
+| `/archief` | Statisch | Artikelarchief met categorie-, provincie-, reeks-, club- en datum/jaarfilters |
+| **Nog te kiezen** | Statisch + client gate | Artikelroute; `/verhalen/[slug]` vervalt omdat “verhalen” als slug is afgewezen |
 | `/voorkeuren` | Statisch shell + geverifieerde sessie | Alleen bereikbaar via veilige nieuwsbrief-/magic-link; geen accountdashboard |
 | `/privacy` | Statisch | Privacyverklaring |
 | `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
@@ -96,6 +96,10 @@ Deze ene duidelijke knop is de bevestigende handeling; er is geen vooraf aangevi
 - Gated artikels tonen publiek minstens headline, dek/intro, hoofdbeeld, byline, datum, leestijd en eerste 2–3 alinea's.
 - RSS is publiek en bevat metadata + lead-in/excerpt + canonieke link, niet de volledige gated tekst.
 - Leesvoortgang (“ga verder waar je stopte”) is begrepen als het onthouden van de laatste scrollpositie. Dit is **geen MVP-functionaliteit**.
+- Initiële categorieën: `Wedstrijdverslagen`, `Transfernieuws`, `Interviews`, `Analyse`, `Jeugd` en `Clubnieuws`.
+- `/archief` filtert op categorie, provincie, reeks, club en datum/jaar; filters werken client-side op de statische index en zijn combineerbaar.
+- Publieke zoekresultaten indexeren alleen headline, dek, auteur, kicker/reeks en publieke lead-in — nooit de gated body.
+- Club- en reeksgegevens komen later uit officiële Voetbal Vlaanderen-data. Het MVP toont geen standen, wedstrijden, clubpagina's of andere losse VV-data; de data wordt alleen gebruikt als artikelmetadata en voor de inschrijfvoorkeuren.
 
 ## Juridisch en data
 
@@ -105,6 +109,11 @@ Deze ene duidelijke knop is de bevestigende handeling; er is geen vooraf aangevi
 - Uitschrijven zet alleen `newsletterSubscribed = false`; `siteAccess` blijft behouden.
 - Subscriberdata wordt bewaard zolang de website-toegang actief is of tot een geldig verwijderverzoek.
 - Verwijderverzoeken verlopen via support.
+- Inactieve siteAccess-profielen blijven bestaan zolang toegang actief is; geen automatische verwijdering alleen wegens inactiviteit.
+- Beveiligings- en foutlogs: 90 dagen.
+- PostHog analytics: 24 maanden.
+- Supportcorrespondentie: 24 maanden.
+- Juridische review vóór lancering wordt aanbevolen, maar is geen technische launch blocker.
 - Privacy- en voorwaardenpagina zijn vereist vóór lancering.
 
 ## Analytics
@@ -131,10 +140,8 @@ De volgende eerdere vragen zijn hiermee afgesloten:
 
 ## Nog open
 
-1. Officiële domeinnaam en definitieve bedrijfs-/contactgegevens.
-2. Exacte categorieën en filters op `/verhalen`.
-3. Volledige zoekscope: alleen titel/dek of ook volledige body.
-4. Definitieve bron en taxonomie voor clubs/reeksen.
-5. Geldigheidsduur van nieuwsbrief-bootstraplinks: voorstel 30 dagen.
-6. Inactiviteitsbeleid voor een siteAccess-account dat nooit meer wordt gebruikt.
-7. Juridische review van de gecombineerde inschrijfpropositie en conceptteksten.
+1. Definitieve artikelroute nu `/verhalen/[slug]` vervalt; voorstel: `/nieuws/[slug]`.
+2. Bevestiging dat de volledig statische soft gate technisch omzeilbaar mag zijn.
+3. Bevestiging dat het overslaan van voorkeuren voor een bekend adres een zwak subscriber-membershipsignaal mag lekken.
+
+Bedrijfs-, KBO- en contactgegevens zijn bewust uitgesteld en staan als launchtodo in [`06-launch-todos.md`](./06-launch-todos.md).
