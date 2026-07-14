@@ -135,14 +135,16 @@ Gebruik dienstmail niet voor promotionele inhoud aan uitgeschreven subscribers.
 
 ### Tracking
 
-Beslissing vóór productie:
+**Bevestigde productbeslissing:** activeer alle door Resend ondersteunde tracking voor nieuwsbriefcampagnes, inclusief opens en clicks, naast delivery-, bounce-, complaint- en failure-events.
 
-- Resend open tracking aan/uit;
-- Resend click tracking aan/uit;
-- documenteer in privacyverklaring;
-- voorkeur voor first-party article callbackmetingen boven invasievere tracking.
+Randvoorwaarden:
 
-**Aanbevolen standaard:** clicks aan voor nieuwsbriefartikels, opens standaard uit. Open tracking kan pas na expliciete privacy-/juridische bevestiging worden aangezet en blijft dan als indicatief gelabeld. Zonder antwoord geldt de default uit document 09: delivery-events + first-party/article clicks, geen opens.
+- documenteer open- en clicktracking expliciet in de privacyverklaring;
+- label opens altijd als indicatief wegens Apple Mail Privacy Protection, proxies, bots en image blocking;
+- gebruik first-party article callbackmetingen als sterker redactioneel signaal;
+- behandel clicks op auth-, voorkeuren- en uitschrijflinks niet als redactionele engagement, ook wanneer de provider ze technisch registreert;
+- stuur geen raw tokens of recipientidentificatie naar PostHog;
+- verifieer de actuele Resend trackinginstellingen en webhookevents vóór production.
 
 ## Dataretentie
 
@@ -202,13 +204,17 @@ Vóór production:
 - geleidelijke warm-up als lijst groot is;
 - geen gekochte of geïmporteerde lijst zonder bewijs van consent.
 
-Aanbevolen afzender:
+Bevestigde afzenderstrategie:
 
-- From name: `De Voetbalgazet`;
-- From address: `nieuwsbrief@voetbalgazet.be`;
-- Reply-To: `redactie@voetbalgazet.be`.
+- sending domain: `nieuws.devoetbalgazet.be`;
+- één primaire divisie: `{{division-slug}}@nieuws.devoetbalgazet.be`;
+- meerdere divisies of volledig publiek: `redactie@nieuws.devoetbalgazet.be`;
+- zichtbaar From name bij één divisie: `De Voetbalgazet — {{Divisionnaam}}`;
+- zichtbaar From name bij meerdere/alle divisies: `De Voetbalgazet`;
+- Reply-To: `redactie@devoetbalgazet.be`;
+- transactionele mails: `De Voetbalgazet <redactie@nieuws.devoetbalgazet.be>`.
 
-Definitieve domein/adressen staan als vraag in document 09.
+Het volledige subdomein krijgt SPF, DKIM en DMARC. Divisienamen worden altijd als stabiele ASCII-slug gebruikt in het adres.
 
 ## Monitoring
 

@@ -33,7 +33,7 @@ Daarom:
 
 ```text
 Browser
-  └─ https://voetbalgazet.be/api/auth/*  (same-origin, dunne route)
+  └─ https://devoetbalgazet.be/api/auth/*  (same-origin, dunne route)
        └─ Better Auth + Convex-component (sessies en logica)
 ```
 

@@ -82,7 +82,7 @@ Elke pagina krijgt geldige `NewsArticle` JSON-LD:
   "@type": "NewsArticle",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://voetbalgazet.be/nieuws/voorbeeld"
+    "@id": "https://devoetbalgazet.be/nieuws/voorbeeld"
   },
   "headline": "Artikelkop",
   "description": "Dek of korte intro",
@@ -98,7 +98,7 @@ Elke pagina krijgt geldige `NewsArticle` JSON-LD:
     "name": "De Voetbalgazet",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://voetbalgazet.be/logo.png"
+      "url": "https://devoetbalgazet.be/logo.png"
     }
   },
   "isAccessibleForFree": false,

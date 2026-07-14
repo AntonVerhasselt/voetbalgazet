@@ -4,34 +4,27 @@
 
 Elke vraag bevat een **aanbevolen standaard**. Als er geen antwoord komt, wordt die keuze gebruikt bij implementatie. Een expliciet antwoord vervangt de standaard en moet in `01-product-decisions.md` worden verwerkt.
 
-## Vragen die echte live verzending blokkeren
+## Beantwoorde basisbeslissingen en resterende launchblockers
 
-### 1. Welk domein en welke afzenderadressen gebruiken we?
+### 1. Domein en afzenderadressen — bevestigd
 
-**Aanbevolen standaard**
+**Beslissing**
 
-- publiek domein: `voetbalgazet.be`;
+- publiek domein: `devoetbalgazet.be`;
+- sending domain: `nieuws.devoetbalgazet.be`;
 - From name: `De Voetbalgazet`;
-- From address: `nieuwsbrief@voetbalgazet.be`;
-- Reply-To: `redactie@voetbalgazet.be`;
-- transactioneel: `service@voetbalgazet.be`.
+- één primaire divisie: `{{division-slug}}@nieuws.devoetbalgazet.be`;
+- meerdere divisies of volledig publiek: `redactie@nieuws.devoetbalgazet.be`;
+- Reply-To: `redactie@devoetbalgazet.be`;
+- transactioneel: `redactie@nieuws.devoetbalgazet.be`.
 
-**Waarom**
+Divisies gebruiken een stabiele ASCII-slug in het adres. Het zichtbare From name is `De Voetbalgazet — {{Divisionnaam}}` bij één divisie en `De Voetbalgazet` bij meerdere/alle divisies.
 
-Een herkenbaar eigen domein en menselijke reply-to helpen vertrouwen en deliverability. Marketing en dienstmail gescheiden adressen maken filtering en diagnose duidelijk zonder meerdere merken te introduceren.
-
-**Nodig van jou**
-
-- bevestig het echte domein;
-- bevestig dat deze mailboxen kunnen bestaan en opgevolgd worden.
-
-**Bij geen antwoord**
-
-Gebruik bovenstaande namen in code/configvoorbeelden, maar blokkeer production send totdat het domein werkelijk verified is.
+SPF, DKIM en DMARC voor `nieuws.devoetbalgazet.be` blijven production launchchecks.
 
 ---
 
-### 2. Welke fysieke en juridische gegevens moeten in de footer?
+### 2. Welke fysieke en juridische gegevens moeten in de footer? — uitgesteld
 
 **Aanbevolen standaard**
 
@@ -47,39 +40,35 @@ Gebruik de maatschappelijke zetel of juridisch goedgekeurde redactionele contact
 
 Een marketingfooter en Belgische publicatie hebben echte identiteits-/contactgegevens nodig. Placeholders mogen nooit live gaan.
 
-**Nodig van jou**
+**Nog nodig vóór live verzending**
 
 Juridische naam, adres, contactadres en verantwoordelijke uitgever zodra beschikbaar.
 
-**Bij geen antwoord**
+**Huidige beslissing**
 
 Technische implementatie mag doorgaan met duidelijk gemarkeerde placeholders; live send blijft geblokkeerd.
 
 ---
 
-### 3. Willen we open- en clicktracking inschakelen?
+### 3. Open- en clicktracking — bevestigd
 
-**Aanbevolen standaard**
+**Beslissing**
 
-- delivery/bounce/complaint: altijd;
-- article clicks: aan, gecombineerd met first-party callbackevents;
-- opens: uit totdat privacy-/juridische review tracking heeft bevestigd; daarna eventueel aan met “indicatief”-label.
-
-**Waarom**
-
-Delivery is operationeel noodzakelijk. Clicks geven redactioneel nuttig signaal. Opens zijn onnauwkeurig en privacygevoeliger.
-
-**Bij geen antwoord**
-
-Opens uit, clicks aan voor redactionele links, privacycopy daarop afstemmen.
+- activeer alle door Resend ondersteunde campaigntracking;
+- opens en clicks aan;
+- delivery, bounce, complaint, delayed en failure altijd verwerken;
+- first-party article callbacks blijven het sterkere redactionele signaal;
+- opens blijven als indicatief gelabeld;
+- auth-, preference- en unsubscribe-clicks tellen niet als redactionele engagement;
+- privacyverklaring beschrijft dit expliciet.
 
 ---
 
-### 4. Hoe groot is de verwachte subscriberlijst bij launch en na één jaar?
+### 4. Schaaldoel — bevestigd
 
-**Aanbevolen standaard**
+Er is geen productlimiet van 100.000 subscribers.
 
-Ontwerp direct voor minstens **100.000 subscribers**, ook wanneer launch veel kleiner is:
+Ontwerp en test initieel voor minstens **100.000 subscribers**:
 
 - alle lijsten gepagineerd;
 - recipient snapshot in batches;
@@ -87,21 +76,15 @@ Ontwerp direct voor minstens **100.000 subscribers**, ook wanneer launch veel kl
 - geen `collect()` op de volledige lijst;
 - resumable workers.
 
-**Waarom**
-
-Deze architectuur kost weinig extra wanneer vroeg gepland en voorkomt een latere fundamentele migratie.
-
-**Bij geen antwoord**
-
-Gebruik 100.000 als performance- en testdoel, met loadtests op representatieve fixtures.
+Het systeem blijft daarboven werken binnen actuele Convex-/Resendquotas; vóór een materieel grotere schaal worden loadtest, concurrency en providerquota opnieuw gevalideerd.
 
 ---
 
 ## Productvragen met aanbevolen default
 
-### 5. Mag een Journalist zelfstandig live verzenden?
+### 5. Mag een Journalist zelfstandig live verzenden? — bevestigd
 
-**Aanbevolen standaard**
+**Beslissing**
 
 Ja. `admin` en `journalist` mogen maken, testen, plannen en verzenden; `viewer` is read-only. Elke send vereist finale typed confirm en audit.
 
@@ -112,10 +95,6 @@ Dit past bij een kleine redactie en het bestaande rollenplan. Een verplichte twe
 **Alternatief**
 
 Voeg later `publisher` capability toe wanneer er meerdere redacteurs zijn en functiescheiding gewenst is.
-
-**Bij geen antwoord**
-
-Gebruik de aanbevolen standaard.
 
 ---
 
@@ -390,12 +369,13 @@ Recovery volgens deze strikte regels.
 
 | Onderwerp | Default |
 |-----------|---------|
-| Domein | `voetbalgazet.be`, maar live blocked tot verified |
-| From | `De Voetbalgazet <nieuwsbrief@voetbalgazet.be>` |
-| Reply-To | `redactie@voetbalgazet.be` |
-| Tracking | Delivery + clicks; opens uit tot review |
-| Schaaldoel | 100.000 subscribers |
-| Sendrol | Admin + Journalist |
+| Domein | `devoetbalgazet.be`; sending via `nieuws.devoetbalgazet.be` |
+| From | Eén divisie: `{{division-slug}}@nieuws.devoetbalgazet.be`; anders `redactie@nieuws.devoetbalgazet.be` |
+| Reply-To | `redactie@devoetbalgazet.be` |
+| Transactioneel | `redactie@nieuws.devoetbalgazet.be` |
+| Tracking | Alle ondersteunde Resend tracking, inclusief opens en clicks |
+| Schaaldoel | Geen hard limit; initieel ontwerpen/testen voor 100.000 |
+| Sendrol | Admin + Journalist bevestigd |
 | Scheduling | In launch-MVP |
 | Personalisatie | Alleen audiencefilter, niet body |
 | Filterlogica | OR binnen, AND tussen dimensies |

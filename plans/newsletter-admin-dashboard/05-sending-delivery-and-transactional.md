@@ -322,7 +322,7 @@ Abonneer minimaal op:
 - bounced;
 - complained;
 - failed;
-- opened/clicked indien tracking geactiveerd.
+- opened en clicked; beide trackingtypes zijn voor campagnes geactiveerd, met opens als indicatief signaal.
 
 Webhookhandler:
 

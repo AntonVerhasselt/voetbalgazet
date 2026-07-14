@@ -33,7 +33,7 @@ Afhankelijk van je gebruik kunnen we de volgende gegevens verwerken:
 - je gekozen voetbalreeksen en optioneel je favoriete club;
 - je nieuwsbriefstatus, inschrijfbron, consentversie en tijdstippen van inschrijving of uitschrijving;
 - of je e-mailadres werd geverifieerd en of e-mails werden afgeleverd of gebounced;
-- beperkte afleverings- en campagnestatussen, zoals verzonden, afgeleverd, geklikt, gebounced, klacht of fout, voor werking en lijstkwaliteit;
+- beperkte afleverings- en campagnestatussen, zoals verzonden, afgeleverd, geopend, geklikt, gebounced, klacht of fout, voor werking, redactioneel inzicht en lijstkwaliteit. Openregistratie is technisch onnauwkeurig door onder meer mailboxprivacyfuncties;
 - technische sessiegegevens, zoals een willekeurige sessie-ID, vervaldatum, browser-/apparaatinformatie en beveiligingsgegevens;
 - beperkte gebruiksgegevens, zoals bezochte pagina's, artikel-ID's, gate- en inschrijfstappen, leesdiepte, referrerdomein, campagneparameters en globale prestatiegegevens;
 - correspondentie die je zelf aan support bezorgt.

@@ -266,7 +266,7 @@ Route: `/admin/nieuwsbrieven/[campaignId]/resultaten`
 - bounced;
 - complained;
 - failed;
-- opens/clicks indicatief indien geactiveerd;
+- opens/clicks, waarbij opens expliciet als indicatief worden gelabeld;
 - top article links;
 - unsubscribes;
 - deliverytrend in tijd.

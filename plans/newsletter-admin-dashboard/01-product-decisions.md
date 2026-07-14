@@ -200,12 +200,15 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 |-----------|----------------------|
 | Taal | Nederlands (Vlaanderen) |
 | Tijdzone | `Europe/Brussels`, inclusief zomer-/wintertijd |
-| Afzendernaam | `De Voetbalgazet` |
+| Sending domain | `nieuws.devoetbalgazet.be` |
+| Afzenderadres | Eén divisie: `{{division-slug}}@nieuws.devoetbalgazet.be`; anders `redactie@nieuws.devoetbalgazet.be` |
+| Afzendernaam | Eén divisie: `De Voetbalgazet — {{Divisionnaam}}`; anders `De Voetbalgazet` |
+| Reply-To | `redactie@devoetbalgazet.be` |
 | Sendmoment | Handmatig of expliciet gepland; geen automatische wekelijkse cron |
 | Standaardpubliek | Alle actieve, niet-gesuppresseerde nieuwsbriefsubscribers |
 | Segmentlogica | OR binnen één voorkeurtype, AND tussen verschillende voorkeurtypes |
 | Inhoudspersonalisatie | Geen in MVP |
-| Opens | Tonen als indicatief, niet als harde waarheid |
+| Tracking | Alle ondersteunde Resend tracking aan; opens indicatief labelen |
 | Verzonden content | Immutable |
 | Testmail vereist | Minstens één succesvolle test sinds laatste inhoudswijziging |
 
