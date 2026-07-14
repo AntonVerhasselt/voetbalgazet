@@ -13,6 +13,7 @@ Planning documents for a Dutch-language news platform covering local football in
 | [public-news-site/](./public-news-site/) | Refined public-site decisions, auth, SEO, UX/analytics, legal copy |
 | [02-admin-dashboard.md](./02-admin-dashboard.md) | AI journalist dashboard, agent flows, human-in-the-loop |
 | [03-newsletter.md](./03-newsletter.md) | Resend React Email builder, sends, subscriber sync |
+| [04-newsletter-admin-dashboard.md](./04-newsletter-admin-dashboard.md) | Newsletter admin dashboard implementation (visual editor, audience filters) |
 
 ## Design reference
 
@@ -93,5 +94,5 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 | Area | Status |
 |------|--------|
 | Design prototype | Done (Open Design) |
-| Project codebase | Not started |
+| Project codebase | Newsletter admin dashboard MVP implemented |
 | Plans | Initial draft — **refinement in progress** |
