@@ -4,16 +4,16 @@ Dit document bevat uitgestelde gegevens en checks die niet nodig zijn om de prod
 
 ## Bedrijfs- en contactgegevens
 
-- [ ] Definitieve juridische naam en rechtsvorm
-- [ ] Maatschappelijke zetel
-- [ ] KBO-nummer
-- [ ] Btw-nummer, indien van toepassing
-- [ ] Algemeen contactadres
+- [x] Juridische naam en rechtsvorm: YARU DAKEN BV
+- [x] Maatschappelijke zetel: Van Duyststraat 60, 2100 Antwerpen, België
+- [x] KBO-nummer: 1017.634.522
+- [x] Btw-nummer: BE 1017.634.522
+- [x] Algemeen contactadres: redactie@devoetbalgazet.be
 - [ ] Privacy-/supportadres
-- [ ] Telefoonnummer
-- [ ] Wettelijke vertegenwoordiger
+- [x] Geen telefoonnummer gepubliceerd in KBO; niet opnemen zolang geen publiek nummer gekozen is
+- [x] Bestuurder: Anton Verhasselt
 - [ ] Verantwoordelijke uitgever / hoofdredactie en vereiste adresvermelding
-- [ ] Definitieve publieke domeinnaam
+- [x] Definitieve publieke domeinnaam: devoetbalgazet.be
 
 Werk daarna alle placeholders in [`05-privacy-and-terms-copy.md`](./05-privacy-and-terms-copy.md) bij.
 
@@ -48,6 +48,9 @@ De juridische review is een aanbeveling en geen technische launch blocker volgen
 
 ## SEO en kwaliteit
 
+- [ ] Mobile-first flows testen op 320, 360, 390 en 768 px
+- [ ] Gate/keyboard/safe-area op echte iOS- en Androidtoestellen testen
+- [ ] Homepage, artikel en archieffilters zonder hover/desktop-only acties controleren
 - [ ] Rich Results Test voor gated en vrije artikels
 - [ ] Search Console en eventuele Google News-publicatie instellen
 - [ ] Sitemap, robots en excerpt-RSS valideren

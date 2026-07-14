@@ -1,300 +1,169 @@
-# Component 2 — AI Journalist Admin Dashboard
+# Component 2 — Content- en nieuwsbriefadmin
 
-> The newsletter section of this admin platform is refined separately in [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/). That dossier defines the visual editor, campaign lifecycle, audience filters, Convex/Resend architecture, permissions and delivery operations.
+## Scope
 
-## Purpose
+Het interne adminplatform heeft voorlopig twee functies:
 
-An internal **AI-driven journalist dashboard** where editorial workflows combine automated analysis and outreach with **human-in-the-loop approval at every step** before anything is published or sent.
+1. nieuwsartikels schrijven en publiceren met Keystatic;
+2. nieuwsbrieven en transactionele e-mails beheren via de custom Convex-admin.
 
-Journalists use this to:
-- Analyze match results, calendars, standings, and other football data
-- Discover the best article ideas
-- Reach out to people for interviews via a **WhatsApp messaging agent**
-- Conduct interviews via a **voice agent** (OpenAI Realtime)
-- Generate draft articles with a **writing agent**
-- Review, edit, and approve each stage manually
-- Publish approved articles to the static news site
+Gedetailleerde dossiers:
 
----
+- [`content-admin/`](./content-admin/) — Keystatic, artikelmodel, publicatie en admin-UX;
+- [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/) — visuele e-maileditor, audiences, sends en operations;
+- [`ui-ux/`](./ui-ux/) — gedeelde mobiele designregels voor publieke site, admin en e-mail.
 
-## Design reference
+## Beslissing: één Next.js-app, twee geïntegreerde adminoppervlakken
 
-No dedicated admin screens exist in the prototype yet. **Reuse the public site design language:**
-
+```text
+devoetbalgazet.be
+├─ publieke statisch gegenereerde routes
+├─ /admin
+│  ├─ overzicht en gedeelde navigatie
+│  ├─ /admin/nieuwsbrieven
+│  ├─ /admin/abonnees
+│  └─ link naar Artikels
+└─ /keystatic
+   └─ Keystatic artikelbeheer in dezelfde Next.js-deployment
 ```
+
+Keystatic kan technisch in dezelfde Next.js-app draaien via:
+
+- `@keystatic/next/ui/app` voor de adminpagina;
+- `@keystatic/next/route-handler` voor `/api/keystatic/*`;
+- GitHub storage mode voor hosted editing;
+- de Keystatic Reader API tijdens build/preview.
+
+De officiële en minst risicovolle route blijft `/keystatic`. In de gedeelde adminnavigatie heet deze bestemming **Artikels**. We forceren Keystatic niet in een iframe en kopiëren zijn editor niet. De UI krijgt wel De Voetbalgazet-naam/logo en Nederlandstalige labels waar Keystatic dit via `ui.brand`, collections en navigation ondersteunt.
+
+## Waarom Keystatic wel in de admin past
+
+| Behoefte | Invulling |
+|----------|-----------|
+| Artikel schrijven | Markdoc rich-content field |
+| Metadata | Typed Keystatic fields |
+| Afbeeldingen | Keystatic image fields |
+| Versiegeschiedenis | Git commits |
+| Hosted editing | GitHub mode + GitHub App |
+| Preview | `previewUrl` + Next.js draft mode |
+| Publicatie | `status = published` opslaan; Git commit triggert Vercel build |
+| Mobiel beheer | Responsive Keystatic UI valideren op 320/375 px; geen desktop-only workflow accepteren |
+
+Belangrijke beperking: Keystatic is een eigen adminapp met beperkte theming. We kunnen branding en contentstructuur aanpassen, maar niet garanderen dat elk intern component exact de Open Design-vormtaal volgt. Als mobiele gebruikstests aantonen dat Keystatic onvoldoende is, bouwen we later een custom editor boven hetzelfde filemodel; dit is geen MVP-aanname.
+
+## Contentbron
+
+Keystatic/Git is de enige bron van waarheid voor artikelcontent.
+
+- Artikels staan als Markdoc + frontmatter in `apps/web/content/articles/`.
+- Artikelbeelden staan voor het MVP via Keystatic in `apps/web/public/images/articles/`.
+- Convex bewaart geen tweede kopie van artikelbody of publicatiestatus.
+- Convex blijft bron van waarheid voor subscribers, nieuwsbriefoperaties en adminappdata.
+- De publieke build leest Keystaticcontent rechtstreeks uit de repository.
+
+Deze beslissing vervangt het eerdere concept waarin Convex content snapshots naar een Vercel deploy hook stuurde. Een Keystatic-save maakt een Git commit; de repositorywijziging triggert de Vercel build.
+
+## Hosted storage en authenticatie
+
+### Development
+
+- `storage.kind = "local"` is toegestaan voor lokale contentontwikkeling;
+- wijzigingen schrijven rechtstreeks naar de werkdirectory;
+- geen productiecontent vanuit een tijdelijke cloudagent aanpassen.
+
+### Hosted admin
+
+- `storage.kind = "github"`;
+- GitHub App krijgt alleen toegang tot de relevante repository;
+- gebruikers hebben GitHub write access nodig;
+- secrets:
+  - `KEYSTATIC_GITHUB_CLIENT_ID`;
+  - `KEYSTATIC_GITHUB_CLIENT_SECRET`;
+  - `KEYSTATIC_SECRET`;
+  - `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`.
+
+Keystatic GitHub-auth is noodzakelijk voor repositorywrites. De custom newsletteradmin gebruikt Better Auth. De `/admin`-homepage toont alleen links waarvoor de gebruiker toegang heeft; Keystatic voert daarnaast zijn eigen GitHub-autorisatie uit. We vermijden een fragiele eigen wrapper rond de Keystatic API.
+
+## Rollen
+
+| Rol | Nieuwsbriefcampagnes | Transactionele e-mail | Artikels |
+|-----|----------------------|-----------------------|----------|
+| Admin | Volledig | Volledig | GitHub write access |
+| Journalist | Maken/testen/versturen | Read-only | GitHub write access |
+| Viewer | Read-only | Read-only | Geen Keystatic write access |
+
+GitHub repositoryrechten zijn voor artikelwrites leidend. Better Auth-rollen en GitHubrechten moeten operationeel op elkaar afgestemd worden.
+
+## Adminnavigatie
+
+Mobiel primair:
+
+- compacte topbar met logo en account;
+- primaire bestemmingen als grote tap targets;
+- onder 768 px een bottom navigation of menu sheet:
+  - Overzicht;
+  - Artikels;
+  - Nieuwsbrieven;
+  - Abonnees;
+- instellingen alleen voor Admin;
+- geen hover-only acties;
+- actieve omgeving/status duidelijk zichtbaar.
+
+Desktop:
+
+- smalle zijbalk of mastheadnav;
+- dezelfde informatietopologie als mobiel;
+- geen aparte functies die alleen op desktop bestaan.
+
+## Publicatieflow in hoofdlijnen
+
+1. Journalist opent Artikels vanuit `/admin`.
+2. Keystatic vraagt GitHub-auth indien nodig.
+3. Journalist maakt of bewerkt een artikel.
+4. Preview opent de publieke artikelroute in Next.js draft mode.
+5. Draft wordt opgeslagen als Git commit met `status: draft`.
+6. Publiceren zet status en datum expliciet op `published`.
+7. Git commit triggert Vercel.
+8. Build valideert content en genereert publieke pagina's.
+9. Alleen succesvolle build wordt live.
+
+Er is geen automatische overdracht van artikelcontent naar een nieuwsbrief. Nieuwsbrieven worden volledig custom gemaakt.
+
+## UI-bron
+
+Gedeelde bron:
+
+```text
 /Users/antonverhasselt/Library/Application Support/Open Design/namespaces/release-stable-intel/data/projects/a132ea15-213e-409f-9e25-e762711453c3
 ```
 
-Apply:
-- Same color tokens, typography, hairline rules, paper background
-- Masthead adapted for admin context (e.g. "Redactie" label, nav for workflows)
-- Form patterns from gate preference picker (chips, search, step indicators)
-- Monospace meta labels for status/timestamps
-
-Admin-specific patterns to design:
-- Pipeline/kanban view for story status
-- Side-by-side agent output vs. human edit
-- Approval buttons with clear step labels
-- Activity log per story
-
----
-
-## User roles (proposed)
-
-| Role | Access |
-|------|--------|
-| **Admin** | Full access, user management |
-| **Journalist** | Create/review stories, run agents, publish |
-| **Viewer** | Read-only toegang tot verhalen, campagnes en resultaten; geen mutations |
-
-Auth: **Better Auth** via Convex component.
-
----
-
-## Core workflow pipeline
-
-Each story moves through stages. **No stage auto-advances without human approval.**
-
-```
-┌─────────────┐    ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│  1. Data    │───▶│  2. Ideas   │───▶│  3. Outreach │───▶│ 4. Interview│
-│  Analysis   │    │  Discovery  │    │  (WhatsApp)  │    │  (Voice)    │
-└─────────────┘    └─────────────┘    └──────────────┘    └──────┬──────┘
-                                                                  │
-┌─────────────┐    ┌─────────────┐    ┌──────────────┐           │
-│  7. Publish │◀───│  6. Human   │◀───│  5. Writing  │◀──────────┘
-│  to site    │    │  Edit       │    │  Agent       │
-└─────────────┘    └─────────────┘    └──────────────┘
-```
-
-### Stage 1 — Data analysis
-**Input:** Match results, calendar fixtures, league standings, historical context (source TBD).
-
-**Agent tasks (OpenRouter):**
-- Summarize weekend results by province/division
-- Flag upsets, streaks, relegation battles, cup runs
-- Cross-reference upcoming fixtures for preview angles
-- Output structured JSON: `{ events[], insights[], suggestedAngles[] }`
-
-**Human review:** Journalist selects which data points to pursue.
-
----
-
-### Stage 2 — Story idea discovery
-**Input:** Analysis output + editorial calendar + past published stories.
-
-**Agent tasks:**
-- Rank story ideas with rationale (newsworthiness, human interest, timeliness)
-- Propose headline/dek drafts in Dutch
-- Identify interview candidates (player, coach, fan) per idea
-- Estimate effort: data-only vs. interview required
-
-**Human review:** Pick one or more ideas to develop; reject or park others.
-
----
-
-### Stage 3 — WhatsApp outreach
-**Input:** Approved idea + contact list (phone numbers, roles, club affiliation).
-
-**Agent (Twilio WhatsApp + OpenRouter):**
-- Send personalized message in Dutch requesting interview
-- Handle replies: scheduling, declines, questions
-- Propose time slots
-- Escalate ambiguous responses to human
-
-**Human review:**
-- Approve message template before first send
-- Override or take over conversation at any time
-- Confirm interview slot
-
-**Twilio integration:**
-- WhatsApp Business API
-- Webhook → Convex action for inbound messages
-- Conversation state in `interviewRequests` table
-
----
-
-### Stage 4 — Voice interview
-**Input:** Scheduled call, interview brief (questions, context from stages 1–2).
-
-**Agent (OpenAI Realtime API + Twilio voice):**
-- Conduct phone interview in Dutch
-- Follow question guide; adaptive follow-ups
-- Record audio → store in R2
-- Generate transcript (OpenRouter or OpenAI)
-
-**Human review:**
-- Pre-approve question outline
-- Option to join/listen live (TBD)
-- Review transcript; request re-call if needed
-- Mark interview as complete
-
----
-
-### Stage 5 — Writing agent
-**Input:** Transcript, data analysis, idea brief, brand voice guidelines.
-
-**Agent (OpenRouter):**
-- Draft full article in Dutch matching De Voetbalgazet voice
-- Structure: kicker, headline, dek, body with quotes
-- Suggest pull quotes and subheads
-- Include fact-check flags for stats
-
-**Human review:** Journalist edits in rich text editor; agent can revise on request.
-
----
-
-### Stage 6 — Editorial approval
-- Final copy edit
-- Image selection/upload (R2)
-- Metadata: division, author, reading time, SEO
-- Legal/sensitivity check
-
----
-
-### Stage 7 — Publish
-- Approve publish → write to content store
-- Trigger Vercel rebuild (static site)
-- No automatic newsletter handoff in MVP; newsletter content is created manually in the visual email editor
-
----
-
-## Dashboard views (proposed)
-
-| View | Description |
-|------|-------------|
-| **Inbox / Pipeline** | Kanban or list by stage; filters by division, assignee, date |
-| **Story detail** | Timeline of agent runs, approvals, artifacts (transcripts, drafts) |
-| **Data explorer** | Browse standings, results, calendar (read-only) |
-| **Contacts** | CRM for interview subjects, WhatsApp opt-in status |
-| **Agent config** | Prompts, model selection, templates (admin only) |
-| **Publish queue** | Ready-to-publish articles |
-| **Activity log** | Audit trail |
-
----
-
-## Agent architecture
-
-Use **Convex Agent component** for durable workflows:
-
-```
-convex/agents/
-├── analyzeData.ts      # Stage 1
-├── discoverIdeas.ts    # Stage 2
-├── whatsappOutreach.ts # Stage 3 — Twilio send/receive
-├── voiceInterview.ts   # Stage 4 — OpenAI Realtime + Twilio
-└── writeArticle.ts     # Stage 5
-```
-
-Each agent run:
-- Stored in `agentRuns` with status: `pending | running | awaiting_review | approved | rejected`
-- Emits artifacts linked to story (JSON, text, audio URL)
-- Scheduled steps via `ctx.scheduler` (internal functions only)
-- Human approval mutation advances to next stage
-
-**LLM routing:**
-
-| Task | Provider | Model (TBD) |
-|------|----------|---------------|
-| Data summarization | OpenRouter | Fast/cheap model |
-| Idea ranking | OpenRouter | Reasoning model |
-| WhatsApp replies | OpenRouter | Fast, Dutch-capable |
-| Voice conversation | OpenAI | Realtime API |
-| Transcription | OpenRouter or OpenAI | Whisper-class |
-| Article drafting | OpenRouter | High-quality writing model |
-
----
-
-## External integrations
-
-| Service | Use |
-|---------|-----|
-| **Twilio** | WhatsApp messaging, outbound/inbound voice calls |
-| **OpenAI** | Realtime voice agent for interviews |
-| **OpenRouter** | All other LLM calls |
-| **R2** | Interview recordings, images, exports |
-| **Convex** | State, auth, scheduling |
-| **Vercel** | Deploy hook on publish |
-
-Docs:
-- [Twilio](https://www.twilio.com/docs)
-- [OpenAI Realtime](https://developers.openai.com/api/docs/guides/realtime)
-- [OpenRouter](https://openrouter.ai/docs/quickstart)
-- [Convex Agent](https://www.convex.dev/components/agent)
-
----
-
-## Football data (critical dependency)
-
-**Not yet defined.** The analysis agent needs:
-
-- Match results (scores, scorers, cards)
-- Fixtures / calendar
-- Standings per division
-- Team/club metadata (name, province, division)
-
-**Options to evaluate:**
-1. Manual CSV upload in admin
-2. Scrape Voetbal Vlaanderen / RBFA amateur portals (legal review)
-3. Third-party sports API
-4. Community/submission input
-
-This blocks Stage 1 automation until resolved.
-
----
-
-## Human-in-the-loop UX principles
-
-1. **Every agent output is a proposal** — never auto-publish or auto-send without approval (except pre-approved templates for WhatsApp — even then, first message requires sign-off).
-2. **Clear diff** — show what the agent changed vs. previous draft.
-3. **Rollback** — revert to any prior artifact version.
-4. **Pause / takeover** — journalist can stop agent and continue manually.
-5. **Audit log** — who approved what, when.
-
----
-
-## Security & compliance
-
-- Admin routes protected by Better Auth; no public access
-- Interview recordings: consent captured in WhatsApp thread + verbal at call start (script TBD)
-- PII (phone numbers) encrypted at rest; retention policy TBD
-- Twilio webhook signature verification
-- Rate limits on agent runs
-
----
-
-## MVP phasing
-
-### Admin MVP (no AI)
-- [ ] Auth + dashboard shell ( branded )
-- [ ] Manual article editor
-- [ ] Publish to static site
-
-### AI phase 1
-- [ ] Data import (manual) + analysis agent + review UI
-- [ ] Idea discovery agent
-
-### AI phase 2
-- [ ] WhatsApp outreach with human approval
-- [ ] Conversation inbox
-
-### AI phase 3
-- [ ] Voice interview agent + R2 storage + transcript
-- [ ] Writing agent + editor
-
-### Polish
-- [ ] Full pipeline kanban
-- [ ] Agent prompt configuration
-- [ ] Link to open the separate newsletter admin from publish view (no automatic content transfer)
-
----
-
-## Open questions
-
-1. Football data source and update frequency?
-2. Single journalist or team — assignment model?
-3. WhatsApp: Business API approval timeline and phone number?
-4. Voice: Twilio Media Streams vs. native OpenAI phone integration?
-5. Interview consent workflow (GDPR + recording laws)?
-6. Can data-only stories skip stages 3–4?
-7. Eve.dev link in user message — is Eve intended for voice/orchestration? ([eve.dev docs](https://eve.dev/docs/introduction))
+Relevante bestanden:
+
+- `brand-spec.md` en `styles.css`: tokens, typography, spacing, rules;
+- `homepage.html`: masthead en mobile public navigation;
+- `article.html`: artikeltypografie en contentritme;
+- `article-gate.html`: sheets, focus en mobile formuliergedrag;
+- `subscribe.js`: chips, stappen en preferenceinteracties.
+
+Deze cloudomgeving kon de lokale Open Design-map opnieuw niet lezen. Kopieer de bronbestanden en assets naar `design/open-design/` in de repository vóór visuele implementatie. Tot dan zijn de bestaande beschrijvingen richtinggevend, niet pixel-perfect geverifieerd.
+
+## MVP
+
+- [ ] Gedeelde mobile-first adminlanding en navigatie
+- [ ] Better Auth voor custom adminroutes
+- [ ] Keystatic in dezelfde Next.js-app
+- [ ] Keystatic GitHub mode en GitHub App
+- [ ] Artikelcollection met volledig schema
+- [ ] Markdoc editor en ingebouwde images
+- [ ] Draft mode preview
+- [ ] Draft/published publicatieflow
+- [ ] Vercel buildvalidatie
+- [ ] Newsletteradmin volgens verfijnd dossier
+- [ ] Mobile acceptance op 320, 375 en 768 px
+- [ ] Open Design-assets naar repository
+
+## Niet in huidige scope
+
+- automatische nieuwsbriefcuratie;
+- realtime collaborative editing;
+- custom vervanging van Keystatic UI.

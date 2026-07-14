@@ -180,7 +180,9 @@ Elke nieuwsbrief bevat:
 
 - afzender De Voetbalgazet;
 - waarom de ontvanger de mail krijgt;
-- fysieke/editoriale contactgegevens;
+- `YARU DAKEN BV`, Van Duyststraat 60, 2100 Antwerpen, België;
+- KBO 1017.634.522 en btw BE 1017.634.522;
+- redactie@devoetbalgazet.be;
 - privacylink;
 - voorkeurenlink;
 - zichtbare uitschrijflink;
@@ -242,7 +244,7 @@ Bevestigd kanaal en publiek:
 - naar alle actieve Admins;
 - plus de Journalist die de campagne initieerde;
 - als een Admin zelf initieerde, dedupe het adres;
-- geen Slack/Twilio in MVP.
+- geen externe alertintegraties in MVP.
 
 Alertniveaus:
 

@@ -181,19 +181,23 @@ Zo blijft zoeken statisch en voorkom je dat volledige gated passages via zoekres
 
 ## Build- en publishflow
 
-1. Redactie publiceert artikel in Convex.
-2. Publishactie maakt een immutable content snapshot/revisie.
-3. Signed Vercel deploy hook start build.
-4. Build haalt alleen gepubliceerde snapshots uit Convex.
-5. Next.js genereert homepage, `/archief`, artikel, sitemap, RSS en zoekindex.
-6. Tests controleren metadata, gebroken links, afbeeldingen en schema.
-7. Vercel promoot build atomair.
+1. Redactie maakt/bewerkt artikel in Keystatic.
+2. Keystatic schrijft Markdoc, frontmatter en artikelbeelden naar GitHub.
+3. `status: draft` blijft uit publieke outputs; `status: published` wordt opgenomen.
+4. Git commit op de productiebranch start Vercel build.
+5. Keystatic Reader leest repositorycontent tijdens build.
+6. Next.js genereert homepage, `/archief`, artikel, sitemap, RSS en zoekindex.
+7. Tests controleren metadata, Markdoc, gebroken links, afbeeldingen en schema.
+8. Vercel promoot alleen een geslaagde build atomair.
 
-Convex is de contentbron; de geleverde publieke site blijft volledig statisch.
+Keystatic/Git is de contentbron; Convex bewaart geen tweede artikelkopie. De geleverde publieke artikelroutes blijven volledig statisch, terwijl dezelfde Next.js-deployment dynamische admin/auth/API-routes mag bevatten.
+
+Draft preview gebruikt Keystatic `previewUrl` en Next.js draft mode, is admin-only, `noindex` en niet cachebaar.
 
 ## Acceptatiecriteria
 
-- Artikelbody vraagt na paginalaad geen netwerkrequest.
+- Mobile-first UI volgt [`../ui-ux/`](../ui-ux/) en is getest op 320, 360, 390 en 768 px.
+- Artikeltekst vereist na paginalaad geen Convex/contentfetch; de verwachte Better Auth-sessiecheck via same-origin route blijft toegestaan.
 - Met JavaScript aan toont een ongeldige sessie altijd de verplichte sheet.
 - Geldige reader- en verifiedSubscriber-sessies tonen body zonder flitsende gate.
 - Headline, dek, beeld en 2–3 alinea's zijn publiek.
@@ -201,3 +205,4 @@ Convex is de contentbron; de geleverde publieke site blijft volledig statisch.
 - Vrij artikel heeft geen gate en `isAccessibleForFree: true`.
 - RSS bevat nooit volledige gated body.
 - Lighthouse en Rich Results Test geven geen kritieke templatefouten.
+- Mobile LCP/INP/CLS voldoen aan de gedeelde performancebudgetten.

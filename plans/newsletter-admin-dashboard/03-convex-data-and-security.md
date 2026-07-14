@@ -20,7 +20,7 @@
 | R2 Convex component | Nieuwsbriefbeelden en andere media |
 | Workpool (via Resend / eventueel eigen) | Begrensde audiencevoorbereiding en renderjobs |
 
-Nieuwsbrieflogica blijft in de hoofdapp omdat ze nauw samenhangt met subscribers, artikelen en adminrollen. De Resend-component encapsuleert alleen delivery.
+Nieuwsbrieflogica blijft in de hoofdapp omdat ze nauw samenhangt met subscribers, purpose-bound links en adminrollen. Er is geen Convex-artikeldatastore of automatische contentkoppeling. De Resend-component encapsuleert alleen delivery.
 
 ## Rollen en wrappers
 

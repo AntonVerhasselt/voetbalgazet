@@ -5,8 +5,8 @@
 De Voetbalgazet is a Flemish local football news platform that combines:
 
 1. A **beautiful, static, newspaper-style public site** where every article is free to discover but requires email subscription to read in full.
-2. An **AI-assisted editorial backend** that helps journalists find stories, conduct interviews, and draft articles — with humans approving every step.
-3. A **weekly email newsletter** that delivers the best stories to subscribers, styled consistently with the brand.
+2. A **mobile-first content admin** where journalists write and publish articles through Keystatic.
+3. An **editorial email newsletter** (typically about once per week, but always send-now or explicitly scheduled) that delivers stories to subscribers, styled consistently with the brand.
 
 All user-facing copy is **Dutch (Flanders)**.
 
@@ -17,34 +17,28 @@ All user-facing copy is **Dutch (Flanders)**.
 ### Deployment topology
 
 ```
-                    ┌──────────────┐
-                    │   Vercel     │
-                    │  Next.js app │
-                    └──────┬───────┘
-                           │
-         ┌─────────────────┼─────────────────┐
-         │                 │                 │
-    Static pages      Admin routes      API routes
-    (SSG/ISR)         (SSR, auth)       (webhooks)
-         │                 │                 │
-         └─────────────────┼─────────────────┘
-                           │
-                    ┌──────▼───────┐
-                    │    Convex    │
-                    │  (backend)   │
-                    └──────┬───────┘
-                           │
-    ┌──────────┬───────────┼───────────┬──────────┐
-    │          │           │           │          │
- Better    Resend        R2        Agent      PostHog
- Auth      (email)    (media)   (workflows)  (opt.)
-    │          │           │           │
-    └──────────┴───────────┴───────────┘
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-          OpenRouter    OpenAI       Twilio
-          (LLM tasks)  (Realtime)  (WhatsApp/voice)
+                         ┌──────────────┐
+                         │   Vercel     │
+                         │  Next.js app │
+                         └──────┬───────┘
+                                │
+        ┌───────────────────────┼──────────────────────┐
+        │                       │                      │
+ Public SSG pages        Custom admin/API       Keystatic UI/API
+ (mobile-first)          (auth/newsletter)      (article editing)
+        │                       │                      │
+        │                 ┌─────▼─────┐          ┌─────▼─────┐
+        │                 │  Convex   │          │  GitHub   │
+        │                 └─────┬─────┘          │ Markdoc + │
+        │                       │                │  images   │
+        │              ┌────────┼────────┐       └─────┬─────┘
+        │              │        │        │             │
+        │         Better Auth Resend    R2             │
+        │                    (email) (email media)      │
+        └──────────────────────────────────────────────┘
+                    build reads repository content
+
+ PostHog JS is optional, privacyvriendelijk en gekoppeld aan publieke/custom-admin browser events. Convex/Resend deliveryevents blijven in Convex en worden niet dubbel als serveranalytics verstuurd.
 ```
 
 ### Repository structure (proposed)
@@ -53,17 +47,20 @@ All user-facing copy is **Dutch (Flanders)**.
 voetbalgazet/
 ├── plans/                    # This folder
 ├── apps/
-│   └── web/                  # Next.js (public + admin + newsletter preview)
-├── convex/                   # Backend functions, schema, agents
+│   └── web/
+│       ├── src/app/          # Next.js public/admin/Keystatic routes
+│       ├── keystatic.config.ts
+│       ├── content/
+│       │   ├── articles/     # Keystatic Markdoc — article source of truth
+│       │   └── settings/     # Taxonomies/authors/editorial
+│       └── public/images/articles/
+├── convex/                   # Subscribers, auth-adjacent appdata and email backend
 │   ├── schema.ts
 │   ├── subscribers.ts
-│   ├── articles.ts
 │   ├── newsletter.ts
-│   ├── agents/               # Journalist workflow agents
 │   └── components/           # Convex component configs
 ├── emails/                   # Shared editor renderer, variables and locked compliancefooter
-├── content/                  # MDX/markdown for static articles (optional)
-└── design/                   # Symlink or copy of Open Design assets
+└── design/open-design/       # Copied Open Design source/assets
 ```
 
 ---
@@ -71,6 +68,8 @@ voetbalgazet/
 ## Design system
 
 **Source of truth:** Open Design prototype folder (see [README](./README.md#design-reference)).
+
+Shared responsive interpretation: [`ui-ux/`](./ui-ux/). The local source must be copied to `design/open-design/` before visual implementation.
 
 When implementing:
 
@@ -89,19 +88,13 @@ Convex tables to define during refinement:
 |-------|---------|
 | `subscribers` | Email, preferences (divisions, teams), consent timestamps and delivery eligibility; Convex is source of truth |
 | `users` | Admin/journalist accounts (Better Auth) |
-| `articles` | Draft/published metadata, slug, gate status, MDX/content ref, publish date |
-| `articleContent` | Full body (or R2 ref for long content) |
 | `teams` | Club catalog synced from football data source |
 | `divisions` | Province + reeks structure |
-| `storyIdeas` | AI-generated pitches with scores and source context |
-| `interviewRequests` | WhatsApp outreach state, contact info |
-| `interviews` | Recordings, transcripts, voice session metadata |
-| `agentRuns` | Step-by-step workflow state for human review |
 | `newsletterCampaigns` | Visual drafts, revisions, audience definitions, immutable sends and aggregate stats |
 | `newsletterRecipients` | Bevroren ontvangers en app-level deliverystatus per send |
-| `media` | R2 file references (images, audio) |
+| `emailMedia` | R2 file references for visual e-mails |
 
-Indexes: by email, by slug, by publish status, by subscriber preferences for newsletter segmentation.
+Artikelcontent en publicatiestatus staan niet in Convex; Keystatic/Git is daarvoor de bron van waarheid.
 
 ---
 
@@ -111,7 +104,7 @@ Indexes: by email, by slug, by publish status, by subscriber preferences for new
 |----------|-----------|
 | **Subscribers (readers)** | Better Auth anonymous reader-session for immediate access; verified identity via magic/newsletter link; 90-day HttpOnly cookie |
 | **Admin (journalists)** | Better Auth — email/password or OAuth; role-based access to dashboard |
-| **Webhooks** | Twilio, Resend, Vercel deploy hooks — signed secrets |
+| **Webhooks/API** | Resend webhooks, Keystatic/GitHub callbacks en authroutes — signed/geauthenticeerd |
 
 Article gate flow (from design):
 
@@ -130,15 +123,13 @@ Article gate flow (from design):
 
 | From → To | Integration |
 |-----------|-------------|
-| Admin → News site | Publish triggers static rebuild; article JSON/MDX exported or fetched at build |
+| Keystatic → News site | Git commit triggert Vercel; build leest Markdoc rechtstreeks |
 | Admin → Newsletter | Separate admin navigation only; emailcontent is manually created in the visual editor |
 | News site → Convex | Signup, preferences, gate verification |
 | News site → Resend | Welcome/verification link; single opt-in newsletter |
-| Admin agents → Twilio | WhatsApp messages to schedule interviews |
-| Admin agents → OpenAI | Realtime voice sessions for phone interviews |
-| Admin agents → OpenRouter | Analysis, ideation, drafting |
 | Newsletter → Resend | Batch send to subscriber list |
-| All → R2 | Article images, interview audio, generated assets |
+| Email editor → R2 | Permanente campaign images via `media.devoetbalgazet.be` |
+| Keystatic → GitHub | Artikel-Markdoc en artikelbeelden |
 
 ---
 
@@ -159,18 +150,14 @@ Article gate flow (from design):
 - Paywall structured data, sitemap and excerpt RSS
 
 ### Phase 3 — Admin MVP
-- Article CRUD with human editor
-- Manual publish to static site
-- Basic dashboard shell matching brand
+- Mobile-first dashboard shell matching brand
+- Keystatic in dezelfde Next.js-app
+- GitHub mode + Markdoc article collection
+- Draft preview en publish via Git/Vercel
 
-### Phase 4 — AI journalist flows
-- Football data ingestion (standings, results, calendar)
-- Story ideation agent + review UI
-- WhatsApp outreach agent
-- Voice interview agent
-- Writing agent + editorial review
+Detailed source of truth: [`content-admin/`](./content-admin/).
 
-### Phase 5 — Newsletter
+### Phase 4 — Newsletter
 - Open-source React Email visual editor in admin
 - Free-form React Email editor for campaigns and transactional emails; only newsletter campaigns append a locked footer with unsubscribe, preference management and legal/contact information
 - Convex-managed audience filtering by subscriber preferences
@@ -188,7 +175,7 @@ Detailed source of truth: [`newsletter-admin-dashboard/`](./newsletter-admin-das
 | **Performance** | Static pages on CDN; minimal client JS on public site |
 | **Privacy (GDPR)** | Consent at signup, unsubscribe + preference management in every campaign, data export/delete |
 | **Reliability** | Convex reactivity for admin; idempotent webhook handlers |
-| **Cost control** | OpenRouter model selection per task; rate limits on agents |
+| **Content integrity** | Keystatic schema + buildvalidatie + Git history |
 | **Observability** | Convex logs + optional PostHog for site analytics |
 
 ---
@@ -199,19 +186,16 @@ Detailed source of truth: [`newsletter-admin-dashboard/`](./newsletter-admin-das
 - [Better Auth (Convex)](https://www.convex.dev/components/better-auth)
 - [Cloudflare R2 (Convex)](https://www.convex.dev/components/cloudflare-r2)
 - [Resend (Convex)](https://www.convex.dev/components/resend)
-- [Agent (Convex)](https://www.convex.dev/components/agent)
-- [PostHog (Convex)](https://www.convex.dev/components/posthog/convex)
+- [PostHog Next.js](https://posthog.com/docs/libraries/next-js)
+- [Keystatic](https://keystatic.com/docs/installation-next-js)
 - [Vercel](https://vercel.com/)
-- [Twilio](https://www.twilio.com/docs)
-- [OpenAI Realtime](https://developers.openai.com/api/docs/guides/realtime)
-- [OpenRouter](https://openrouter.ai/docs/quickstart)
 
 ---
 
 ## Next refinement topics
 
-1. Confirm football data source and sync strategy.
-2. Decide static content strategy (MDX in repo vs. Convex-generated at build).
-3. Define MVP scope for admin AI flows (which agent first?).
-4. Newsletter segmentation rules (all subscribers vs. preference-filtered).
-5. Belgian legal review of combined site access + required initial newsletter opt-in.
+1. Kopieer Open Design-bron/assets naar de repository.
+2. Configureer Keystatic GitHub App en repositoryrechten.
+3. Bevestig privacy-/supportadres en verantwoordelijke uitgever.
+4. Importeer officiële club-/reekstaxonomie.
+5. Rond mobile usabilitytests voor site, Keystatic en nieuwsbriefadmin af.

@@ -8,11 +8,13 @@ Dit document is het architecturale overzicht. De verfijnde bron van waarheid sta
 
 | Detailplan | Inhoud |
 |------------|--------|
-| [`public-news-site/01-product-decisions.md`](./public-news-site/01-product-decisions.md) | Alle bevestigde keuzes en resterende vragen |
+| [`public-news-site/01-product-decisions.md`](./public-news-site/01-product-decisions.md) | Alle bevestigde productkeuzes |
 | [`public-news-site/02-access-and-auth.md`](./public-news-site/02-access-and-auth.md) | Better Auth, onmiddellijke toegang en 90-dagensessies |
 | [`public-news-site/03-static-content-and-seo.md`](./public-news-site/03-static-content-and-seo.md) | Soft gate, volledig statische body, SEO en RSS |
 | [`public-news-site/04-public-ux-and-analytics.md`](./public-news-site/04-public-ux-and-analytics.md) | Publieke UX en PostHog-eventplan |
 | [`public-news-site/05-privacy-and-terms-copy.md`](./public-news-site/05-privacy-and-terms-copy.md) | Nederlandstalige juridische conceptcopy |
+| [`content-admin/`](./content-admin/) | Keystatic artikelbewerking en publicatie |
+| [`ui-ux/`](./ui-ux/) | Gedeelde mobile-first vormgeving en acceptatiematrix |
 
 ## Designreferentie
 
@@ -24,7 +26,7 @@ Implementatie volgt de Open Design-prototypefolder:
 
 Belangrijkste bestanden: `homepage.html`, `article.html`, `article-gate.html`, `subscribe.js`, `styles.css` en `brand-spec.md`.
 
-De prototypefolder is niet aanwezig op de cloudmachine. Kopieer hem vóór implementatie naar de repository of een gedeelde locatie. Nieuwe productkeuzes hebben voorrang op het prototype: onder meer geen “Niet nu”, geen zelfstandige loginpagina en minstens één verplichte reeks.
+De prototypefolder is opnieuw gecontroleerd maar niet aanwezig op de cloudmachine. Kopieer hem vóór implementatie naar `design/open-design/` in de repository. Nieuwe productkeuzes hebben voorrang op het prototype: onder meer geen “Niet nu”, geen zelfstandige loginpagina en minstens één verplichte reeks.
 
 **Voice:** *Lokaal voetbal, echte verhalen.*
 
@@ -52,21 +54,29 @@ De prototypefolder is niet aanwezig op de cloudmachine. Kopieer hem vóór imple
 | `/archief` | Statisch | Archief met categorie-, provincie-, reeks-, club- en datum/jaarfilters |
 | `/nieuws/[slug]` | Statisch + client gate | Artikel met lead-in en gated body |
 | `/voorkeuren` | Statische shell + verified session | Alleen via veilige e-maillink |
+| `/email/artikel` | Same-origin server callback | Article bootstrap en 303 redirect |
+| `/email/voorkeuren` | Same-origin server callback | Verified preferences bootstrap |
+| `/uitschrijven` | Publieke confirmpagina | Scanner-safe GET |
 | `/privacy` | Statisch | Privacyverklaring |
 | `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
 | `/api/auth/*` | Same-origin dynamische handler | Dunne Better Auth/Convex bridge voor cookies en callbacks |
+| `/api/email/uitschrijven` | Server POST | RFC 8058/zichtbare unsubscribe |
+| `/preview/start`, `/preview/end` | Admin-only serverroutes | Signed Keystatic draft-mode preview |
 
 Niet voorzien: `/abonneren`, `/inloggen` en `/account`.
 
 ## Statische contentstrategie
 
-Convex is de redactionele contentbron. Bij publiceren:
+Keystatic/Git is de redactionele contentbron. Bij publiceren:
 
-1. admin maakt een gepubliceerde snapshot;
-2. signed deploy hook start Vercel build;
-3. build haalt gepubliceerde content op;
-4. Next.js genereert homepage, archief, artikels, sitemap, RSS en zoekindex;
-5. Vercel levert immutable HTML/assets via CDN.
+1. journalist bewerkt Markdoc en metadata in Keystatic;
+2. save maakt een Git commit;
+3. status `published` zorgt dat de build het artikel opneemt;
+4. repositorywijziging start Vercel build;
+5. Next.js genereert homepage, archief, artikels, sitemap, RSS en zoekindex;
+6. Vercel levert immutable HTML/assets via CDN.
+
+Convex bewaart geen tweede artikelbody of publicatiestatus.
 
 De volledige artikelbody staat statisch in de HTML. Een geldige Better Auth-reader-session verwijdert de client-side gate. Dit is bewust een **soft registration gate**: uitstekend voor snelheid en SEO, maar technisch omzeilbaar via broncode/devtools. Omdat toegang gratis is, is dit de gekozen MVP-trade-off.
 
@@ -131,20 +141,11 @@ Better Auth draait met de Convex-component voor users, sessies, anonymous linkin
 
 ## Voorkeuren
 
-```typescript
-type Province =
-  | "Antwerpen"
-  | "Limburg"
-  | "Oost-Vlaanderen"
-  | "West-Vlaanderen"
-  | "Vlaams-Brabant";
+Gebruik de stabiele keys uit [`content-admin/05-taxonomies-and-settings.md`](./content-admin/05-taxonomies-and-settings.md), bijvoorbeeld `antwerpen-p1` en `kfc-duffel`.
 
-type DivisionKey = `${Province}::${string}`;
-```
-
-- minstens één `divisionId`;
-- maximaal één optionele `favoriteTeamId`;
-- teams/reeksen komen later uit officiële Voetbal Vlaanderen-data via Convex;
+- minstens één `divisionKey` in publieke payload; backend mapt indexed naar Convex `divisionId`;
+- maximaal één optionele `favoriteTeamKey`, gemapt naar `favoriteTeamId`;
+- Git-catalogus is bron voor keys/labels; Convex bevat de gesynchroniseerde subscriberprojectie;
 - geen standen, wedstrijdwidgets of clubpagina's op de publieke site; VV-data ondersteunt alleen artikelmetadata en voorkeuren;
 - aanpassen via veilige link in de nieuwsbrief;
 - alleen verifiedSubscriber mag bestaande voorkeuren lezen/wijzigen.
@@ -156,6 +157,8 @@ type DivisionKey = `${Province}::${string}`;
 3. Statische secties per categorie/reeks.
 4. Inline inschrijving met exact dezelfde logica als de article gate.
 5. Footer met privacy, voorwaarden en support.
+
+Mobile is primair: éénkoloms contentflow, compacte masthead, 44 px tap targets, responsieve beelden en subscribe/gate-acties binnen duimbereik. De gedeelde regels staan in [`ui-ux/`](./ui-ux/).
 
 ## Analytics
 
@@ -205,9 +208,11 @@ Geen raw e-mail, e-mailhash, magic token, vrije formuliertekst of URL-token. Ses
 - [ ] Privacy en voorwaarden invullen + juridische review
 - [ ] Accessibility, security, performance en SEO-tests
 - [ ] Publish/rebuildpipeline
+- [ ] Keystatic GitHub mode + Markdoc collection
+- [ ] Draft-mode preview op 360/390 px
 
 ## Besluitstatus
 
 Alle product- en architectuurbeslissingen voor deze planningsfase zijn bevestigd. De artikelroute is `/nieuws/[slug]`; de statische soft-gatebeperking en het zwakke membershipsignaal zijn expliciet aanvaard.
 
-Bedrijfsgegevens worden later ingevuld via de launch-todo. Juridische review blijft aanbevolen, maar blokkeert de technische lancering niet.
+KBO-gegevens voor YARU DAKEN BV zijn ingevuld. Privacy-/supportadres, verantwoordelijke uitgever en finale juridische review blijven launchchecks.

@@ -2,7 +2,9 @@
 
 Dit dossier is de bron van waarheid voor het maken, beheren, segmenteren en versturen van nieuwsbrieven in het interne adminplatform van De Voetbalgazet.
 
-De publieke inschrijving en lezerssessies blijven beschreven in [`../public-news-site/`](../public-news-site/). De bredere AI-journalistworkflow blijft beschreven in [`../02-admin-dashboard.md`](../02-admin-dashboard.md). Dit dossier werkt uitsluitend het nieuwsbriefdeel uit.
+De publieke inschrijving en lezerssessies blijven beschreven in [`../public-news-site/`](../public-news-site/). Artikelbeheer staat in [`../content-admin/`](../content-admin/). Dit dossier werkt uitsluitend het nieuwsbriefdeel uit.
+
+Alle schermen en gerenderde e-mails volgen de mobile-first regels uit [`../ui-ux/`](../ui-ux/). De editor moet volledig bruikbaar zijn op telefoon; e-mails worden eerst op 320–375 px ontworpen en daarna voor desktop verrijkt.
 
 ## Documenten
 
@@ -31,7 +33,7 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 6. **Voorkeuren segmenteren het publiek, niet de inhoud per persoon.** In de eerste versie ontvangt iedereen binnen één verzending dezelfde body. Filters bepalen alleen wie de campagne krijgt.
 7. **De doelgroepdefinitie wordt bij bevestiging bevroren; concrete recipients pas bij send.** Bij Send nu gebeurt dit direct. Bij scheduling worden de recipients op het geplande sendmoment bepaald, zodat nieuwe inschrijvingen en unsubscribes tot dan meetellen.
 8. **Een verzonden campagne is immutable.** Aanpassen of opnieuw versturen gebeurt via dupliceren naar een nieuw concept.
-9. **Geen verzending zonder expliciete review.** Testmail, audience preview en finale bevestiging zijn aparte stappen. AI of cron mag nooit zelfstandig een nieuw concept publiceren of versturen.
+9. **Geen verzending zonder expliciete review.** Testmail, audience preview en finale bevestiging zijn aparte stappen. Een scheduler mag alleen een reeds expliciet bevestigde campagne uitvoeren.
 
 ## Productgrens
 
@@ -53,7 +55,6 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 ### Niet in de eerste versie
 
 - per-ontvanger een andere inhoudsvolgorde of andere tekst;
-- AI die zonder menselijke bevestiging verstuurt;
 - drag-and-drop vrije positionering zoals in een grafische canvaseditor;
 - externe HTML importeren zonder sanitization;
 - Resend Audiences als bron van waarheid;

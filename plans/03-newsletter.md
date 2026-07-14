@@ -31,6 +31,8 @@ The editor may expose the newspaper aesthetic as optional defaults within email 
 
 **Note:** Email clients limit CSS. Use React Email components with inline-safe styles; paper grain overlay won't translate — keep layout clean instead.
 
+Mobile-first rendering and acceptance rules: [`ui-ux/`](./ui-ux/).
+
 ---
 
 ## Subscriber audience
@@ -40,7 +42,7 @@ The editor may expose the newspaper aesthetic as optional defaults within email 
 - Homepage inline subscribe band
 
 Stored in Convex `subscribers` table:
-- `email` (required, unique)
+- `normalizedEmail` (required, unique index)
 - `divisionIds[]` — minstens één reeks
 - `favoriteTeamId` — optioneel, maximaal één club
 - `siteAccess` — staat los van nieuwsbriefstatus
@@ -88,7 +90,7 @@ Each `newsletterCampaigns` record links to immutable revisions, an audience defi
 | `subject` | Dutch subject line |
 | `preheader` | Inbox preview text |
 | `status` | `draft | scheduled | preparing | sending | sent | partially_failed | failed | cancelled` |
-| `scheduledAt` | Send datetime |
+| `scheduledFor` | Send datetime |
 | `activeRevisionId`, `sendRevisionId` | Editable and frozen content revisions |
 | `audienceDefinitionId` | Preference filters |
 | `sentAt`, `recipientCount`, `stats` | Post-send metadata |
@@ -149,7 +151,7 @@ Required for Belgian/EU email marketing:
 - One-click unsubscribe link in every newsletter (Resend `List-Unsubscribe` header)
 - Locked `Voorkeuren aanpassen` link in every campaign footer
 - Link zet alleen `newsletterSubscribed = false` en activeert Convex suppression; `siteAccess` blijft actief
-- Physical/editorial address in footer (TBD)
+- Physical/editorial address in footer (YARU DAKEN BV, Van Duyststraat 60, 2100 Antwerpen — final legal review in [`newsletter-admin-dashboard/09-launch-todos.md`](./newsletter-admin-dashboard/09-launch-todos.md))
 - Privacy policy link
 - Record consent timestamp and version at signup
 - Handle bounces/complaints via Resend webhooks
@@ -168,7 +170,7 @@ Within admin dashboard (Component 2):
 | **Send controls** | Test send to explicit internal addresses, schedule, send now |
 | **Stats** | Opens, clicks (Resend analytics) |
 
-Styling: same De Voetbalgazet admin shell.
+Styling: same De Voetbalgazet admin shell. Mobile-first layouts and tap targets follow [`ui-ux/`](./ui-ux/).
 
 ---
 

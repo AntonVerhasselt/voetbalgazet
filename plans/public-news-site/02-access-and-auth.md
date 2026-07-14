@@ -192,12 +192,14 @@ Definitieve API en componentconfiguratie verifiëren tijdens implementatie tegen
 | `unsubscribedAt` | number? | Laatste uitschrijving |
 | `consentVersion` | string | Exacte copyversie |
 | `consentCapturedAt` | number | Tijdstip bevestigende CTA |
-| `consentSource` | union | `article_gate` / `homepage_inline` |
+| `consentSource` | union | `article_gate` / `homepage_inline` / `preferences_resubscribe` |
 | `divisionIds` | Id[] | Minstens één |
 | `favoriteTeamId` | Id? | Maximaal één |
 | `emailDeliveryStatus` | union | `unknown` / `deliverable` / `bounced` |
 
 `divisionIds[]` blijft de canonieke, kleine en begrensde voorkeursarray. Voor schaalbare nieuwsbriefsegmentatie is `subscriberDivisionPreferences` vanaf de eerste nieuwsbriefimplementatie een verplichte afgeleide indexprojectie met één record per subscriber/reeks. Signup en voorkeurenwijziging onderhouden array en projectie atomair via één gedeelde helper.
+
+Publieke formulieren sturen stabiele `divisionKey`/`teamKey`-waarden uit de Git-catalogus. De mutation mapt die via indexed `externalKey` naar Convex IDs; Keystatic/Git bewaart nooit deploymentgebonden Convex document-ID's. Zie [`../content-admin/05-taxonomies-and-settings.md`](../content-admin/05-taxonomies-and-settings.md).
 
 ### Accesscontrole
 

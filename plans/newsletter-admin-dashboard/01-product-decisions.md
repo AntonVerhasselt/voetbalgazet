@@ -6,6 +6,8 @@ Het nieuwsbriefdeel van het adminplatform is een eigen redactionele toepassing. 
 
 De toepassing vervangt voor de redactie de broadcast- en templatefuncties van het Resend-dashboard. Resend blijft uitsluitend de technische afleveringsprovider.
 
+Mobile is primair voor adminflows en gerenderde e-mails. Alle essentiële edit-, preview-, test-, audience- en sendacties moeten op 320–390 px werken; desktop biedt alleen meer gelijktijdige ruimte.
+
 ## Terminologie
 
 Gebruik in de UI consequent:
@@ -182,7 +184,6 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 - geavanceerde automation journeys;
 - resend naar alleen non-openers;
 - attachments;
-- AI-copygeneratie in de editor.
 
 ## Bevestigde productbeslissingen
 

@@ -2,6 +2,8 @@
 
 > **Status:** werktekst, geen juridisch advies. Vervang alle `[PLACEHOLDERS]` en laat de definitieve versie vóór lancering juridisch nakijken in België. De tekst moet overeenkomen met de werkelijk gebouwde datastromen, leverancierscontracten, regio's en bewaartermijnen.
 
+> **Officiële ondernemingsgegevens:** gecontroleerd via [KBO Public Search — ondernemingsnummer 1017.634.522](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522). KBO bevestigt YARU DAKEN BV, actieve besloten vennootschap, zetel Van Duyststraat 60, 2100 Antwerpen, btw-plichtig en Anton Verhasselt als bestuurder. De KBO bepaalt niet wie als verantwoordelijke uitgever moet worden vermeld.
+
 ---
 
 # Pagina `/privacy` — Privacyverklaring
@@ -16,12 +18,12 @@ De Voetbalgazet respecteert je privacy. In deze verklaring leggen we uit welke p
 
 De verwerkingsverantwoordelijke is:
 
-**[JURIDISCHE NAAM EN RECHTSVORM]**<br>
-[MAATSCHAPPELIJKE ZETEL]<br>
-KBO: [KBO-NUMMER]<br>
-Btw: [BTW-NUMMER, INDIEN VAN TOEPASSING]<br>
-E-mail: [PRIVACY- OF SUPPORTADRES]<br>
-Telefoon: [TELEFOONNUMMER]
+**YARU DAKEN BV**<br>
+Van Duyststraat 60<br>
+2100 Antwerpen, België<br>
+KBO: 1017.634.522<br>
+Btw: BE 1017.634.522<br>
+E-mail: [PRIVACY- OF SUPPORTADRES]
 
 Voor vragen over deze privacyverklaring of je persoonsgegevens kun je contact opnemen via [PRIVACY- OF SUPPORTADRES].
 
@@ -152,13 +154,13 @@ Deze voorwaarden gelden voor het gebruik van de website en nieuwsbrief van De Vo
 
 De website wordt uitgegeven door:
 
-**[JURIDISCHE NAAM EN RECHTSVORM]**<br>
-[MAATSCHAPPELIJKE ZETEL]<br>
-KBO: [KBO-NUMMER]<br>
-Btw: [BTW-NUMMER, INDIEN VAN TOEPASSING]<br>
-E-mail: [ALGEMEEN CONTACTADRES]<br>
-Telefoon: [TELEFOONNUMMER]<br>
-Wettelijke vertegenwoordiger: [NAAM]<br>
+**YARU DAKEN BV**<br>
+Van Duyststraat 60<br>
+2100 Antwerpen, België<br>
+KBO: 1017.634.522<br>
+Btw: BE 1017.634.522<br>
+E-mail: redactie@devoetbalgazet.be<br>
+Bestuurder: Anton Verhasselt<br>
 Verantwoordelijke uitgever / hoofdredactie: [NAAM EN ADRES VOLGENS JURIDISCH ADVIES]
 
 Hosting: Vercel [DEFINITIEVE JURIDISCHE ENTITEIT/CONTACTINFO NAKIJKEN].
@@ -237,7 +239,9 @@ Vragen over de website of deze voorwaarden kun je sturen naar [ALGEMEEN CONTACTA
 
 ## Vereiste checks vóór publicatie
 
-- [ ] Juridische naam, rechtsvorm, zetel, KBO, btw, telefoon en e-mail ingevuld.
+- [x] Juridische naam, rechtsvorm, zetel, KBO en btw ingevuld op basis van KBO Public Search.
+- [x] Algemeen redactieadres ingevuld.
+- [ ] Privacy-/supportadres definitief bevestigen.
 - [ ] Verantwoordelijke uitgever/hoofdredactie juridisch correct vermeld.
 - [ ] Verwerkers, subverwerkers, regio's en internationale doorgiften gecontroleerd.
 - [ ] DPA's/verwerkersovereenkomsten met Convex, Vercel, Resend en PostHog afgesloten.

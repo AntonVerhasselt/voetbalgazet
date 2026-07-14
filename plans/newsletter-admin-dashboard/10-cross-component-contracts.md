@@ -90,6 +90,16 @@ Alle callbacks:
 
 GET `/uitschrijven` muteert niet vanwege link scanners. RFC one-click clients gebruiken de POST-route met correcte headersemantiek.
 
+Keystatic draftpreview gebruikt afzonderlijke `/preview/start` en `/preview/end` routes:
+
+- alleen Better Auth Admin/Journalist;
+- kortlevend ondertekend request;
+- branch binnen Keystatic branchscope;
+- return path allowlisted onder `/nieuws/`;
+- HttpOnly draft-modecookie;
+- `noindex` en `no-store`;
+- Viewer en publieke bezoekers krijgen geen draftdata.
+
 ## Contract 3 — handmatige content en interne links
 
 Nieuwsbriefcontent is niet gekoppeld aan `articles`, artikelrevisies of een picker. De redacteur schrijft en linkt alles handmatig in de editor.
@@ -177,3 +187,26 @@ Artikelpublicatie:
 - levert geen ArticleBlock-picker.
 
 Een redacteur maakt e-mailcontent volledig handmatig. Dit contract kan later alleen door een expliciete nieuwe productbeslissing veranderen.
+
+## Contract 8 — gedeelde reeks-, club- en categoriekeys
+
+Canonieke catalogus:
+
+```text
+content/settings/divisions.yaml
+content/settings/teams.yaml
+content/settings/categories.yaml
+content/settings/authors.yaml
+```
+
+Keystatic en publieke content bewaren stabiele string keys zoals `antwerpen-p1` en `kfc-duffel`. Convex projecteert dezelfde records met `externalKey` en gebruikt intern zijn eigen IDs voor subscriberrelaties.
+
+Newsletterfilters:
+
+- UI queryt Convexprojectie;
+- filterdefinitie bewaart Convex IDs plus optioneel key snapshot voor audit;
+- labels komen nooit als joinidentifier;
+- sync vanuit Git-catalogus heeft verplichte dry-run en executeconfirm;
+- inactive items blijven voor historische recipients/campagnes beschikbaar.
+
+Volledig contract: [`../content-admin/05-taxonomies-and-settings.md`](../content-admin/05-taxonomies-and-settings.md).

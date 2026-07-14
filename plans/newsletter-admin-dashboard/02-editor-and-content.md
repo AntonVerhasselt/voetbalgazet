@@ -295,6 +295,25 @@ Een Admin-noodoverride voor de testvereiste wordt niet in het MVP voorzien.
 
 ## Toegankelijkheid van de mail
 
+### Mobile-first rendering
+
+Mobile-first e-mailregels uit [`../ui-ux/`](../ui-ux/):
+
+- ontwerp en test eerst op 320–375 px;
+- één kolom als default;
+- body minimaal 16 px;
+- 16–20 px horizontale padding;
+- buttons/links circa 44 px hoog;
+- beelden responsief en block-level;
+- geen hoverafhankelijke informatie;
+- kolommen alleen wanneer mobile stacking in echte clients getest is;
+- desktop max-width 600–640 px;
+- HTML-grootte bewaken tegen Gmail clipping rond 102 KB;
+- vaste unsubscribe/preferencesfooter blijft leesbaar en tapbaar;
+- dark mode, plaintext en image-blocking testen.
+
+### Accessibility
+
 - semantische headings in logische volgorde;
 - betekenisvolle alttekst;
 - voldoende contrast;

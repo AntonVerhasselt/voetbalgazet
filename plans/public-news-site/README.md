@@ -15,6 +15,11 @@ Dit dossier is de bron van waarheid voor het publieke, lezersgerichte deel van D
 
 De oudere hoofdpagina [`../01-news-site.md`](../01-news-site.md) blijft het architecturale overzicht en verwijst voor details naar dit dossier.
 
+Aanpalende bronnen:
+
+- [`../content-admin/`](../content-admin/) — Keystatic/Git als artikelbron en publicatieflow;
+- [`../ui-ux/`](../ui-ux/) — gedeelde mobile-first UI/UX, inclusief homepage, artikel, gate en archief.
+
 ## Kernbeslissing
 
 De publieke site is statisch opgebouwd en voor iedereen gelijk. De artikelgate is een **registratiegate**, geen betaalmuur of harde beveiligingsgrens:

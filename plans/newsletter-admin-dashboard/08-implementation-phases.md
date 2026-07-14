@@ -448,11 +448,9 @@ Voor datafixes/migraties:
 
 Om scope en risico te beheersen, niet tegelijk bouwen:
 
-- AI journalist agents;
-- WhatsApp/voice;
 - collaborative editor;
 - per-recipient contentpersonalisatie;
 - A/B-testing;
 - re-engagement automation.
 
-Deze kunnen later op het stabiele campaign/sendmodel aansluiten.
+Deze vallen buiten het MVP.

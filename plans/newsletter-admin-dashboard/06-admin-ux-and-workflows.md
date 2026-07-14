@@ -15,13 +15,20 @@ Gebruik de publieke De Voetbalgazet-vormtaal:
 
 De emailcanvas zelf staat op neutraal grijs/wit zodat de mail los van het adminchroom beoordeeld kan worden.
 
-De lokale Open Design-map is niet beschikbaar op cloudagents. Voor implementatie moeten `brand-spec.md`, `styles.css`, logo en assets eerst naar een gedeeld repositorypad.
+De lokale Open Design-map is opnieuw geprobeerd maar niet beschikbaar op cloudagents. Voor implementatie moeten `brand-spec.md`, `styles.css`, logo en assets naar `design/open-design/`. Gebruik:
+
+- `brand-spec.md` + `styles.css` voor tokens en UI-controls;
+- `homepage.html` voor masthead/mobile navigation;
+- `article-gate.html` voor sheets, confirmflows en focus;
+- `subscribe.js` voor chips, search en stappen.
+
+De gedeelde mobile-first regels staan in [`../ui-ux/`](../ui-ux/).
 
 ## Globale adminnavigatie
 
 ```text
 Redactie
-├─ Verhalen
+├─ Overzicht
 ├─ Artikels
 ├─ Nieuwsbrieven
 │  ├─ Concepten
@@ -94,7 +101,19 @@ Route: `/admin/nieuwsbrieven/[campaignId]`
 - knop Preview;
 - knop Controleren en versturen.
 
-### Layout desktop
+### Layout mobiel — primair
+
+- één kolom;
+- editorcanvas gebruikt volledige beschikbare breedte;
+- block/assets als bottom sheet;
+- inspector als drawer;
+- subject en verplichte preheader boven canvas;
+- autosavestatus sticky maar compact;
+- Preview en Controleren blijven grote tap targets;
+- toolbar blijft boven het virtuele keyboard bereikbaar;
+- alle bewerk-, test- en sendflows zijn volledig uitvoerbaar op 320–390 px.
+
+### Layout desktop — uitbreiding
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
@@ -105,7 +124,7 @@ Route: `/admin/nieuwsbrieven/[campaignId]`
 └────────────────┴───────────────────────────────┴─────────────┘
 ```
 
-Op kleiner scherm worden zijpanelen drawers/tabs. De editor hoeft niet volwaardig bruikbaar te zijn op telefoon; tablet/desktop is primair, maar niets mag onbereikbaar zijn.
+Desktop voegt gelijktijdige zijpanelen toe maar geen exclusieve functies.
 
 ### Campagne-instellingen
 
@@ -438,7 +457,7 @@ In-app én per transactionele e-mail naar alle actieve Admins en de initiërende
 - bounce/complaint spike;
 - verschil tussen preview count en finale scheduled-send count, uitsluitend informatief.
 
-Als de initiator zelf Admin is, wordt het e-mailadres gededuped. Geen Slack/Twilio in MVP.
+Als de initiator zelf Admin is, wordt het e-mailadres gededuped. Geen externe alertintegraties in MVP.
 
 ## Toegankelijkheid
 

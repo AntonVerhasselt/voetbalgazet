@@ -4,9 +4,11 @@ Alle product- en architectuurvragen voor het MVP zijn beantwoord. Dit document b
 
 ## Bedrijfs- en footergegevens
 
-- [ ] Juridische naam en rechtsvorm invullen
-- [ ] Fysiek/maatschappelijk adres invullen
-- [ ] Redactie- en privacycontact bevestigen
+- [x] Juridische naam en rechtsvorm: YARU DAKEN BV
+- [x] Fysiek/maatschappelijk adres: Van Duyststraat 60, 2100 Antwerpen, België
+- [x] KBO 1017.634.522 en btw BE 1017.634.522
+- [x] Redactiecontact: redactie@devoetbalgazet.be
+- [ ] Privacy-/supportcontact definitief bevestigen
 - [ ] Verantwoordelijke uitgever vermelden waar juridisch vereist
 - [ ] Privacy- en voorwaarden-URL's definitief bevestigen
 - [ ] Vaste campagnefooter met `Uitschrijven` en `Voorkeuren aanpassen` juridisch/copytechnisch nalezen
@@ -130,6 +132,11 @@ Per type:
 
 ## Pilot en launch
 
+- [ ] Newsletteradmin volledig testen op 320, 360, 390 en 768 px
+- [ ] Editor toolbar/drawers met virtueel keyboard testen
+- [ ] E-mail preview in 320/375 px en echte mobiele inboxclients testen
+- [ ] Vaste footerlinks minimaal 44 px tapbaar en zonder overflow
+- [ ] HTML-grootte/Gmail clipping controleren
 - [ ] Interne production-smoketest
 - [ ] Kleine echte pilot naar gecontroleerd publiek
 - [ ] Delivery-, bounce-, complaint-, open- en clickresultaten controleren

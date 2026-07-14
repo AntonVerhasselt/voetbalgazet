@@ -3,6 +3,7 @@
 ## Positionering
 
 - De site is Nederlandstalig en richt zich op lokaal voetbal in Vlaanderen.
+- Mobile is de primaire ontwerp- en acceptatiecontext; desktop verrijkt dezelfde flows.
 - Alle publieke pagina's en artikels zijn statisch en voor elke bezoeker inhoudelijk gelijk.
 - Volledige artikels zijn gratis, maar vereisen een abonnement op De Voetbalgazet.
 - Een eerste inschrijving omvat website-toegang én de wekelijkse nieuwsbrief.
@@ -21,6 +22,7 @@
 | `/email/voorkeuren` | Same-origin server callback | Wisselt preferences token in en redirect naar `/voorkeuren` |
 | `/uitschrijven` | Publieke bevestigingspagina | Scanner-safe GET; muteert niet zonder bevestigende POST |
 | `/api/email/uitschrijven` | Server POST | Zichtbare confirm en RFC 8058 one-click unsubscribe |
+| `/preview/start`, `/preview/end` | Admin-only serverroutes | Better Auth + signed/allowlisted Keystatic draft-mode preview; `noindex`, no-cache |
 | `/privacy` | Statisch | Privacyverklaring |
 | `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
 
