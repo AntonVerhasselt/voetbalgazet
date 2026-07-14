@@ -80,7 +80,7 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 
 - **Football data source:** Where do match results, calendars, and standings come from? Manual import, scraping, third-party API (e.g. Voetbal Vlaanderen)?
 - **Team/division catalog:** Prototype uses hardcoded Flemish provinces + P1/P2/P3 divisions — do we mirror official Voetbal Vlaanderen structure?
-- **Subscriber auth model:** Magic link only, or full Better Auth accounts with optional password?
+- **Subscriber auth model:** ✅ **Decided** — Better Auth magic link for re-auth + HttpOnly session cookies for persistence (not localStorage). Open: session duration, instant unlock vs. email verify on signup, newsletter deep-link auth.
 - **Article publishing flow:** Static rebuild on publish (ISR/webhook) vs. hybrid with Convex-served gated content?
 - **Interview subjects:** How are contacts sourced (club websites, manual CRM, scraped)?
 - **Newsletter cadence:** "Eén e-mail per week" per design copy — fixed schedule or editorial trigger?

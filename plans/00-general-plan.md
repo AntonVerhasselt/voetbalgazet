@@ -108,7 +108,7 @@ Indexes: by email, by slug, by publish status, by subscriber preferences for new
 
 | Audience | Mechanism |
 |----------|-----------|
-| **Subscribers (readers)** | Email capture at gate → magic link or session cookie to unlock articles; preferences stored in Convex |
+| **Subscribers (readers)** | Email capture at gate → Better Auth session via **HttpOnly cookie**; magic link only for first login on a device or after expiry |
 | **Admin (journalists)** | Better Auth — email/password or OAuth; role-based access to dashboard |
 | **Webhooks** | Twilio, Resend, Vercel deploy hooks — signed secrets |
 
@@ -116,8 +116,11 @@ Article gate flow (from design):
 
 1. User hits gated article → blurred preview + bottom sheet.
 2. Enter email → validate → step 2 preferences (min. one division or team).
-3. Save → unlock article + add to subscriber list.
-4. Returning users: "Al abonnee? Log in" → magic link flow.
+3. Save → unlock article + add to subscriber list + **session cookie set** (stays logged in).
+4. Returning users on same device: cookie auto-authenticates — no magic link.
+5. Returning users on new device / expired session: *"Al abonnee? Log in"* → magic link → cookie set for 90 days (proposed).
+
+**Session storage:** HttpOnly `Secure` `SameSite=Lax` cookies via Better Auth — **not** localStorage (XSS risk). See [01-news-site.md § Subscriber session persistence](./01-news-site.md#subscriber-session-persistence).
 
 ---
 
@@ -149,7 +152,7 @@ Article gate flow (from design):
 ### Phase 2 — Public site
 - Full static article pipeline
 - Email gate + preference picker (real team/division data)
-- Magic link / session unlock
+- Magic link / session unlock (HttpOnly cookies, 90-day sliding session)
 - SEO, sitemap, RSS (optional)
 
 ### Phase 3 — Admin MVP
