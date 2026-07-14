@@ -44,15 +44,17 @@ Implement layouts and components from the Open Design prototype:
 
 **Goal:** Public HTML served from Vercel CDN with no server render for article reads.
 
-### Option A — MDX/markdown in repo (recommended start)
-- Articles committed as MDX in `content/articles/`
-- `next build` generates all pages
-- Frontmatter: title, dek, kicker, division, author, date, slug, featured image
-- Webhook from admin publish → trigger Vercel rebuild
+### Content: Keystatic + repo (decided)
 
-### Option B — Convex as CMS at build time
-- Build script fetches published articles from Convex
-- Same static output, content managed in dashboard
+Articles are **git-backed** and managed via **Keystatic** in the admin app:
+
+- Source of truth: `content/articles/` (MDX + YAML frontmatter)
+- Editors use Keystatic UI at `/keystatic` inside the Next.js app (Better Auth–protected)
+- `next build` reads Keystatic collections and generates all static pages
+- Frontmatter: title, dek, kicker, division, author, date, slug, featured image, gate flag
+- Publish flow: save in Keystatic → commit to repo (GitHub mode) → Vercel deploy webhook
+
+**Why Keystatic:** Static-first, content versioned in git, no Convex round-trip for article bodies, and a built-in editorial UI without building a custom CMS.
 
 **Gate handling on static pages:**
 - Static HTML includes teaser + blurred/truncated body (or placeholder)
@@ -146,7 +148,8 @@ From prototype (`subscribe.js`):
 | Subscriber API | Convex mutations/queries |
 | Auth (readers) | Better Auth magic link OR lightweight JWT session |
 | Email | Resend via Convex component |
-| Images | Next/Image + R2 URLs |
+| Content CMS | **Keystatic** — repo-backed MDX, admin at `/keystatic` |
+| Images | Next/Image; article images via Keystatic local or R2 refs |
 | Search | Client-side or Pagefind on static build (TBD) |
 | i18n | Dutch only; `lang="nl"` |
 
@@ -174,7 +177,7 @@ PostHog via Convex component:
 
 | Dependency | Why |
 |------------|-----|
-| **Admin** | Publishes articles → triggers rebuild |
+| **Admin / Keystatic** | Publishes articles to `content/` → triggers rebuild |
 | **Newsletter** | Subscriber emails collected here feed newsletter list |
 | **Convex** | Subscribers, teams, divisions, session validation |
 
@@ -189,7 +192,8 @@ PostHog via Convex component:
 - [ ] Convex subscriber signup mutation
 - [ ] Team/division picker wired to real data
 - [ ] Magic link login for returning users
-- [ ] Publish pipeline (even manual MDX first)
+- [ ] Keystatic collection schema + `/keystatic` route (auth-gated)
+- [ ] Publish pipeline: Keystatic save → git → Vercel rebuild
 - [ ] Vercel deploy + rebuild webhook stub
 
 ---

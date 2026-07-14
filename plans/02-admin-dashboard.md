@@ -151,8 +151,9 @@ Each story moves through stages. **No stage auto-advances without human approval
 ---
 
 ### Stage 7 — Publish
-- Approve publish → write to content store
-- Trigger Vercel rebuild (static site)
+- Approve publish → **hand off to Keystatic** (pre-filled draft or open editor)
+- Journalist finalizes metadata/images in Keystatic → content saved to `content/articles/` in repo
+- Vercel rebuild on git push (static site)
 - Optionally queue for next newsletter issue
 
 ---
@@ -166,7 +167,8 @@ Each story moves through stages. **No stage auto-advances without human approval
 | **Data explorer** | Browse standings, results, calendar (read-only) |
 | **Contacts** | CRM for interview subjects, WhatsApp opt-in status |
 | **Agent config** | Prompts, model selection, templates (admin only) |
-| **Publish queue** | Ready-to-publish articles |
+| **Publish queue** | Ready-to-publish articles → open in Keystatic |
+| **Keystatic** | `/keystatic` — article CRUD; canonical content store in repo |
 | **Activity log** | Audit trail |
 
 ---
@@ -264,9 +266,9 @@ This blocks Stage 1 automation until resolved.
 ## MVP phasing
 
 ### Admin MVP (no AI)
-- [ ] Auth + dashboard shell ( branded )
-- [ ] Manual article editor
-- [ ] Publish to static site
+- [ ] Auth + dashboard shell (branded)
+- [ ] **Keystatic** setup: article collection, `/keystatic` route, GitHub storage mode
+- [ ] Publish to static site via repo commit + Vercel webhook
 
 ### AI phase 1
 - [ ] Data import (manual) + analysis agent + review UI

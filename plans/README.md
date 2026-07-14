@@ -41,6 +41,7 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 | Layer | Choice | Docs |
 |-------|--------|------|
 | Frontend | Next.js on Vercel (static export for public site) | [Vercel](https://vercel.com/) |
+| Content CMS | **Keystatic** — articles in repo, edited at `/keystatic` | [Keystatic docs](https://keystatic.com/docs) |
 | Backend / DB | Convex | [Convex docs](https://docs.convex.dev/) |
 | Auth | Better Auth via Convex component | [Better Auth component](https://www.convex.dev/components/better-auth) |
 | File storage | Cloudflare R2 via Convex component | [R2 component](https://www.convex.dev/components/cloudflare-r2) |
@@ -81,7 +82,7 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 - **Football data source:** Where do match results, calendars, and standings come from? Manual import, scraping, third-party API (e.g. Voetbal Vlaanderen)?
 - **Team/division catalog:** Prototype uses hardcoded Flemish provinces + P1/P2/P3 divisions — do we mirror official Voetbal Vlaanderen structure?
 - **Subscriber auth model:** Magic link only, or full Better Auth accounts with optional password?
-- **Article publishing flow:** Static rebuild on publish (ISR/webhook) vs. hybrid with Convex-served gated content?
+- ~~**Article publishing flow:**~~ **Decided:** Keystatic → `content/` in repo → static rebuild on deploy.
 - **Interview subjects:** How are contacts sourced (club websites, manual CRM, scraped)?
 - **Newsletter cadence:** "Eén e-mail per week" per design copy — fixed schedule or editorial trigger?
 - **Admin users:** Single editor or multi-user newsroom with roles?
@@ -93,4 +94,4 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 |------|--------|
 | Design prototype | Done (Open Design) |
 | Project codebase | Not started |
-| Plans | Initial draft — **refinement in progress** |
+| Plans | Initial draft — **Keystatic content strategy decided** |

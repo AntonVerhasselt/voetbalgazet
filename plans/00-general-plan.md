@@ -62,7 +62,8 @@ voetbalgazet/
 │   ├── agents/               # Journalist workflow agents
 │   └── components/           # Convex component configs
 ├── emails/                   # Resend React Email templates
-├── content/                  # MDX/markdown for static articles (optional)
+├── content/                  # Keystatic-managed articles (MDX + YAML in repo)
+│   └── articles/             # Git-backed source of truth for public site
 └── design/                   # Symlink or copy of Open Design assets
 ```
 
@@ -89,8 +90,7 @@ Convex tables to define during refinement:
 |-------|---------|
 | `subscribers` | Email, preferences (divisions, teams), consent timestamps, Resend contact id |
 | `users` | Admin/journalist accounts (Better Auth) |
-| `articles` | Draft/published metadata, slug, gate status, MDX/content ref, publish date |
-| `articleContent` | Full body (or R2 ref for long content) |
+| `articles` | *(optional)* Publish metadata mirror for admin pipeline; **canonical article content lives in repo** via Keystatic |
 | `teams` | Club catalog synced from football data source |
 | `divisions` | Province + reeks structure |
 | `storyIdeas` | AI-generated pitches with scores and source context |
@@ -125,7 +125,7 @@ Article gate flow (from design):
 
 | From → To | Integration |
 |-----------|-------------|
-| Admin → News site | Publish triggers static rebuild; article JSON/MDX exported or fetched at build |
+| Admin → News site | AI workflow approves draft → journalist publishes via **Keystatic** → content committed to `content/` → Vercel rebuild |
 | Admin → Newsletter | Published articles available for issue curation |
 | News site → Convex | Signup, preferences, gate verification |
 | News site → Resend | Double opt-in confirmation (TBD) |
@@ -153,9 +153,9 @@ Article gate flow (from design):
 - SEO, sitemap, RSS (optional)
 
 ### Phase 3 — Admin MVP
-- Article CRUD with human editor
-- Manual publish to static site
-- Basic dashboard shell matching brand
+- **Keystatic** editor at `/keystatic` for article CRUD (content in repo)
+- AI dashboard shell for journalist workflows (separate from Keystatic UI)
+- Publish = save in Keystatic → git commit → Vercel rebuild
 
 ### Phase 4 — AI journalist flows
 - Football data ingestion (standings, results, calendar)
@@ -184,6 +184,23 @@ Article gate flow (from design):
 
 ---
 
+## Content management (Keystatic)
+
+**Decision:** All public article content lives in the **git repo** and is edited via **Keystatic** in the dashboard.
+
+| Concern | Approach |
+|---------|----------|
+| **Storage** | `content/articles/` — MDX files + YAML frontmatter, versioned in git |
+| **Editor UI** | Keystatic at `/keystatic` inside the Next.js app |
+| **Access** | Better Auth — journalists only; separate from public site |
+| **Publish** | Save in Keystatic → commit to GitHub → Vercel rebuild |
+| **AI pipeline** | Writing agent outputs draft → human approves → paste/fill into Keystatic |
+| **Convex role** | Subscribers, gate sessions, teams/divisions, agent runs — **not** article bodies |
+
+Keystatic fits the static-site goal: build-time content, no runtime CMS dependency, full git history for editorial changes.
+
+---
+
 ## Documentation links
 
 - [Convex](https://docs.convex.dev/)
@@ -202,7 +219,7 @@ Article gate flow (from design):
 ## Next refinement topics
 
 1. Confirm football data source and sync strategy.
-2. Decide static content strategy (MDX in repo vs. Convex-generated at build).
+2. ~~Decide static content strategy~~ → **Keystatic**: articles in `content/` (repo), edited via Keystatic admin UI.
 3. Define MVP scope for admin AI flows (which agent first?).
 4. Newsletter segmentation rules (all subscribers vs. preference-filtered).
 5. Legal copy and double opt-in requirements for Belgian email marketing.
