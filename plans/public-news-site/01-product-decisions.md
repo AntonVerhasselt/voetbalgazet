@@ -15,7 +15,7 @@
 |-------|------|------------|
 | `/` | Statisch | Homepage met inline inschrijfflow |
 | `/archief` | Statisch | Artikelarchief met categorie-, provincie-, reeks-, club- en datum/jaarfilters |
-| **Nog te kiezen** | Statisch + client gate | Artikelroute; `/verhalen/[slug]` vervalt omdat “verhalen” als slug is afgewezen |
+| `/nieuws/[slug]` | Statisch + client gate | Artikel, lead-in en verplichte gate |
 | `/voorkeuren` | Statisch shell + geverifieerde sessie | Alleen bereikbaar via veilige nieuwsbrief-/magic-link; geen accountdashboard |
 | `/privacy` | Statisch | Privacyverklaring |
 | `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
@@ -138,10 +138,10 @@ De volgende eerdere vragen zijn hiermee afgesloten:
 - publiek RSS-model;
 - scheiding nieuwsbriefstatus en website-toegang.
 
-## Nog open
+## Laatste bevestigingen
 
-1. Definitieve artikelroute nu `/verhalen/[slug]` vervalt; voorstel: `/nieuws/[slug]`.
-2. Bevestiging dat de volledig statische soft gate technisch omzeilbaar mag zijn.
-3. Bevestiging dat het overslaan van voorkeuren voor een bekend adres een zwak subscriber-membershipsignaal mag lekken.
+- Artikelroute: `/nieuws/[slug]`.
+- De technisch omzeilbare volledig statische soft gate is aanvaard als bewuste MVP-trade-off.
+- Het zwakke subscriber-membershipsignaal door voorkeuren voor bekende adressen over te slaan is aanvaard, met generieke responses en rate limiting als mitigatie.
 
 Bedrijfs-, KBO- en contactgegevens zijn bewust uitgesteld en staan als launchtodo in [`06-launch-todos.md`](./06-launch-todos.md).

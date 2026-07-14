@@ -50,7 +50,7 @@ De prototypefolder is niet aanwezig op de cloudmachine. Kopieer hem vóór imple
 |-------|------|--------------|
 | `/` | Statisch | Homepage en inline inschrijving |
 | `/archief` | Statisch | Archief met categorie-, provincie-, reeks-, club- en datum/jaarfilters |
-| `/nieuws/[slug]` (voorstel) | Statisch + client gate | Artikel met lead-in en gated body; nog te bevestigen |
+| `/nieuws/[slug]` | Statisch + client gate | Artikel met lead-in en gated body |
 | `/voorkeuren` | Statische shell + verified session | Alleen via veilige e-maillink |
 | `/privacy` | Statisch | Privacyverklaring |
 | `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
@@ -206,10 +206,8 @@ Geen raw e-mail, e-mailhash, magic token, vrije formuliertekst of URL-token. Ses
 - [ ] Accessibility, security, performance en SEO-tests
 - [ ] Publish/rebuildpipeline
 
-## Resterende beslissingen
+## Besluitstatus
 
-1. Definitieve artikelroute; voorstel `/nieuws/[slug]`.
-2. Expliciete aanvaarding van de technisch omzeilbare statische soft gate.
-3. Expliciete aanvaarding van het zwakke membershipsignaal bij het overslaan van voorkeuren voor bekende e-mails.
+Alle product- en architectuurbeslissingen voor deze planningsfase zijn bevestigd. De artikelroute is `/nieuws/[slug]`; de statische soft-gatebeperking en het zwakke membershipsignaal zijn expliciet aanvaard.
 
 Bedrijfsgegevens worden later ingevuld via de launch-todo. Juridische review blijft aanbevolen, maar blokkeert de technische lancering niet.

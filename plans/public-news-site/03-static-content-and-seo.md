@@ -167,7 +167,7 @@ Geen tokenized full-content RSS in het MVP. Dit vergroot complexiteit, tokens in
 
 Initiële categorieën: Wedstrijdverslagen, Transfernieuws, Interviews, Analyse, Jeugd en Clubnieuws.
 
-De artikelroute in voorbeelden gebruikt voorlopig het aanbevolen `/nieuws/[slug]`; deze route wacht nog op expliciete bevestiging.
+De definitieve artikelroute is `/nieuws/[slug]`.
 
 Zoekscope voor het MVP:
 
