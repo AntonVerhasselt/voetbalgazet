@@ -17,6 +17,10 @@
 | `/archief` | Statisch | Artikelarchief met categorie-, provincie-, reeks-, club- en datum/jaarfilters |
 | `/nieuws/[slug]` | Statisch + client gate | Artikel, lead-in en verplichte gate |
 | `/voorkeuren` | Statisch shell + geverifieerde sessie | Alleen bereikbaar via veilige nieuwsbrief-/magic-link; geen accountdashboard |
+| `/email/artikel` | Same-origin server callback | Wisselt 30-dagen article token in en redirect 303 naar canonieke artikel-URL |
+| `/email/voorkeuren` | Same-origin server callback | Wisselt preferences token in en redirect naar `/voorkeuren` |
+| `/uitschrijven` | Publieke bevestigingspagina | Scanner-safe GET; muteert niet zonder bevestigende POST |
+| `/api/email/uitschrijven` | Server POST | Zichtbare confirm en RFC 8058 one-click unsubscribe |
 | `/privacy` | Statisch | Privacyverklaring |
 | `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
 
@@ -85,6 +89,7 @@ Deze ene duidelijke knop is de bevestigende handeling; er is geen vooraf aangevi
 - Voorkeuren beïnvloeden alleen nieuwsbriefselectie/segmentatie.
 - De publieke site blijft voor iedereen identiek.
 - Een geverifieerde subscriber kan voorkeuren aanpassen via een link in de nieuwsbrief.
+- Een geverifieerde uitgeschreven subscriber kan daar met een aparte expliciete CTA opnieuw inschrijven; complaint/hard-bounce suppression wordt nooit automatisch opgeheven.
 - Wijzigen vereist geverifieerde identiteit; een laaggeprivilegieerde leessessie is onvoldoende.
 - Minstens één reeks blijft verplicht.
 - Eén favoriete club is optioneel.

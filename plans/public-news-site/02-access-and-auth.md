@@ -129,17 +129,20 @@ Tokenlevensduur: 30 dagen. Tokens bevatten geen leesbare PII, worden niet naar P
 ## Flow 5 — nieuwsbrief uitschrijven
 
 1. Unsubscribelink is een apart, doelgebonden token.
-2. Klik zet alleen `newsletterSubscribed = false` en `unsubscribedAt`.
-3. `siteAccess` en bestaande sessies blijven geldig.
-4. Resubscribe vereist een nieuwe ondubbelzinnige CTA en consentregistratie.
+2. Een gewone footer-GET opent `/uitschrijven` en muteert nog niets, zodat mailbox-linkscanners niemand ongewenst uitschrijven.
+3. De bevestigende UI-POST of RFC 8058 `List-Unsubscribe-Post` zet alleen `newsletterSubscribed = false`, `unsubscribedAt` en een unsubscribe suppression.
+4. `siteAccess` en bestaande sessies blijven geldig.
+5. Resubscribe vereist een nieuwe ondubbelzinnige CTA en consentregistratie.
 
 ## Flow 6 — voorkeuren wijzigen
 
 - Link “Voorkeuren aanpassen” staat in nieuwsbrieffooter.
 - Link bootstrapt eerst een geverifieerde sessie en opent `/voorkeuren`.
+- De geverifieerde session subscriber moet overeenkomen met de token subscriber; een bestaande sessie van een andere subscriber wordt niet stilzwijgend vervangen.
 - Pagina toont huidige reeksen en maximaal één club.
 - Minstens één reeks moet na opslaan overblijven.
 - Reader-only sessies krijgen geen data en worden naar een magic-linkflow in dezelfde sheet geleid.
+- Een uitgeschreven subscriber ziet een aparte CTA “Schrijf me opnieuw in voor de wekelijkse nieuwsbrief”. Die schrijft nieuw consent en heft alleen een gewone unsubscribe suppression op; complaint/hard-bounce blijft geblokkeerd.
 
 ## Sessiespecificatie
 
@@ -192,10 +195,9 @@ Definitieve API en componentconfiguratie verifiëren tijdens implementatie tegen
 | `consentSource` | union | `article_gate` / `homepage_inline` |
 | `divisionIds` | Id[] | Minstens één |
 | `favoriteTeamId` | Id? | Maximaal één |
-| `resendContactId` | string? | Externe koppeling |
 | `emailDeliveryStatus` | union | `unknown` / `deliverable` / `bounced` |
 
-Voorkeuren kunnen voor normalisatie later als relationele tabellen worden opgeslagen; arrays zijn aanvaardbaar zolang het aantal reeksen klein en begrensd blijft.
+`divisionIds[]` blijft de canonieke, kleine en begrensde voorkeursarray. Voor schaalbare nieuwsbriefsegmentatie is `subscriberDivisionPreferences` vanaf de eerste nieuwsbriefimplementatie een verplichte afgeleide indexprojectie met één record per subscriber/reeks. Signup en voorkeurenwijziging onderhouden array en projectie atomair via één gedeelde helper.
 
 ### Accesscontrole
 
@@ -226,4 +228,7 @@ Voorkeuren kunnen voor normalisatie later als relationele tabellen worden opgesl
 5. Welkomst-/verificationmail.
 6. Newsletter bootstrap exchange.
 7. Preferenceslink en geverifieerde ownershipchecks.
-8. Rate limiting, bouncehandling en securitytests.
+8. `subscriberDivisionPreferences` projectie + dry-run/rebuildcheck.
+9. Rate limiting, bouncehandling en securitytests.
+
+De gedeelde contracten met de nieuwsbriefadmin staan in [`../newsletter-admin-dashboard/10-cross-component-contracts.md`](../newsletter-admin-dashboard/10-cross-component-contracts.md).

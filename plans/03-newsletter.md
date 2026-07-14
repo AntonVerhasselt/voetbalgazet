@@ -1,8 +1,12 @@
 # Component 3 — Email Newsletter
 
+> **Refined plan:** This document remains the architectural overview. The detailed source of truth for the visual newsletter admin, Convex data model, audience filtering, sending, delivery, compliance and implementation phases is [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/).
+
+> **Important refinement:** Convex is the source of truth for campaigns and audiences. The open-source `@react-email/editor` is used for visually composed newsletter campaigns. Security-sensitive transactional emails remain code-based React Email templates, but are still triggered, sent and monitored through the custom Convex + Resend implementation rather than the Resend dashboard.
+
 ## Purpose
 
-Send a **weekly email newsletter** to all subscribers collected through the public news site. Emails are built with the **Resend React Email** builder and sent via the **Resend Convex component**. Visual style matches De Voetbalgazet brand.
+Send a **weekly email newsletter** to subscribers collected through the public news site. Campaign bodies are composed in the open-source **`@react-email/editor`**, rendered in a locked React Email brand shell and sent via the **Resend Convex component**. Visual style matches De Voetbalgazet brand.
 
 Design copy on the site sets expectation: *"Eén e-mail per week — lokaal voetbal, geen ruis."*
 
@@ -42,8 +46,9 @@ Stored in Convex `subscribers` table:
 - `siteAccess` — staat los van nieuwsbriefstatus
 - `newsletterSubscribed`, `newsletterSubscribedAt`, `unsubscribedAt`
 - `consentCapturedAt`, `consentVersion`, `consentSource`
-- `resendContactId` (sync with Resend audience)
 - `emailDeliveryStatus`: `unknown | deliverable | bounced`
+
+Convex selects recipients directly. Resend Audiences/contacts are not the source of truth and are not required for campaign sending.
 
 ---
 
@@ -63,33 +68,35 @@ Via [Convex Resend component](https://www.convex.dev/components/resend):
 ```
 emails/
 ├── components/
-│   ├── Header.tsx          # Logo + masthead rules
-│   ├── Footer.tsx          # Unsubscribe, tagline, address
-│   ├── ArticleCard.tsx     # Headline, dek, link, division tag
-│   └── Divider.tsx         # Hairline rule
-├── WeeklyDigest.tsx        # Main newsletter template
-├── Welcome.tsx             # Post-signup welcome
-└── MagicLink.tsx           # Reader login
+│   ├── NewsletterEnvelope.tsx # Locked brand/legal shell
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   └── ArticleCard.tsx
+├── transactional/
+│   ├── Welcome.tsx
+│   ├── MagicLink.tsx
+│   └── VerifyEmail.tsx
+└── renderer/               # Shared editor extensions + server renderer
 ```
 
-Build/preview with React Email dev server; Resend sends rendered HTML.
+The visual editor owns only the newsletter body. Transactional templates and the campaign shell remain code-based. Resend receives only server-rendered HTML/text.
 
 ---
 
 ## Newsletter content model
 
-### Weekly digest issue
+### Newsletter campaign
 
-Each `newsletterIssues` record:
+Each `newsletterCampaigns` record links to immutable revisions, an audience definition and one live send:
 
 | Field | Description |
 |-------|-------------|
 | `subject` | Dutch subject line |
 | `preheader` | Inbox preview text |
-| `status` | `draft | scheduled | sending | sent` |
+| `status` | `draft | scheduled | needs_review | preparing | sending | sent | partially_failed | failed | cancelled` |
 | `scheduledAt` | Send datetime |
-| `articles[]` | Ordered list of article ids |
-| `introHtml` | Optional editor's note (human-written) |
+| `activeRevisionId`, `sendRevisionId` | Editable and frozen content revisions |
+| `audienceDefinitionId` | Preference filters |
 | `sentAt`, `recipientCount`, `stats` | Post-send metadata |
 
 ### Article card in email
@@ -119,16 +126,16 @@ Each `newsletterIssues` record:
 2. Optional intro note in Dutch.
 3. Preview rendered email (desktop + mobile).
 4. Approve send or schedule.
-5. Convex action triggers Resend broadcast.
+5. Convex freezes recipients and internal workers queue per-recipient delivery through the Resend component.
 6. Webhooks update delivery stats.
 
 ---
 
 ## Segmentation (TBD)
 
-**Default (MVP):** Same digest to all active subscribers.
+**Default (MVP):** One shared body per campaign, sent to all eligible subscribers or narrowed by explicit division and favorite-team filters.
 
-**Future:** Preference-based blocks:
+**Future:** Per-recipient preference-based blocks:
 - "Jouw club" — stories matching favourite team
 - "Jouw reeks" — stories matching selected divisions
 - Requires template sections conditionally rendered per subscriber (Resend batch with merge fields or multiple segments)
@@ -183,10 +190,11 @@ Styling: same De Voetbalgazet admin shell.
 
 | Piece | Choice |
 |-------|--------|
-| Templates | React Email (`@react-email/components`) |
+| Visual campaign editor | `@react-email/editor` |
+| Shell + transactional templates | React Email |
 | Send | Resend via Convex component |
-| Subscriber sync | Convex mutation on signup → create/update Resend contact |
-| Scheduling | Convex cron or scheduled function for weekly send |
+| Subscriber audience | Convex subscribers + indexed preference projection |
+| Scheduling | Explicit Convex scheduled internal function; no automatic weekly cron |
 | Preview | React Email CLI + admin embed |
 
 Docs: [Resend Convex component](https://www.convex.dev/components/resend)
@@ -205,23 +213,19 @@ Docs: [Resend Convex component](https://www.convex.dev/components/resend)
 
 ## MVP checklist
 
-- [ ] React Email base layout (Header, Footer, ArticleCard)
-- [ ] `WeeklyDigest` template with 3–5 article slots
+- [ ] React Email locked shell (Header, Footer, ArticleCard)
+- [ ] Visual editor with weekly template and 3–5 article slots
 - [ ] Welcome email template
-- [ ] Convex subscriber → Resend sync on signup
+- [ ] Convex subscriber eligibility and preference indexes
 - [ ] Unsubscribe handler (HTTP action + webhook)
 - [ ] Admin: create draft issue + pick articles
 - [ ] Preview in browser
 - [ ] Test send to single address
 - [ ] Manual "Send newsletter" button
-- [ ] (Later) Scheduled weekly cron
+- [ ] Explicit scheduling in `Europe/Brussels` (no automatic weekly cron)
 
 ---
 
-## Open questions
+## Decisions and remaining questions
 
-1. Send day/time fixed (e.g. Thursday 7:00) or editorial discretion?
-2. Personalization in MVP or single blast for all?
-3. Include non-gated teaser content in email vs. full excerpts?
-4. Resend audience vs. raw email list — one audience or segmented lists per province?
-5. Editor's name/sign-off in newsletter?
+The refined dossier chooses editorial send-now or explicit scheduling, Convex-managed audiences and no per-recipient content personalization in MVP. Remaining questions, each with a recommended fallback, are maintained in [`newsletter-admin-dashboard/09-open-questions.md`](./newsletter-admin-dashboard/09-open-questions.md).

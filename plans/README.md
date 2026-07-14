@@ -13,6 +13,7 @@ Planning documents for a Dutch-language news platform covering local football in
 | [public-news-site/](./public-news-site/) | Refined public-site decisions, auth, SEO, UX/analytics, legal copy |
 | [02-admin-dashboard.md](./02-admin-dashboard.md) | AI journalist dashboard, agent flows, human-in-the-loop |
 | [03-newsletter.md](./03-newsletter.md) | Resend React Email builder, sends, subscriber sync |
+| [newsletter-admin-dashboard/](./newsletter-admin-dashboard/) | Verfijnd nieuwsbrief-adminplan: visual editor, Convex-data, segmentatie, sending en operations |
 
 ## Design reference
 
@@ -51,7 +52,7 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 | Voice interviews | OpenAI Realtime API | [OpenAI Realtime guide](https://developers.openai.com/api/docs/guides/realtime) |
 | WhatsApp + calls | Twilio | [Twilio docs](https://www.twilio.com/docs) |
 | Analytics (optional) | PostHog via Convex component | [PostHog component](https://www.convex.dev/components/posthog/convex) |
-| Email builder | Resend React Email | (part of Resend component workflow) |
+| Email builder | Open-source `@react-email/editor` + React Email renderer | [React Email editor](https://react.email/docs/editor/getting-started) |
 
 ## Three components (high level)
 
@@ -60,10 +61,10 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 │                     DE VOETBALGAZET                              │
 ├─────────────────┬─────────────────────┬───────────────────────────┤
 │  1. News Site   │  2. Admin Dashboard │  3. Newsletter            │
-│  (static Next)  │  (AI journalist)    │  (Resend React Email)     │
+│  (static Next)  │  (AI journalist)    │  (visual React Email)     │
 │                 │                     │                           │
-│  Email-gated    │  Match analysis     │  Weekly digest to all    │
-│  articles       │  Idea discovery     │  subscribers from site   │
+│  Email-gated    │  Match analysis     │  Visual campaigns        │
+│  articles       │  Idea discovery     │  Preference audiences    │
 │  Signup + prefs │  WhatsApp outreach  │  Same visual language    │
 │                 │  Voice interviews   │                           │
 │                 │  Writing agent      │                           │
@@ -84,7 +85,7 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 - **Subscriber auth model:** ✅ **Decided** — immediate Better Auth anonymous reader-session, verified identity via magic/newsletter link, 90-day HttpOnly cookie.
 - **Article publishing flow:** ✅ **Decided** — Convex content snapshots trigger a fully static Vercel rebuild; client-side soft registration gate.
 - **Interview subjects:** How are contacts sourced (club websites, manual CRM, scraped)?
-- **Newsletter cadence:** "Eén e-mail per week" per design copy — fixed schedule or editorial trigger?
+- **Newsletter cadence:** ✅ **Decided** — editorial send-now or explicit schedule in `Europe/Brussels`; no automatic weekly cron.
 - **Admin users:** Single editor or multi-user newsroom with roles?
 - **Legal:** Public-site draft copy exists; business placeholders, retention and combined signup proposition still require Belgian legal review.
 
@@ -94,4 +95,6 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 |------|--------|
 | Design prototype | Done (Open Design) |
 | Project codebase | Not started |
-| Plans | Initial draft — **refinement in progress** |
+| Public-siteplan | Completed |
+| Newsletter-adminplan | Detailed draft — defaults chosen, open questions documented |
+| Other plans | Initial draft — refinement in progress |

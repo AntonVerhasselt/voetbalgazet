@@ -175,8 +175,8 @@ Gebruik vaste lower_snake_case namen en een version property.
 
 | Event | Wanneer | Properties |
 |-------|---------|------------|
-| `newsletter_article_link_opened` | Bootstrap geslaagd | `article_id`, `campaign_id` |
-| `newsletter_unsubscribed` | Status gewijzigd | `campaign_id`, `reason_code?` |
+| `newsletter_article_link_opened` | Bootstrap geslaagd | `article_id`, `campaign_analytics_id` — opaque, geen Convex/recipient-ID |
+| `newsletter_unsubscribed` | Status gewijzigd | `campaign_analytics_id`, `reason_code?` |
 | `preferences_viewed` | Geverifieerde pagina | `division_count`, `has_team` |
 | `preferences_updated` | Opslaan geslaagd | `division_count`, `has_team` |
 

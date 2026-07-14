@@ -33,6 +33,7 @@ Afhankelijk van je gebruik kunnen we de volgende gegevens verwerken:
 - je gekozen voetbalreeksen en optioneel je favoriete club;
 - je nieuwsbriefstatus, inschrijfbron, consentversie en tijdstippen van inschrijving of uitschrijving;
 - of je e-mailadres werd geverifieerd en of e-mails werden afgeleverd of gebounced;
+- beperkte afleverings- en campagnestatussen, zoals verzonden, afgeleverd, geklikt, gebounced, klacht of fout, voor werking en lijstkwaliteit;
 - technische sessiegegevens, zoals een willekeurige sessie-ID, vervaldatum, browser-/apparaatinformatie en beveiligingsgegevens;
 - beperkte gebruiksgegevens, zoals bezochte pagina's, artikel-ID's, gate- en inschrijfstappen, leesdiepte, referrerdomein, campagneparameters en globale prestatiegegevens;
 - correspondentie die je zelf aan support bezorgt.
@@ -94,6 +95,8 @@ Als gegevens buiten de Europese Economische Ruimte worden verwerkt, gebruiken we
 
 - Subscriberprofiel, voorkeuren en siteAccess: zolang je website-abonnement actief blijft of tot je om verwijdering vraagt.
 - Nieuwsbriefstatus en bewijs van inschrijving/uitschrijving: zolang nodig om je keuze uit te voeren en naleving te kunnen aantonen.
+- Campagne-ontvangerkoppeling en geaggregeerde afleveringsresultaten: aanbevolen maximaal 24 maanden; gedetailleerde deliveryevents 90 dagen, onder voorbehoud van definitieve juridische review.
+- Minimale suppressioninformatie na unsubscribe, hard bounce of klacht: zolang nodig om te voorkomen dat we opnieuw ongewenst mailen.
 - Actieve authenticatiesessies: maximaal 90 dagen na laatste geldige vernieuwing.
 - Beveiligings- en foutlogs: 90 dagen.
 - Geaggregeerde analyticsgegevens: 24 maanden.

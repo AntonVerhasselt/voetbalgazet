@@ -1,5 +1,7 @@
 # Component 2 — AI Journalist Admin Dashboard
 
+> The newsletter section of this admin platform is refined separately in [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/). That dossier defines the visual editor, campaign lifecycle, audience filters, Convex/Resend architecture, permissions and delivery operations.
+
 ## Purpose
 
 An internal **AI-driven journalist dashboard** where editorial workflows combine automated analysis and outreach with **human-in-the-loop approval at every step** before anything is published or sent.
@@ -43,7 +45,7 @@ Admin-specific patterns to design:
 |------|--------|
 | **Admin** | Full access, user management |
 | **Journalist** | Create/review stories, run agents, publish |
-| **Viewer** | Read-only (TBD) |
+| **Viewer** | Read-only toegang tot verhalen, campagnes en resultaten; geen mutations |
 
 Auth: **Better Auth** via Convex component.
 
@@ -153,7 +155,7 @@ Each story moves through stages. **No stage auto-advances without human approval
 ### Stage 7 — Publish
 - Approve publish → write to content store
 - Trigger Vercel rebuild (static site)
-- Optionally queue for next newsletter issue
+- Mark published revision as newsletter-eligible / priority so it appears in the newsletter ArticleBlock picker; never modify or send a campaign automatically
 
 ---
 
@@ -283,7 +285,7 @@ This blocks Stage 1 automation until resolved.
 ### Polish
 - [ ] Full pipeline kanban
 - [ ] Agent prompt configuration
-- [ ] Newsletter handoff from publish view
+- [ ] Newsletter eligibility/priority handoff from publish view
 
 ---
 

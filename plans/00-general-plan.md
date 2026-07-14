@@ -87,7 +87,7 @@ Convex tables to define during refinement:
 
 | Table | Purpose |
 |-------|---------|
-| `subscribers` | Email, preferences (divisions, teams), consent timestamps, Resend contact id |
+| `subscribers` | Email, preferences (divisions, teams), consent timestamps and delivery eligibility; Convex is source of truth |
 | `users` | Admin/journalist accounts (Better Auth) |
 | `articles` | Draft/published metadata, slug, gate status, MDX/content ref, publish date |
 | `articleContent` | Full body (or R2 ref for long content) |
@@ -97,7 +97,8 @@ Convex tables to define during refinement:
 | `interviewRequests` | WhatsApp outreach state, contact info |
 | `interviews` | Recordings, transcripts, voice session metadata |
 | `agentRuns` | Step-by-step workflow state for human review |
-| `newsletterIssues` | Draft/sent issues, article selection, send stats |
+| `newsletterCampaigns` | Visual drafts, revisions, audience definitions, immutable sends and aggregate stats |
+| `newsletterRecipients` | Bevroren ontvangers en app-level deliverystatus per send |
 | `media` | R2 file references (images, audio) |
 
 Indexes: by email, by slug, by publish status, by subscriber preferences for newsletter segmentation.
@@ -170,10 +171,13 @@ Article gate flow (from design):
 - Writing agent + editorial review
 
 ### Phase 5 — Newsletter
-- React Email templates
-- Issue builder in admin
-- Weekly send automation
-- Preference-based content blocks (TBD)
+- Open-source React Email visual editor in admin
+- Locked React Email shell and code-based transactional templates
+- Convex-managed audience filtering by subscriber preferences
+- Test, send-now and explicit scheduling via Resend component
+- Delivery webhooks, suppressions and results
+
+Detailed source of truth: [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/).
 
 ---
 
