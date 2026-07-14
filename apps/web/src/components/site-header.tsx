@@ -4,8 +4,8 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="shell site-header__utility">
-        <span>Dinsdag 14 juli 2026</span>
-        <span>Vlaanderen</span>
+        <span>Editie Vlaanderen</span>
+        <span>Onafhankelijk lokaal voetbal</span>
       </div>
       <div className="shell site-header__brand">
         <Link className="wordmark" href="/" aria-label="De Voetbalgazet, home">

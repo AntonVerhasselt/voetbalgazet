@@ -11,12 +11,17 @@ export function LoginForm({ backendConfigured }: { backendConfigured: boolean })
     setPending(true);
     setError(undefined);
 
-    const result = await authClient.signIn.social({
-      provider: "github",
-      callbackURL: "/admin/claim",
-    });
+    try {
+      const result = await authClient.signIn.social({
+        provider: "github",
+        callbackURL: "/admin/claim",
+      });
 
-    if (result.error) {
+      if (result.error) {
+        setPending(false);
+        setError("Aanmelden via GitHub is niet gelukt. Probeer opnieuw.");
+      }
+    } catch {
       setPending(false);
       setError("Aanmelden via GitHub is niet gelukt. Probeer opnieuw.");
     }

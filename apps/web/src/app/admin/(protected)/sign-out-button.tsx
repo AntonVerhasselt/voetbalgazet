@@ -8,14 +8,17 @@ export function SignOutButton() {
 
   async function signOut() {
     setPending(true);
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          window.location.assign("/admin/inloggen");
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.assign("/admin/inloggen");
+          },
         },
-      },
-    });
-    setPending(false);
+      });
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
