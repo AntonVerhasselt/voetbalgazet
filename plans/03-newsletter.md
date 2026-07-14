@@ -2,7 +2,7 @@
 
 > **Refined plan:** This document remains the architectural overview. The detailed source of truth for the visual newsletter admin, Convex data model, audience filtering, sending, delivery, compliance and implementation phases is [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/).
 
-> **Important refinement:** Convex is the source of truth for campaigns, transactionele editorversies and audiences. The open-source `@react-email/editor` is used for all custom email content. There are no fixed templates or article integrations in MVP; only newsletter campaigns receive an uneditable unsubscribe/compliance footer.
+> **Important refinement:** Convex is the source of truth for campaigns, transactionele editorversies and audiences. The open-source `@react-email/editor` is used for all custom email content. There are no fixed templates or article integrations in MVP; only newsletter campaigns receive an uneditable footer with unsubscribe, preference management and required legal/contact information.
 
 ## Purpose
 
@@ -86,7 +86,7 @@ Each `newsletterCampaigns` record links to immutable revisions, an audience defi
 |-------|-------------|
 | `subject` | Dutch subject line |
 | `preheader` | Inbox preview text |
-| `status` | `draft | scheduled | needs_review | preparing | sending | sent | partially_failed | failed | cancelled` |
+| `status` | `draft | scheduled | preparing | sending | sent | partially_failed | failed | cancelled` |
 | `scheduledAt` | Send datetime |
 | `activeRevisionId`, `sendRevisionId` | Editable and frozen content revisions |
 | `audienceDefinitionId` | Preference filters |
@@ -105,8 +105,8 @@ There is no ArticleCard or article count in MVP. Text, links, buttons, images an
 └────────────────┘     └─────────────────┘     └──────┬───────┘
                                                       │
                                                       ▼
-                                            All active subscribers
-                                            (synced from Convex)
+                                            Explicitly confirmed audience
+                                            (all active or filtered)
 ```
 
 ### Human-in-the-loop
@@ -115,12 +115,12 @@ There is no ArticleCard or article count in MVP. Text, links, buttons, images an
 3. Preview rendered email (desktop + mobile).
 4. Successful testmail on the exact revision.
 5. Approve send or schedule.
-6. Convex freezes recipients and internal workers queue per-recipient delivery through the Resend component.
+6. Convex freezes recipients immediately for Send nu or at the actual scheduled send moment, then queues per-recipient delivery through the Resend component.
 7. Webhooks update delivery stats.
 
 ---
 
-## Segmentation (TBD)
+## Segmentation (confirmed)
 
 **Default (MVP):** One shared body per campaign, sent to all eligible subscribers or narrowed by explicit division and favorite-team filters.
 
@@ -146,6 +146,7 @@ All are visually editable and versioned in admin. Required security variables ar
 Required for Belgian/EU email marketing:
 
 - One-click unsubscribe link in every newsletter (Resend `List-Unsubscribe` header)
+- Locked `Voorkeuren aanpassen` link in every campaign footer
 - Link zet alleen `newsletterSubscribed = false` en activeert Convex suppression; `siteAccess` blijft actief
 - Physical/editorial address in footer (TBD)
 - Privacy policy link
@@ -175,7 +176,7 @@ Styling: same De Voetbalgazet admin shell.
 | Piece | Choice |
 |-------|--------|
 | Visual campaign editor | `@react-email/editor` |
-| Fixed section | Minimal React Email compliancefooter |
+| Fixed section | Footer with unsubscribe, preferences and required legal/contact links |
 | Transactional content | Versioned visual editor documents with typed variables |
 | Send | Resend via Convex component |
 | Subscriber audience | Convex subscribers + indexed preference projection |
@@ -198,7 +199,7 @@ Docs: [Resend Convex component](https://www.convex.dev/components/resend)
 
 ## MVP checklist
 
-- [ ] Free-form React Email editor with locked compliancefooter
+- [ ] Free-form React Email editor with locked unsubscribe + preferences footer
 - [ ] R2 image upload via `onUploadImage` and permanent CDN URLs
 - [ ] Visually editable/versioned welcome, magic-link and verification emails
 - [ ] Convex subscriber eligibility and preference indexes

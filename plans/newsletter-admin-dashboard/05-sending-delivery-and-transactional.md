@@ -200,6 +200,17 @@ Beide gebruiken een purpose-bound opaque token en zetten uitsluitend:
 
 Een oude geldige uitschrijflink moet bruikbaar blijven zolang het subscriberprofiel bestaat. Gebruik daarom een opgeslagen random token of langlevend revocable token, niet een kort 15-minuten auth-token.
 
+### Vaste campagnefooter
+
+De niet-bewerkbare footer van iedere nieuwsbriefcampagne bevat:
+
+- `Uitschrijven`;
+- `Voorkeuren aanpassen`;
+- privacy- en voorwaardenlink;
+- verplichte juridische/contactinformatie zodra ingevuld.
+
+`Voorkeuren aanpassen` gebruikt een eigen purpose-bound token, maakt/ververst een verifiedSubscriber-session en opent `/voorkeuren`. De redacteur kan deze link niet verwijderen, hernoemen of vervangen in de editor.
+
 ## Veilige artikel- en voorkeurenlinks
 
 ### Artikel

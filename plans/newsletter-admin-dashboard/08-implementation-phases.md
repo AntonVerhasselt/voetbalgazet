@@ -189,14 +189,14 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - previewaggregaten;
 - gemaskeerde sample;
 - readable audience description;
-- previewversion/staleness.
+- previewtimestamp en finale count-delta voor audit.
 
 ### Admin
 
 - publieksscherm;
 - filterchips;
 - reach breakdown;
-- stale state;
+- informatieve previewtimestamp;
 - empty audience blocker.
 
 ### Tests
@@ -333,7 +333,7 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - internal `runAt`;
 - schedule generation guard;
 - Europe/Brussels conversie;
-- stale count review;
+- finale countberekening zonder automatische stop;
 - cleanup crons;
 - recovery;
 - alerts/monitoring.
@@ -342,7 +342,7 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 
 - planning UI;
 - DST-copy;
-- needs-review state;
+- preview-versus-final countweergave;
 - settings;
 - dienstmailoverzicht;
 - incident/kill switch UI.
@@ -352,7 +352,7 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - winter/zomertijd;
 - old scheduled worker no-op;
 - cancel race;
-- countafwijking;
+- countafwijking stopt send niet en wordt correct geaudit;
 - cleanup;
 - missing webhook;
 - alert simulations.
@@ -360,7 +360,7 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 ### Exitcriteria
 
 - geplande send werkt zonder handmatige aanwezigheid;
-- gemiste/afwijkende schedule stuurt niets stilzwijgend.
+- gemiste schedule wordt gealerteerd; gewone audiencecountafwijking verstuurt door met actuele eligibility.
 
 ## Fase 9 — analytics en polish
 

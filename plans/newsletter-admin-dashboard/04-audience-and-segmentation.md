@@ -12,6 +12,15 @@ De redacteur moet:
 
 Segmentatie is geen vervanging voor consent- en deliverychecks. Die basisfilters zijn altijd actief en kunnen niet door de UI worden uitgeschakeld.
 
+## Bevestigde standaardselectie
+
+Een nieuw of leeg concept start met `Alle actieve abonnees`. Dit is een echte audiencekeuze, geen verborgen impliciete fallback:
+
+- het publieksscherm toont de selectie en count;
+- de redacteur moet ze expliciet bevestigen vóór test/send;
+- filters zijn optioneel;
+- dupliceren kopieert de vorige audiencefilters.
+
 ## Basisgeschiktheid
 
 Een subscriber is alleen eligible wanneer op het moment van snapshot:
@@ -24,7 +33,7 @@ Een subscriber is alleen eligible wanneer op het moment van snapshot:
 6. het adres syntactisch geldig en genormaliseerd is;
 7. subscriber niet administratief geblokkeerd of verwijderd is.
 
-Niet vereist:
+Bevestigd niet vereist:
 
 - `emailVerifiedAt` is gevuld.
 
@@ -53,7 +62,7 @@ EN
 (favoriete club is X OF Y)
 ```
 
-Dit is de aanbevolen vaste MVP-logica. Een vrije boolean querybuilder is foutgevoelig en maakt audiencebeschrijvingen moeilijk controleerbaar.
+Dit is de bevestigde vaste MVP-logica. Een vrije boolean querybuilder is foutgevoelig en maakt audiencebeschrijvingen moeilijk controleerbaar.
 
 ## Voorbeelden
 
@@ -109,18 +118,18 @@ Preview gebruikt:
 - een kortlevende previewcache op filterhash + subscriber data version;
 - een duidelijke “wordt berekend”-state.
 
-De getoonde count is informatief. De finale count wordt opnieuw berekend en bevroren na sendbevestiging.
+De getoonde count is informatief. Bij Send nu wordt de finale count direct na bevestiging berekend; bij scheduling pas op het geplande sendmoment.
 
-### Stale preview
+### Gewijzigde count na preview
 
 Als subscribers of suppressions veranderen na preview:
 
-- controlescherm meldt dat de preview ouder is;
-- bij finale confirm maakt backend een nieuwe snapshot;
-- wanneer count sterk wijzigt, aanbevolen drempel meer dan 5% of 50 ontvangers, stopt de send en vraagt opnieuw bevestiging;
-- kleinere verschillen worden getoond in audit/resultaat.
+- het systeem stopt of annuleert de send niet vanwege een countverschil;
+- de backend gebruikt altijd de actuele eligibility en voorkeuren op snapshotmoment;
+- preview count, finale count en verschil worden in audit/resultaat getoond;
+- unsubscribes, suppressions en nieuwe geldige subscribers worden automatisch correct verwerkt.
 
-Dit voorkomt dat een oude preview onbedoeld naar een veel groter publiek verstuurt.
+De finale typed sendbevestiging blijft vereist op het moment dat de campagne wordt gepland of direct gestart. Er komt geen tweede bevestiging alleen wegens audiencegroei.
 
 ## Finale audiencebeschrijving
 
@@ -137,7 +146,7 @@ Deze beschrijving staat:
 
 ## Immutable recipient snapshot
 
-Na confirm:
+Bij Send nu start dit direct na confirm. Bij een geplande campagne start dezelfde flow pas op het geplande sendmoment:
 
 1. maak `newsletterSend`;
 2. claim campagne zodat geen tweede send kan starten;
@@ -221,7 +230,7 @@ Manual unsuppress:
 
 ## Geplande sends
 
-De recipient snapshot wordt aanbevolen **op sendmoment**, niet bij planning, gemaakt.
+De recipient snapshot wordt **op sendmoment**, niet bij planning, gemaakt.
 
 Redenen:
 
@@ -229,13 +238,7 @@ Redenen:
 - nieuwe subscribers kunnen de wekelijkse editie nog ontvangen;
 - voorkeuren op het moment van verzending zijn leidend.
 
-Het controlescherm bij plannen bewaart alleen de preview count. Op sendmoment geldt de stale-previewregel. Bij een grote afwijking:
-
-- sendstatus gaat naar `needs_review`;
-- redactie krijgt melding;
-- niets wordt gequeued tot nieuwe confirm.
-
-Als deze extra status te complex blijkt voor de eerste technische versie, gebruik dan een conservatieve vaste drempel en annuleer automatisch met duidelijke foutmelding.
+Het controlescherm bij plannen bewaart de preview count als referentie. Op sendmoment wordt zonder extra review de actuele eligible recipientlijst gemaakt. Het verschil verschijnt achteraf in audit en resultaten.
 
 ## Segmentatie buiten MVP
 
@@ -252,13 +255,15 @@ Later, alleen na aparte productbeslissing:
 
 Gedragssegmentatie en re-engagement hebben grotere privacy- en deliverability-impact en worden niet stilzwijgend toegevoegd.
 
+Bevestigde MVP-grens: alle recipients binnen één campagne krijgen dezelfde handmatig gemaakte editorcontent. Voorkeuren bepalen alleen inclusion/exclusion.
+
 ## Acceptatiecriteria
 
 - Geen filter kan unsubscribed, hard-bounced of complained ontvangers toevoegen.
 - OR binnen dimensie en AND tussen dimensies is zichtbaar en getest.
 - Audience preview verklaart inclusie en uitsluiting.
 - Finale sendcount wordt server-side opnieuw bepaald.
-- Grote afwijking vraagt herbevestiging.
+- Audiencecountverschil stopt de send niet en wordt wel geaudit.
 - Snapshotcreatie is hervatbaar en idempotent.
 - Subscriber wordt maximaal eenmaal per send opgenomen.
 - Unsubscribe vlak vóór enqueue wordt nog gerespecteerd.

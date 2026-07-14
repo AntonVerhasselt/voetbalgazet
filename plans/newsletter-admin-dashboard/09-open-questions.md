@@ -98,45 +98,19 @@ Voeg later `publisher` capability toe wanneer er meerdere redacteurs zijn en fun
 
 ---
 
-### 6. Moeten geplande sends al in de eerste release?
+### 6. Scheduling in launch-MVP — bevestigd
 
-**Aanbevolen standaard**
-
-Ja, als onderdeel van de launch-MVP, naast Send nu.
-
-**Waarom**
-
-Een wekelijkse nieuwsbrief wordt betrouwbaarder wanneer redactie vooraf kan klaarzetten. Het plan voorziet veilige interne scheduling, cancel en DST.
-
-**Alternatief**
-
-Fase 8 uitstellen en launchen met alleen Send nu vermindert scope zonder het datamodel te breken.
-
-**Bij geen antwoord**
-
-Scheduling wordt gebouwd vóór publieke launch.
+Ja. De eerste release ondersteunt Send nu en expliciete scheduling in `Europe/Brussels`, zonder automatische wekelijkse cron.
 
 ---
 
-### 7. Moet de inhoud per subscriber gepersonaliseerd worden?
+### 7. Geen contentpersonalisatie — bevestigd
 
-**Aanbevolen standaard**
-
-Nee in MVP. Voorkeuren beperken alleen de doelgroep; alle ontvangers van één send krijgen dezelfde body.
-
-**Waarom**
-
-Per-persoonblokken vermenigvuldigen render-, preview-, test- en redactionele complexiteit. Eerst moet betrouwbare segmentatie en delivery staan.
-
-**Bij geen antwoord**
-
-Geen contentpersonalisatie; architectuur houdt per-recipient rendering voor veilige links wel mogelijk.
+Voorkeuren beperken alleen het publiek. Alle ontvangers van één send krijgen dezelfde handmatig gemaakte editorcontent; per-recipient rendering dient alleen veilige links/footerwaarden.
 
 ---
 
-### 8. Wat betekent filteren op meerdere reeksen en clubs?
-
-**Aanbevolen standaard**
+### 8. Filterlogica — bevestigd
 
 - OR binnen reeksen;
 - OR binnen clubs;
@@ -144,13 +118,14 @@ Geen contentpersonalisatie; architectuur houdt per-recipient rendering voor veil
 
 Voorbeeld: `(P1 OF P2) EN (Club A OF Club B)`.
 
-**Waarom**
+Er komt geen vrije boolean builder.
 
-Dit is voorspelbaar, uitlegbaar en past bij gangbare audiencebuilders.
+Aanvullend bevestigd:
 
-**Bij geen antwoord**
-
-Gebruik deze vaste logica; geen vrije boolean builder.
+- nieuwe campagnes selecteren standaard `Alle actieve abonnees`, maar de redacteur moet dit publiek expliciet bevestigen;
+- bij een actieve clubfilter vallen subscribers zonder favoriete club buiten het publiek;
+- ongeverifieerde single-opt-in subscribers zijn eligible zolang geen suppression/bounce/complaint geldt;
+- saved audiences komen niet in MVP; dupliceren kopieert de filters.
 
 ---
 
@@ -174,19 +149,9 @@ Ja, minstens één succesvolle test op exact dezelfde revision, senderconfig en 
 
 ---
 
-### 11. Wanneer wordt het publiek van een geplande send bevroren?
+### 11. Scheduled audience op sendmoment, zonder countstop — bevestigd
 
-**Aanbevolen standaard**
-
-Op het echte sendmoment.
-
-**Waarom**
-
-Zo respecteren we late unsubscribes en nemen we nieuwe geldige wekelijkse subscribers mee. Bij grote afwijking van preview gaat send naar review.
-
-**Bij geen antwoord**
-
-Snapshot op sendmoment, met herbevestiging bij >5% of >50 verschil.
+De concrete recipients worden op het echte sendmoment bepaald. Late unsubscribes, preferencewijzigingen en nieuwe geldige subscribers tellen mee. Een verschil met de preview count stopt de send niet en vraagt geen tweede bevestiging; preview, finale count en delta worden geaudit.
 
 ---
 
@@ -204,19 +169,9 @@ Gebruik niet `r2.getUrl()` in verzonden mails: die signed URL verloopt standaard
 
 ---
 
-### 14. Moeten opens/clicks gebruikt worden om automatisch opnieuw te mailen?
+### 14. Geen automatische resend naar non-openers — bevestigd
 
-**Aanbevolen standaard**
-
-Nee.
-
-**Waarom**
-
-Open data is onbetrouwbaar en resend-to-non-openers verhoogt irritatie en privacy/deliverabilityrisico.
-
-**Bij geen antwoord**
-
-Statistieken alleen voor inzicht; geen automations.
+Open/clickstatistieken zijn voor inzicht. Ze starten geen automatische resend.
 
 ---
 
@@ -226,7 +181,7 @@ Statistieken alleen voor inzicht; geen automations.
 
 - De volledige custom e-mailinhoud wordt in de editor gemaakt.
 - Er is geen vaste header, masthead, brand shell of template.
-- Alleen nieuwsbriefcampagnes krijgen een niet-bewerkbare compliancefooter met unsubscribe en verplichte juridische informatie.
+- Alleen nieuwsbriefcampagnes krijgen een niet-bewerkbare compliancefooter met `Uitschrijven`, `Voorkeuren aanpassen` en verplichte juridische/contactinformatie.
 - Transactionele e-mails krijgen geen marketing-unsubscribefooter; alleen hun vereiste typed systeemvariabelen worden gevalideerd.
 - Preheader is verplicht vóór test/live send, maar mag tijdens draft nog leeg zijn.
 
@@ -329,16 +284,17 @@ Gebruik `media.devoetbalgazet.be`.
 | Tracking | Alle ondersteunde Resend tracking, inclusief opens en clicks |
 | Schaaldoel | Geen hard limit; initieel ontwerpen/testen voor 100.000 |
 | Sendrol | Admin + Journalist bevestigd |
-| Scheduling | In launch-MVP |
-| Personalisatie | Alleen audiencefilter, niet body |
-| Filterlogica | OR binnen, AND tussen dimensies |
+| Scheduling | Bevestigd in launch-MVP; Send nu + expliciet plannen |
+| Personalisatie | Bevestigd: alleen audiencefilter, niet body |
+| Filterlogica | Bevestigd: OR binnen, AND tussen dimensies |
 | Transactionele content | Visueel bewerkbaar en versioned; typed vereiste systeemvariabelen |
 | Testmail | Verplicht |
-| Scheduled snapshot | Op sendmoment |
+| Scheduled snapshot | Op sendmoment; countverschil stopt send niet |
+| Saved audiences | Niet in MVP; dupliceren kopieert filters |
 | HTML import | Uit |
 | Beelden | React Email `onUploadImage` → Convex R2 → permanente `media.devoetbalgazet.be` URL |
 | Automatische resend | Uit |
-| Vaste footer | Alleen compliance/unsubscribe; niet bewerkbaar |
+| Vaste footer | Campagnes: `Uitschrijven` + `Voorkeuren aanpassen` + juridische/contactinfo; niet bewerkbaar |
 | Preheader | Verplicht vóór test/send |
 | Templates | Geen; leeg starten of dupliceren |
 | Artikels | Geen koppeling/count; inhoud volledig custom |

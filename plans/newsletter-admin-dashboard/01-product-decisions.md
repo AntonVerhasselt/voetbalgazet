@@ -50,7 +50,6 @@ Er zijn geen templates, artikelblokken of automatische contentkoppelingen in het
 ```text
 draft
   ├─> scheduled ──> preparing ──> sending ──> sent
-  │       ├─> needs_review ──> preparing
   │       └─> cancelled
   └───────────────> preparing ──> sending ──> sent
                                 ├─> partially_failed
@@ -61,7 +60,6 @@ draft
 |--------|-----------|-----------|
 | `draft` | Ja | Inhoud, onderwerp en doelgroep kunnen wijzigen |
 | `scheduled` | Alleen planning | Inhoud en filterdefinitie zijn bevroren; concrete recipients worden pas op sendmoment bepaald |
-| `needs_review` | Nee | Doelgroep wijkt te sterk af van de geplande preview; opnieuw bevestigen of annuleren |
 | `preparing` | Nee | Ontvangerslijst wordt bevroren en jobs worden aangemaakt |
 | `sending` | Nee | Resend-component verwerkt de queue |
 | `sent` | Nee | Alle ontvangers hebben een finale of gequeue-de providerstatus |
@@ -77,7 +75,6 @@ Nederlandse statuslabels:
 |--------|----|
 | `draft` | Concept |
 | `scheduled` | Gepland |
-| `needs_review` | Opnieuw controleren |
 | `preparing` | Ontvangers voorbereiden |
 | `sending` | Wordt verzonden |
 | `sent` | Verzonden |
@@ -95,7 +92,7 @@ Een nieuw concept krijgt:
 - leeg editor-document;
 - standaard afzender en reply-to uit e-mailinstellingen;
 - geen geplande datum;
-- standaardpubliek: alle actieve nieuwsbriefsubscribers;
+- standaardpubliek: alle actieve nieuwsbriefsubscribers, nog expliciet te bevestigen op het publieksscherm;
 - status `draft`;
 - een eerste inhoudsversie.
 
@@ -150,7 +147,7 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 6. Redacteur verstuurt minstens één testmail.
 7. Controlescherm valideert ontbrekende links, footer, onderwerp en doelgroep.
 8. Redacteur kiest “Nu verzenden” of een tijdstip.
-9. Finale modal herhaalt naam, onderwerp, audienceomschrijving en exact aantal ontvangers.
+9. Finale modal herhaalt naam, onderwerp, audienceomschrijving en de actuele preview count. Bij Send nu wordt dit direct de finale count; bij scheduling kan de finale count op sendmoment afwijken.
 10. Na bevestiging wordt de campagne immutable. Bij Send nu wordt direct een ontvangerssnapshot gemaakt; bij scheduling gebeurt dat op het geplande sendmoment.
 11. Resultatenscherm volgt queue, afleveringen en fouten.
 
@@ -198,7 +195,7 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 | Afzendernaam | Eén divisie: `De Voetbalgazet — {{Divisionnaam}}`; anders `De Voetbalgazet` |
 | Reply-To | `redactie@devoetbalgazet.be` |
 | Sendmoment | Handmatig of expliciet gepland; geen automatische wekelijkse cron |
-| Standaardpubliek | Alle actieve, niet-gesuppresseerde nieuwsbriefsubscribers |
+| Standaardpubliek | Alle actieve, niet-gesuppresseerde nieuwsbriefsubscribers; expliciet bevestigen vóór send |
 | Segmentlogica | OR binnen één voorkeurtype, AND tussen verschillende voorkeurtypes |
 | Inhoudspersonalisatie | Geen in MVP |
 | Tracking | Alle ondersteunde Resend tracking aan; opens indicatief labelen |

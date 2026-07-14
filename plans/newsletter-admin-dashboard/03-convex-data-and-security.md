@@ -66,7 +66,7 @@ Eén record per nieuwsbriefconcept/campagne.
 | `internalName` | string | Naam in adminlijst |
 | `subject` | string | Onderwerpregel |
 | `preheader` | string? | Inboxpreview |
-| `status` | union | Status uit productmodel, inclusief `needs_review` |
+| `status` | union | Status uit productmodel |
 | `activeRevisionId` | Id? | Huidige opgeslagen inhoud |
 | `sendRevisionId` | Id? | Immutable versie voor geplande/live send |
 | `audienceDefinitionId` | Id? | Opgeslagen filters |
@@ -375,9 +375,6 @@ Elke transitionmutation controleert huidige status:
 draft -> scheduled      toegestaan
 draft -> preparing      toegestaan na confirm
 scheduled -> cancelled  toegestaan vóór claim
-scheduled -> needs_review alleen interne scheduler bij grote countafwijking
-needs_review -> preparing alleen na nieuwe expliciete confirm
-needs_review -> cancelled toegestaan
 scheduled -> preparing  alleen interne scheduler
 preparing -> sending    alleen wanneer snapshot klaar is
 sending -> sent/...     alleen aggregator

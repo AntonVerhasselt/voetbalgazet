@@ -23,13 +23,14 @@ Een nieuwsbrief bestaat uit:
 editor output (volledig visueel en vrij opgebouwd)
 └─ locked compliance footer
    ├─ unsubscribe link (persoonlijk)
+   ├─ voorkeuren aanpassen (persoonlijke verified-session bootstrap)
    ├─ verplichte juridische/contactgegevens
    └─ technische tracking/accessibilitymetadata
 ```
 
 Er is geen vaste brandheader, masthead, contenttemplate, artikelstructuur of styling boven de footer. De redacteur bouwt iedere e-mail volledig zelf met de editor of vertrekt van een duplicaat.
 
-De footer is niet selecteerbaar of bewerkbaar in het editor-document. Ze wordt pas in preview en serverrendering toegevoegd. Dit garandeert unsubscribe en wettelijk vereiste informatie zonder de custom inhoud te beperken.
+De footer is niet selecteerbaar of bewerkbaar in het editor-document. Ze wordt pas in preview en serverrendering toegevoegd. Dit garandeert unsubscribe, voorkeurenbeheer en wettelijk vereiste informatie zonder de custom inhoud te beperken.
 
 Transactionele e-mails gebruiken dezelfde vrije editor. Hun type kan daarnaast verplichte systeemvariabelen eisen, bijvoorbeeld een magic-linkknop. De redacteur bepaalt tekst, volgorde en visuele opbouw; de server blokkeert publicatie wanneer een vereiste systeemvariabele ontbreekt of semantisch werd gewijzigd.
 
@@ -273,6 +274,7 @@ Blokkerend:
 - lege body;
 - ontbrekende afzender;
 - ongeldige of ontbrekende uitschrijfmogelijkheid in de vaste footer;
+- ongeldige of ontbrekende `Voorkeuren aanpassen`-link in de vaste footer;
 - onbekend editorformat;
 - ongeldige linkschema's;
 - body groter dan limiet;

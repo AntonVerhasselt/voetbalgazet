@@ -63,7 +63,6 @@ Route: `/admin/nieuwsbrieven`
 |--------|----------------|-------------------|
 | draft | Bewerken | Dupliceren, verwijderen |
 | scheduled | Bekijken | Tijdstip wijzigen, nu verzenden, planning annuleren, dupliceren |
-| needs_review | Opnieuw controleren | Nieuwe count bevestigen, annuleren |
 | preparing/sending | Resultaten volgen | Dupliceren |
 | sent/partially_failed/failed | Resultaten | Dupliceren |
 | cancelled | Bekijken | Dupliceren |
@@ -177,7 +176,7 @@ Route: `/admin/nieuwsbrieven/[campaignId]/publiek`
 ### Selectie
 
 - vaste banner: “Uitgeschreven, gebouncete en klagende adressen worden altijd uitgesloten”;
-- alle actieve subscribers;
+- standaardselectie “Alle actieve abonnees”, die de redacteur expliciet bevestigt;
 - reekschips gegroepeerd per provincie;
 - zoekbare clubpicker;
 - leesbare filterzin;
@@ -235,7 +234,7 @@ Vermeld groot:
 
 - onderwerp;
 - audiencebeschrijving;
-- **exact aantal ontvangers**;
+- actuele preview count; bij scheduling met duidelijke melding dat de finale count op sendmoment kan wijzigen;
 - sendmoment/tijdzone;
 - afzender;
 - “Na bevestiging kan de inhoud niet meer worden gewijzigd.”
@@ -243,7 +242,7 @@ Vermeld groot:
 Aanbevolen confirm:
 
 ```text
-Typ VERSTUREN om naar 1.284 ontvangers te verzenden.
+Typ VERSTUREN om deze verzending voor het getoonde publiek te bevestigen.
 ```
 
 Voor kleine test-/interne audiences kan een gewone checkbox volstaan, maar één consistent patroon is eenvoudiger en veiliger.
@@ -432,7 +431,7 @@ In-app:
 - send afgerond;
 - gedeeltelijke failure;
 - bounce/complaint spike;
-- scheduled send requires review door countafwijking.
+- verschil tussen preview count en finale scheduled-send count, uitsluitend informatief.
 
 Optioneel later transactionele adminmail naar redactie. Geen Slack/Twilio toevoegen zonder expliciete keuze.
 

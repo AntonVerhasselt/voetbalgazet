@@ -240,7 +240,7 @@ Aanbevolen:
 
 - Critical: complaint rate boven interne drempel, sender config ongeldig, dubbele send gedetecteerd;
 - Warning: bounce rate > 2%, failure rate > 1%, scheduled send gemist, webhook 15 min stil tijdens active send;
-- Info: send voltooid, countafwijking vereist review.
+- Info: send voltooid en eventueel verschil tussen preview- en finale recipient count.
 
 Exacte thresholds na eerste campagnes baselinen. Hard-coded industrybenchmarks zijn geen vervanging voor eigen lijstkwaliteit.
 
@@ -352,6 +352,7 @@ Development/staging gebruiken uitsluitend testMode en allowlisted testadressen. 
 
 - Privacycopy beschrijft werkelijke tracking.
 - Footer bevat alle vereiste gegevens.
+- Vaste `Uitschrijven`- en `Voorkeuren aanpassen`-links werken end-to-end.
 - SPF/DKIM/DMARC en webhook zijn geverifieerd.
 - Retentiecleanup draait en is getest.
 - Alerts werken met gesimuleerde fouten.

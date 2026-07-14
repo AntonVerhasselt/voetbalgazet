@@ -172,7 +172,7 @@ Article gate flow (from design):
 
 ### Phase 5 — Newsletter
 - Open-source React Email visual editor in admin
-- Free-form React Email editor for campaigns and transactional emails; only newsletter campaigns append a locked unsubscribe/compliance footer
+- Free-form React Email editor for campaigns and transactional emails; only newsletter campaigns append a locked footer with unsubscribe, preference management and legal/contact information
 - Convex-managed audience filtering by subscriber preferences
 - Test, send-now and explicit scheduling via Resend component
 - Delivery webhooks, suppressions and results
@@ -186,7 +186,7 @@ Detailed source of truth: [`newsletter-admin-dashboard/`](./newsletter-admin-das
 | Concern | Approach |
 |---------|----------|
 | **Performance** | Static pages on CDN; minimal client JS on public site |
-| **Privacy (GDPR)** | Consent at signup, unsubscribe in every email, data export/delete |
+| **Privacy (GDPR)** | Consent at signup, unsubscribe + preference management in every campaign, data export/delete |
 | **Reliability** | Convex reactivity for admin; idempotent webhook handlers |
 | **Cost control** | OpenRouter model selection per task; rate limits on agents |
 | **Observability** | Convex logs + optional PostHog for site analytics |
