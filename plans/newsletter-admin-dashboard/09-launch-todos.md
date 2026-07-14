@@ -4,9 +4,11 @@ Alle product- en architectuurvragen voor het MVP zijn beantwoord. Dit document b
 
 ## Bedrijfs- en footergegevens
 
-- [x] Juridische naam en rechtsvorm: YARU DAKEN BV
+- [x] KBO-naam: YARU DAKEN (rechtsvorm: Besloten Vennootschap; weergave in copy: YARU DAKEN BV)
 - [x] Fysiek/maatschappelijk adres: Van Duyststraat 60, 2100 Antwerpen, België
-- [x] KBO 1017.634.522 en btw BE 1017.634.522
+- [x] KBO 1017.634.522 en btw BE 1017.634.522 ([KBO Public Search](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522))
+- [x] Oprichting / actief sinds: 19 december 2024
+- [x] Bestuurder: Anton Verhasselt
 - [x] Redactiecontact: redactie@devoetbalgazet.be
 - [ ] Privacy-/supportcontact definitief bevestigen
 - [ ] Verantwoordelijke uitgever vermelden waar juridisch vereist

@@ -4,10 +4,11 @@ Dit document bevat uitgestelde gegevens en checks die niet nodig zijn om de prod
 
 ## Bedrijfs- en contactgegevens
 
-- [x] Juridische naam en rechtsvorm: YARU DAKEN BV
+- [x] KBO-naam: YARU DAKEN (rechtsvorm: Besloten Vennootschap; weergave in copy: YARU DAKEN BV)
 - [x] Maatschappelijke zetel: Van Duyststraat 60, 2100 Antwerpen, België
-- [x] KBO-nummer: 1017.634.522
+- [x] KBO-nummer: 1017.634.522 ([KBO Public Search](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522))
 - [x] Btw-nummer: BE 1017.634.522
+- [x] Oprichting / actief sinds: 19 december 2024
 - [x] Algemeen contactadres: redactie@devoetbalgazet.be
 - [ ] Privacy-/supportadres
 - [x] Geen telefoonnummer gepubliceerd in KBO; niet opnemen zolang geen publiek nummer gekozen is

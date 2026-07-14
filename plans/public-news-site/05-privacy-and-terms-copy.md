@@ -2,7 +2,21 @@
 
 > **Status:** werktekst, geen juridisch advies. Vervang alle `[PLACEHOLDERS]` en laat de definitieve versie vóór lancering juridisch nakijken in België. De tekst moet overeenkomen met de werkelijk gebouwde datastromen, leverancierscontracten, regio's en bewaartermijnen.
 
-> **Officiële ondernemingsgegevens:** gecontroleerd via [KBO Public Search — ondernemingsnummer 1017.634.522](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522). KBO bevestigt YARU DAKEN BV, actieve besloten vennootschap, zetel Van Duyststraat 60, 2100 Antwerpen, btw-plichtig en Anton Verhasselt als bestuurder. De KBO bepaalt niet wie als verantwoordelijke uitgever moet worden vermeld.
+> **Officiële ondernemingsgegevens:** gecontroleerd via [KBO Public Search — ondernemingsnummer 1017.634.522](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522) op 13/07/2026.
+>
+> | KBO-veld | Waarde |
+> |----------|--------|
+> | Ondernemingsnummer | 1017.634.522 |
+> | Status | Actief |
+> | Naam (Nederlands) | YARU DAKEN |
+> | Rechtsvorm | Besloten Vennootschap |
+> | Adres van de zetel | Van Duyststraat 60, 2100 Antwerpen |
+> | Begindatum | 19 december 2024 |
+> | Bestuurder | Anton Verhasselt (sinds 19 december 2024) |
+> | Btw-plicht | Ja (sinds 1 januari 2025) |
+> | Telefoon / e-mail / web in KBO | Geen gegevens opgenomen |
+>
+> In juridische copy en footers gebruiken we de gangbare weergave **YARU DAKEN BV** (KBO-naam + rechtsvorm). Operationeel contactadres is `redactie@devoetbalgazet.be`; dat staat niet in KBO. De KBO bepaalt niet wie als verantwoordelijke uitgever moet worden vermeld.
 
 ---
 

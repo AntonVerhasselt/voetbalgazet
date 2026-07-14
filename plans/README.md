@@ -85,7 +85,7 @@ Deze cloudomgeving kon de map opnieuw niet openen. Kopieer de bron naar `design/
 - **Article publishing flow:** ✅ **Decided** — Keystatic/Git is source of truth; publish commit triggers Vercel SSG rebuild; client-side soft registration gate.
 - **Newsletter cadence:** ✅ **Decided** — editorial send-now or explicit schedule in `Europe/Brussels`; no automatic weekly cron.
 - **Admin roles:** ✅ **Decided for current scope** — Admin and Journalist manage campaigns/articles; Viewer read-only; only Admin changes transactional emails.
-- **Legal:** ✅ KBO data filled for YARU DAKEN BV; privacy/supportaddress, responsible publisher and final Belgian legal review remain launch checks.
+- **Legal:** ✅ KBO verified ([1017.634.522](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522)) — YARU DAKEN BV; privacy/support address, responsible publisher and final Belgian legal review remain launch checks.
 
 ## Status
 

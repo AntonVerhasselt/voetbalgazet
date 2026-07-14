@@ -151,7 +151,7 @@ Required for Belgian/EU email marketing:
 - One-click unsubscribe link in every newsletter (Resend `List-Unsubscribe` header)
 - Locked `Voorkeuren aanpassen` link in every campaign footer
 - Link zet alleen `newsletterSubscribed = false` en activeert Convex suppression; `siteAccess` blijft actief
-- Physical/editorial address in footer (YARU DAKEN BV, Van Duyststraat 60, 2100 Antwerpen — final legal review in [`newsletter-admin-dashboard/09-launch-todos.md`](./newsletter-admin-dashboard/09-launch-todos.md))
+- Physical/editorial address in footer (YARU DAKEN BV — KBO YARU DAKEN, Van Duyststraat 60, 2100 Antwerpen — [KBO](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522); final legal review in [`newsletter-admin-dashboard/09-launch-todos.md`](./newsletter-admin-dashboard/09-launch-todos.md))
 - Privacy policy link
 - Record consent timestamp and version at signup
 - Handle bounces/complaints via Resend webhooks

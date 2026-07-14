@@ -180,8 +180,8 @@ Elke nieuwsbrief bevat:
 
 - afzender De Voetbalgazet;
 - waarom de ontvanger de mail krijgt;
-- `YARU DAKEN BV`, Van Duyststraat 60, 2100 Antwerpen, België;
-- KBO 1017.634.522 en btw BE 1017.634.522;
+- `YARU DAKEN BV` (KBO-naam YARU DAKEN, rechtsvorm Besloten Vennootschap), Van Duyststraat 60, 2100 Antwerpen, België;
+- KBO 1017.634.522 en btw BE 1017.634.522 ([bron](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522));
 - redactie@devoetbalgazet.be;
 - privacylink;
 - voorkeurenlink;

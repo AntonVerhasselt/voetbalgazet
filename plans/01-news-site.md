@@ -215,4 +215,4 @@ Geen raw e-mail, e-mailhash, magic token, vrije formuliertekst of URL-token. Ses
 
 Alle product- en architectuurbeslissingen voor deze planningsfase zijn bevestigd. De artikelroute is `/nieuws/[slug]`; de statische soft-gatebeperking en het zwakke membershipsignaal zijn expliciet aanvaard.
 
-KBO-gegevens voor YARU DAKEN BV zijn ingevuld. Privacy-/supportadres, verantwoordelijke uitgever en finale juridische review blijven launchchecks.
+KBO-gegevens voor YARU DAKEN BV zijn geverifieerd via [KBO Public Search](https://kbopub.economie.fgov.be/kbopub/toonondernemingps.html?ondernemingsnummer=1017634522). Privacy-/supportadres, verantwoordelijke uitgever en finale juridische review blijven launchchecks.
