@@ -10,6 +10,7 @@ Planning documents for a Dutch-language news platform covering local football in
 |------|-------------|
 | [00-general-plan.md](./00-general-plan.md) | Architecture, tech stack, cross-cutting concerns, phasing |
 | [01-news-site.md](./01-news-site.md) | Static public site, email gate, subscriber preferences |
+| [public-news-site/](./public-news-site/) | Refined public-site decisions, auth, SEO, UX/analytics, legal copy |
 | [02-admin-dashboard.md](./02-admin-dashboard.md) | AI journalist dashboard, agent flows, human-in-the-loop |
 | [03-newsletter.md](./03-newsletter.md) | Resend React Email builder, sends, subscriber sync |
 
@@ -80,12 +81,12 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 
 - **Football data source:** Where do match results, calendars, and standings come from? Manual import, scraping, third-party API (e.g. Voetbal Vlaanderen)?
 - **Team/division catalog:** Prototype uses hardcoded Flemish provinces + P1/P2/P3 divisions — do we mirror official Voetbal Vlaanderen structure?
-- **Subscriber auth model:** ✅ **Decided** — Better Auth magic link for re-auth + HttpOnly session cookies for persistence (not localStorage). Open: session duration, instant unlock vs. email verify on signup, newsletter deep-link auth.
-- **Article publishing flow:** Static rebuild on publish (ISR/webhook) vs. hybrid with Convex-served gated content?
+- **Subscriber auth model:** ✅ **Decided** — immediate Better Auth anonymous reader-session, verified identity via magic/newsletter link, 90-day HttpOnly cookie.
+- **Article publishing flow:** ✅ **Decided** — Convex content snapshots trigger a fully static Vercel rebuild; client-side soft registration gate.
 - **Interview subjects:** How are contacts sourced (club websites, manual CRM, scraped)?
 - **Newsletter cadence:** "Eén e-mail per week" per design copy — fixed schedule or editorial trigger?
 - **Admin users:** Single editor or multi-user newsroom with roles?
-- **Legal:** GDPR consent copy, unsubscribe, data retention for interview recordings.
+- **Legal:** Public-site draft copy exists; business placeholders, retention and combined signup proposition still require Belgian legal review.
 
 ## Status
 

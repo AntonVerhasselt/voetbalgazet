@@ -1,339 +1,213 @@
-# Component 1 — Public News Site
+# Component 1 — Publieke nieuwssite
 
-## Purpose
+## Doel
 
-A **fully static** Next.js blog-style site in Dutch covering local football in Flanders. Articles are discoverable (headlines, dek, metadata) but **full content is email-gated**. New readers subscribe via a short form and set preferences (divisions + favourite team).
+Een snelle, volledig statische Nederlandstalige nieuwssite over lokaal voetbal in Vlaanderen. Bezoekers kunnen alle headlines, intro's en beelden ontdekken. De volledige tekst is gratis na een e-mailabonnement met nieuwsbrief en voetbalvoorkeuren.
 
----
+Dit document is het architecturale overzicht. De verfijnde bron van waarheid staat in:
 
-## Design reference
+| Detailplan | Inhoud |
+|------------|--------|
+| [`public-news-site/01-product-decisions.md`](./public-news-site/01-product-decisions.md) | Alle bevestigde keuzes en resterende vragen |
+| [`public-news-site/02-access-and-auth.md`](./public-news-site/02-access-and-auth.md) | Better Auth, onmiddellijke toegang en 90-dagensessies |
+| [`public-news-site/03-static-content-and-seo.md`](./public-news-site/03-static-content-and-seo.md) | Soft gate, volledig statische body, SEO en RSS |
+| [`public-news-site/04-public-ux-and-analytics.md`](./public-news-site/04-public-ux-and-analytics.md) | Publieke UX en PostHog-eventplan |
+| [`public-news-site/05-privacy-and-terms-copy.md`](./public-news-site/05-privacy-and-terms-copy.md) | Nederlandstalige juridische conceptcopy |
 
-Implement layouts and components from the Open Design prototype:
+## Designreferentie
 
-```
+Implementatie volgt de Open Design-prototypefolder:
+
+```text
 /Users/antonverhasselt/Library/Application Support/Open Design/namespaces/release-stable-intel/data/projects/a132ea15-213e-409f-9e25-e762711453c3
 ```
 
-| Screen | File | Notes |
-|--------|------|-------|
-| Homepage | `homepage.html` | Compact masthead, hero feature + "Het laatste" sidebar, inline subscribe band |
-| Article (full) | `article.html` | Editorial typography, drop cap, blockquote, reading time |
-| Article (gated) | `article-gate.html` | Blurred body + expanding bottom sheet gate |
-| Shared styles | `styles.css`, `brand-spec.md` | Tokens, masthead, buttons, gate, preference UI |
-| Gate logic | `subscribe.js` | Multi-step flow prototype |
+Belangrijkste bestanden: `homepage.html`, `article.html`, `article-gate.html`, `subscribe.js`, `styles.css` en `brand-spec.md`.
+
+De prototypefolder is niet aanwezig op de cloudmachine. Kopieer hem vóór implementatie naar de repository of een gedeelde locatie. Nieuwe productkeuzes hebben voorrang op het prototype: onder meer geen “Niet nu”, geen zelfstandige loginpagina en minstens één verplichte reeks.
 
 **Voice:** *Lokaal voetbal, echte verhalen.*
 
----
+## Bevestigde productregels
 
-## Pages & routes
+- Nieuwe subscribers lezen onmiddellijk; geen verplichte double opt-in vóór toegang.
+- De eerste CTA activeert zowel siteAccess als de wekelijkse nieuwsbrief.
+- `siteAccess` en `newsletterSubscribed` zijn aparte flags.
+- Nieuwsbrief uitschrijven verwijdert website-toegang niet.
+- Sessies duren 90 dagen, sliding, zonder remember-me.
+- Apparaten zijn onbeperkt.
+- Geen accountpagina, zelfstandige loginpagina of zichtbare logout.
+- Gate en homepage gebruiken dezelfde inschrijfflow.
+- Geen gate-dismiss: gated content vereist een leessessie.
+- Minstens één reeks; maximaal één optionele favoriete club.
+- Voorkeuren beïnvloeden alleen de nieuwsbrief, nooit de statische site.
+- Redactie kan met `isGated: false` een volledig vrij artikel publiceren.
+- Alle analytics via PostHog Cloud EU met privacyvriendelijke defaults.
 
-| Route | Type | Description |
-|-------|------|-------------|
-| `/` | Static | Homepage — featured story, latest list, subscribe CTA |
-| `/verhalen` | Static | Archive / category listing (TBD) |
-| `/verhalen/[slug]` | Static | Article page with gate for unsubscribed visitors |
-| `/abonneren` | Static or redirect | Standalone subscribe (optional; homepage + gate cover this) |
-| `/inloggen` | Client | Magic link login for returning subscribers (new device / expired session) |
-| `/auth/callback` | Server route | Magic link verification → sets session cookie → redirect |
-| `/voorkeuren` | Auth required | Edit division/team preferences |
-| `/privacy`, `/voorwaarden` | Static | Legal (TBD) |
+## Routes
 
----
+| Route | Type | Beschrijving |
+|-------|------|--------------|
+| `/` | Statisch | Homepage en inline inschrijving |
+| `/verhalen` | Statisch | Artikelarchief |
+| `/verhalen/[slug]` | Statisch + client gate | Artikel met lead-in en gated body |
+| `/voorkeuren` | Statische shell + verified session | Alleen via veilige e-maillink |
+| `/privacy` | Statisch | Privacyverklaring |
+| `/voorwaarden` | Statisch | Gebruiksvoorwaarden en wettelijke vermeldingen |
+| `/api/auth/*` | Same-origin dynamische handler | Dunne Better Auth/Convex bridge voor cookies en callbacks |
 
-## Static generation strategy
+Niet voorzien: `/abonneren`, `/inloggen` en `/account`.
 
-**Goal:** Public HTML served from Vercel CDN with no server render for article reads.
+## Statische contentstrategie
 
-### Option A — MDX/markdown in repo (recommended start)
-- Articles committed as MDX in `content/articles/`
-- `next build` generates all pages
-- Frontmatter: title, dek, kicker, division, author, date, slug, featured image
-- Webhook from admin publish → trigger Vercel rebuild
+Convex is de redactionele contentbron. Bij publiceren:
 
-### Option B — Convex as CMS at build time
-- Build script fetches published articles from Convex
-- Same static output, content managed in dashboard
+1. admin maakt een gepubliceerde snapshot;
+2. signed deploy hook start Vercel build;
+3. build haalt gepubliceerde content op;
+4. Next.js genereert homepage, archief, artikels, sitemap, RSS en zoekindex;
+5. Vercel levert immutable HTML/assets via CDN.
 
-**Gate handling on static pages:**
-- Static HTML includes teaser + blurred/truncated body (or placeholder)
-- Client checks subscriber session via Better Auth (`getSession` / `useSession`)
-- Session is stored in an **HttpOnly cookie** (not localStorage) — see [Subscriber session persistence](#subscriber-session-persistence)
-- If valid → fetch full content from Convex API or embed encrypted payload
-- If invalid → show gate sheet (matches `article-gate.html`)
+De volledige artikelbody staat statisch in de HTML. Een geldige Better Auth-reader-session verwijdert de client-side gate. Dit is bewust een **soft registration gate**: uitstekend voor snelheid en SEO, maar technisch omzeilbaar via broncode/devtools. Omdat toegang gratis is, is dit de gekozen MVP-trade-off.
 
-> **Open question:** Full static body in HTML vs. client fetch after auth affects SEO and paywall semantics. Need to decide.
+## Publieke artikelpreview
 
-> **Note:** Public article pages can remain static (SSG/ISR). Auth API routes (`/api/auth/*`) must be dynamic on the same domain so session cookies work. A pure `output: 'export'` build is **not** compatible with cookie-based auth unless auth is proxied on the same origin.
+Een gated artikel toont vóór de sheet:
 
----
+- headline en kicker/reeks;
+- dek/intro;
+- hoofdbeeld;
+- auteur, datum en leestijd;
+- eerste 2–3 inhoudelijke alinea's.
 
-## Email gate flow
+De rest staat in één `.paywall`-wrapper met `data-nosnippet`.
 
-Matches prototype `article-gate.html` + `subscribe.js`:
+SEO:
 
-### Step 1 — Email
-- Copy: *"Abonneer om verder te lezen"*
-- Dek: *"Dit artikel is gratis, maar je hebt een abonnement op De Voetbalgazet nodig om het volledig te lezen. Eén e-mail per week — lokaal voetbal, geen ruis."*
-- Validate email format
-- Store pending signup in Convex
-- Send confirmation / magic link via Resend (TBD: double opt-in)
+- `NewsArticle` JSON-LD;
+- gated: `isAccessibleForFree: false` + `hasPart.cssSelector: ".paywall"`;
+- vrij: `isAccessibleForFree: true`;
+- canonical, Open Graph, social image, sitemap en Google News-compatibele metadata;
+- Googlebot krijgt dezelfde statische HTML, dus geen cloaking.
 
-### Step 2 — Preferences
-- Copy: *"Jouw voorkeuren"* — *"Zoek clubs of kies reeksen — minstens één keuze."*
-- **Favourite club:** searchable autocomplete (from `teams` table)
-- **Favourite reeks:** province tabs (5 Flemish provinces) + division chips (P1, P2-A, P2-B, P3-A, P3-B, P3-C per prototype)
-- Validation: at least one division OR one team
-- CTA: *"Opslaan en verder lezen"*
+RSS bevat metadata en 150–300 woorden lead-in, niet de volledige gated body.
 
-### Step 3 — Success
-- *"Welkom bij De Voetbalgazet."*
-- Unlock article in UI
-- Create Better Auth session → **HttpOnly session cookie** set on response
-- Subscriber stays logged in across visits until session expires or they log out
+## Toegangsmodel
 
-### Returning subscribers
-- *"Al abonnee? Log in."* → enter email → magic link sent
-- User clicks link **once** → `/auth/callback` verifies token → session cookie set
-- **Subsequent visits:** browser sends cookie automatically; no magic link needed
-- Magic link is only for: new device, cleared cookies, or expired session
+### Opslag
 
-### Dismiss
-- *"Niet nu"* closes sheet; blurred content remains
-- Optional: store dismiss flag in `sessionStorage` (UX only, not auth) so sheet stays closed for the tab session
+Gebruik HttpOnly `Secure` `SameSite=Lax` cookies via `@convex-dev/better-auth`, nooit localStorage voor auth.
 
----
+### Twee niveaus
 
-## Subscriber session persistence
+| Niveau | Toegang | Identiteit |
+|--------|---------|------------|
+| `reader` | Alle artikels | Anonymous Better Auth-session; geen subscriberdata |
+| `verifiedSubscriber` | Alle artikels + voorkeuren wijzigen | E-mail bewezen via magic/newsletter-link |
 
-### Decision: HttpOnly cookies (not localStorage)
+Een bestaand e-mailadres op een nieuw apparaat geeft onmiddellijk reader-toegang, maar kan de bestaande subscriberidentiteit niet veilig overnemen. Een e-mailadres is geen geheim. De link in de inbox promoveert de sessie zonder de lezer te blokkeren.
 
-Research conclusion — **do not store auth tokens in localStorage or sessionStorage**:
+### Nieuwe subscriber
 
-| Storage | Verdict | Why |
-|---------|---------|-----|
-| **HttpOnly cookie** | ✅ Recommended | Invisible to JavaScript → XSS cannot steal session. Industry standard (OWASP, Better Auth default). |
-| **localStorage** | ❌ Reject | Any script on the page can read tokens. One XSS = full account takeover. |
-| **sessionStorage** | ❌ For auth | Same XSS risk; also lost when tab closes. OK only for non-sensitive UX state (e.g. gate dismissed). |
-| **In-memory token** | ⚠️ Partial | Safe from persistence theft but user logged out on every refresh — bad UX for a news site. |
+1. E-mail.
+2. Minstens één reeks + optioneel één club.
+3. “Abonneer en lees verder”.
+4. `siteAccess = true`, `newsletterSubscribed = true`, consentbewijs opgeslagen.
+5. Anonymous reader-session + 90-daagse HttpOnly cookie.
+6. Artikel onmiddellijk open.
+7. Welkomstmail met link om e-mail/apparaat te verifiëren.
 
-**Magic link ≠ login every visit.** Magic link is a one-time proof of email ownership. After verification, Better Auth issues a **persistent session cookie** that the browser sends on every request.
+Een typo behoudt alleen reader-toegang op dat apparaat; de identiteit blijft ongeverifieerd.
 
-### Recommended stack
+### Newsletterlinks
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Public site (voetbalgazet.be) — same origin                │
-├─────────────────────────────────────────────────────────────┤
-│  Static pages (SSG)     │  Dynamic auth routes              │
-│  /, /verhalen/[slug]    │  /api/auth/* (Better Auth)        │
-│                         │  /auth/callback (magic link)      │
-└────────────┬────────────┴──────────────┬────────────────────┘
-             │                           │
-             │  getSession()             │  Set-Cookie: session_token
-             │  (cookie sent auto)       │  HttpOnly; Secure; SameSite=Lax
-             ▼                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Better Auth via @convex-dev/better-auth                      │
-│  Sessions in Convex `session` table                           │
-└─────────────────────────────────────────────────────────────┘
-```
+Een opaque, ondertekend bootstrap-token wordt via same-origin callback ingewisseld voor een verified 90-dagensessie. Daarna volgt een redirect naar de schone canonieke artikel-URL en opent het artikel volledig. Token/PII komt niet in PostHog of blijvende URLs.
 
-### Configuration (proposed defaults)
+## Better Auth en Convex
+
+Better Auth draait met de Convex-component voor users, sessies, anonymous linking en magic links. Een dunne Next.js handler onder het publieke domein is wel nodig om cookies first-party te zetten en Safari/ITP-problemen met een apart Convex-domein te vermijden. Dit is geen tweede backend: businesslogica en persistente data blijven in Convex.
+
+## Voorkeuren
 
 ```typescript
-// convex/auth.ts (Better Auth config)
-session: {
-  expiresIn: 60 * 60 * 24 * 90,  // 90 days — TBD with product owner
-  updateAge: 60 * 60 * 24 * 7,   // sliding refresh every 7 days of activity
-  cookieCache: {
-    enabled: true,
-    maxAge: 5 * 60,              // 5 min cache to reduce DB reads
-    strategy: "compact",
-  },
-},
-advanced: {
-  defaultCookieAttributes: {
-    httpOnly: true,
-    secure: true,                // production
-    sameSite: "lax",             // allows inbound links from email/newsletter
-  },
-},
-plugins: [
-  magicLink({
-    expiresIn: 60 * 15,          // magic link itself: 15 min (one-time use)
-    sendMagicLink: async ({ email, url }) => {
-      // Resend transactional email
-    },
-  }),
-],
+type Province =
+  | "Antwerpen"
+  | "Limburg"
+  | "Oost-Vlaanderen"
+  | "West-Vlaanderen"
+  | "Vlaams-Brabant";
+
+type DivisionKey = `${Province}::${string}`;
 ```
 
-### Client-side gate unlock flow
+- minstens één `divisionId`;
+- maximaal één optionele `favoriteTeamId`;
+- teams/reeksen komen uit Convex;
+- aanpassen via veilige link in de nieuwsbrief;
+- alleen verifiedSubscriber mag bestaande voorkeuren lezen/wijzigen.
 
-```typescript
-// On article page mount (client component)
-const { data: session, isPending } = authClient.useSession();
+## Homepage
 
-useEffect(() => {
-  if (session?.user) {
-    // Subscriber authenticated — fetch full article body from Convex
-    fetchFullArticle(slug);
-  }
-}, [session, slug]);
-```
+1. Masthead met logo, zoeken en “Abonneren”.
+2. Feature story + “Het laatste”.
+3. Statische secties per categorie/reeks.
+4. Inline inschrijving met exact dezelfde logica als de article gate.
+5. Footer met privacy, voorwaarden en support.
 
-### What localStorage *may* store (non-auth only)
+## Analytics
 
-| Key | Purpose | Sensitive? |
-|-----|---------|------------|
-| `gate_dismissed_{slug}` | Remember "Niet nu" per article (optional) | No |
-| `prefs_draft` | Unsaved preference picker state during signup | No |
-| — | **Never** session tokens, subscriber IDs, or emails for auth | — |
+PostHog Cloud EU, cookieless publieke default, IP-capture uit:
 
-### New signup vs. returning login
+- page/article views;
+- gate impressions;
+- e-mail- en voorkeurenstappen zonder e-mailwaarde;
+- signup success/failure;
+- artikelunlock en leesdiepte;
+- newsletter bootstrap;
+- voorkeurenupdates;
+- auth/errorcodes en Core Web Vitals.
 
-| Flow | Magic link required? | Session set how? |
-|------|---------------------|------------------|
-| **New subscriber at gate** (email → prefs → success) | TBD — see open questions (instant unlock vs. verify email first) | On success mutation + Better Auth sign-up |
-| **Returning subscriber** ("Al abonnee? Log in") | Yes, once per device/session expiry | Click magic link → cookie |
-| **Newsletter link** (`?token=…` in email) | Could double as session bootstrap | TBD — see open questions |
+Geen raw e-mail, e-mailhash, magic token, vrije formuliertekst of URL-token. Session replay is geen MVP zonder aparte analyticsconsent.
 
-### Security notes
+## Juridisch
 
-- **CSRF:** Better Auth handles CSRF for cookie-based auth; keep `disableCSRFCheck: false`.
-- **Logout:** `authClient.signOut()` revokes server session + clears cookie.
-- **Shared devices:** Optional "Uitloggen" link in footer; consider shorter `expiresIn` if concern.
-- **Safari / ITP:** Auth API must be **same origin** as the site (not a separate Convex URL in the browser). Proxy `/api/auth` through Next.js on Vercel.
+- Single opt-in met één duidelijke bevestigende CTA en privacy-/voorwaardenlinks.
+- Geen prechecked checkbox.
+- Elke nieuwsbrief heeft een gratis uitschrijflink.
+- Uitschrijven laat siteAccess bestaan.
+- Verwijderverzoek via support; volledige verwijdering trekt siteAccess en sessies in.
+- `/privacy` en `/voorwaarden` zijn verplicht vóór launch.
+- Conceptcopy staat in [`public-news-site/05-privacy-and-terms-copy.md`](./public-news-site/05-privacy-and-terms-copy.md).
+- Laat de gecombineerde initiële nieuwsbrief + artikeltoegang vóór lancering Belgisch juridisch beoordelen.
 
-### Rejected alternatives
+## MVP-checklist
 
-| Alternative | Why rejected |
-|-------------|--------------|
-| Custom JWT in localStorage | XSS risk; reinventing what Better Auth already does with cookies |
-| Subscriber ID in localStorage | Trivially spoofable — anyone could paste a fake ID |
-| Long-lived opaque token in URL (`?sub=abc`) | Leaks via referrers, browser history, analytics |
-| Password for readers | Unnecessary friction for a free email-gated newsletter site |
+- [ ] Open Design-assets in toegankelijke repository plaatsen
+- [ ] Design tokens, masthead, footer en responsive layouts
+- [ ] Statische homepage, archief en artikeltemplate
+- [ ] `isGated` en publieke lead-in
+- [ ] Verplichte gate zonder dismiss
+- [ ] Gedeelde gate/homepage inschrijfflow
+- [ ] Convex subscriberstatussen en consentrecord
+- [ ] Better Auth Convex-component, anonymous + magic link
+- [ ] 90-daagse HttpOnly sessions
+- [ ] Same-origin `/api/auth/*` handler
+- [ ] Resend welkomst-/verificationmail
+- [ ] Newsletter bootstrap exchange
+- [ ] Reeks- en clubpicker met echte data
+- [ ] Verified preferences-route
+- [ ] PostHog eventtaxonomie en dashboards
+- [ ] NewsArticle/paywall JSON-LD, canonical, OG, sitemap
+- [ ] Excerpt-only RSS
+- [ ] Privacy en voorwaarden invullen + juridische review
+- [ ] Accessibility, security, performance en SEO-tests
+- [ ] Publish/rebuildpipeline
 
----
+## Resterende beslissingen
 
-## Preference data model
-
-From prototype (`subscribe.js`):
-
-```typescript
-// Province keys
-"Antwerpen" | "Limburg" | "Oost-Vlaanderen" | "West-Vlaanderen" | "Vlaams-Brabant"
-
-// Division keys stored as "Province::Division"
-"Antwerpen::P1", "Oost-Vlaanderen::P3-B", ...
-
-// Teams
-{ name: string, province: string }
-```
-
-**Production:** Replace hardcoded `TEAMS` array with Convex `teams` table synced from official or curated source.
-
----
-
-## Homepage layout (from design)
-
-1. **Masthead** — centered logo, search toggle, "Abonneren" CTA top-right, edition date line
-2. **Home fold** — large feature story (left) + "Het laatste" list (right)
-3. **Section grids** — more stories by division/category (extend from prototype)
-4. **Subscribe band** — inline email → preferences flow (same component as gate step 2)
-
----
-
-## Article layout (from design)
-
-- Kicker (division · context) — mono, uppercase
-- H1 headline — Playfair Display
-- Dek — lead paragraph
-- Byline — author, date, reading time
-- Body — 17px body, drop cap on first paragraph, blockquotes, subheads
-- Footer — copyright + tagline
-
----
-
-## Tech implementation
-
-| Concern | Choice |
-|---------|--------|
-| Framework | Next.js 15+ App Router |
-| Styling | Tailwind + CSS variables from `styles.css` |
-| Fonts | Playfair Display (Google Fonts) + system sans |
-| Hosting | Vercel |
-| Subscriber API | Convex mutations/queries |
-| Auth (readers) | Better Auth magic link + **HttpOnly session cookies** (via `@convex-dev/better-auth`) |
-| Session storage | HttpOnly `Secure` `SameSite=Lax` cookie — **not** localStorage |
-| Session duration | 90 days sliding (proposed) — magic link only for re-auth |
-| Email | Resend via Convex component |
-| Images | Next/Image + R2 URLs |
-| Search | Client-side or Pagefind on static build (TBD) |
-| i18n | Dutch only; `lang="nl"` |
-
----
-
-## SEO & social
-
-- Open Graph + Twitter cards per article
-- Structured data (`NewsArticle`)
-- Sitemap.xml at build
-- Canonical URLs
-- Gated content: show headline/dek to crawlers; full body policy TBD
-
----
-
-## Analytics (optional)
-
-PostHog via Convex component:
-- Page views, gate impressions, signup funnel (email → prefs → success)
-- Article unlock rate
-
----
-
-## Dependencies on other components
-
-| Dependency | Why |
-|------------|-----|
-| **Admin** | Publishes articles → triggers rebuild |
-| **Newsletter** | Subscriber emails collected here feed newsletter list |
-| **Convex** | Subscribers, teams, divisions, session validation |
-
----
-
-## MVP checklist
-
-- [ ] Port design tokens + masthead + footer
-- [ ] Homepage with static mock articles
-- [ ] Article template (full + gated variants)
-- [ ] Gate sheet component (email → prefs → success)
-- [ ] Convex subscriber signup mutation
-- [ ] Team/division picker wired to real data
-- [ ] Better Auth subscriber auth (magic link + session cookies)
-- [ ] Session check on article pages (`useSession` → unlock)
-- [ ] `/auth/callback` route for magic link verification
-- [ ] Logout ("Uitloggen") in footer
-- [ ] Publish pipeline (even manual MDX first)
-- [ ] Vercel deploy + rebuild webhook stub
-
----
-
-## Open questions
-
-### Auth & sessions (new — needs product decisions)
-
-1. **New signup instant unlock vs. email verification:** Can a new subscriber read immediately after gate prefs, or must they click a confirmation link first? (GDPR/marketing law vs. friction)
-2. **Session duration:** 30, 90, or 365 days before re-auth? "Remember me" checkbox or always long-lived?
-3. **Newsletter deep links:** Should clicking an article link in the weekly email auto-authenticate (signed URL/token), or still require an existing session?
-4. **Multi-device policy:** Unlimited concurrent sessions, or cap devices per subscriber?
-5. **Account recovery:** If email bounces / typo at signup, any self-service fix or support-only?
-
-### Content & product (existing)
-
-6. Double opt-in required for Belgian law?
-7. Can unsubscribed users read any articles fully (editor's choice flag)?
-8. Full-text search scope — titles only or body?
-9. Categories beyond division (e.g. "Transfernieuws", "Jeugd", "Analyse" from prototype)?
-10. RSS feed — full or excerpt only?
+1. Definitieve domein- en bedrijfsgegevens.
+2. Categorieën/filters voor `/verhalen`.
+3. Officiële club- en reeksbron.
+4. Newsletter bootstrap-token: voorstel 30 dagen.
+5. Inactiviteitsbeleid voor actieve siteAccess-profielen.
+6. Juridische goedkeuring van inschrijfcopy en bewaartermijnen.

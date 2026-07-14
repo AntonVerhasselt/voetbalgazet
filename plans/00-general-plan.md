@@ -108,19 +108,20 @@ Indexes: by email, by slug, by publish status, by subscriber preferences for new
 
 | Audience | Mechanism |
 |----------|-----------|
-| **Subscribers (readers)** | Email capture at gate → Better Auth session via **HttpOnly cookie**; magic link only for first login on a device or after expiry |
+| **Subscribers (readers)** | Better Auth anonymous reader-session for immediate access; verified identity via magic/newsletter link; 90-day HttpOnly cookie |
 | **Admin (journalists)** | Better Auth — email/password or OAuth; role-based access to dashboard |
 | **Webhooks** | Twilio, Resend, Vercel deploy hooks — signed secrets |
 
 Article gate flow (from design):
 
-1. User hits gated article → blurred preview + bottom sheet.
-2. Enter email → validate → step 2 preferences (min. one division or team).
-3. Save → unlock article + add to subscriber list + **session cookie set** (stays logged in).
-4. Returning users on same device: cookie auto-authenticates — no magic link.
-5. Returning users on new device / expired session: *"Al abonnee? Log in"* → magic link → cookie set for 90 days (proposed).
+1. User hits gated article → public lead-in + mandatory bottom sheet.
+2. Enter email; a new subscriber selects at least one division and optionally one team.
+3. “Abonneer en lees verder” sets separate `siteAccess` and `newsletterSubscribed` flags.
+4. Better Auth anonymous reader-session unlocks immediately with a 90-day HttpOnly cookie.
+5. Returning users on the same device auto-authenticate.
+6. Existing email on a new device receives immediate reader access, but identity is only verified by magic/newsletter link.
 
-**Session storage:** HttpOnly `Secure` `SameSite=Lax` cookies via Better Auth — **not** localStorage (XSS risk). See [01-news-site.md § Subscriber session persistence](./01-news-site.md#subscriber-session-persistence).
+**Session storage:** HttpOnly `Secure` `SameSite=Lax` cookies via Better Auth — **not** localStorage (XSS risk). See [public news site auth plan](./public-news-site/02-access-and-auth.md).
 
 ---
 
@@ -131,7 +132,7 @@ Article gate flow (from design):
 | Admin → News site | Publish triggers static rebuild; article JSON/MDX exported or fetched at build |
 | Admin → Newsletter | Published articles available for issue curation |
 | News site → Convex | Signup, preferences, gate verification |
-| News site → Resend | Double opt-in confirmation (TBD) |
+| News site → Resend | Welcome/verification link; single opt-in newsletter |
 | Admin agents → Twilio | WhatsApp messages to schedule interviews |
 | Admin agents → OpenAI | Realtime voice sessions for phone interviews |
 | Admin agents → OpenRouter | Analysis, ideation, drafting |
@@ -152,8 +153,9 @@ Article gate flow (from design):
 ### Phase 2 — Public site
 - Full static article pipeline
 - Email gate + preference picker (real team/division data)
-- Magic link / session unlock (HttpOnly cookies, 90-day sliding session)
-- SEO, sitemap, RSS (optional)
+- Better Auth anonymous + verified sessions (90-day HttpOnly cookie)
+- Immediate reader access + welcome/newsletter bootstrap links
+- Paywall structured data, sitemap and excerpt RSS
 
 ### Phase 3 — Admin MVP
 - Article CRUD with human editor
@@ -208,4 +210,4 @@ Article gate flow (from design):
 2. Decide static content strategy (MDX in repo vs. Convex-generated at build).
 3. Define MVP scope for admin AI flows (which agent first?).
 4. Newsletter segmentation rules (all subscribers vs. preference-filtered).
-5. Legal copy and double opt-in requirements for Belgian email marketing.
+5. Belgian legal review of combined site access + required initial newsletter opt-in.

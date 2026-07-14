@@ -34,15 +34,16 @@ Email templates should mirror the newspaper aesthetic within email client constr
 **Source:** All email addresses captured via:
 - Article email gate (`article-gate.html` flow)
 - Homepage inline subscribe band
-- Standalone subscribe page (if added)
 
 Stored in Convex `subscribers` table:
 - `email` (required, unique)
-- `preferences.divisions[]` — e.g. `"Oost-Vlaanderen::P3-B"`
-- `preferences.teams[]` — e.g. `{ name, province }`
-- `subscribedAt`, `consentVersion`
+- `divisionIds[]` — minstens één reeks
+- `favoriteTeamId` — optioneel, maximaal één club
+- `siteAccess` — staat los van nieuwsbriefstatus
+- `newsletterSubscribed`, `newsletterSubscribedAt`, `unsubscribedAt`
+- `consentCapturedAt`, `consentVersion`, `consentSource`
 - `resendContactId` (sync with Resend audience)
-- `status`: `active | unsubscribed | bounced`
+- `emailDeliveryStatus`: `unknown | deliverable | bounced`
 
 ---
 
@@ -52,7 +53,7 @@ Via [Convex Resend component](https://www.convex.dev/components/resend):
 
 | Capability | Use |
 |------------|-----|
-| **Transactional** | Welcome email, magic link, double opt-in confirmation |
+| **Transactional** | Welcome/verification, magic link, unsubscribe confirmation |
 | **Broadcast / batch** | Weekly newsletter send |
 | **React Email** | Template authoring in `emails/` directory |
 | **Webhooks** | Delivery, bounce, complaint events → update subscriber status |
@@ -141,8 +142,8 @@ Prototype preferences exist for this — product decision needed.
 | Email | Trigger |
 |-------|---------|
 | **Welcome** | After signup + preferences saved |
-| **Confirm subscription** | If double opt-in enabled |
-| **Magic link** | Returning reader login |
+| **Welcome + verify** | Na signup; lezen is al onmiddellijk ontgrendeld |
+| **Magic link** | Bevestig identiteit/apparaat voor subscriberfuncties |
 | **Unsubscribe confirm** | One-click unsubscribe |
 
 All use same brand components (Header/Footer).
@@ -154,7 +155,7 @@ All use same brand components (Header/Footer).
 Required for Belgian/EU email marketing:
 
 - One-click unsubscribe link in every newsletter (Resend `List-Unsubscribe` header)
-- Link updates Convex `subscribers.status` + Resend audience
+- Link zet alleen `newsletterSubscribed = false` en synchroniseert Resend; `siteAccess` blijft actief
 - Physical/editorial address in footer (TBD)
 - Privacy policy link
 - Record consent timestamp and version at signup
@@ -196,7 +197,7 @@ Docs: [Resend Convex component](https://www.convex.dev/components/resend)
 
 | Component | Integration |
 |-----------|-------------|
-| **News site** | Signups feed subscriber list; article URLs in email point to gated pages (subscribers already have access) |
+| **News site** | Signups feed subscriber list; article URLs bootstrap een 90-dagensessie en openen meteen volledig |
 | **Admin** | Article publish → available in issue picker; send approval in dashboard |
 | **Convex** | Single source of truth for subscribers + issue state |
 
@@ -219,9 +220,8 @@ Docs: [Resend Convex component](https://www.convex.dev/components/resend)
 
 ## Open questions
 
-1. Double opt-in before adding to newsletter list?
-2. Send day/time fixed (e.g. Thursday 7:00) or editorial discretion?
-3. Personalization in MVP or single blast for all?
-4. Include non-gated teaser content in email vs. full excerpts?
-5. Resend audience vs. raw email list — one audience or segmented lists per province?
-6. Editor's name/sign-off in newsletter?
+1. Send day/time fixed (e.g. Thursday 7:00) or editorial discretion?
+2. Personalization in MVP or single blast for all?
+3. Include non-gated teaser content in email vs. full excerpts?
+4. Resend audience vs. raw email list — one audience or segmented lists per province?
+5. Editor's name/sign-off in newsletter?
