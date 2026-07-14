@@ -155,7 +155,7 @@ Renderstrategie:
 1. parse en valideer immutable revision;
 2. render de gedeelde body éénmaal per sendrevision naar een veilig intermediate model;
 3. verwerk recipients in begrensde workpoolbatches, aanbevolen startgrootte 100;
-4. compose per recipient alleen de shell/linkwaarden met purpose-bound links;
+4. compose per recipient alleen de vaste footer en typed linkvariabelen met purpose-bound links;
 5. genereer HTML + plaintext zonder het volledige editor-document opnieuw te parsen;
 6. queue via de component, die providerbatching en rate limiting beheert.
 
@@ -337,36 +337,46 @@ Webhookhandler:
 
 ## Transactionele mails
 
-### Templates
+### Visueel beheer
 
-Code-based React Email in een gedeelde `emails/`-structuur:
+Welcome, magic link, verificatie, preferences confirmation, unsubscribe confirmation en adminalerts worden met dezelfde React Email editor in het adminplatform opgebouwd.
+
+Per transactioneel type:
+
+- één draftversie;
+- één expliciet gepubliceerde actieve versie;
+- immutable versiehistoriek;
+- typed toegestane systeemvariabelen;
+- lijst van verplichte variabelen;
+- preview met veilige dummywaarden;
+- verplichte testmail vóór publiceren;
+- rollback door een oude versie opnieuw als nieuwe actieve versie te publiceren.
+
+Voorbeeldvariabelen:
 
 ```text
-emails/
-├─ components/
-│  ├─ BrandHeader
-│  ├─ TransactionalFooter
-│  └─ Button
-├─ Welcome
-├─ MagicLink
-├─ VerifyEmail
-├─ PreferencesChanged
-├─ UnsubscribeConfirmed
-└─ AdminSendAlert
+{{magic_link}}
+{{verification_link}}
+{{subscriber_first_name}}  (alleen wanneer dit gegeven werkelijk bestaat)
+{{preferences_url}}
+{{support_email}}
 ```
 
-### Waarom niet visueel bewerkbaar
+Links/tokens zelf worden pas tijdens serverrendering ingevuld. De editor bewaart alleen de typed variable key. Een redacteur kan tekst, knoplabel, positie, kleuren en overige inhoud aanpassen, maar kan de secret tokenwaarde niet zien of opslaan.
 
-- beveiligingslinks moeten exact blijven;
-- transactionele copy hangt aan codeflow en versie;
-- iedere wijziging moet reviewbaar en testbaar zijn;
-- vrije editorinhoud vergroot phishing- en broken-auth risico;
-- vertakkingen en variabelen horen typed te zijn.
+Publicatie wordt geblokkeerd wanneer:
 
-Alle transactionele mails worden wel:
+- een vereiste variable ontbreekt;
+- onbekende variabelen zijn gebruikt;
+- een authlink door een gewone URL werd vervangen;
+- preview/render faalt;
+- geen succesvolle test op exact die versie bestaat.
+
+Alle transactionele mails worden:
 
 - door custom Convex-functions getriggerd;
-- met React Email gerenderd;
+- vanuit de actieve visueel gepubliceerde versie gerenderd;
+- zonder de marketing-newsletter unsubscribefooter;
 - via de Convex Resend-component verzonden;
 - in het custom adminoverzicht gemonitord;
 - nooit handmatig vanuit het Resend-dashboard gestart.

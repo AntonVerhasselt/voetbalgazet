@@ -154,35 +154,23 @@ Gebruik deze vaste logica; geen vrije boolean builder.
 
 ---
 
-### 9. Moeten transactionele templates ook visueel bewerkbaar zijn?
+### 9. Transactionele e-mails visueel bewerken — bevestigd
 
-**Aanbevolen standaard**
+Welcome, magic link, verificatie en andere dienstmails worden in dezelfde editor via het adminplatform beheerd.
 
-Nee. Ze blijven code-based React Email-templates, maar alle sends en statussen lopen via custom Convex/Resend.
+Veiligheidsgrenzen:
 
-**Waarom**
-
-Auth- en servicelinks vereisen typed variabelen, code review en voorspelbare copy. Vrije bewerking verhoogt phishing- en regressierisico.
-
-**Bij geen antwoord**
-
-Code-based transactionele templates met read-only adminpreview.
+- typed allowed/required systeemvariabelen;
+- secrets/tokens pas server-side invullen;
+- immutable versies en één actieve gepubliceerde versie;
+- preview met dummydata;
+- verplichte succesvolle test vóór publicatie.
 
 ---
 
-### 10. Is een succesvolle testmail verplicht vóór live send?
+### 10. Succesvolle testmail verplicht — bevestigd
 
-**Aanbevolen standaard**
-
-Ja, minstens één succesvolle test op exact dezelfde revision, senderconfig en linkconfig.
-
-**Waarom**
-
-Een browserpreview vindt geen provider-, inbox- of domainproblemen.
-
-**Bij geen antwoord**
-
-Test verplicht. Alleen Admin kan later eventueel een gelogde noodoverride krijgen.
+Ja, minstens één succesvolle test op exact dezelfde revision, senderconfig en linkconfig. Wijzigingen maken de test ongeldig. Er is geen noodoverride in MVP.
 
 ---
 
@@ -202,35 +190,17 @@ Snapshot op sendmoment, met herbevestiging bij >5% of >50 verschil.
 
 ---
 
-### 12. Mogen redacteurs HTML importeren of direct bewerken?
+### 12. Alleen de visuele editor — bevestigd
 
-**Aanbevolen standaard**
-
-Nee in MVP.
-
-**Waarom**
-
-Onbeperkte HTML omzeilt editorallowlists, breekt clients en verhoogt XSS/trackingrisico. Een latere Admin-only import kan via zware sanitization en preview.
-
-**Bij geen antwoord**
-
-Alleen visuele editorblokken.
+Gebruikers maken e-mails in de React Email editor. Er is geen aparte raw-HTML-import of broncode-editor in MVP.
 
 ---
 
-### 13. Mogen externe image-URL's gebruikt worden?
+### 13. Beelden via React Email + R2 — bevestigd en onderzocht
 
-**Aanbevolen standaard**
+Gebruik React Email `onUploadImage`, dat paste, drop, file picker en slash command ondersteunt. De callback gebruikt `@convex-dev/r2/react` `useUploadFile`, ontvangt een server-generated object key en retourneert een permanente URL onder aanbevolen `media.devoetbalgazet.be`.
 
-Nee. Importeer/upload naar gecontroleerde R2-opslag.
-
-**Waarom**
-
-Voorkomt hotlinkrot, externe tracking en onverwachte contentwijziging.
-
-**Bij geen antwoord**
-
-Alleen R2/CDN-URL's op allowlist.
+Gebruik niet `r2.getUrl()` in verzonden mails: die signed URL verloopt standaard na 15 minuten. Gebruik een Cloudflare R2 custom domain/CDN. Willekeurige externe image-URL's worden eerst naar R2 geïmporteerd.
 
 ---
 
@@ -252,68 +222,35 @@ Statistieken alleen voor inzicht; geen automations.
 
 ## Redactionele vragen
 
-### 15. Is er één vaste wekelijkse template?
+### Editorstructuur en preheader — bevestigd
 
-**Aanbevolen standaard**
+- De volledige custom e-mailinhoud wordt in de editor gemaakt.
+- Er is geen vaste header, masthead, brand shell of template.
+- Alleen nieuwsbriefcampagnes krijgen een niet-bewerkbare compliancefooter met unsubscribe en verplichte juridische informatie.
+- Transactionele e-mails krijgen geen marketing-unsubscribefooter; alleen hun vereiste typed systeemvariabelen worden gevalideerd.
+- Preheader is verplicht vóór test/live send, maar mag tijdens draft nog leeg zijn.
 
-Start met:
+### 15. Geen templates — bevestigd
 
-1. één leeg branded document;
-2. één `Wekelijkse editie`-template met redactienoot en 3–5 ArticleBlocks.
-
-Templates worden intern in code/Convex beheerd, niet in Resend.
-
-**Bij geen antwoord**
-
-Beide opties beschikbaar; lege start is default voor aankondiging, wekelijkse template voor reguliere editie.
+Een nieuwe e-mail start leeg. Hergebruik gebeurt uitsluitend door een bestaande e-mail te dupliceren.
 
 ---
 
-### 16. Hoeveel artikels bevat de standaardeditie?
+### 16. Geen artikelcount — bevestigd
 
-**Aanbevolen standaard**
-
-3–5 hoofdartikels. Waarschuw boven 8 artikelblokken.
-
-**Waarom**
-
-Past bij bestaande plan, houdt e-mail compact en vermindert Gmail clipping/lange mobiele mails.
-
-**Bij geen antwoord**
-
-Template bevat vier voorbeeldslots; redacteur kan aanpassen.
+De e-mail wordt volledig custom gemaakt. Er is geen artikelbegrip, standaardcount of harde/soft artikelwaarschuwing. Algemene HTML-grootte en Gmail clipping blijven wel technische waarschuwingen.
 
 ---
 
-### 17. Welke article data mag een redacteur overriden?
+### 17. Geen artikelkoppeling — bevestigd
 
-**Aanbevolen standaard**
-
-Headline en dek mogen in de nieuwsbrief worden ingekort zonder het artikel te wijzigen. Canonieke URL, artikel-ID, publicatiestatus en afbeeldingbron niet vrij overschrijven.
-
-**Waarom**
-
-Inboxcopy vraagt soms kortere tekst, maar links en publicatiestatus moeten betrouwbaar blijven.
-
-**Bij geen antwoord**
-
-Headline/dek override toegestaan en in campaign revision geaudit.
+Alle tekst, links, beelden en knoppen worden handmatig in de editor gemaakt. Er is geen artikel-ID, article picker of gesynchroniseerde metadata.
 
 ---
 
-### 18. Komt er een persoonlijke ondertekening?
+### 18. Geen vaste ondertekeningsfunctie — bevestigd
 
-**Aanbevolen standaard**
-
-Optioneel Redactienoot-blok met naam/functie; geen verplicht persoonlijk profiel in footer.
-
-**Waarom**
-
-Geeft menselijke toon zonder senderconfig per redacteur te fragmenteren.
-
-**Bij geen antwoord**
-
-Geen vaste ondertekening; template biedt optioneel blok.
+Wanneer een redacteur een naam, rol of sign-off wil, maakt die dit als gewone custom editorcontent. Er is geen speciaal sign-offblok.
 
 ---
 
@@ -365,6 +302,22 @@ Recovery volgens deze strikte regels.
 
 ---
 
+### 22. Welk permanent CDN-domein gebruiken e-mailbeelden?
+
+**Aanbevolen standaard**
+
+`media.devoetbalgazet.be`, gekoppeld aan de R2-bucket via een Cloudflare custom domain.
+
+**Waarom**
+
+React Email verwacht na upload een definitieve image URL. `r2.getUrl()` verloopt standaard na 15 minuten en is dus ongeschikt voor e-mail. Het `r2.dev` domein is rate-limited en niet geschikt voor productie.
+
+**Bij geen antwoord**
+
+Gebruik `media.devoetbalgazet.be`.
+
+---
+
 ## Samenvatting van defaults bij geen antwoord
 
 | Onderwerp | Default |
@@ -379,13 +332,15 @@ Recovery volgens deze strikte regels.
 | Scheduling | In launch-MVP |
 | Personalisatie | Alleen audiencefilter, niet body |
 | Filterlogica | OR binnen, AND tussen dimensies |
-| Transactioneel | Code-based React Email |
+| Transactionele content | Visueel bewerkbaar en versioned; typed vereiste systeemvariabelen |
 | Testmail | Verplicht |
 | Scheduled snapshot | Op sendmoment |
 | HTML import | Uit |
-| Externe beelden | Uit; R2 only |
+| Beelden | React Email `onUploadImage` → Convex R2 → permanente `media.devoetbalgazet.be` URL |
 | Automatische resend | Uit |
-| Templates | Leeg + wekelijkse editie |
-| Artikels | 3–5, waarschuwing boven 8 |
+| Vaste footer | Alleen compliance/unsubscribe; niet bewerkbaar |
+| Preheader | Verplicht vóór test/send |
+| Templates | Geen; leeg starten of dupliceren |
+| Artikels | Geen koppeling/count; inhoud volledig custom |
 | Alerts | In-app + transactionele adminmail |
 | Retentie | Defaults uit document 07 |

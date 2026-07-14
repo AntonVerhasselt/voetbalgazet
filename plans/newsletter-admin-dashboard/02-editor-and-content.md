@@ -9,38 +9,31 @@ De editor:
 - draait als clientcomponent in de Next.js-admin;
 - gebruikt TipTap/ProseMirror als documentmodel;
 - ondersteunt tekstblokken, links, afbeeldingen, kolommen, knoppen, dividers en email-safe styling;
-- kan met eigen `EmailNode`-extensies redactionele blokken aanbieden;
+- gebruikt in MVP standaard editorblokken plus een beperkt typed systeemvariabelen-node voor transactionele e-mails;
 - exporteert email-ready HTML en plaintext;
 - is geen vrije pixelcanvas en moet ook niet als dusdanig worden gepresenteerd.
 
 Definitieve API's, exports en extensiepunten moeten tijdens implementatie tegen de dan geïnstalleerde packageversie worden gecontroleerd. Het plan veronderstelt niet dat een blogvoorbeeld exact ongewijzigd compileert.
 
-## Belangrijke scheiding: shell en body
+## Vrije editor; vaste footer alleen voor campagnes
 
 Een nieuwsbrief bestaat uit:
 
 ```text
-NewsletterEnvelope (code-based, vergrendeld)
-├─ hidden preheader
-├─ brand header / masthead
-├─ editor body (visueel bewerkbaar)
-├─ preference link (persoonlijk)
-├─ unsubscribe link (persoonlijk)
-├─ privacy/contact/legal footer
-└─ tracking- en accessibilitymetadata
+editor output (volledig visueel en vrij opgebouwd)
+└─ locked compliance footer
+   ├─ unsubscribe link (persoonlijk)
+   ├─ verplichte juridische/contactgegevens
+   └─ technische tracking/accessibilitymetadata
 ```
 
-Alleen de **editor body** is vrij bewerkbaar.
+Er is geen vaste brandheader, masthead, contenttemplate, artikelstructuur of styling boven de footer. De redacteur bouwt iedere e-mail volledig zelf met de editor of vertrekt van een duplicaat.
 
-De vaste shell voorkomt dat een redacteur per ongeluk:
+De footer is niet selecteerbaar of bewerkbaar in het editor-document. Ze wordt pas in preview en serverrendering toegevoegd. Dit garandeert unsubscribe en wettelijk vereiste informatie zonder de custom inhoud te beperken.
 
-- de uitschrijflink verwijdert;
-- verplichte bedrijfsgegevens wist;
-- de masthead inconsistent maakt;
-- email-clientkritische HTML breekt;
-- persoonlijke tokens als gewone tekst opslaat.
+Transactionele e-mails gebruiken dezelfde vrije editor. Hun type kan daarnaast verplichte systeemvariabelen eisen, bijvoorbeeld een magic-linkknop. De redacteur bepaalt tekst, volgorde en visuele opbouw; de server blokkeert publicatie wanneer een vereiste systeemvariabele ontbreekt of semantisch werd gewijzigd.
 
-Desktop- en mobiele preview tonen altijd de samengestelde shell, niet alleen de body.
+Transactionele e-mails krijgen geen nieuwsbrief-unsubscribefooter. Alleen hun typed functionele vereisten worden buiten de vrije inhoud afgedwongen.
 
 ## Bronformaten
 
@@ -82,8 +75,8 @@ Bij plannen of verzenden:
 
 1. valideer het editor-document;
 2. maak een immutable `newsletterRevisions`-record;
-3. render body, shell en plaintext met de gedeelde renderer;
-4. bewaar renderer- en templateversie;
+3. render editoroutput, voor campagnes de minimale vaste footer, en plaintext met de gedeelde renderer;
+4. bewaar renderer-, editor-schema- en footerversie;
 5. koppel die revisie aan de send.
 
 Latere editor- of CSS-updates mogen een verzonden nieuwsbrief niet retrospectief veranderen.
@@ -96,10 +89,10 @@ Gebruik één gedeeld pakket/module voor:
 - thematokens;
 - documentvalidatie;
 - `composeReactEmail`;
-- React Email-shell;
+- conditionele compliancefooter voor nieuwsbriefcampagnes;
 - HTML- en plaintextrendering;
 - linktransformatie;
-- footer en headers.
+- footer, systeemvariabelen en headers.
 
 De browser gebruikt deze code voor preview. Een Convex Node action gebruikt dezelfde versies server-side voor test- en liveverzending.
 
@@ -107,7 +100,7 @@ De server vertrouwt geen door de browser aangeleverde finale HTML. Adminauth bes
 
 ## Thema
 
-Vertaal de Open Design-brand naar email-safe tokens:
+De editor mag neutrale De Voetbalgazet-defaults aanbieden, maar legt geen vaste template of huisstijlstructuur op:
 
 | Token | Aanbevolen toepassing |
 |-------|------------------------|
@@ -138,80 +131,67 @@ Gebruik inline styles en door React Email ondersteunde patronen. Geen paper grai
 - quote;
 - twee kolommen, alleen wanneer mobile stacking betrouwbaar is.
 
-### Eigen redactionele blokken
+### Geen domeinspecifieke contentblokken in MVP
 
-#### Artikelkaart
+Er is geen Artikelkaart, article picker, redactienoottemplate, vast aantal artikels of automatische koppeling met gepubliceerde content. De redacteur maakt tekst, links, knoppen, beelden en opbouw volledig handmatig met de standaard editorblokken.
 
-De redacteur kiest een gepubliceerd artikel uit Convex. Het node-document bewaart alleen stabiele referenties en expliciete overrides:
-
-```typescript
-type ArticleBlockAttributes = {
-  articleId: Id<"articles">;
-  revisionId: Id<"articleRevisions">;
-  showImage: boolean;
-  showDek: boolean;
-  ctaLabel: string;
-  headlineOverride?: string;
-  dekOverride?: string;
-};
-```
-
-Bij toevoegen wordt een concrete gepubliceerde artikelrevisie gekozen. Daardoor verandert de nieuwsbriefpreview niet stilzwijgend wanneer het live artikel later wordt aangepast. De link blijft wel naar de canonieke artikel-URL gaan.
-
-Render:
-
-- kicker/reeks;
-- headline;
-- optioneel hoofdbeeld;
-- dek;
-- auteur en datum indien gewenst;
-- `Lees verder →`;
-- purpose-bound subscriberlink pas tijdens recipient rendering.
-
-#### Redactienoot
-
-- optionele korte intro;
-- semantisch herkenbaar voor styling;
-- geen vrije scripts of embeds.
-
-#### Uitgelichte quote
-
-- quote + optionele bron;
-- email-safe typografie;
-- niet gebruiken voor persoonlijke of onbevestigde uitspraken zonder redactionele controle.
-
-### Later
-
-- wedstrijdkaart;
-- standings snippet;
-- sponsorblok;
-- social links;
-- gepersonaliseerd “Jouw club”-blok;
-- AI-suggesties.
+Dupliceren van een bestaande e-mail is de enige hergebruikflow in het MVP.
 
 ## Afbeeldingen
 
-### Upload
+### Onderzochte React Email + Convex R2-flow
 
-`onUploadImage`:
+React Email ondersteunt dit rechtstreeks via:
 
-1. valideert MIME type en bestandsgrootte;
-2. vraagt een gecontroleerde R2-upload URL;
-3. bewaart mediarecord in Convex;
-4. levert een publieke CDN-URL aan de editor;
-5. vereist alttekst vóór finale send.
+```tsx
+<EmailEditor
+  onUploadImage={async (file) => {
+    const key = await uploadFile(file);
+    return { url: getPermanentCdnUrl(key) };
+  }}
+/>
+```
 
-Aanbevolen limieten:
+Wanneer `onUploadImage` bestaat, ondersteunt de editor dezelfde uploadflow voor:
 
-- JPEG, PNG, WebP en eventueel GIF na expliciete productkeuze;
-- maximaal 5 MB bronbestand;
-- server-side varianten voor 1200 px en e-mailbreedte;
-- geen SVG uit onbeheerde bron;
-- geen data-URI's.
+- paste vanuit clipboard;
+- drag-and-drop;
+- file picker/slash command.
+
+Tijdens upload toont de editor tijdelijk een blob-URL. Na succes vervangt hij die door de teruggegeven permanente URL; bij failure wordt het tijdelijke imagenode verwijderd.
+
+Koppeling met `@convex-dev/r2`:
+
+1. installeer de R2-component als sibling van Resend;
+2. maak in `convex/emailMedia.ts` een typed `R2(components.r2)` client met `clientApi<DataModel>`;
+3. exporteer uit dat modulecontract `generateUploadUrl`, `syncMetadata` en `onSyncMetadata`, zodat `useUploadFile(api.emailMedia)` exact de functies krijgt die de hook verwacht;
+4. `checkUpload` vereist Admin/Journalist en weigert onbevoegde uploads;
+5. de editorcallback gebruikt `useUploadFile(api.emailMedia)`;
+6. `useUploadFile(file)` maakt een signed upload URL, uploadt rechtstreeks naar R2, synchroniseert metadata en retourneert de object key;
+7. `onSyncMetadata` haalt na upload `ContentType` en `ContentLength` op via `r2.getMetadata`, valideert die en koppelt key/uploader/tijdstip aan een `emailMedia`-record;
+8. pas na geldige metadata krijgt het record `ready` en retourneert de editorflow een permanente CDN-URL.
+
+`r2.getUrl(key)` is ongeschikt voor verzonden e-mailbeelden: die signed URL verloopt standaard na 15 minuten en omzeilt Cloudflare edge cache. Koppel daarom een eigen publiek R2/CDN-subdomein, aanbevolen `media.devoetbalgazet.be`, en bouw de permanente URL veilig uit de server-generated object key.
+
+Gebruik niet de rate-limited `r2.dev` URL in productie.
+
+### Validatie en lifecycle
+
+- clientvalidatie geeft snelle UX-feedback, maar is niet de veiligheidsgrens;
+- metadata wordt na upload server-side gevalideerd;
+- alleen JPEG, PNG, WebP en GIF wanneer expliciet toegestaan;
+- maximaal 5 MB bronbestand als startdefault;
+- geen onbeheerde SVG of data-URI;
+- de standaard `useUploadFile`-flow laat de component een UUID object key maken; alleen wanneer later een pad zoals `email-media/{uuid}` nodig is, komt er een eigen authenticated `generateUploadUrl` mutation omdat de standaard client API geen clientgekozen custom key aanvaardt;
+- bucket-CORS laat alleen bekende admin origins en noodzakelijke `PUT`/`GET` toe;
+- e-mailbeelden zijn publiek omdat inboxclients ze zonder login moeten laden;
+- alttekst is verplicht vóór live send;
+- een asset die in een verzonden revisie voorkomt wordt niet verwijderd, anders breken oude mails;
+- ongebruikte draftassets kunnen na retentiecontrole worden opgeruimd.
 
 ### Externe beelden
 
-Plakken van willekeurige externe image-URL's is standaard uit. De gebruiker importeert het beeld eerst naar R2. Dit voorkomt tracking door derde partijen, kapotte hotlinks en onbetrouwbare content.
+De editor laat gebruikers beelden invoegen via de ingebouwde uploadinteracties; die flow uploadt altijd naar R2. Een geplakte imagefile werkt dus rechtstreeks. Willekeurige externe image-URL's worden niet als duurzame bron opgeslagen: importeer ze eerst naar R2 om hotlinkrot en externe tracking te voorkomen.
 
 ## Links
 
@@ -219,11 +199,12 @@ De editor laat alleen `https:`, `mailto:` en gecontroleerde interne paden toe.
 
 Bij render:
 
-- interne artikellinks worden per ontvanger vervangen door veilige newsletter-bootstraplinks;
-- de canonieke bestemming blijft als metadata beschikbaar;
+- alle contentlinks zijn handmatig door de redacteur toegevoegd;
 - externe links krijgen campagne-UTM's wanneer de redacteur dit niet uitschakelt;
 - `javascript:`, `data:` en onbekende schema's worden geweigerd;
 - tokens, e-mailadressen en subscriber-ID's staan nooit leesbaar in de editorbron.
+
+Transactionele editorversies gebruiken typed systeemvariabelen voor magic/verificationlinks. De editor kan zo'n systeemlink positioneren en stylen, maar niet vervangen door een willekeurig token of een client-aangeleverde geheime URL.
 
 ## Autosave en samenwerking
 
@@ -275,7 +256,7 @@ Een testmail gebruikt exact:
 
 - dezelfde immutable revisie;
 - dezelfde serverrenderer;
-- dezelfde shell;
+- bij nieuwsbriefcampagnes dezelfde minimale compliancefooter; bij transactionele tests geen marketingfooter;
 - dezelfde headers;
 - dezelfde linktransformatie, maar met expliciete testtokens;
 - prefix `[TEST]` in onderwerp;
@@ -288,26 +269,26 @@ Testadressen worden niet automatisch subscriber en beïnvloeden geen campagnesta
 Blokkerend:
 
 - leeg onderwerp;
+- lege preheader;
 - lege body;
 - ontbrekende afzender;
-- ongeldige of ontbrekende uitschrijfmogelijkheid in de shell;
+- ongeldige of ontbrekende uitschrijfmogelijkheid in de vaste footer;
 - onbekend editorformat;
 - ongeldige linkschema's;
 - body groter dan limiet;
-- ontbrekende gepubliceerde artikelrevisie;
+- ontbrekende alttekst op een niet-decoratief beeld;
+- ontbrekende vereiste systeemvariabele bij transactionele e-mail;
+- geen succesvolle testmail op de huidige inhoud/sender/linkrevision;
 - geen geldig publiek.
 
 Waarschuwing, overridable:
 
 - onderwerp langer dan circa 60 tekens;
 - preheader langer dan circa 100 tekens;
-- ontbrekende alttekst op decoratief niet-gemarkeerd beeld;
 - linktekst zoals “klik hier”;
 - grote HTML-output;
-- geen testmail sinds laatste wijziging;
-- campagne bevat geen artikelblok.
 
-Voor live send is “geen testmail sinds laatste wijziging” volgens de productdefault **blokkerend**. Admin kan dit alleen omzeilen via een expliciet gelogde noodoverride als die mogelijkheid later gewenst blijkt.
+Een Admin-noodoverride voor de testvereiste wordt niet in het MVP voorzien.
 
 ## Toegankelijkheid van de mail
 

@@ -155,7 +155,7 @@ Each story moves through stages. **No stage auto-advances without human approval
 ### Stage 7 — Publish
 - Approve publish → write to content store
 - Trigger Vercel rebuild (static site)
-- Mark published revision as newsletter-eligible / priority so it appears in the newsletter ArticleBlock picker; never modify or send a campaign automatically
+- No automatic newsletter handoff in MVP; newsletter content is created manually in the visual email editor
 
 ---
 
@@ -285,7 +285,7 @@ This blocks Stage 1 automation until resolved.
 ### Polish
 - [ ] Full pipeline kanban
 - [ ] Agent prompt configuration
-- [ ] Newsletter eligibility/priority handoff from publish view
+- [ ] Link to open the separate newsletter admin from publish view (no automatic content transfer)
 
 ---
 

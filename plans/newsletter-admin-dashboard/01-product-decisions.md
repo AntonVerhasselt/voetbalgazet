@@ -27,29 +27,23 @@ Het oudere plan gebruikt `newsletterIssues`. De implementatienaam wordt **`newsl
 | Route | Doel |
 |-------|------|
 | `/admin/nieuwsbrieven` | Overzicht met Concepten, Gepland en Verzonden |
-| `/admin/nieuwsbrieven/nieuw` | Nieuw concept aanmaken vanuit leeg document of eigen template |
+| `/admin/nieuwsbrieven/nieuw` | Nieuw leeg concept aanmaken |
 | `/admin/nieuwsbrieven/[campaignId]` | Editor met instellingen, autosave en preview |
 | `/admin/nieuwsbrieven/[campaignId]/publiek` | Audiencefilters, bereik, uitsluitingen en ontvangerssteekproef |
 | `/admin/nieuwsbrieven/[campaignId]/controleren` | Finale checklist, testmail, planning en sendbevestiging |
 | `/admin/nieuwsbrieven/[campaignId]/resultaten` | Afleveringsstatus, aggregaten en fouten |
-| `/admin/email/dienstmails` | Read-only overzicht van transactionele sends en fouten |
+| `/admin/email/dienstmails` | Transactionele e-mailtypes, gepubliceerde versies, sends en fouten |
+| `/admin/email/dienstmails/[type]` | Visuele editor, systeemvariabelen, preview, test en versiepublicatie |
 | `/admin/email/instellingen` | Afzender, reply-to, domeinstatus en standaardfooter; alleen Admin |
 
 De editor kan audience en controle als tabs/panelen tonen, maar de routes blijven afzonderlijk adresseerbaar. Dat voorkomt één onoverzichtelijk scherm en maakt navigatie en permissies duidelijk.
 
-## Campagnetypes
+## E-mailtypes
 
-De eerste versie kent één vrij redactioneel campagnetype:
+- `newsletter`: volledig custom campagne die telkens vanaf een leeg editor-document of een duplicaat wordt opgebouwd;
+- transactionele types zoals welcome, magic link en verificatie: eveneens visueel bewerkbaar in het adminplatform, met typed systeemvariabelen en een gecontroleerde gepubliceerde versie.
 
-- `newsletter`: visueel samengesteld en naar een gekozen subscriberpubliek verstuurd.
-
-Later mogelijke types:
-
-- `weekly_digest`: meer gestuurde artikeltemplate;
-- `announcement`: korte aankondiging;
-- `reengagement`: alleen na aparte juridische/productbeslissing.
-
-Transactionele mails zijn geen campagnes en verschijnen niet in dezelfde lijst.
+Er zijn geen templates, artikelblokken of automatische contentkoppelingen in het MVP. Dupliceren is de manier om een eerder ontwerp opnieuw als basis te gebruiken.
 
 ## Statusmodel
 
@@ -66,7 +60,7 @@ draft
 | Status | Bewerkbaar | Betekenis |
 |--------|-----------|-----------|
 | `draft` | Ja | Inhoud, onderwerp en doelgroep kunnen wijzigen |
-| `scheduled` | Alleen planning | Inhoud/doelgroep zijn bevroren; tijdstip kan wijzigen, send kan vervroegd of geannuleerd worden |
+| `scheduled` | Alleen planning | Inhoud en filterdefinitie zijn bevroren; concrete recipients worden pas op sendmoment bepaald |
 | `needs_review` | Nee | Doelgroep wijkt te sterk af van de geplande preview; opnieuw bevestigen of annuleren |
 | `preparing` | Nee | Ontvangerslijst wordt bevroren en jobs worden aangemaakt |
 | `sending` | Nee | Resend-component verwerkt de queue |
@@ -98,7 +92,7 @@ Nederlandse statuslabels:
 Een nieuw concept krijgt:
 
 - interne naam: `Nieuwsbrief — [datum]`;
-- leeg of standaard bodydocument;
+- leeg editor-document;
 - standaard afzender en reply-to uit e-mailinstellingen;
 - geen geplande datum;
 - standaardpubliek: alle actieve nieuwsbriefsubscribers;
@@ -130,7 +124,6 @@ Dupliceren kopieert:
 - naam met suffix `(kopie)`;
 - onderwerp en preheader;
 - editor-document;
-- gekozen template/thema;
 - audiencefilters;
 - afzender en reply-to.
 
@@ -149,8 +142,8 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 
 ## Standaard workflow
 
-1. Redacteur maakt of dupliceert een concept.
-2. Redacteur stelt de body visueel samen.
+1. Redacteur maakt een leeg concept of dupliceert een bestaande e-mail.
+2. Redacteur stelt de volledige e-mailinhoud visueel en handmatig samen.
 3. Redacteur vult interne naam, onderwerp en preheader in.
 4. Redacteur controleert desktop-, mobiel- en plaintextpreview.
 5. Redacteur kiest het publiek en bekijkt het berekende bereik.
@@ -158,7 +151,7 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 7. Controlescherm valideert ontbrekende links, footer, onderwerp en doelgroep.
 8. Redacteur kiest “Nu verzenden” of een tijdstip.
 9. Finale modal herhaalt naam, onderwerp, audienceomschrijving en exact aantal ontvangers.
-10. Na bevestiging wordt de campagne immutable en wordt een ontvangerssnapshot gemaakt.
+10. Na bevestiging wordt de campagne immutable. Bij Send nu wordt direct een ontvangerssnapshot gemaakt; bij scheduling gebeurt dat op het geplande sendmoment.
 11. Resultatenscherm volgt queue, afleveringen en fouten.
 
 ## MVP-scope
@@ -167,7 +160,7 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 
 - adminauth en rollen;
 - lijst Concepten / Gepland / Verzonden;
-- visuele bodyeditor;
+- vrije visuele editor zonder vaste contentstructuur;
 - onderwerp, preheader, afzender en reply-to;
 - autosave en revisie vóór send;
 - dupliceren;

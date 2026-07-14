@@ -17,7 +17,7 @@ De publieke inschrijving en lezerssessies blijven beschreven in [`../public-news
 | [07-analytics-compliance-and-operations.md](./07-analytics-compliance-and-operations.md) | Statistieken, AVG, retentie, monitoring, incidenten en operationele procedures |
 | [08-implementation-phases.md](./08-implementation-phases.md) | Bouwvolgorde, afhankelijkheden, teststrategie en acceptatiecriteria per fase |
 | [09-open-questions.md](./09-open-questions.md) | Open vragen met aanbeveling en standaardbeslissing bij uitblijven van antwoord |
-| [10-cross-component-contracts.md](./10-cross-component-contracts.md) | Subscriber-, route-, artikelrevisie-, analytics- en deletioncontracten met andere componenten |
+| [10-cross-component-contracts.md](./10-cross-component-contracts.md) | Subscriber-, route-, handmatige-link-, analytics- en deletioncontracten met andere componenten |
 
 De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het architecturale overzicht. Bij verschillen heeft dit verfijnde dossier voorrang.
 
@@ -25,10 +25,10 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 
 1. **Convex is de enige bron van waarheid.** Concepten, revisies, audience-regels, ontvangers, sendstatussen en aggregaten leven in Convex.
 2. **Resend is de afleveringsprovider, niet het redactiesysteem.** Redacteurs maken of beheren geen templates, audiences of broadcasts in het Resend-dashboard.
-3. **Nieuwsbriefcampagnes worden visueel gemaakt met `@react-email/editor`.** Het editor-document is de bewerkbare bron; de definitieve HTML- en tekstversie wordt bij verzending opnieuw server-side opgebouwd en bevroren.
-4. **Transactionele mails blijven code-based React Email-templates.** Welkomst-, magic-link-, verificatie- en veiligheidsmails zijn niet vrij visueel bewerkbaar, omdat copy, links en beveiligingsgedrag voorspelbaar moeten blijven.
+3. **Alle e-mailinhoud wordt visueel gemaakt met `@react-email/editor`.** Nieuwsbrieven én transactionele mails worden vanuit het adminplatform beheerd; het editor-document is de bewerkbare bron.
+4. **Alleen bij nieuwsbriefcampagnes is de minimale unsubscribe/compliancefooter vergrendeld.** Er is geen vaste brandheader, masthead, template of contentkoppeling. Transactionele e-mails hebben geen nieuwsbrief-unsubscribefooter; hun vereiste systeemlinks/variabelen worden per type gevalideerd.
 5. **Voorkeuren segmenteren het publiek, niet de inhoud per persoon.** In de eerste versie ontvangt iedereen binnen één verzending dezelfde body. Filters bepalen alleen wie de campagne krijgt.
-6. **De doelgroep wordt bij bevestiging bevroren.** Nieuwe inschrijvingen of voorkeurwijzigingen tijdens een send veranderen de ontvangers van die send niet.
+6. **De doelgroepdefinitie wordt bij bevestiging bevroren; concrete recipients pas bij send.** Bij Send nu gebeurt dit direct. Bij scheduling worden de recipients op het geplande sendmoment bepaald, zodat nieuwe inschrijvingen en unsubscribes tot dan meetellen.
 7. **Een verzonden campagne is immutable.** Aanpassen of opnieuw versturen gebeurt via dupliceren naar een nieuw concept.
 8. **Geen verzending zonder expliciete review.** Testmail, audience preview en finale bevestiging zijn aparte stappen. AI of cron mag nooit zelfstandig een nieuw concept publiceren of versturen.
 
@@ -38,7 +38,7 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 
 - concepten maken, bewerken, autosaven en dupliceren;
 - visuele e-mailopmaak;
-- herbruikbare redactionele blokken, waaronder artikelkaarten;
+- volledig vrije opbouw met de standaardblokken van de editor;
 - desktop- en mobiele preview;
 - testmail naar expliciet opgegeven adressen;
 - doelgroep beperken op nieuwsbriefstatus, reeks en favoriete club;
@@ -46,7 +46,7 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 - onmiddellijk of gepland verzenden;
 - afleveringsstatussen, bounces, complaints en basisstatistieken;
 - audittrail en rolgebaseerde toegangscontrole;
-- transactionele mails via dezelfde Convex/Resend-integratie;
+- visueel bewerkbare transactionele mails met versiebeheer en vereiste systeemvariabelen;
 - uitschrijf- en voorkeurenlinks.
 
 ### Niet in de eerste versie
@@ -59,6 +59,7 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 - A/B-tests, multivariate onderwerpen of automatische winnaarselectie;
 - meerdere merken/domeinen vanuit hetzelfde systeem;
 - bijlagen in massamails;
+- templates of automatische artikelkoppelingen in het MVP;
 - een publieke archive-webpagina voor volledige nieuwsbriefinhoud;
 - bidirectionele templatebewerking in het Resend-dashboard.
 

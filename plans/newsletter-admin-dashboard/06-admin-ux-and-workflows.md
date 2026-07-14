@@ -102,7 +102,7 @@ Route: `/admin/nieuwsbrieven/[campaignId]`
 │ campaign header / save / preview / control                   │
 ├────────────────┬───────────────────────────────┬─────────────┤
 │ blocks/assets  │ email canvas                  │ inspector   │
-│ article picker │                               │ properties  │
+│ image upload   │                               │ properties  │
 └────────────────┴───────────────────────────────┴─────────────┘
 ```
 
@@ -116,19 +116,25 @@ Op kleiner scherm worden zijpanelen drawers/tabs. De editor hoeft niet volwaardi
 - sender profile;
 - reply-to;
 - campagne-UTM;
-- optioneel template.
 
 Onderwerp en preheader staan zichtbaar boven de canvas, omdat inboxpresentatie deel van de redactionele inhoud is.
 
-### Artikelpicker
+### Vrije inhoud
 
-- alleen gepubliceerde artikelrevisies;
-- zoek op headline;
-- filter categorie, provincie, reeks, club en publicatiedatum;
-- preview metadata;
-- “Voeg toe” maakt ArticleBlock;
-- dubbele artikels geven waarschuwing;
-- ingetrokken artikel blokkeert send totdat vervangen/verwijderd.
+- geen artikelpicker of koppeling met artikelrecords;
+- geen vast aantal contentitems;
+- geen standaard template;
+- redacteur gebruikt tekst, links, knoppen, beelden, dividers en layoutblokken rechtstreeks;
+- eerder ontwerp hergebruiken gebeurt via dupliceren.
+
+### Beelden in de editor
+
+- drag-and-drop, paste en de React Email image command gebruiken dezelfde R2-uploadcallback;
+- tijdelijke uploadprogress verschijnt direct in de canvas;
+- na upload gebruikt de node de permanente `media.devoetbalgazet.be` CDN-URL;
+- image inspector laat alttekst, afmetingen, alignment en optionele link aanpassen;
+- uploadfailure verwijdert de tijdelijke node en toont een concrete retry;
+- mediapicker mag eerder geüploade e-mailbeelden tonen, maar is geen vereiste voor de eerste editorrelease.
 
 ## Scherm 3 — preview
 
@@ -198,7 +204,7 @@ Route: `/admin/nieuwsbrieven/[campaignId]/controleren`
 | Controle | Gedrag |
 |----------|--------|
 | Onderwerp aanwezig | Blocker |
-| Preheader aanwezig | Aanbevolen waarschuwing |
+| Preheader aanwezig | Blocker |
 | Body valide | Blocker |
 | Alle links veilig | Blocker |
 | Altteksten | Blocker voor niet-decoratieve beelden |
@@ -288,9 +294,11 @@ Volledig adres pas na expliciete reveal met reden/audit, of alleen voor Admin. G
 
 Route: `/admin/email/dienstmails`
 
-Read-only operationeel overzicht:
+Overzicht:
 
-- template/type;
+- transactioneel type;
+- draft- en actieve versie;
+- laatste editor/publiceerder;
 - status;
 - verzendtijd;
 - gemaskeerde ontvanger;
@@ -300,9 +308,13 @@ Read-only operationeel overzicht:
 
 Acties:
 
-- retry alleen wanneer templateflow dat veilig toestaat;
-- geen vrije edit;
-- preview van template met dummydata;
+- visueel bewerken;
+- typed systeemvariabelen invoegen via de editor;
+- preview met veilige dummydata;
+- verplichte testmail;
+- nieuwe versie publiceren;
+- eerdere versie als nieuwe actieve versie herstellen;
+- retry alleen wanneer de triggerflow dat veilig toestaat;
 - geen live magic token tonen.
 
 ## Scherm 8 — abonnees
@@ -371,7 +383,7 @@ API-keys en webhook secrets worden nooit in UI teruggetoond. Hoogstens `configur
 - userrollen;
 - manual suppress/unsuppress;
 - recoveryacties;
-- noodoverride.
+- marketingnoodstop en gecontroleerde recovery; geen override van verplichte testmail in MVP.
 
 Als later aparte Publisherrol gewenst is, kan sendpermission los van journalistrol worden gemaakt zonder contentmodel te wijzigen.
 
@@ -447,7 +459,7 @@ Elke campaign heeft een inklapbare activiteitstijdlijn:
 - wanneer;
 - van/naar status;
 - revision/audienceversie;
-- reden bij override/recovery.
+- reden bij recovery of manual suppression.
 
 Toon geen volledige editorbodydiff in de timeline. Een revisievergelijking kan later afzonderlijk worden gebouwd.
 

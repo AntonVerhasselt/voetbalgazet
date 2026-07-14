@@ -68,7 +68,7 @@ Geen autocapture in recipienttabellen of editorvelden.
 
 | Event | Wanneer | Veilige properties |
 |-------|---------|---------------------|
-| `newsletter_campaign_created` | Concept aangemaakt | `source` (blank/duplicate/template) |
+| `newsletter_campaign_created` | Concept aangemaakt | `source` (`blank` of `duplicate`) |
 | `newsletter_campaign_duplicated` | Duplicatie | `source_status` |
 | `newsletter_revision_saved` | Revisie | `reason`, `block_count_bucket` |
 | `newsletter_preview_opened` | Preview | `mode` |
@@ -121,7 +121,7 @@ Veilige properties:
 
 ### Dienstmail
 
-Elk template krijgt metadata:
+Elk visueel beheerd transactioneel e-mailtype krijgt metadata:
 
 - purpose;
 - trigger;
@@ -129,7 +129,7 @@ Elk template krijgt metadata:
 - vereiste site/accountstatus;
 - rechtsgrondnotitie;
 - eigenaar;
-- templateversie.
+- actieve editorversie en gebruikte systeemvariabelen.
 
 Gebruik dienstmail niet voor promotionele inhoud aan uitgeschreven subscribers.
 
@@ -162,6 +162,8 @@ Aanbevolen technisch beleid, nog juridisch te valideren:
 | Audit events | 24 maanden, securityrelevante events volgens beleid |
 | Active suppressions | Zolang nodig om unsubscribe/complaint/bounce te respecteren |
 | Testmailhistoriek | 90 dagen |
+| R2-assets gebruikt in verzonden e-mail | Bewaren zolang de verzonden e-mail als redactioneel archief behouden blijft |
+| Ongebruikte draftassets | Opruimen na aanbevolen 90 dagen, alleen na referentiecheck |
 
 Bij subscriberverwijdering:
 
@@ -315,9 +317,10 @@ Geen “stop alles”-knop beloven nadat provider de mail accepteerde.
 
 ### E-mail snapshots
 
-- shell;
+- vrije editoroutput; bij nieuwsbriefcampagnes aangevuld met vaste compliancefooter;
 - standaardblokken;
-- ArticleBlock;
+- transactionele systeemvariabelen;
+- R2/CDN-afbeeldingen;
 - dark mode fallbacks;
 - long headlines;
 - ontbrekend beeld;

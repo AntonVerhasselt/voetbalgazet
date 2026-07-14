@@ -61,7 +61,7 @@ voetbalgazet/
 │   ├── newsletter.ts
 │   ├── agents/               # Journalist workflow agents
 │   └── components/           # Convex component configs
-├── emails/                   # Resend React Email templates
+├── emails/                   # Shared editor renderer, variables and locked compliancefooter
 ├── content/                  # MDX/markdown for static articles (optional)
 └── design/                   # Symlink or copy of Open Design assets
 ```
@@ -76,7 +76,7 @@ When implementing:
 
 - Port CSS custom properties from `styles.css` into Tailwind theme or CSS modules.
 - Reuse masthead, rules, typography scale, gate sheet, and preference picker patterns.
-- Apply the same tokens to admin dashboard and email templates (adapted for email client constraints).
+- Offer the same tokens as editor defaults (adapted for email client constraints), without forcing a fixed newsletter template.
 - Logo and assets live in the design folder (`mr9gvna8-image.png`).
 
 ---
@@ -131,7 +131,7 @@ Article gate flow (from design):
 | From → To | Integration |
 |-----------|-------------|
 | Admin → News site | Publish triggers static rebuild; article JSON/MDX exported or fetched at build |
-| Admin → Newsletter | Published articles available for issue curation |
+| Admin → Newsletter | Separate admin navigation only; emailcontent is manually created in the visual editor |
 | News site → Convex | Signup, preferences, gate verification |
 | News site → Resend | Welcome/verification link; single opt-in newsletter |
 | Admin agents → Twilio | WhatsApp messages to schedule interviews |
@@ -172,7 +172,7 @@ Article gate flow (from design):
 
 ### Phase 5 — Newsletter
 - Open-source React Email visual editor in admin
-- Locked React Email shell and code-based transactional templates
+- Free-form React Email editor for campaigns and transactional emails; only newsletter campaigns append a locked unsubscribe/compliance footer
 - Convex-managed audience filtering by subscriber preferences
 - Test, send-now and explicit scheduling via Resend component
 - Delivery webhooks, suppressions and results

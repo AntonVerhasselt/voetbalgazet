@@ -132,6 +132,57 @@ Oude revisies worden nooit aangepast. Een retentionbeslissing staat in document 
 
 Arrays zijn klein en begrensd in dit configuratierecord. Ze worden niet gebruikt als database-index voor subscriberselectie.
 
+### `transactionalEmailDefinitions`
+
+Eén record per functioneel type, bijvoorbeeld `welcome` of `magic_link`:
+
+| Veld | Betekenis |
+|------|-----------|
+| `type` | Stabiele unieke key |
+| `displayName` | Adminlabel |
+| `draftRevisionId` | Huidige bewerkbare versie |
+| `activeRevisionId` | Gepubliceerde immutable versie die triggers gebruiken |
+| `allowedVariableKeys` | Kleine expliciete allowlist |
+| `requiredVariableKeys` | Moet aanwezig zijn vóór publiceren |
+| `status` | draft/active/disabled |
+| `updatedBy`, `updatedAt` | Audit |
+
+Index: uniek logisch `by_type`.
+
+### `transactionalEmailRevisions`
+
+- definition ID en oplopende versie;
+- editor document JSON;
+- subject en preheader;
+- gebruikte variable keys;
+- preview HTML/text;
+- renderer version;
+- created/published actor en timestamps;
+- successful test revision marker.
+
+Revisies zijn immutable. Publiceren wijzigt alleen `activeRevisionId`.
+
+### `emailMedia`
+
+Metadata naast de geïsoleerde R2-component:
+
+| Veld | Betekenis |
+|------|-----------|
+| `r2Key` | Server-generated object key |
+| `publicUrl` | Permanente CDN-URL onder `media.devoetbalgazet.be` |
+| `mimeType`, `size`, `width`, `height` | Validatie/renderdata |
+| `uploadedBy`, `createdAt` | Audit |
+| `status` | uploading/ready/rejected/deleted |
+| `usedBySentEmail` | Verhindert cleanup van live assets |
+
+Indexen:
+
+- `by_r2Key`;
+- `by_status_and_createdAt`;
+- `by_uploadedBy_and_createdAt`.
+
+De R2-component beheert upload/objectmetadata. De hoofdapp beheert permissies, gebruik en retentie. De component krijgt nooit directe toegang tot campaign- of admin-tabellen; callbacks in de hoofdapp orkestreren beide.
+
 ### `newsletterSends`
 
 Een campagne kan technisch één live send hebben. Een aparte tabel houdt operatie en campagnecontent gescheiden.
@@ -286,7 +337,8 @@ Voor favoriete club volstaat `favoriteTeamId` met index `by_favoriteTeam_and_new
 - `campaigns.getResults` — viewerrol + paginated statusaggregaten;
 - `audiences.preview` — berekening met sample en uitsluitingen;
 - `catalog.listDivisions` / `listTeams` — adminmetadata;
-- `transactional.listRecent` — read-only, paginated;
+- `transactional.listDefinitions`, `getEditorData`, `listRecentSends`;
+- `emailMedia.list` — paginated, alleen bevoegde adminrollen;
 - `senderProfiles.get`.
 
 Geen query gebruikt `Date.now()`. Huidige tijd komt als argument of status wordt door scheduled mutations bijgewerkt.
@@ -294,10 +346,12 @@ Geen query gebruikt `Date.now()`. Huidige tijd komt als argument of status wordt
 ### Mutations
 
 - `campaigns.create`, `updateDraft`, `duplicate`, `saveRevision`;
+- `transactional.updateDraft`, `saveRevision`, `publishRevision`, `restoreAsNewRevision`;
 - `audiences.updateDefinition`;
 - `tests.request`;
 - `sends.requestNow`, `schedule`, `cancelSchedule`;
 - `senderProfiles.update`;
+- R2 `generateUploadUrl` en `syncMetadata` met editorrolcheck en mediarecordcallback;
 - publieke `unsubscribe.request/confirm` en preference-tokenexchange.
 
 `requestNow` en `schedule` doen alleen transactionele validatie en statuswijziging. Externe calls gebeuren in interne actions.

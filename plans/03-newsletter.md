@@ -2,11 +2,11 @@
 
 > **Refined plan:** This document remains the architectural overview. The detailed source of truth for the visual newsletter admin, Convex data model, audience filtering, sending, delivery, compliance and implementation phases is [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/).
 
-> **Important refinement:** Convex is the source of truth for campaigns and audiences. The open-source `@react-email/editor` is used for visually composed newsletter campaigns. Security-sensitive transactional emails remain code-based React Email templates, but are still triggered, sent and monitored through the custom Convex + Resend implementation rather than the Resend dashboard.
+> **Important refinement:** Convex is the source of truth for campaigns, transactionele editorversies and audiences. The open-source `@react-email/editor` is used for all custom email content. There are no fixed templates or article integrations in MVP; only newsletter campaigns receive an uneditable unsubscribe/compliance footer.
 
 ## Purpose
 
-Send a **weekly email newsletter** to subscribers collected through the public news site. Campaign bodies are composed in the open-source **`@react-email/editor`**, rendered in a locked React Email brand shell and sent via the **Resend Convex component**. Visual style matches De Voetbalgazet brand.
+Send a **weekly email newsletter** to subscribers collected through the public news site. Every email is composed from scratch or duplicated in **`@react-email/editor`** and sent via the **Resend Convex component**.
 
 Design copy on the site sets expectation: *"Eén e-mail per week — lokaal voetbal, geen ruis."*
 
@@ -14,7 +14,7 @@ Design copy on the site sets expectation: *"Eén e-mail per week — lokaal voet
 
 ## Design reference
 
-Email templates should mirror the newspaper aesthetic within email client constraints:
+The editor may expose the newspaper aesthetic as optional defaults within email client constraints; every email remains custom:
 
 ```
 /Users/antonverhasselt/Library/Application Support/Open Design/namespaces/release-stable-intel/data/projects/a132ea15-213e-409f-9e25-e762711453c3
@@ -60,26 +60,19 @@ Via [Convex Resend component](https://www.convex.dev/components/resend):
 |------------|-----|
 | **Transactional** | Welcome/verification, magic link, unsubscribe confirmation |
 | **Broadcast / batch** | Weekly newsletter send |
-| **React Email** | Template authoring in `emails/` directory |
+| **React Email editor** | Free-form campaign and transactional content |
 | **Webhooks** | Delivery, bounce, complaint events → update subscriber status |
 
 ### React Email structure (proposed)
 
 ```
 emails/
-├── components/
-│   ├── NewsletterEnvelope.tsx # Locked brand/legal shell
-│   ├── Header.tsx
-│   ├── Footer.tsx
-│   └── ArticleCard.tsx
-├── transactional/
-│   ├── Welcome.tsx
-│   ├── MagicLink.tsx
-│   └── VerifyEmail.tsx
-└── renderer/               # Shared editor extensions + server renderer
+├── ComplianceFooter.tsx    # Only locked visual section
+├── variables.ts            # Typed transactional system variables
+└── renderer/               # Shared editor + server renderer
 ```
 
-The visual editor owns only the newsletter body. Transactional templates and the campaign shell remain code-based. Resend receives only server-rendered HTML/text.
+The visual editor owns all custom content. Newsletter preview/serverrendering append the locked compliancefooter. Transactionele e-mails are edited in admin and published as versioned editor documents with required typed variables, without a newsletter-unsubscribefooter.
 
 ---
 
@@ -99,12 +92,7 @@ Each `newsletterCampaigns` record links to immutable revisions, an audience defi
 | `audienceDefinitionId` | Preference filters |
 | `sentAt`, `recipientCount`, `stats` | Post-send metadata |
 
-### Article card in email
-- Division tag (mono label)
-- Headline (link to gated article on site)
-- Dek / excerpt
-- Author + date
-- "Lees verder →" CTA
+There is no ArticleCard or article count in MVP. Text, links, buttons, images and layout are created manually.
 
 ---
 
@@ -112,8 +100,8 @@ Each `newsletterCampaigns` record links to immutable revisions, an audience defi
 
 ```
 ┌────────────────┐     ┌─────────────────┐     ┌──────────────┐
-│ Admin curates  │────▶│ Preview + approve│────▶│ Schedule/send│
-│ issue draft    │     │ (human)          │     │ via Resend   │
+│ Admin builds   │────▶│ Preview + approve│────▶│ Schedule/send│
+│ custom email   │     │ (human)          │     │ via Resend   │
 └────────────────┘     └─────────────────┘     └──────┬───────┘
                                                       │
                                                       ▼
@@ -122,12 +110,13 @@ Each `newsletterCampaigns` record links to immutable revisions, an audience defi
 ```
 
 ### Human-in-the-loop
-1. Journalist selects published articles for the week (from admin).
-2. Optional intro note in Dutch.
+1. Journalist creates a blank email or duplicates an earlier email.
+2. Journalist builds all content manually in the visual editor.
 3. Preview rendered email (desktop + mobile).
-4. Approve send or schedule.
-5. Convex freezes recipients and internal workers queue per-recipient delivery through the Resend component.
-6. Webhooks update delivery stats.
+4. Successful testmail on the exact revision.
+5. Approve send or schedule.
+6. Convex freezes recipients and internal workers queue per-recipient delivery through the Resend component.
+7. Webhooks update delivery stats.
 
 ---
 
@@ -135,12 +124,7 @@ Each `newsletterCampaigns` record links to immutable revisions, an audience defi
 
 **Default (MVP):** One shared body per campaign, sent to all eligible subscribers or narrowed by explicit division and favorite-team filters.
 
-**Future:** Per-recipient preference-based blocks:
-- "Jouw club" — stories matching favourite team
-- "Jouw reeks" — stories matching selected divisions
-- Requires template sections conditionally rendered per subscriber (Resend batch with merge fields or multiple segments)
-
-Prototype preferences exist for this — product decision needed.
+Per-recipient content blocks are not in MVP; preferences only narrow the audience.
 
 ---
 
@@ -153,7 +137,7 @@ Prototype preferences exist for this — product decision needed.
 | **Magic link** | Bevestig identiteit/apparaat voor subscriberfuncties |
 | **Unsubscribe confirm** | One-click unsubscribe |
 
-All use same brand components (Header/Footer).
+All are visually editable and versioned in admin. Required security variables are typed and validated. They do not receive the marketing-newsletter unsubscribefooter.
 
 ---
 
@@ -162,7 +146,7 @@ All use same brand components (Header/Footer).
 Required for Belgian/EU email marketing:
 
 - One-click unsubscribe link in every newsletter (Resend `List-Unsubscribe` header)
-- Link zet alleen `newsletterSubscribed = false` en synchroniseert Resend; `siteAccess` blijft actief
+- Link zet alleen `newsletterSubscribed = false` en activeert Convex suppression; `siteAccess` blijft actief
 - Physical/editorial address in footer (TBD)
 - Privacy policy link
 - Record consent timestamp and version at signup
@@ -176,9 +160,9 @@ Within admin dashboard (Component 2):
 
 | Screen | Function |
 |--------|----------|
-| **Issues list** | Past and draft newsletters |
-| **Issue editor** | Pick articles, write intro, set subject |
-| **Preview** | Render React Email template with live data |
+| **Campaign list** | Past and draft newsletters |
+| **Visual editor** | Build every email freely; no template/article picker |
+| **Preview** | Render editor output with locked footer |
 | **Send controls** | Test send (to journalist), schedule, send now |
 | **Stats** | Opens, clicks (Resend analytics) |
 
@@ -191,11 +175,12 @@ Styling: same De Voetbalgazet admin shell.
 | Piece | Choice |
 |-------|--------|
 | Visual campaign editor | `@react-email/editor` |
-| Shell + transactional templates | React Email |
+| Fixed section | Minimal React Email compliancefooter |
+| Transactional content | Versioned visual editor documents with typed variables |
 | Send | Resend via Convex component |
 | Subscriber audience | Convex subscribers + indexed preference projection |
 | Scheduling | Explicit Convex scheduled internal function; no automatic weekly cron |
-| Preview | React Email CLI + admin embed |
+| Preview | Shared `composeReactEmail` renderer in admin + server-side parity |
 
 Docs: [Resend Convex component](https://www.convex.dev/components/resend)
 
@@ -205,20 +190,20 @@ Docs: [Resend Convex component](https://www.convex.dev/components/resend)
 
 | Component | Integration |
 |-----------|-------------|
-| **News site** | Signups feed subscriber list; article URLs bootstrap een 90-dagensessie en openen meteen volledig |
-| **Admin** | Article publish → available in issue picker; send approval in dashboard |
-| **Convex** | Single source of truth for subscribers + issue state |
+| **News site** | Signups feed subscriber list; article token is 30 dagen geldig en kan na exchange een 90-dagensessie maken |
+| **Admin** | Separate newsletter editor; no automatic article handoff |
+| **Convex** | Single source of truth for subscribers, campaigns, transactional versions and send state |
 
 ---
 
 ## MVP checklist
 
-- [ ] React Email locked shell (Header, Footer, ArticleCard)
-- [ ] Visual editor with weekly template and 3–5 article slots
-- [ ] Welcome email template
+- [ ] Free-form React Email editor with locked compliancefooter
+- [ ] R2 image upload via `onUploadImage` and permanent CDN URLs
+- [ ] Visually editable/versioned welcome, magic-link and verification emails
 - [ ] Convex subscriber eligibility and preference indexes
 - [ ] Unsubscribe handler (HTTP action + webhook)
-- [ ] Admin: create draft issue + pick articles
+- [ ] Admin: create blank campaign or duplicate an earlier campaign
 - [ ] Preview in browser
 - [ ] Test send to single address
 - [ ] Manual "Send newsletter" button

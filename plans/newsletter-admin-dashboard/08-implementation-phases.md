@@ -15,10 +15,11 @@ De bouwvolgorde minimaliseert risico: eerst auth, data en renderer; daarna edito
 - from/reply-to;
 - fysieke/editoriale footercopy;
 - Resend account en verified domeinplan;
+- R2 bucket, restricted API token, CORS origins en custom CDN domain (aanbevolen `media.devoetbalgazet.be`);
 - adminrollen/eerste gebruikers;
 - bevestiging van open vragen of toepassing van aanbevelingen;
 - actuele documentatie/packageversies controleren.
-- korte technische spike: `@react-email/editor` custom ArticleBlock, gedeelde browser/Node renderer en HTML/plaintextexport bewijzen met de actuele packageversie.
+- korte technische spike: `@react-email/editor` vrije editor, `onUploadImage` via `@convex-dev/r2`, permanente CDN-URL, gedeelde browser/Node renderer en HTML/plaintextexport bewijzen met de actuele packageversie.
 
 ### Deliverables
 
@@ -44,6 +45,7 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - auditbasis;
 - Resend component in testMode;
 - R2 component;
+- `emailMedia` metadata, authenticated upload callbacks en permanent CDN URL contract;
 - strict TypeScript en Convex ESLint.
 
 ### Admin
@@ -113,11 +115,11 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - `@react-email/editor`;
 - gedeelde extension registry;
 - standaardblokken;
-- brand theme;
+- neutrale editor-defaults zonder vaste template;
 - autosave;
 - revision checkpoints;
-- image upload naar R2;
-- ArticleBlock met published article revision;
+- image upload via React Email `onUploadImage` + R2 `useUploadFile`;
+- permanente `media.devoetbalgazet.be` URL in plaats van expiring `r2.getUrl`;
 - link allowlist.
 
 ### Renderer
@@ -139,22 +141,34 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - linkcheck;
 - validation checklist.
 
+### Transactionele editor
+
+- definitions voor welcome, magic link, verificatie en andere dienstmails;
+- dezelfde vrije visuele editor;
+- typed allowed/required system variables;
+- draft/active immutable versions;
+- previewfixtures zonder echte tokens;
+- verplichte test en expliciete versiepublicatie;
+- triggerfuncties lezen uitsluitend de actieve versie.
+
 ### Tests
 
 - block snapshots;
 - malicious/invalid document rejected;
 - unsupported URL schemes rejected;
 - images require alt;
-- article revision remains stable;
+- R2 paste/drop/slash uploads vervangen blob URL door permanente CDN-URL;
 - browser/server output equivalent;
 - long content/Unicode.
+- ontbrekende/vervalste transactionele systeemvariabelen;
+- publish/rollback van transactionele editorversies.
 
 ### Exitcriteria
 
 - redacteur kan concept visueel maken en na reload identiek verder bewerken;
 - server maakt deterministische email-safe output;
 - geen client-HTML vertrouwenspad.
-- de Phase 0 ArticleBlock/renderer-spike is in de echte architectuur bevestigd.
+- de Phase 0 editor/R2/renderer-spike is in de echte architectuur bevestigd.
 
 ## Fase 4 — subscribers en audience preview
 
@@ -382,16 +396,12 @@ Publieke site dependencies:
 
 - subscriber schema/statussen;
 - divisions/teams catalog;
-- published article revisions;
+- publieke URL- en session-bootstrapcontracten;
 - preferences route;
 - session bootstrap callback;
 - privacy/voorwaarden/contactdata.
 
-Admin article dependency:
-
-- ArticleBlock kan eerst zonder picker met linkblok worden gebouwd;
-- volledige artikelpicker wacht op published article API;
-- live send hoeft niet te wachten op AI-journalistflows.
+Er is geen admin-artikeldependency: e-mailinhoud wordt handmatig gemaakt. Wanneer een redacteur zelf een interne `/nieuws/...`-link invoegt, kan de serverrenderer die link voor de ontvanger omzetten naar de bestaande veilige article-bootstrapflow zonder artikelpicker of contentkoppeling.
 
 ## CI en kwaliteitschecks
 

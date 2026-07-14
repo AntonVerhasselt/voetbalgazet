@@ -17,7 +17,7 @@ Planning documents for a Dutch-language news platform covering local football in
 
 ## Design reference
 
-All UI (public site, admin dashboard, newsletter templates) should follow the visual language defined in the Open Design prototype:
+The public site and admin dashboard follow the Open Design visual language. The email editor may offer those tokens as defaults, but newsletter and transactional content remains custom:
 
 **Design folder (local):**
 ```
@@ -65,7 +65,7 @@ All UI (public site, admin dashboard, newsletter templates) should follow the vi
 │                 │                     │                           │
 │  Email-gated    │  Match analysis     │  Visual campaigns        │
 │  articles       │  Idea discovery     │  Preference audiences    │
-│  Signup + prefs │  WhatsApp outreach  │  Same visual language    │
+│  Signup + prefs │  WhatsApp outreach  │  Custom visual editor    │
 │                 │  Voice interviews   │                           │
 │                 │  Writing agent      │                           │
 │                 │  Human review       │                           │

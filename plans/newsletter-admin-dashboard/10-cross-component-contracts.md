@@ -90,52 +90,19 @@ Alle callbacks:
 
 GET `/uitschrijven` muteert niet vanwege link scanners. RFC one-click clients gebruiken de POST-route met correcte headersemantiek.
 
-## Contract 3 — artikelrevisies
+## Contract 3 — handmatige content en interne links
 
-Het artikeladminmodel heeft immutable publicatierevisies nodig:
+Nieuwsbriefcontent is niet gekoppeld aan `articles`, artikelrevisies of een picker. De redacteur schrijft en linkt alles handmatig in de editor.
 
-### `articleRevisions`
+Wanneer een handmatig ingevoerde veilige link naar `https://devoetbalgazet.be/nieuws/...` wijst:
 
-| Veld | Betekenis |
-|------|-----------|
-| `articleId` | Stabiele artikelidentiteit |
-| `version` | Oplopende revisie |
-| `status` | published/retracted |
-| `headline`, `dek`, `kicker` | Snapshot voor distributie |
-| `heroImageId`, `heroAlt`, `credit` | Snapshot |
-| `author`, `publishedAt` | Snapshot |
-| `divisionIds`, `teamIds`, `categoryId` | Metadata |
-| `canonicalPath` | `/nieuws/[slug]` |
-| `createdBy`, `createdAt` | Audit |
+- de renderer herkent alleen het eigen domein en `/nieuws/` pad;
+- per recipient kan hij de bestemming via de bestaande `article_access` bootstrapcallback laten lopen;
+- de editorbron bewaart alleen de gewone canonieke URL;
+- er wordt geen artikelmetadata opgehaald of gesynchroniseerd;
+- een verwijderde of veranderde pagina wordt behandeld als iedere andere handmatige link en verschijnt in de linkcheck.
 
-Publish:
-
-1. maakt immutable `articleRevision`;
-2. wijst `articles.currentPublishedRevisionId` aan;
-3. start de statische sitebuild;
-4. maakt revisie beschikbaar voor nieuwsbriefpicker.
-
-Update van een gepubliceerd artikel maakt een nieuwe revisie. Bestaande nieuwsbriefblokken blijven naar hun gekozen snapshot verwijzen.
-
-### Retraction
-
-Wanneer een artikel wordt ingetrokken:
-
-- `articles.currentPublishedRevisionId` wordt aangepast/verwijderd;
-- geselecteerde maar nog niet verzonden campagnes krijgen warning;
-- finale sendvalidation blokkeert een retracted revision;
-- redacteur kiest vervanging of verwijdert het blok;
-- reeds verzonden e-mail blijft historisch ongewijzigd;
-- canonieke website-URL volgt publicatiebeleid (404/410/rechtzetting).
-
-### Picker API
-
-Admin-only, gepagineerd en indexed:
-
-- alleen published revisions;
-- zoek/filter op metadata;
-- geeft minimale carddata;
-- geen gated full body nodig.
+Hierdoor blijft frictieloze subscriber-toegang mogelijk zonder contentkoppeling.
 
 ## Contract 4 — campaign analytics ID
 
@@ -160,9 +127,9 @@ Niet gebruiken:
 
 De mapping naar intern `sendId` blijft alleen in Convex en is alleen voor bevoegde adminqueries.
 
-## Contract 5 — transactionele templatecatalogus
+## Contract 5 — visueel beheerde transactionele e-mailcatalogus
 
-| Template | Trigger | Ontvangt uitgeschreven subscriber? |
+| E-mailtype | Trigger | Ontvangt uitgeschreven subscriber? |
 |----------|---------|------------------------------------|
 | `Welcome` | Nieuwe gecombineerde inschrijving | Ja, hoort bij aangevraagde inschrijving |
 | `MagicLink` | Expliciet login-/deviceverzoek | Ja |
@@ -171,9 +138,16 @@ De mapping naar intern `sendId` blijft alleen in Convex en is alleen voor bevoeg
 | `UnsubscribeConfirmed` | Geldige unsubscribe | Ja, één bevestiging indien juridisch/productmatig gewenst |
 | `AdminSendAlert` | Operationele sendstatus | Alleen interne adminlijst |
 
-Elke template heeft typed props, code review, previewfixtures en een templateversie.
+Elk type heeft:
 
-`Welcome` en `VerifyEmail` mogen later gecombineerd worden wanneer de werkelijke authflow één mail gebruikt; dit is een templatecatalogus, geen verplicht dubbel mailmoment.
+- een visueel beheerd editor-document;
+- immutable versies en één actieve gepubliceerde versie;
+- typed allowed/required systeemvariabelen;
+- veilige previewfixtures;
+- verplichte test vóór publicatie;
+- audit van editor en publiceerder.
+
+`Welcome` en `VerifyEmail` mogen gecombineerd worden wanneer de werkelijke authflow één mail gebruikt; dit is een typecatalogus, geen verplicht dubbel mailmoment.
 
 ## Contract 6 — subscriber deletion
 
@@ -190,14 +164,14 @@ Bij geldig verwijderverzoek:
 
 De privacyverklaring moet deliveryevents en deze minimale suppressionretentie vermelden.
 
-## Contract 7 — artikelpublicatie naar nieuwsbrief
+## Contract 7 — geen artikelpublicatiehandoff
 
-De oude actie “queue voor volgende nieuwsbrief” wordt verfijnd naar:
+Artikelpublicatie:
 
-- `newsletterEligible: boolean` op gepubliceerde artikelrevisie, standaard true;
-- optionele redactionele `newsletterPriority`;
-- artikel verschijnt daarmee hoger in de ArticleBlock-picker;
-- er wordt niet automatisch een campagne gewijzigd of aangemaakt;
-- AI/publicatie kan alleen suggesteren, nooit toevoegen of versturen zonder redacteur.
+- maakt geen nieuwsbriefconcept;
+- voegt niets toe aan een campagne;
+- beheert geen “volgende editie”-queue;
+- markeert geen artikel als newsletter-eligible;
+- levert geen ArticleBlock-picker.
 
-Dit vermijdt een verborgen globale “volgende issue”-queue en past bij campaign-centric beheer.
+Een redacteur maakt e-mailcontent volledig handmatig. Dit contract kan later alleen door een expliciete nieuwe productbeslissing veranderen.
