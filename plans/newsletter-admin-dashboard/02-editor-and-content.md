@@ -172,7 +172,7 @@ Koppeling met `@convex-dev/r2`:
 7. `onSyncMetadata` haalt na upload `ContentType` en `ContentLength` op via `r2.getMetadata`, valideert die en koppelt key/uploader/tijdstip aan een `emailMedia`-record;
 8. pas na geldige metadata krijgt het record `ready` en retourneert de editorflow een permanente CDN-URL.
 
-`r2.getUrl(key)` is ongeschikt voor verzonden e-mailbeelden: die signed URL verloopt standaard na 15 minuten en omzeilt Cloudflare edge cache. Koppel daarom een eigen publiek R2/CDN-subdomein, aanbevolen `media.devoetbalgazet.be`, en bouw de permanente URL veilig uit de server-generated object key.
+`r2.getUrl(key)` is ongeschikt voor verzonden e-mailbeelden: die signed URL verloopt standaard na 15 minuten en omzeilt Cloudflare edge cache. Het bevestigde publieke R2/CDN-subdomein is `media.devoetbalgazet.be`; bouw de permanente URL veilig uit de server-generated object key.
 
 Gebruik niet de rate-limited `r2.dev` URL in productie.
 
@@ -180,8 +180,9 @@ Gebruik niet de rate-limited `r2.dev` URL in productie.
 
 - clientvalidatie geeft snelle UX-feedback, maar is niet de veiligheidsgrens;
 - metadata wordt na upload server-side gevalideerd;
-- alleen JPEG, PNG, WebP en GIF wanneer expliciet toegestaan;
-- maximaal 5 MB bronbestand als startdefault;
+- JPEG, PNG, WebP en GIF zijn toegestaan;
+- maximaal 5 MB bronbestand;
+- animated GIF is toegestaan maar krijgt een size/clientwaarschuwing omdat sommige clients alleen het eerste frame tonen;
 - geen onbeheerde SVG of data-URI;
 - de standaard `useUploadFile`-flow laat de component een UUID object key maken; alleen wanneer later een pad zoals `email-media/{uuid}` nodig is, komt er een eigen authenticated `generateUploadUrl` mutation omdat de standaard client API geen clientgekozen custom key aanvaardt;
 - bucket-CORS laat alleen bekende admin origins en noodzakelijke `PUT`/`GET` toe;

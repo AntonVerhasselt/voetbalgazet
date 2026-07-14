@@ -136,7 +136,7 @@ De mapping naar intern `sendId` blijft alleen in Convex en is alleen voor bevoeg
 | `VerifyEmail` | Verificatieverzoek | Ja |
 | `PreferencesChanged` | Geauthenticeerde wijziging | Ja, dienstbevestiging |
 | `UnsubscribeConfirmed` | Geldige unsubscribe | Ja, één bevestiging indien juridisch/productmatig gewenst |
-| `AdminSendAlert` | Operationele sendstatus | Alleen interne adminlijst |
+| `AdminSendAlert` | Operationele sendstatus | Alle actieve Admins + initiërende Journalist, gededuped |
 
 Elk type heeft:
 
@@ -146,6 +146,8 @@ Elk type heeft:
 - veilige previewfixtures;
 - verplichte test vóór publicatie;
 - audit van editor en publiceerder.
+
+Alle wijzigingen, tests, publicaties en rollbacks zijn Admin-only. Journalist en Viewer krijgen uitsluitend read-only preview/status.
 
 `Welcome` en `VerifyEmail` mogen gecombineerd worden wanneer de werkelijke authflow één mail gebruikt; dit is een typecatalogus, geen verplicht dubbel mailmoment.
 

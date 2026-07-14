@@ -148,12 +148,12 @@ Randvoorwaarden:
 
 ## Dataretentie
 
-Aanbevolen technisch beleid, nog juridisch te valideren:
+Bevestigd technisch retentiebeleid; de uiteindelijke privacycopy en juridische bewaarplichten worden vóór livegang nog gevalideerd:
 
 | Data | Retentie |
 |------|----------|
 | Campagnecontent en finale revisie | Onbeperkt als redactioneel archief, totdat redactiebeleid anders bepaalt |
-| Niet-verzonden draft en revisies | Laatste 90 dagen actief; oude niet-gelabelde revisies na 90 dagen opruimen |
+| Niet-verzonden draft en revisies | Ongebruikte revisies na 90 dagen opruimen; actieve drafts behouden |
 | Campaignaggregaten | 24 maanden operationeel; daarna eventueel geanonimiseerd |
 | Recipient mapping naar subscriber | 24 maanden |
 | Delivery eventdetails | 90 dagen |
@@ -236,7 +236,15 @@ Het volledige subdomein krijgt SPF, DKIM en DMARC. Divisienamen worden altijd al
 
 ### Alerts
 
-Aanbevolen:
+Bevestigd kanaal en publiek:
+
+- in-app melding én transactionele e-mail;
+- naar alle actieve Admins;
+- plus de Journalist die de campagne initieerde;
+- als een Admin zelf initieerde, dedupe het adres;
+- geen Slack/Twilio in MVP.
+
+Alertniveaus:
 
 - Critical: complaint rate boven interne drempel, sender config ongeldig, dubbele send gedetecteerd;
 - Warning: bounce rate > 2%, failure rate > 1%, scheduled send gemist, webhook 15 min stil tijdens active send;

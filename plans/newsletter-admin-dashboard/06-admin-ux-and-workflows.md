@@ -307,6 +307,7 @@ Overzicht:
 
 Acties:
 
+- alle onderstaande veranderacties zijn uitsluitend zichtbaar en server-side toegestaan voor Admin;
 - visueel bewerken;
 - typed systeemvariabelen invoegen via de editor;
 - preview met veilige dummydata;
@@ -315,6 +316,8 @@ Acties:
 - eerdere versie als nieuwe actieve versie herstellen;
 - retry alleen wanneer de triggerflow dat veilig toestaat;
 - geen live magic token tonen.
+
+Journalist en Viewer zien alleen de actieve versie, preview met dummydata en recente sendstatussen.
 
 ## Scherm 8 — abonnees
 
@@ -353,7 +356,7 @@ Alleen Admin:
 - preferences-URL;
 - standaard UTM-bron/medium;
 - interne testadressen;
-- trackingkeuzes;
+- read-only trackingstatus (alle ondersteunde campaigntracking staat aan);
 - noodstop voor marketingmail.
 
 API-keys en webhook secrets worden nooit in UI teruggetoond. Hoogstens `configured / missing` status.
@@ -374,12 +377,14 @@ API-keys en webhook secrets worden nooit in UI teruggetoond. Hoogstens `configur
 - kiest publiek;
 - plant/verstuurt;
 - ziet deliverydetails.
+- kan transactionele e-mails alleen read-only bekijken.
 
 ### Admin
 
 - alles van Journalist;
 - senderconfig;
 - userrollen;
+- transactionele e-mails bewerken, testen, publiceren, uitschakelen en terugrollen;
 - manual suppress/unsuppress;
 - recoveryacties;
 - marketingnoodstop en gecontroleerde recovery; geen override van verplichte testmail in MVP.
@@ -425,7 +430,7 @@ Als later aparte Publisherrol gewenst is, kan sendpermission los van journalistr
 
 ## Meldingen
 
-In-app:
+In-app én per transactionele e-mail naar alle actieve Admins en de initiërende Journalist:
 
 - geplande send geannuleerd/gestart;
 - send afgerond;
@@ -433,7 +438,7 @@ In-app:
 - bounce/complaint spike;
 - verschil tussen preview count en finale scheduled-send count, uitsluitend informatief.
 
-Optioneel later transactionele adminmail naar redactie. Geen Slack/Twilio toevoegen zonder expliciete keuze.
+Als de initiator zelf Admin is, wordt het e-mailadres gededuped. Geen Slack/Twilio in MVP.
 
 ## Toegankelijkheid
 

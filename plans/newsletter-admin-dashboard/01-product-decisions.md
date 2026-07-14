@@ -33,7 +33,7 @@ Het oudere plan gebruikt `newsletterIssues`. De implementatienaam wordt **`newsl
 | `/admin/nieuwsbrieven/[campaignId]/controleren` | Finale checklist, testmail, planning en sendbevestiging |
 | `/admin/nieuwsbrieven/[campaignId]/resultaten` | Afleveringsstatus, aggregaten en fouten |
 | `/admin/email/dienstmails` | Transactionele e-mailtypes, gepubliceerde versies, sends en fouten |
-| `/admin/email/dienstmails/[type]` | Visuele editor, systeemvariabelen, preview, test en versiepublicatie |
+| `/admin/email/dienstmails/[type]` | Admin-only editor/test/publicatie; Journalist/Viewer read-only preview/status |
 | `/admin/email/instellingen` | Afzender, reply-to, domeinstatus en standaardfooter; alleen Admin |
 
 De editor kan audience en controle als tabs/panelen tonen, maar de routes blijven afzonderlijk adresseerbaar. Dat voorkomt één onoverzichtelijk scherm en maakt navigatie en permissies duidelijk.
@@ -184,9 +184,9 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 - attachments;
 - AI-copygeneratie in de editor.
 
-## Productdefaults
+## Bevestigde productbeslissingen
 
-| Onderwerp | Aanbevolen standaard |
+| Onderwerp | Beslissing |
 |-----------|----------------------|
 | Taal | Nederlands (Vlaanderen) |
 | Tijdzone | `Europe/Brussels`, inclusief zomer-/wintertijd |
@@ -201,5 +201,8 @@ De Nederlandse UI gebruikt **Verzonden**. Intern is `sent` alleen toegestaan wan
 | Tracking | Alle ondersteunde Resend tracking aan; opens indicatief labelen |
 | Verzonden content | Immutable |
 | Testmail vereist | Minstens één succesvolle test sinds laatste inhoudswijziging |
-
-Deze defaults gelden tenzij een antwoord in [`09-open-questions.md`](./09-open-questions.md) ze vervangt.
+| Transactionele e-mail wijzigen | Alleen Admin; andere rollen kunnen hoogstens read-only bekijken |
+| Failure alerts | In-app + e-mail naar alle Admins en de initiërende Journalist |
+| Failed-recipient recovery | Alleen Admin, alleen definitieve failures na nieuwe suppressioncheck |
+| Media-CDN | `media.devoetbalgazet.be` |
+| Imageformaten | JPEG, PNG, WebP en GIF; maximaal 5 MB, waarschuwing voor animated GIF |

@@ -86,7 +86,7 @@ The public site and admin dashboard follow the Open Design visual language. The 
 - **Article publishing flow:** ✅ **Decided** — Convex content snapshots trigger a fully static Vercel rebuild; client-side soft registration gate.
 - **Interview subjects:** How are contacts sourced (club websites, manual CRM, scraped)?
 - **Newsletter cadence:** ✅ **Decided** — editorial send-now or explicit schedule in `Europe/Brussels`; no automatic weekly cron.
-- **Admin users:** Single editor or multi-user newsroom with roles?
+- **Admin roles:** ✅ **Newsletter decided** — Admin and Journalist can manage/send campaigns; Viewer is read-only; only Admin changes transactional emails. Broader AI-story assignment remains a later admin-plan question.
 - **Legal:** Public-site draft copy exists; business placeholders, retention and combined signup proposition still require Belgian legal review.
 
 ## Status
@@ -96,5 +96,5 @@ The public site and admin dashboard follow the Open Design visual language. The 
 | Design prototype | Done (Open Design) |
 | Project codebase | Not started |
 | Public-siteplan | Completed |
-| Newsletter-adminplan | Detailed draft — defaults chosen, open questions documented |
+| Newsletter-adminplan | Product/architecture decisions completed — launch inputs tracked separately |
 | Other plans | Initial draft — refinement in progress |

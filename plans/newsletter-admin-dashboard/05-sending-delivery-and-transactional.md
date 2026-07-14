@@ -315,13 +315,15 @@ Geen generieke “verstuur opnieuw naar iedereen”.
 Een recoveryactie:
 
 1. selecteert alleen definitief app-level failed recipients;
-2. hercontroleert suppressions;
-3. gebruikt dezelfde sendrevision;
-4. maakt aparte recovery batch/audit;
-5. gebruikt dezelfde recipient-idempotency wanneer providerstatus onzeker is;
-6. vereist Adminbevestiging.
+2. is alleen beschikbaar voor Admin;
+3. hercontroleert suppressions;
+4. sluit bounce, complaint en unsubscribe altijd uit;
+5. vereist zekere providerstatus dat de oorspronkelijke mail niet werd geaccepteerd;
+6. gebruikt dezelfde sendrevision;
+7. maakt aparte recovery batch/audit;
+8. vereist Adminbevestiging.
 
-Bij provideronzekerheid eerst status opvragen; nooit blind resend.
+Bij provideronzekerheid eerst status reconciliëren. Zolang die onzeker blijft, is recovery niet toegestaan.
 
 ## Webhooks
 
@@ -362,6 +364,8 @@ Per transactioneel type:
 - preview met veilige dummywaarden;
 - verplichte testmail vóór publiceren;
 - rollback door een oude versie opnieuw als nieuwe actieve versie te publiceren.
+
+Alle veranderacties in deze workflow zijn Admin-only: bewerken, testmail, publiceren, uitschakelen en rollback. Journalist en Viewer hebben alleen read-only preview/status.
 
 Voorbeeldvariabelen:
 

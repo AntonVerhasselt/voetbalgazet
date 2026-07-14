@@ -16,7 +16,7 @@ De publieke inschrijving en lezerssessies blijven beschreven in [`../public-news
 | [06-admin-ux-and-workflows.md](./06-admin-ux-and-workflows.md) | Schermen, flows, rollen, bevestigingen, foutstaten en toegankelijkheid |
 | [07-analytics-compliance-and-operations.md](./07-analytics-compliance-and-operations.md) | Statistieken, AVG, retentie, monitoring, incidenten en operationele procedures |
 | [08-implementation-phases.md](./08-implementation-phases.md) | Bouwvolgorde, afhankelijkheden, teststrategie en acceptatiecriteria per fase |
-| [09-open-questions.md](./09-open-questions.md) | Open vragen met aanbeveling en standaardbeslissing bij uitblijven van antwoord |
+| [09-launch-todos.md](./09-launch-todos.md) | Nog in te vullen bedrijfsgegevens, productieconfiguratie en launchchecks |
 | [10-cross-component-contracts.md](./10-cross-component-contracts.md) | Subscriber-, route-, handmatige-link-, analytics- en deletioncontracten met andere componenten |
 
 De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het architecturale overzicht. Bij verschillen heeft dit verfijnde dossier voorrang.
@@ -27,10 +27,11 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 2. **Resend is de afleveringsprovider, niet het redactiesysteem.** Redacteurs maken of beheren geen templates, audiences of broadcasts in het Resend-dashboard.
 3. **Alle e-mailinhoud wordt visueel gemaakt met `@react-email/editor`.** Nieuwsbrieven én transactionele mails worden vanuit het adminplatform beheerd; het editor-document is de bewerkbare bron.
 4. **Alleen bij nieuwsbriefcampagnes is de minimale compliancefooter vergrendeld.** Ze bevat altijd `Uitschrijven`, `Voorkeuren aanpassen` en verplichte juridische/contactinformatie. Er is geen vaste brandheader, masthead, template of contentkoppeling. Transactionele e-mails hebben deze marketingfooter niet; hun vereiste systeemlinks/variabelen worden per type gevalideerd.
-5. **Voorkeuren segmenteren het publiek, niet de inhoud per persoon.** In de eerste versie ontvangt iedereen binnen één verzending dezelfde body. Filters bepalen alleen wie de campagne krijgt.
-6. **De doelgroepdefinitie wordt bij bevestiging bevroren; concrete recipients pas bij send.** Bij Send nu gebeurt dit direct. Bij scheduling worden de recipients op het geplande sendmoment bepaald, zodat nieuwe inschrijvingen en unsubscribes tot dan meetellen.
-7. **Een verzonden campagne is immutable.** Aanpassen of opnieuw versturen gebeurt via dupliceren naar een nieuw concept.
-8. **Geen verzending zonder expliciete review.** Testmail, audience preview en finale bevestiging zijn aparte stappen. AI of cron mag nooit zelfstandig een nieuw concept publiceren of versturen.
+5. **Alleen Admins mogen transactionele e-mailinhoud wijzigen.** Journalists en Viewers kunnen de actieve versie en sendstatus read-only bekijken, maar niet bewerken, testen, publiceren of terugrollen.
+6. **Voorkeuren segmenteren het publiek, niet de inhoud per persoon.** In de eerste versie ontvangt iedereen binnen één verzending dezelfde body. Filters bepalen alleen wie de campagne krijgt.
+7. **De doelgroepdefinitie wordt bij bevestiging bevroren; concrete recipients pas bij send.** Bij Send nu gebeurt dit direct. Bij scheduling worden de recipients op het geplande sendmoment bepaald, zodat nieuwe inschrijvingen en unsubscribes tot dan meetellen.
+8. **Een verzonden campagne is immutable.** Aanpassen of opnieuw versturen gebeurt via dupliceren naar een nieuw concept.
+9. **Geen verzending zonder expliciete review.** Testmail, audience preview en finale bevestiging zijn aparte stappen. AI of cron mag nooit zelfstandig een nieuw concept publiceren of versturen.
 
 ## Productgrens
 
@@ -75,12 +76,6 @@ De oudere hoofdpagina [`../03-newsletter.md`](../03-newsletter.md) blijft het ar
 | Resend via Convex-component | Queuing, batching, retries en idempotency blijven backendverantwoordelijkheid |
 | R2 als mediastore | Beelden uit de editor verwijzen naar gecontroleerde R2-assets |
 
-## Beslissingsregel voor open vragen
+## Planstatus
 
-Elke open vraag in [`09-open-questions.md`](./09-open-questions.md) bevat:
-
-- een concreet voorstel;
-- waarom dat voorstel de veiligste of eenvoudigste standaard is;
-- wat er verandert wanneer een andere keuze wordt gemaakt.
-
-Als er geen antwoord komt, wordt de gemarkeerde **aanbevolen standaard** de implementatiekeuze. Een later expliciet antwoord vervangt die standaard.
+Alle MVP-product- en architectuurvragen zijn beantwoord en in dit dossier verwerkt. Wat nog ontbreekt zijn concrete bedrijfsgegevens, secrets, DNS/providerconfiguratie en operationele launchchecks; die staan in [`09-launch-todos.md`](./09-launch-todos.md).

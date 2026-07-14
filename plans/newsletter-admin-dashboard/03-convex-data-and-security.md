@@ -32,7 +32,13 @@ Nieuwsbrieflogica blijft in de hoofdapp omdat ze nauw samenhangt met subscribers
 | `journalist` | Ja | Ja | Ja | Nee |
 | `viewer` | Ja | Nee | Nee | Nee |
 
-Aanbevolen eerste versie: `admin`, `journalist`, `viewer`, in lijn met het bestaande adminplan. Elke live send logt de concrete actor.
+Bevestigde eerste versie: `admin`, `journalist`, `viewer`, in lijn met het bestaande adminplan. Elke live send logt de concrete actor.
+
+De kolom Bewerken/testen geldt voor nieuwsbriefcampagnes. Transactionele e-maildefinitions en revisions zijn gevoeliger:
+
+- alleen `admin` mag draft wijzigen, testmail aanvragen, publiceren, uitschakelen of terugrollen;
+- `journalist` en `viewer` hebben read-only inzage in actieve versie en sendstatus;
+- deze grens gebruikt aparte `adminMutation`-functies en wordt niet alleen in de UI verborgen.
 
 ### Custom functions
 
@@ -346,7 +352,7 @@ Geen query gebruikt `Date.now()`. Huidige tijd komt als argument of status wordt
 ### Mutations
 
 - `campaigns.create`, `updateDraft`, `duplicate`, `saveRevision`;
-- `transactional.updateDraft`, `saveRevision`, `publishRevision`, `restoreAsNewRevision`;
+- Admin-only `transactional.updateDraft`, `saveRevision`, `requestTest`, `publishRevision`, `restoreAsNewRevision`, `disable`;
 - `audiences.updateDefinition`;
 - `tests.request`;
 - `sends.requestNow`, `schedule`, `cancelSchedule`;

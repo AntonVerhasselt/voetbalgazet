@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Send a **weekly email newsletter** to subscribers collected through the public news site. Every email is composed from scratch or duplicated in **`@react-email/editor`** and sent via the **Resend Convex component**.
+Send a custom editorial newsletter—normally about once per week—to subscribers collected through the public news site. Timing is always Send nu or explicitly scheduled; there is no automatic weekly cron. Every email is composed from scratch or duplicated in **`@react-email/editor`** and sent via the **Resend Convex component**.
 
 Design copy on the site sets expectation: *"Eén e-mail per week — lokaal voetbal, geen ruis."*
 
@@ -47,6 +47,7 @@ Stored in Convex `subscribers` table:
 - `newsletterSubscribed`, `newsletterSubscribedAt`, `unsubscribedAt`
 - `consentCapturedAt`, `consentVersion`, `consentSource`
 - `emailDeliveryStatus`: `unknown | deliverable | bounced`
+- active Convex suppressions for unsubscribe, hard bounce, complaint or manual block
 
 Convex selects recipients directly. Resend Audiences/contacts are not the source of truth and are not required for campaign sending.
 
@@ -59,7 +60,7 @@ Via [Convex Resend component](https://www.convex.dev/components/resend):
 | Capability | Use |
 |------------|-----|
 | **Transactional** | Welcome/verification, magic link, unsubscribe confirmation |
-| **Broadcast / batch** | Weekly newsletter send |
+| **Broadcast / batch** | Explicit custom campaign send |
 | **React Email editor** | Free-form campaign and transactional content |
 | **Webhooks** | Delivery, bounce, complaint events → update subscriber status |
 
@@ -164,7 +165,7 @@ Within admin dashboard (Component 2):
 | **Campaign list** | Past and draft newsletters |
 | **Visual editor** | Build every email freely; no template/article picker |
 | **Preview** | Render editor output with locked footer |
-| **Send controls** | Test send (to journalist), schedule, send now |
+| **Send controls** | Test send to explicit internal addresses, schedule, send now |
 | **Stats** | Opens, clicks (Resend analytics) |
 
 Styling: same De Voetbalgazet admin shell.
@@ -212,6 +213,6 @@ Docs: [Resend Convex component](https://www.convex.dev/components/resend)
 
 ---
 
-## Decisions and remaining questions
+## Decisions and launch preparation
 
-The refined dossier chooses editorial send-now or explicit scheduling, Convex-managed audiences and no per-recipient content personalization in MVP. Remaining questions, each with a recommended fallback, are maintained in [`newsletter-admin-dashboard/09-open-questions.md`](./newsletter-admin-dashboard/09-open-questions.md).
+All MVP product and architecture decisions are resolved in [`newsletter-admin-dashboard/`](./newsletter-admin-dashboard/). Remaining company data, provider/DNS setup and operational checks are tracked in [`newsletter-admin-dashboard/09-launch-todos.md`](./newsletter-admin-dashboard/09-launch-todos.md).

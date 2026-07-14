@@ -15,9 +15,9 @@ De bouwvolgorde minimaliseert risico: eerst auth, data en renderer; daarna edito
 - from/reply-to;
 - fysieke/editoriale footercopy;
 - Resend account en verified domeinplan;
-- R2 bucket, restricted API token, CORS origins en custom CDN domain (aanbevolen `media.devoetbalgazet.be`);
+- R2 bucket, restricted API token, CORS origins en bevestigd custom CDN domain `media.devoetbalgazet.be`;
 - adminrollen/eerste gebruikers;
-- bevestiging van open vragen of toepassing van aanbevelingen;
+- alle inputs en launchchecks uit `09-launch-todos.md` die voor de betrokken fase nodig zijn;
 - actuele documentatie/packageversies controleren.
 - korte technische spike: `@react-email/editor` vrije editor, `onUploadImage` via `@convex-dev/r2`, permanente CDN-URL, gedeelde browser/Node renderer en HTML/plaintextexport bewijzen met de actuele packageversie.
 
@@ -150,6 +150,7 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - previewfixtures zonder echte tokens;
 - verplichte test en expliciete versiepublicatie;
 - triggerfuncties lezen uitsluitend de actieve versie.
+- alle veranderacties Admin-only; Journalist/Viewer read-only.
 
 ### Tests
 
@@ -162,6 +163,7 @@ Geen live-sendimplementatie activeren zolang domein, footer en consent/complianc
 - long content/Unicode.
 - ontbrekende/vervalste transactionele systeemvariabelen;
 - publish/rollback van transactionele editorversies.
+- Journalist kan geen transactionele draft/test/publicatie mutation uitvoeren.
 
 ### Exitcriteria
 
