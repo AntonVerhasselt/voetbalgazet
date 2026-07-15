@@ -19,8 +19,14 @@ delivery, and newsletter tooling belong to later phases.
 
 ```bash
 npm install
-npm run dev:convex
 npm run dev
+```
+
+`npm run dev` starts Convex and the Next.js app together. To run them separately:
+
+```bash
+npm run dev:convex
+npm run dev:web
 ```
 
 Use `npx convex dev` for development. Do not use `npx convex deploy` except in

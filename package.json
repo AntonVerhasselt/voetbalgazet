@@ -7,8 +7,10 @@
   ],
   "scripts": {
     "build": "npm run build --workspace web",
-    "dev": "npm run dev --workspace web",
-    "dev:convex": "CONVEX_AGENT_MODE=anonymous convex dev",
+    "dev": "concurrently --kill-others-on-fail -n convex,web -c blue,green \"npm run dev:convex\" \"npm run dev:web\"",
+    "dev:web": "npm run dev --workspace web",
+    "dev:convex": "convex dev",
+    "dev:convex:agent": "CONVEX_AGENT_MODE=anonymous convex dev",
     "lint": "npm run lint --workspace web && eslint --config eslint.config.mjs convex",
     "test": "vitest run",
     "typecheck": "npm run typecheck --workspace web && tsc --noEmit -p convex/tsconfig.json"
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "@convex-dev/eslint-plugin": "^2.0.0",
+    "concurrently": "^9.2.4",
     "eslint": "^9.39.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.64.0",
