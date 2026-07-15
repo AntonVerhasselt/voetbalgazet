@@ -1,4 +1,11 @@
 node_modules/
+.agents/
+.claude/
+skills-lock.json
+/AGENTS.md
+/CLAUDE.md
+convex/_generated/ai/
+
 .next/
 out/
 build/
