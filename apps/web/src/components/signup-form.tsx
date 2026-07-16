@@ -34,12 +34,18 @@ function getConvexClient(): ConvexHttpClient {
 
 async function startReaderSession(
   email: string,
-): Promise<{ verificationLinkSent: boolean }> {
+): Promise<{
+  sessionStarted: boolean;
+  verificationLinkSent: boolean;
+}> {
   const currentSession = await authClient.getSession();
   if (!currentSession.data) {
     const anonymousResult = await authClient.signIn.anonymous();
     if (anonymousResult.error) {
-      throw new Error("De leessessie kon niet worden gestart.");
+      return {
+        sessionStarted: false,
+        verificationLinkSent: false,
+      };
     }
   }
 
@@ -49,7 +55,10 @@ async function startReaderSession(
     email,
     callbackURL,
   });
-  return { verificationLinkSent: !magicLinkResult.error };
+  return {
+    sessionStarted: true,
+    verificationLinkSent: !magicLinkResult.error,
+  };
 }
 
 export function SignupForm({
@@ -106,19 +115,22 @@ export function SignupForm({
         email,
         website,
       });
-      const { verificationLinkSent } = await startReaderSession(email);
+      const { sessionStarted, verificationLinkSent } =
+        await startReaderSession(email);
       setStep("success");
       onStepChange?.("success");
       setStatus({
         state: "success",
-        message: verificationLinkSent
-          ? "Je kunt verder lezen. Als dit adres al bij ons bekend is, ontvang je ook een veilige bevestigingslink."
-          : "Je kunt verder lezen. De bevestigingsmail kon niet worden verstuurd; probeer die later opnieuw via Voorkeuren.",
+        message: sessionStarted
+          ? verificationLinkSent
+            ? "Je kunt verder lezen. Als dit adres al bij ons bekend is, ontvang je ook een veilige bevestigingslink."
+            : "Je kunt verder lezen. De bevestigingsmail kon niet worden verstuurd; probeer die later opnieuw via Voorkeuren."
+          : "Je kunt nu verder lezen. We konden je toegang op dit apparaat nog niet bewaren.",
       });
       capturePublicEvent("subscription_succeeded", {
         article_id: articleId,
         source,
-        access_level: "reader",
+        access_level: sessionStarted ? "reader" : "temporary_reader",
         is_returning_flow: true,
       });
       onUnlocked?.();
@@ -195,19 +207,22 @@ export function SignupForm({
         divisionKeys: selectedDivisions,
         ...(selectedTeam ? { teamKey: selectedTeam } : {}),
       });
-      const { verificationLinkSent } = await startReaderSession(email);
+      const { sessionStarted, verificationLinkSent } =
+        await startReaderSession(email);
       setStep("success");
       onStepChange?.("success");
       setStatus({
         state: "success",
-        message: verificationLinkSent
-          ? "Welkom bij De Voetbalgazet. Je kunt meteen verder lezen; je veilige bevestigingslink is onderweg."
-          : "Welkom bij De Voetbalgazet. Je kunt meteen verder lezen; de bevestigingsmail kon nog niet worden verstuurd.",
+        message: sessionStarted
+          ? verificationLinkSent
+            ? "Welkom bij De Voetbalgazet. Je kunt meteen verder lezen; je veilige bevestigingslink is onderweg."
+            : "Welkom bij De Voetbalgazet. Je kunt meteen verder lezen; de bevestigingsmail kon nog niet worden verstuurd."
+          : "Je inschrijving is opgeslagen en je kunt nu verder lezen. We konden je toegang op dit apparaat nog niet bewaren.",
       });
       capturePublicEvent("subscription_succeeded", {
         article_id: articleId,
         source,
-        access_level: "reader",
+        access_level: sessionStarted ? "reader" : "temporary_reader",
         is_returning_flow: false,
       });
       onUnlocked?.();

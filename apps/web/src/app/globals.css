@@ -714,6 +714,18 @@ a {
   color: var(--white);
 }
 
+.signup-form--dark .division-selector__province--active,
+.signup-form--dark .division-selector__division--selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--white);
+}
+
+.signup-form--dark .division-selector__province--active > span {
+  background: var(--white);
+  color: var(--accent-dark);
+}
+
 .division-selector__selected {
   display: flex;
   flex-wrap: wrap;
