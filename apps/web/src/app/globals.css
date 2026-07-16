@@ -714,6 +714,25 @@ a {
   color: var(--white);
 }
 
+.division-selector__selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.signup-form .division-selector__selected button,
+.preferences-form .division-selector__selected button {
+  width: auto;
+  min-height: 30px;
+  padding: 0.25rem 0.5rem;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--paper));
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  text-overflow: clip;
+}
+
 .preference-fieldset legend,
 .preferences-form legend,
 .team-picker > label {

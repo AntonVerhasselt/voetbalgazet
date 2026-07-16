@@ -23,6 +23,9 @@ export function DivisionSelector({
       ),
     [activeProvince],
   );
+  const selectedOptions = divisionOptions.filter((division) =>
+    selected.includes(division.key),
+  );
   return (
     <div className="division-selector">
       <div className="division-selector__provinces" aria-label="Provincie">
@@ -78,6 +81,30 @@ export function DivisionSelector({
         ))}
       </div>
 
+      {selectedOptions.length > 0 && (
+        <div
+          className="division-selector__selected"
+          aria-label="Geselecteerde reeksen"
+          aria-live="polite"
+        >
+          {selectedOptions.map((division) => (
+            <button
+              type="button"
+              onClick={() => onToggle(division.key)}
+              aria-label={`Verwijder ${division.label}`}
+              key={division.key}
+            >
+              {
+                provinceOptions.find(
+                  (province) => province.key === division.provinceKey,
+                )?.shortLabel
+              }{" "}
+              {division.shortLabel}
+              <span aria-hidden="true"> ×</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
