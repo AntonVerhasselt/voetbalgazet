@@ -1688,6 +1688,10 @@ a {
 }
 
 @media (min-width: 1100px) {
+  .home-lead {
+    padding-block: 2rem;
+  }
+
   .home-lead__main {
     grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
     align-items: start;
