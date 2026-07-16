@@ -44,7 +44,7 @@ directory” enabled). From that directory the monorepo root is **two** levels u
 | Setting | Value |
 |---------|--------|
 | Install Command | `cd ../.. && npm install` |
-| Build Command | `cd ../.. && npx convex deploy --cmd 'npm run build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL` |
+| Build Command | `cd ../.. && npx convex deploy --cmd 'npm run write-convex-env && npm run build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL` |
 
 `cd ..` alone lands in `apps/` (no root `package.json`) and breaks Convex deploy.
 
@@ -56,10 +56,15 @@ Required Vercel env (Production):
 | `NEXT_PUBLIC_CONVEX_URL` | `https://calculating-eel-615.convex.cloud` |
 | `NEXT_PUBLIC_CONVEX_SITE_URL` | `https://calculating-eel-615.convex.site` |
 
-`NEXT_PUBLIC_CONVEX_SITE_URL` must be present at **build** time (not only runtime).
-If it is missing, the auth proxy falls back to a dead host and `/api/auth/*`
-returns 404. The app can also derive `.site` from `.cloud` when the site URL
-env is absent.
+`NEXT_PUBLIC_CONVEX_SITE_URL` is the Convex **HTTP Actions** URL (`.convex.site`),
+not the cloud URL. For this production deployment it must be the **non-regional**
+host `https://calculating-eel-615.convex.site`. The regional variant
+`https://calculating-eel-615.eu-west-1.convex.site` returns empty 404s and breaks
+GitHub login via `/api/auth/*`.
+
+The Vercel build runs `write-convex-env` so `convex deploy --cmd` can bake the
+canonical cloud + site URLs into the Next.js auth proxy. Still set both env vars
+in the Vercel project so previews/local tooling stay consistent.
 
 Canonical production host is the **apex** (no www):
 
