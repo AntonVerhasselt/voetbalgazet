@@ -13,7 +13,7 @@ export function DivisionSelector({
   selected: readonly string[];
   onToggle: (key: string) => void;
 }) {
-  const [activeProvince, setActiveProvince] = useState(
+  const [activeProvince, setActiveProvince] = useState<string>(
     provinceOptions[0]?.key ?? "antwerpen",
   );
   const activeDivisions = useMemo(
