@@ -7,6 +7,22 @@ import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 
+/** Apex + www so production redirects (Vercel www) don't break OAuth. */
+function trustedOriginsFor(site: string): string[] {
+  try {
+    const url = new URL(site);
+    const hosts = new Set<string>([url.origin]);
+    if (url.hostname.startsWith("www.")) {
+      hosts.add(`${url.protocol}//${url.hostname.slice(4)}`);
+    } else if (url.hostname.includes(".")) {
+      hosts.add(`${url.protocol}//www.${url.hostname}`);
+    }
+    return [...hosts];
+  } catch {
+    return [site];
+  }
+}
+
 export const authComponent = createClient<DataModel>(components.betterAuth);
 
 function createAuthOptions(ctx: GenericCtx<DataModel>): BetterAuthOptions {
@@ -17,7 +33,7 @@ function createAuthOptions(ctx: GenericCtx<DataModel>): BetterAuthOptions {
   return {
     appName: "De Voetbalgazet Admin",
     baseURL: siteUrl,
-    trustedOrigins: [siteUrl],
+    trustedOrigins: trustedOriginsFor(siteUrl),
     database: authComponent.adapter(ctx),
     session: {
       expiresIn: 60 * 60 * 24 * 7,

@@ -48,8 +48,23 @@ directory” enabled). From that directory the monorepo root is **two** levels u
 
 `cd ..` alone lands in `apps/` (no root `package.json`) and breaks Convex deploy.
 
-Required Vercel env (Production): `CONVEX_DEPLOY_KEY`,
-`NEXT_PUBLIC_CONVEX_URL`, `NEXT_PUBLIC_CONVEX_SITE_URL`.
+Required Vercel env (Production):
+
+| Name | Value |
+|------|--------|
+| `CONVEX_DEPLOY_KEY` | Production deploy key from Convex |
+| `NEXT_PUBLIC_CONVEX_URL` | `https://calculating-eel-615.convex.cloud` |
+| `NEXT_PUBLIC_CONVEX_SITE_URL` | `https://calculating-eel-615.convex.site` |
+
+`NEXT_PUBLIC_CONVEX_SITE_URL` must be present at **build** time (not only runtime).
+If it is missing, the auth proxy falls back to a dead host and `/api/auth/*`
+returns 404. The app can also derive `.site` from `.cloud` when the site URL
+env is absent.
+
+Convex production `SITE_URL` should match the live site host (currently
+`https://www.devoetbalgazet.be` because Vercel redirects apex → www). GitHub
+OAuth App homepage/callback URLs should allow that same host
+(`/api/auth/callback/github`).
 
 ## Admin authentication
 
