@@ -46,12 +46,18 @@ Voor het MVP zijn deze waarden metadata voor filters en voorkeuren, geen losse s
 
 ### Beeld
 
+Default hero is de **typografische illustratie** (zie [`ui-ux/01-design-style.md`](../ui-ux/01-design-style.md)), niet een verplichte foto.
+
 | Veld | Type | Regels |
 |------|------|--------|
-| `heroImage` | Keystatic image | Verplicht voor published tenzij expliciete text-only uitzondering |
-| `heroAlt` | text | Verplicht |
+| `illustrationMode` | select | `generic` \| `match` \| `custom` — default `generic` (“Zondag langs de lijn”) |
+| `illustrationTone` | select | `green` \| `red` \| `gold` \| `auto` — rotatiepalet |
+| `homeTeam` / `awayTeam` | text? | Bij `match`: bijv. `KSV Aartselaar` / `TOR Deurne Pirates` |
+| `competitionLabel` | text? | Optionele eyebrow/reeks |
+| `heroImage` | Keystatic image? | Optioneel; vervangt typo-illustratie wanneer aanwezig |
+| `heroAlt` | text | Verplicht wanneer `heroImage` gezet is |
 | `heroCredit` | text | Verplicht wanneer externe maker |
-| `socialImage` | image? | Optioneel override; anders afgeleid |
+| `socialImage` | image? | Optioneel override; anders afgeleid of gegenereerde typo-kaart |
 
 Markdoc inlinebeelden vereisen:
 

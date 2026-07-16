@@ -246,7 +246,7 @@ Indexen:
 
 Grote sends worden per pagina/batch voorbereid, nooit in één mutation.
 
-Het recipientrecord bewaart standaard geen kopie van het e-mailadres. De interne enqueueworker haalt het actuele adres via `subscriberId` op, hercontroleert status/suppression en geeft het alleen aan de Resend-component door. Na subscriber deletion blijft de HMAC alleen waar retentie dit vereist.
+Het recipientrecord bewaart standaard geen kopie van het e-mailadres. De interne enqueueworker haalt het actuele adres via `subscriberId` op, hercontroleert status/suppression en geeft het alleen aan de Resend-component door. Geen aparte e-mail-HMAC in opslag of analytics (zie privacyplan: geen e-mailhash als standaard).
 
 ### `newsletterDeliveryEvents`
 
@@ -412,14 +412,15 @@ De Resend-component beheert provider-idempotency; de app bewaakt daarnaast dat d
 Convex environment:
 
 - `RESEND_API_KEY`;
-- `RESEND_WEBHOOK_SECRET`;
-- `EMAIL_TOKEN_SECRET`;
-- `EMAIL_ADDRESS_HMAC_SECRET`;
+- `RESEND_WEBHOOK_SECRET` — alleen voor Resend delivery-webhook signaturecontrole;
+- `BETTER_AUTH_SECRET` — auth/sessies; purpose-bound e-maillinks (artikel/voorkeuren/unsubscribe) hergebruiken deze of Better Auth-tokenflows, geen apart `EMAIL_TOKEN_SECRET`;
 - publieke base URL;
 - default from/reply-to waar niet in DB;
-- R2-config.
+- R2-config (`R2_*`).
 
-Next.js krijgt alleen publieke Convex URL en niet-geheime frontendconfig. Resend key en tokensigning secrets komen nooit in Vercel clientbundles.
+Geen `EMAIL_ADDRESS_HMAC_SECRET`: we slaan geen e-mailhashes op voor analytics of recipientrecords.
+
+Next.js krijgt alleen publieke Convex URL en niet-geheime frontendconfig. Resend key en auth secrets komen nooit in Vercel clientbundles.
 
 Cloud agents en lokale ontwikkeling gebruiken Convex agent mode/afzonderlijke dev deployment. `testMode` blijft aan en echte ontvangers zijn geblokkeerd in development.
 

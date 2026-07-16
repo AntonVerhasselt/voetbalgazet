@@ -15,7 +15,7 @@ Planning documents for a Dutch-language news platform covering local football in
 | [content-admin/](./content-admin/) | Keystatic, artikelmodel, publishing en mobile admin-UX |
 | [03-newsletter.md](./03-newsletter.md) | Resend React Email builder, sends, subscriber sync |
 | [newsletter-admin-dashboard/](./newsletter-admin-dashboard/) | Verfijnd nieuwsbrief-adminplan: visual editor, Convex-data, segmentatie, sending en operations |
-| [ui-ux/](./ui-ux/) | Gedeelde mobile-first UI/UX-regels voor site, admin en e-mail |
+| [ui-ux/](./ui-ux/) | Gedeelde mobile-first UI/UX-regels; [live design style](./ui-ux/01-design-style.md) (kleuren, type, typo-illustraties) |
 
 ## Design reference
 
@@ -41,7 +41,7 @@ Deze cloudomgeving kon de map opnieuw niet openen. Kopieer de bron naar `design/
 | `subscribe.js` | Preference picker logic (provinces, divisions, team search) |
 | `index.html` | Prototype launcher / screen overview |
 
-**Brand summary:** Newspaper-inspired editorial design (NYT/WaPo posture). Warm paper white background, ink-black headlines, Playfair Display for display type, hairline rules, no border-radius, subtle paper grain. Tagline: *Lokaal voetbal, echte verhalen.*
+**Brand summary:** Newspaper-inspired editorial design (NYT/WaPo posture). Warm paper `#f5f0e6`, ink `#171511`, accent red `#9f2f24`, hairline rules, no border-radius, subtle paper grain. Display serif (Iowan/Georgia stack) + Inter UI + mono meta. Typografische illustraties (“Zondag langs de lijn”) als beeldvervanging, met rotatiepalet groen `#243f2c` / rood / goud `#b8922a` en optionele wedstrijdcopy (`KSV Aartselaar vs TOR Deurne Pirates`). Volledige tokens: [`ui-ux/01-design-style.md`](./ui-ux/01-design-style.md). Tagline: *Lokaal voetbal, echte verhalen.*
 
 ## Tech stack (confirmed)
 

@@ -13,8 +13,6 @@ De volgende provider-setup is afgerond (secrets staan in Convex/Vercel, niet in 
 | **PostHog** | ✅ | PostHog Cloud EU; `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com` in Vercel + lokale dev |
 | **DNS / redactie-mail** | ✅ | DNS via Cloudflare; `redactie@devoetbalgazet.be` ontvangt via Email Routing → Gmail; verzenden via Gmail send-as; root SPF bijgewerkt |
 
-Nog open vóór code-implementatie: `EMAIL_TOKEN_SECRET` en `EMAIL_ADDRESS_HMAC_SECRET` in Convex (dev + prod).
-
 ## Bedrijfs- en footergegevens
 
 - [x] KBO-naam: YARU DAKEN (rechtsvorm: Besloten Vennootschap; weergave in copy: YARU DAKEN BV)

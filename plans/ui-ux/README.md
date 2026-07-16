@@ -7,6 +7,10 @@ Dit dossier geldt voor:
 - custom nieuwsbriefadmin;
 - gerenderde e-mails.
 
+| Document | Inhoud |
+|----------|--------|
+| [01-design-style.md](./01-design-style.md) | Live kleuren, typografie en typografische illustraties (“Zondag langs de lijn”, wedstrijdvariant, rotatiepalet groen/rood/goud) |
+
 ## Designbron en beschikbaarheid
 
 Bronpad:
@@ -50,17 +54,20 @@ Desktop is een verrijking van dezelfde flows, geen apart product.
 
 ### Visueel
 
-- warm papierwit;
-- inktzwart;
-- Playfair/serif voor editoriale titels;
-- system sans voor UI/formulieren;
+- warm papier `#f5f0e6`, dieper papier `#e8dece`;
+- inkt `#171511`, muted `#665f55`;
+- accentrood `#9f2f24` (en dark `#702019`);
+- serif display (Iowan Old Style / Georgia-stack) voor editoriale titels;
+- Inter/system sans voor UI/formulieren;
 - monospace voor metadata/status;
-- hairline rules;
+- hairline rules (`#aaa092`);
 - geen overmatig afgeronde cards;
+- typografische illustraties als default beeldvervanging — zie [`01-design-style.md`](./01-design-style.md);
+- illustratie-achtergronden roteren groen `#243f2c` / rood `#9f2f24` / goud `#b8922a`;
 - ruime maar niet verspillende mobile spacing;
 - paper grain alleen decoratief en performance-safe.
 
-Exacte waarden komen uit `brand-spec.md`/`styles.css` zodra die in de repository staan.
+Exacte live tokens staan in [`01-design-style.md`](./01-design-style.md) (afgeleid van `apps/web/src/app/globals.css`). Open Design `brand-spec.md`/`styles.css` blijft latere pixel-perfecte afstemming.
 
 ### Interactie
 
