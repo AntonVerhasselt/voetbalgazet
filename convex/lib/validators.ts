@@ -22,3 +22,28 @@ export const preferenceStatusValidator = v.union(
   v.literal("pending"),
   v.literal("complete"),
 );
+
+export const signupFlowValidator = v.union(
+  v.literal("preferences"),
+  v.literal("continue_reading"),
+);
+
+export const divisionOptionValidator = v.object({
+  key: v.string(),
+  label: v.string(),
+  provinceKey: v.string(),
+  provinceLabel: v.string(),
+});
+
+export const teamOptionValidator = v.object({
+  key: v.string(),
+  label: v.string(),
+  provinceKey: v.string(),
+  divisionKeys: v.array(v.string()),
+});
+
+export const preferenceSnapshotValidator = v.object({
+  divisionKeys: v.array(v.string()),
+  teamKey: v.union(v.string(), v.null()),
+  newsletterSubscribed: v.boolean(),
+});

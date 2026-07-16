@@ -59,4 +59,12 @@ export default defineSchema({
     source: consentSourceValidator,
     capturedAt: v.number(),
   }).index("by_subscriber", ["subscriberId"]),
+
+  subscriberDivisionPreferences: defineTable({
+    subscriberId: v.id("subscribers"),
+    divisionId: v.id("divisions"),
+  })
+    .index("by_subscriber", ["subscriberId"])
+    .index("by_division", ["divisionId"])
+    .index("by_subscriber_and_division", ["subscriberId", "divisionId"]),
 });

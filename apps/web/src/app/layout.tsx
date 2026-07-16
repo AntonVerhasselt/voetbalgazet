@@ -9,6 +9,20 @@ export const metadata: Metadata = {
   },
   description:
     "Verhalen, interviews en analyses uit het lokale voetbal in Vlaanderen.",
+  alternates: {
+    canonical: "/",
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "nl_BE",
+    siteName: "De Voetbalgazet",
+    title: "De Voetbalgazet — Lokaal voetbal, echte verhalen",
+    description:
+      "Verhalen, interviews en analyses uit het lokale voetbal in Vlaanderen.",
+  },
 };
 
 export default function RootLayout({
