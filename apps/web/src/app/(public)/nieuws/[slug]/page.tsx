@@ -112,19 +112,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         <div className="shell shell--article article__body">
           {article.isGated ? (
-            <>
-              <div className="article-lead">
-                <ArticleBlocks blocks={sections.lead} />
+            <ArticleAccessGate
+              articleId={article.slug}
+              leadLength={article.leadParagraphCount}
+              preview={<ArticleBlocks blocks={sections.lead} />}
+            >
+              <div className="paywall" data-nosnippet>
+                <ArticleBlocks blocks={sections.gated} />
               </div>
-              <ArticleAccessGate
-                articleId={article.slug}
-                leadLength={article.leadParagraphCount}
-              >
-                <div className="paywall" data-nosnippet>
-                  <ArticleBlocks blocks={sections.gated} />
-                </div>
-              </ArticleAccessGate>
-            </>
+            </ArticleAccessGate>
           ) : (
             <ArticleBlocks blocks={article.body} />
           )}

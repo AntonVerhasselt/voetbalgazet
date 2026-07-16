@@ -62,11 +62,7 @@ export default function Home() {
                 href={`/nieuws/${article.slug}`}
               >
                 <h2>{article.headline}</h2>
-                <p>{article.dek}</p>
               </Link>
-              <span className="story-row__meta">
-                {formatArticleDate(article.publishedAt)} · {article.readingTime}
-              </span>
             </article>
           ))}
         </div>

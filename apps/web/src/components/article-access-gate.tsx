@@ -14,18 +14,22 @@ import { authClient } from "@/lib/auth-client";
 export function ArticleAccessGate({
   articleId,
   leadLength,
+  preview,
   children,
 }: {
   articleId: string;
   leadLength: number;
+  preview: ReactNode;
   children: ReactNode;
 }) {
   const { data: session, isPending } = authClient.useSession();
   const [locallyUnlocked, setLocallyUnlocked] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [signupStep, setSignupStep] = useState<
     "email" | "preferences" | "success"
   >("email");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const reopenRef = useRef<HTMLButtonElement>(null);
   const impressionCaptured = useRef(false);
   const sessionCaptured = useRef(false);
   const unlocked = Boolean(session?.user) || locallyUnlocked;
@@ -41,7 +45,7 @@ export function ArticleAccessGate({
   }, [isPending, unlocked]);
 
   useEffect(() => {
-    if (isPending || unlocked) {
+    if (isPending || unlocked || dismissed) {
       return;
     }
     if (!impressionCaptured.current) {
@@ -59,11 +63,18 @@ export function ArticleAccessGate({
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [articleId, isPending, leadLength, unlocked]);
+  }, [articleId, dismissed, isPending, leadLength, unlocked]);
+
+  useEffect(() => {
+    if (dismissed) {
+      reopenRef.current?.focus();
+    }
+  }, [dismissed]);
 
   function keepFocusInside(event: KeyboardEvent<HTMLDivElement>): void {
     if (event.key === "Escape") {
       event.preventDefault();
+      setDismissed(true);
       return;
     }
     if (event.key !== "Tab") {
@@ -99,18 +110,29 @@ export function ArticleAccessGate({
   return (
     <div
       className={`article-access article-access--${
-        isPending ? "checking" : unlocked ? "unlocked" : "locked"
+        isPending
+          ? "checking"
+          : unlocked
+            ? "unlocked"
+            : dismissed
+              ? "dismissed"
+              : "locked"
       }`}
     >
+      <div className="article-lead">{preview}</div>
       {children}
       {isPending && (
         <div className="gate-placeholder" role="status">
           Leestoegang controleren…
         </div>
       )}
-      {!isPending && !unlocked && (
+      {!isPending && !unlocked && !dismissed && (
         <div className="gate-layer">
-          <div className="gate-layer__fade" aria-hidden="true" />
+          <div
+            className="gate-layer__fade"
+            aria-hidden="true"
+            onClick={() => setDismissed(true)}
+          />
           <div
             className={`gate-sheet gate-sheet--${signupStep}`}
             role="dialog"
@@ -119,6 +141,14 @@ export function ArticleAccessGate({
             onKeyDown={keepFocusInside}
           >
             <div className="gate-sheet__inner">
+              <button
+                className="gate-sheet__close"
+                type="button"
+                onClick={() => setDismissed(true)}
+                aria-label="Sluit inschrijfformulier"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
               <p className="eyebrow">Gratis voor abonnees</p>
               <h2 id="gate-heading" ref={headingRef} tabIndex={-1}>
                 {signupStep === "preferences"
@@ -139,6 +169,18 @@ export function ArticleAccessGate({
               />
             </div>
           </div>
+        </div>
+      )}
+      {!isPending && !unlocked && dismissed && (
+        <div className="gate-reopen">
+          <p>Abonneer gratis om het volledige artikel te lezen.</p>
+          <button
+            ref={reopenRef}
+            type="button"
+            onClick={() => setDismissed(false)}
+          >
+            Toon inschrijving
+          </button>
         </div>
       )}
     </div>

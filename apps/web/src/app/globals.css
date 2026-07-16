@@ -230,7 +230,7 @@ a {
 .home-lead h1 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.45rem, 9vw, 5.4rem);
+  font-size: clamp(2.2rem, 6.5vw, 4rem);
   font-weight: 700;
   overflow-wrap: break-word;
   letter-spacing: -0.045em;
@@ -290,12 +290,6 @@ a {
   overflow-wrap: break-word;
   letter-spacing: -0.025em;
   line-height: 1.05;
-}
-
-.home-lead__story-link > p {
-  margin-block: 0.75rem;
-  color: var(--ink-muted);
-  line-height: 1.55;
 }
 
 .home-lead__archive {
@@ -695,12 +689,14 @@ a {
 
 .division-selector__province {
   position: relative;
+  overflow: visible !important;
 }
 
 .division-selector__province > span {
   position: absolute;
-  top: -0.35rem;
-  right: -0.15rem;
+  z-index: 1;
+  top: 0.1rem;
+  right: 0.1rem;
   display: grid;
   width: 1.1rem;
   height: 1.1rem;
@@ -716,22 +712,6 @@ a {
   border-color: var(--accent);
   background: var(--accent);
   color: var(--white);
-}
-
-.division-selector__selected {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.signup-form .division-selector__selected button,
-.preferences-form .division-selector__selected button {
-  width: auto;
-  min-height: 32px;
-  padding-inline: 0.55rem;
-  background: var(--paper-deep);
-  color: var(--ink);
-  font-family: var(--font-ui);
-  font-size: 0.68rem;
 }
 
 .preference-fieldset legend,
@@ -909,6 +889,20 @@ a {
   user-select: none;
 }
 
+.article-access--dismissed .article-lead,
+.article-access--dismissed .paywall {
+  max-height: 11rem;
+  overflow: hidden;
+  filter: blur(7px);
+  opacity: 0.62;
+  pointer-events: none;
+  user-select: none;
+}
+
+.article-access--dismissed .paywall {
+  max-height: 8rem;
+}
+
 .gate-placeholder {
   min-height: 11rem;
   padding: 2rem 0;
@@ -923,8 +917,9 @@ a {
   z-index: 80;
   inset: 0;
   display: flex;
-  align-items: stretch;
+  align-items: flex-end;
   justify-content: center;
+  padding: 0.5rem;
   background: rgb(23 21 17 / 42%);
 }
 
@@ -932,35 +927,56 @@ a {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom, transparent 0 12%, rgb(23 21 17 / 35%));
+  cursor: pointer;
 }
 
 .gate-sheet {
   position: relative;
   z-index: 1;
-  width: 100%;
-  height: 100dvh;
-  max-height: 100dvh;
+  width: min(100%, 760px);
+  height: auto;
+  max-height: calc(100dvh - 1rem);
   padding-bottom: env(safe-area-inset-bottom);
   overflow: hidden;
-  border: 0;
+  border: 1px solid var(--ink);
   background: var(--paper);
   box-shadow: 0 -1rem 3rem rgb(23 21 17 / 20%);
 }
 
 .gate-sheet__inner {
+  position: relative;
   width: min(calc(100% - 2rem), 680px);
   max-width: 100%;
-  max-height: 100%;
-  margin: auto;
-  padding-block: max(1rem, env(safe-area-inset-top)) max(
-      1rem,
+  margin-inline: auto;
+  padding-block: max(0.85rem, env(safe-area-inset-top)) max(
+      0.85rem,
       env(safe-area-inset-bottom)
     );
-  overflow-x: clip;
-  overflow-y: auto;
+  overflow: visible;
+}
+
+.gate-sheet__close {
+  position: absolute;
+  z-index: 2;
+  top: 0.55rem;
+  right: 0;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .gate-sheet h2 {
+  max-width: calc(100% - 3rem);
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.85rem, 7.5vw, 3.4rem);
@@ -976,7 +992,7 @@ a {
 }
 
 .gate-sheet--preferences .gate-sheet__inner {
-  margin-block: 0;
+  padding-block: 0.65rem;
 }
 
 .gate-sheet--preferences h2 {
@@ -990,6 +1006,48 @@ a {
 
 .gate-sheet--preferences .eyebrow {
   margin-bottom: 0.45rem;
+}
+
+.gate-sheet--preferences .preference-fieldset {
+  margin-bottom: 0.65rem;
+}
+
+.gate-sheet--preferences .team-picker {
+  margin-bottom: 0.5rem;
+}
+
+.gate-sheet--preferences .consent-copy {
+  margin-block: 0.5rem;
+  font-size: 0.72rem;
+  line-height: 1.38;
+}
+
+.gate-sheet--preferences .signup-form__status {
+  min-height: 1rem;
+  margin-top: 0.3rem;
+}
+
+.gate-reopen {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--ink);
+  background: var(--paper-deep);
+  font-family: var(--font-ui);
+}
+
+.gate-reopen p {
+  margin-top: 0;
+}
+
+.gate-reopen button {
+  min-height: 44px;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--white);
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .article__body h2 {
@@ -1582,13 +1640,13 @@ a {
   .gate-sheet {
     height: auto;
     max-height: min(92dvh, 860px);
-    overflow-y: auto;
+    overflow: hidden;
     border-top: 1px solid var(--ink);
   }
 
   .gate-sheet__inner,
   .gate-sheet--preferences .gate-sheet__inner {
-    margin: auto;
+    margin-inline: auto;
   }
 
   .admin-shell__body {
@@ -1607,6 +1665,73 @@ a {
   .admin-nav span {
     border-right: 0;
     border-bottom: 1px solid var(--rule);
+  }
+}
+
+@media (max-width: 859px) and (max-height: 650px) {
+  .gate-layer {
+    padding: 0.25rem;
+  }
+
+  .gate-sheet {
+    max-height: calc(100dvh - 0.5rem);
+  }
+
+  .gate-sheet__inner {
+    width: min(calc(100% - 1.25rem), 680px);
+    padding-block: 0.5rem;
+  }
+
+  .gate-sheet h2 {
+    font-size: 1.55rem;
+  }
+
+  .gate-sheet__intro {
+    margin-block: 0.35rem 0.55rem;
+    font-size: 0.78rem;
+  }
+
+  .gate-sheet--preferences > .gate-sheet__inner > .eyebrow,
+  .gate-sheet--preferences .gate-sheet__intro {
+    display: none;
+  }
+
+  .gate-sheet--preferences h2 {
+    margin-bottom: 0.4rem;
+    font-size: 1.35rem;
+  }
+
+  .gate-sheet--preferences .preference-fieldset legend,
+  .gate-sheet--preferences .team-picker > label {
+    margin-bottom: 0.35rem;
+    font-size: 0.66rem;
+  }
+
+  .gate-sheet--preferences .division-selector {
+    gap: 0.3rem;
+  }
+
+  .gate-sheet--preferences .division-selector button {
+    min-height: 31px;
+  }
+
+  .gate-sheet--preferences .team-picker {
+    gap: 0.3rem;
+  }
+
+  .gate-sheet--preferences .team-picker input,
+  .gate-sheet--preferences .team-picker select,
+  .gate-sheet--preferences .signup-form__primary {
+    min-height: 40px;
+  }
+
+  .gate-sheet--preferences .consent-copy {
+    font-size: 0.65rem;
+    line-height: 1.28;
+  }
+
+  .gate-sheet__close {
+    top: 0.25rem;
   }
 }
 
