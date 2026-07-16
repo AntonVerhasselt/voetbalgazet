@@ -15,6 +15,8 @@ Phase 1 foundation for a mobile-first Flemish local-football publication.
 Reader sessions, the article gate, real division/team data, Keystatic, email
 delivery, and newsletter tooling belong to later phases.
 
+Operational docs (admin GitHub login, Vercel + Convex URLs): see [`docs/`](./docs/).
+
 ## Development
 
 ```bash
