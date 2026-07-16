@@ -30,11 +30,26 @@ npm run dev:web
 ```
 
 Use `npx convex dev` for development. Do not use `npx convex deploy` except in
-an intentional production release workflow.
+an intentional production release workflow (or the Vercel build below).
 
 The Convex development command creates `.env.local` with the public Convex
 URLs. Copy those public values to `apps/web/.env.local` when the web workspace
 does not pick up the root environment automatically.
+
+## Vercel production build
+
+Root Directory must be `apps/web` (with “Include files outside the root
+directory” enabled). From that directory the monorepo root is **two** levels up:
+
+| Setting | Value |
+|---------|--------|
+| Install Command | `cd ../.. && npm install` |
+| Build Command | `cd ../.. && npx convex deploy --cmd 'npm run build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL` |
+
+`cd ..` alone lands in `apps/` (no root `package.json`) and breaks Convex deploy.
+
+Required Vercel env (Production): `CONVEX_DEPLOY_KEY`,
+`NEXT_PUBLIC_CONVEX_URL`, `NEXT_PUBLIC_CONVEX_SITE_URL`.
 
 ## Admin authentication
 
