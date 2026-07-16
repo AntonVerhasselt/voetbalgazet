@@ -1,6 +1,7 @@
 export type DivisionOption = {
   key: string;
   label: string;
+  shortLabel: string;
   provinceKey: string;
   provinceLabel: string;
   level: number;
@@ -14,88 +15,91 @@ export type TeamOption = {
   divisionKeys: readonly string[];
 };
 
-export const divisionOptions = [
+export type ProvinceOption = {
+  key: string;
+  label: string;
+  shortLabel: string;
+};
+
+export const provinceOptions = [
   {
-    key: "antwerpen-p1",
-    label: "1ste provinciale Antwerpen",
-    provinceKey: "antwerpen",
-    provinceLabel: "Antwerpen",
+    key: "antwerpen",
+    label: "Antwerpen",
+    shortLabel: "Antw",
+  },
+  {
+    key: "limburg",
+    label: "Limburg",
+    shortLabel: "Limb",
+  },
+  {
+    key: "oost-vlaanderen",
+    label: "Oost-Vlaanderen",
+    shortLabel: "O-Vl",
+  },
+  {
+    key: "vlaams-brabant",
+    label: "Vlaams-Brabant",
+    shortLabel: "Vl-Br",
+  },
+  {
+    key: "west-vlaanderen",
+    label: "West-Vlaanderen",
+    shortLabel: "W-Vl",
+  },
+] as const satisfies readonly ProvinceOption[];
+
+const divisionSeries = [
+  {
+    keySuffix: "p1",
+    shortLabel: "1",
+    label: "1ste provinciale",
     level: 1,
-    sortOrder: 10,
   },
   {
-    key: "antwerpen-p2",
-    label: "2de provinciale Antwerpen",
-    provinceKey: "antwerpen",
-    provinceLabel: "Antwerpen",
+    keySuffix: "p2a",
+    shortLabel: "2A",
+    label: "2de provinciale A",
     level: 2,
-    sortOrder: 20,
   },
   {
-    key: "limburg-p1",
-    label: "1ste provinciale Limburg",
-    provinceKey: "limburg",
-    provinceLabel: "Limburg",
-    level: 1,
-    sortOrder: 30,
-  },
-  {
-    key: "limburg-p2",
-    label: "2de provinciale Limburg",
-    provinceKey: "limburg",
-    provinceLabel: "Limburg",
+    keySuffix: "p2b",
+    shortLabel: "2B",
+    label: "2de provinciale B",
     level: 2,
-    sortOrder: 40,
   },
   {
-    key: "oost-vlaanderen-p1",
-    label: "1ste provinciale Oost-Vlaanderen",
-    provinceKey: "oost-vlaanderen",
-    provinceLabel: "Oost-Vlaanderen",
-    level: 1,
-    sortOrder: 50,
+    keySuffix: "p3a",
+    shortLabel: "3A",
+    label: "3de provinciale A",
+    level: 3,
   },
   {
-    key: "oost-vlaanderen-p2",
-    label: "2de provinciale Oost-Vlaanderen",
-    provinceKey: "oost-vlaanderen",
-    provinceLabel: "Oost-Vlaanderen",
-    level: 2,
-    sortOrder: 60,
+    keySuffix: "p3b",
+    shortLabel: "3B",
+    label: "3de provinciale B",
+    level: 3,
   },
   {
-    key: "vlaams-brabant-p1",
-    label: "1ste provinciale Vlaams-Brabant",
-    provinceKey: "vlaams-brabant",
-    provinceLabel: "Vlaams-Brabant",
-    level: 1,
-    sortOrder: 70,
+    keySuffix: "p3c",
+    shortLabel: "3C",
+    label: "3de provinciale C",
+    level: 3,
   },
-  {
-    key: "vlaams-brabant-p2",
-    label: "2de provinciale Vlaams-Brabant",
-    provinceKey: "vlaams-brabant",
-    provinceLabel: "Vlaams-Brabant",
-    level: 2,
-    sortOrder: 80,
-  },
-  {
-    key: "west-vlaanderen-p1",
-    label: "1ste provinciale West-Vlaanderen",
-    provinceKey: "west-vlaanderen",
-    provinceLabel: "West-Vlaanderen",
-    level: 1,
-    sortOrder: 90,
-  },
-  {
-    key: "west-vlaanderen-p2",
-    label: "2de provinciale West-Vlaanderen",
-    provinceKey: "west-vlaanderen",
-    provinceLabel: "West-Vlaanderen",
-    level: 2,
-    sortOrder: 100,
-  },
-] as const satisfies readonly DivisionOption[];
+] as const;
+
+export const divisionOptions = provinceOptions.flatMap(
+  (province, provinceIndex) =>
+    divisionSeries.map((division, divisionIndex) => ({
+      key: `${province.key}-${division.keySuffix}`,
+      label: `${division.label} ${province.label}`,
+      shortLabel: division.shortLabel,
+      provinceKey: province.key,
+      provinceLabel: province.label,
+      level: division.level,
+      sortOrder: provinceIndex * 100 + divisionIndex,
+    })),
+) satisfies readonly DivisionOption[];
 
 export const teamOptions = [
   {
@@ -114,7 +118,7 @@ export const teamOptions = [
     key: "tor-deurne-pirates",
     label: "TOR Deurne Pirates",
     provinceKey: "antwerpen",
-    divisionKeys: ["antwerpen-p2"],
+    divisionKeys: ["antwerpen-p2a"],
   },
   {
     key: "fc-landen",
@@ -126,7 +130,7 @@ export const teamOptions = [
     key: "kvc-kessel-lo",
     label: "KVC Kessel-Lo",
     provinceKey: "vlaams-brabant",
-    divisionKeys: ["vlaams-brabant-p2"],
+    divisionKeys: ["vlaams-brabant-p2a"],
   },
   {
     key: "kfc-merelbeke",
@@ -138,7 +142,7 @@ export const teamOptions = [
     key: "kfc-heusden-sport",
     label: "KFC Heusden Sport",
     provinceKey: "oost-vlaanderen",
-    divisionKeys: ["oost-vlaanderen-p2"],
+    divisionKeys: ["oost-vlaanderen-p2a"],
   },
   {
     key: "kfc-helson",
@@ -150,7 +154,7 @@ export const teamOptions = [
     key: "kfc-paal-tervant",
     label: "KFC Paal-Tervant",
     provinceKey: "limburg",
-    divisionKeys: ["limburg-p2"],
+    divisionKeys: ["limburg-p2a"],
   },
   {
     key: "kfc-varsenaere",
@@ -162,7 +166,7 @@ export const teamOptions = [
     key: "kfc-lendelede-sport",
     label: "KFC Lendelede Sport",
     provinceKey: "west-vlaanderen",
-    divisionKeys: ["west-vlaanderen-p2"],
+    divisionKeys: ["west-vlaanderen-p2a"],
   },
 ] as const satisfies readonly TeamOption[];
 

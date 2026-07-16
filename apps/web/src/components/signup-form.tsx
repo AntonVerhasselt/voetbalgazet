@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@convex/_generated/api";
-import {
-  divisionOptions,
-  teamOptions,
-} from "@convex/lib/preferenceCatalog";
+import { teamOptions } from "@convex/lib/preferenceCatalog";
+import { DivisionSelector } from "@/components/division-selector";
 import { authClient } from "@/lib/auth-client";
 import { capturePublicEvent } from "@/lib/analytics";
 import { CONSENT_VERSION } from "@/lib/content";
@@ -22,6 +20,7 @@ type SignupFormProps = {
   source?: "article_gate" | "homepage_inline";
   articleId?: string;
   onUnlocked?: () => void;
+  onStepChange?: (step: "email" | "preferences" | "success") => void;
   variant?: "dark" | "paper";
 };
 
@@ -57,6 +56,7 @@ export function SignupForm({
   source = "homepage_inline",
   articleId,
   onUnlocked,
+  onStepChange,
   variant = "dark",
 }: SignupFormProps) {
   const inputId = useId();
@@ -96,6 +96,7 @@ export function SignupForm({
       });
       if (result.flow === "preferences") {
         setStep("preferences");
+        onStepChange?.("preferences");
         setStatus({ state: "idle" });
         capturePublicEvent("preferences_step_viewed", { source });
         return;
@@ -107,6 +108,7 @@ export function SignupForm({
       });
       const { verificationLinkSent } = await startReaderSession(email);
       setStep("success");
+      onStepChange?.("success");
       setStatus({
         state: "success",
         message: verificationLinkSent
@@ -195,6 +197,7 @@ export function SignupForm({
       });
       const { verificationLinkSent } = await startReaderSession(email);
       setStep("success");
+      onStepChange?.("success");
       setStatus({
         state: "success",
         message: verificationLinkSent
@@ -242,18 +245,10 @@ export function SignupForm({
       >
         <fieldset className="preference-fieldset">
           <legend>Kies minstens één reeks</legend>
-          <div className="preference-groups">
-            {divisionOptions.map((division) => (
-              <label className="preference-chip" key={division.key}>
-                <input
-                  type="checkbox"
-                  checked={selectedDivisions.includes(division.key)}
-                  onChange={() => toggleDivision(division.key)}
-                />
-                <span>{division.label}</span>
-              </label>
-            ))}
-          </div>
+          <DivisionSelector
+            selected={selectedDivisions}
+            onToggle={toggleDivision}
+          />
         </fieldset>
 
         <div className="team-picker">

@@ -11,72 +11,67 @@ export default function Home() {
   if (!featuredArticle) {
     return null;
   }
-  const latestArticles = publishedArticles.filter(
-    (article) => article.slug !== featuredArticle.slug,
-  );
+  const secondaryArticles = publishedArticles
+    .filter((article) => article.slug !== featuredArticle.slug)
+    .slice(0, 3);
 
   return (
     <main>
-      <section className="shell hero" aria-labelledby="hero-heading">
-        <div className="hero__copy">
-          <p className="eyebrow">{featuredArticle.kicker}</p>
-          <h1 id="hero-heading">{featuredArticle.headline}</h1>
-          <p className="dek">{featuredArticle.dek}</p>
-          <div className="article-meta">
-            <span>{featuredArticle.author}</span>
-            <span>{formatArticleDate(featuredArticle.publishedAt)}</span>
-            <span>{featuredArticle.readingTime}</span>
+      <section className="shell home-lead" aria-labelledby="hero-heading">
+        <article className="home-lead__main">
+          <div className="home-lead__copy">
+            <p className="eyebrow">{featuredArticle.kicker}</p>
+            <h1 id="hero-heading">
+              <Link href={`/nieuws/${featuredArticle.slug}`}>
+                {featuredArticle.headline}
+              </Link>
+            </h1>
+            <Link
+              className="home-lead__description"
+              href={`/nieuws/${featuredArticle.slug}`}
+            >
+              {featuredArticle.dek}
+            </Link>
+            <div className="article-meta">
+              <span>{featuredArticle.author}</span>
+              <span>{formatArticleDate(featuredArticle.publishedAt)}</span>
+              <span>{featuredArticle.readingTime}</span>
+            </div>
           </div>
           <Link
-            className="text-link"
+            className="home-lead__image"
             href={`/nieuws/${featuredArticle.slug}`}
+            aria-label={featuredArticle.headline}
           >
-            Lees het verhaal <span aria-hidden="true">→</span>
+            <ArticleIllustration
+              tone={featuredArticle.illustrationTone}
+              eyebrow={featuredArticle.category}
+              title="Zondag"
+              subtitle="langs de lijn"
+              alt={featuredArticle.heroAlt}
+            />
           </Link>
-        </div>
-        <ArticleIllustration
-          tone={featuredArticle.illustrationTone}
-          eyebrow={featuredArticle.category}
-          title="Zondag"
-          subtitle="langs de lijn"
-          alt={featuredArticle.heroAlt}
-        />
-      </section>
+        </article>
 
-      <section className="shell latest" aria-labelledby="latest-heading">
-        <div className="section-heading">
-          <p>De redactie selecteert</p>
-          <h2 id="latest-heading">Het laatste</h2>
-        </div>
-        <div className="latest__list">
-          {latestArticles.map((article) => (
-            <article className="story-row" key={article.slug}>
-              <ArticleIllustration
-                compact
-                tone={article.illustrationTone}
-                eyebrow={article.category}
-                title={article.kicker.split("·")[0]?.trim() ?? "Lokaal"}
-                subtitle={article.divisionKeys[0]?.replaceAll("-", " ") ?? ""}
-                alt={article.heroAlt}
-              />
-              <div>
-                <p className="eyebrow">{article.category}</p>
-                <h3>
-                  <Link href={`/nieuws/${article.slug}`}>
-                    {article.headline}
-                  </Link>
-                </h3>
+        <div className="home-lead__secondary" aria-label="Meer verhalen">
+          {secondaryArticles.map((article) => (
+            <article className="home-lead__story" key={article.slug}>
+              <p className="eyebrow">{article.kicker}</p>
+              <Link
+                className="home-lead__story-link"
+                href={`/nieuws/${article.slug}`}
+              >
+                <h2>{article.headline}</h2>
                 <p>{article.dek}</p>
-                <span className="story-row__meta">
-                  {formatArticleDate(article.publishedAt)} ·{" "}
-                  {article.readingTime}
-                </span>
-              </div>
+              </Link>
+              <span className="story-row__meta">
+                {formatArticleDate(article.publishedAt)} · {article.readingTime}
+              </span>
             </article>
           ))}
         </div>
-        <Link className="text-link latest__archive-link" href="/archief">
-          Bekijk het volledige archief <span aria-hidden="true">→</span>
+        <Link className="home-lead__archive" href="/archief">
+          Volledig archief <span aria-hidden="true">→</span>
         </Link>
       </section>
 

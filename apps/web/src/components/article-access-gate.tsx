@@ -22,6 +22,9 @@ export function ArticleAccessGate({
 }) {
   const { data: session, isPending } = authClient.useSession();
   const [locallyUnlocked, setLocallyUnlocked] = useState(false);
+  const [signupStep, setSignupStep] = useState<
+    "email" | "preferences" | "success"
+  >("email");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const impressionCaptured = useRef(false);
   const sessionCaptured = useRef(false);
@@ -109,7 +112,7 @@ export function ArticleAccessGate({
         <div className="gate-layer">
           <div className="gate-layer__fade" aria-hidden="true" />
           <div
-            className="gate-sheet"
+            className={`gate-sheet gate-sheet--${signupStep}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="gate-heading"
@@ -118,17 +121,20 @@ export function ArticleAccessGate({
             <div className="gate-sheet__inner">
               <p className="eyebrow">Gratis voor abonnees</p>
               <h2 id="gate-heading" ref={headingRef} tabIndex={-1}>
-                Abonneer om verder te lezen
+                {signupStep === "preferences"
+                  ? "Kies jouw voetbal"
+                  : "Abonneer om verder te lezen"}
               </h2>
               <p className="gate-sheet__intro">
-                Dit artikel is gratis, maar je hebt een abonnement op De
-                Voetbalgazet nodig om het volledig te lezen. Eén e-mail per week
-                — lokaal voetbal, geen ruis.
+                {signupStep === "preferences"
+                  ? "Selecteer reeksen in één of meer provincies en eventueel je favoriete club."
+                  : "Dit artikel is gratis, maar je hebt een abonnement op De Voetbalgazet nodig om het volledig te lezen. Eén e-mail per week — lokaal voetbal, geen ruis."}
               </p>
               <SignupForm
                 source="article_gate"
                 articleId={articleId}
                 onUnlocked={unlock}
+                onStepChange={setSignupStep}
                 variant="paper"
               />
             </div>

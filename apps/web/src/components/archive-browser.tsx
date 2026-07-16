@@ -172,7 +172,12 @@ export function ArchiveBrowser({
               <h2>
                 <Link href={`/nieuws/${entry.slug}`}>{entry.headline}</Link>
               </h2>
-              <p>{entry.dek}</p>
+              <Link
+                className="archive-card__description"
+                href={`/nieuws/${entry.slug}`}
+              >
+                {entry.dek}
+              </Link>
               <span>
                 {formatArticleDate(entry.publishedAt)} · {entry.readingTime}
               </span>

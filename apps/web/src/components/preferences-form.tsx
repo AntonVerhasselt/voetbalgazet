@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import {
-  divisionOptions,
-  teamOptions,
-} from "@convex/lib/preferenceCatalog";
+import { teamOptions } from "@convex/lib/preferenceCatalog";
+import { DivisionSelector } from "@/components/division-selector";
 import { capturePublicEvent } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
 
@@ -152,18 +150,7 @@ export function PreferencesForm() {
     <form className="preferences-form" onSubmit={save}>
       <fieldset>
         <legend>Mijn reeksen</legend>
-        <div className="preference-groups">
-          {divisionOptions.map((division) => (
-            <label className="preference-chip" key={division.key}>
-              <input
-                type="checkbox"
-                checked={divisions.includes(division.key)}
-                onChange={() => toggleDivision(division.key)}
-              />
-              <span>{division.label}</span>
-            </label>
-          ))}
-        </div>
+        <DivisionSelector selected={divisions} onToggle={toggleDivision} />
       </fieldset>
       <label>
         Favoriete club (optioneel)

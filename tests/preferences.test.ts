@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import {
+  divisionOptions,
+  provinceOptions,
+} from "../convex/lib/preferenceCatalog";
 import { validatePreferenceKeys } from "../convex/lib/subscriberPreferences";
 
 describe("subscriber preference validation", () => {
@@ -24,5 +28,16 @@ describe("subscriber preference validation", () => {
     expect(() =>
       validatePreferenceKeys(["limburg-p1"], "kfc-duffel"),
     ).toThrow("Kies een reeks waarin je favoriete club actief is.");
+  });
+
+  it("offers the same six compact divisions in every province", () => {
+    const expectedLabels = ["1", "2A", "2B", "3A", "3B", "3C"];
+    for (const province of provinceOptions) {
+      expect(
+        divisionOptions
+          .filter((division) => division.provinceKey === province.key)
+          .map((division) => division.shortLabel),
+      ).toEqual(expectedLabels);
+    }
   });
 });
