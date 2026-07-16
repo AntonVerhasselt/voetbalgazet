@@ -6,6 +6,7 @@ import {
   divisionOptions,
   teamOptions,
 } from "./lib/preferenceCatalog";
+import { consumeSignupRateLimit } from "./lib/rateLimit";
 import {
   applySubscriberPreferences,
   getVerifiedSubscriber,
@@ -44,6 +45,7 @@ async function beginSubscriberSignup(
   flow: "preferences" | "continue_reading";
 }> {
   const normalizedEmail = normalizeAndValidateEmail(email);
+  await consumeSignupRateLimit(ctx, normalizedEmail, Date.now());
   const existingSubscriber = await ctx.db
     .query("subscribers")
     .withIndex("by_normalized_email", (query) =>
@@ -85,6 +87,7 @@ async function completeSubscriberSignup(
   }
 
   const normalizedEmail = normalizeAndValidateEmail(args.email);
+  await consumeSignupRateLimit(ctx, normalizedEmail, Date.now());
   let subscriber = await ctx.db
     .query("subscribers")
     .withIndex("by_normalized_email", (query) =>
@@ -205,9 +208,10 @@ export const requestReturningAccess = mutation({
     website: v.optional(v.string()),
   },
   returns: v.object({ accepted: v.literal(true) }),
-  handler: async (_ctx, args) => {
+  handler: async (ctx, args) => {
     if (!args.website?.trim()) {
-      normalizeAndValidateEmail(args.email);
+      const normalizedEmail = normalizeAndValidateEmail(args.email);
+      await consumeSignupRateLimit(ctx, normalizedEmail, Date.now());
     }
     return acceptedResponse;
   },

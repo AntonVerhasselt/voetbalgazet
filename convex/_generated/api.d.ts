@@ -15,6 +15,7 @@ import type * as lib_adminAuth from "../lib/adminAuth.js";
 import type * as lib_adminRoles from "../lib/adminRoles.js";
 import type * as lib_email from "../lib/email.js";
 import type * as lib_preferenceCatalog from "../lib/preferenceCatalog.js";
+import type * as lib_rateLimit from "../lib/rateLimit.js";
 import type * as lib_subscriberPreferences from "../lib/subscriberPreferences.js";
 import type * as lib_validators from "../lib/validators.js";
 import type * as subscribers from "../subscribers.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   "lib/adminRoles": typeof lib_adminRoles;
   "lib/email": typeof lib_email;
   "lib/preferenceCatalog": typeof lib_preferenceCatalog;
+  "lib/rateLimit": typeof lib_rateLimit;
   "lib/subscriberPreferences": typeof lib_subscriberPreferences;
   "lib/validators": typeof lib_validators;
   subscribers: typeof subscribers;

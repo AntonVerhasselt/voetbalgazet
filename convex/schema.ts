@@ -67,4 +67,10 @@ export default defineSchema({
     .index("by_subscriber", ["subscriberId"])
     .index("by_division", ["divisionId"])
     .index("by_subscriber_and_division", ["subscriberId", "divisionId"]),
+
+  signupRateLimits: defineTable({
+    keyHash: v.string(),
+    count: v.number(),
+    windowStartedAt: v.number(),
+  }).index("by_key_hash", ["keyHash"]),
 });
