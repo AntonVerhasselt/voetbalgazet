@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import Link from "next/link";
 
 type PreviewFrameProps = {
   articlePath: string;
@@ -45,20 +46,20 @@ export function PreviewFrame({
           </button>
         </div>
         <div role="group" aria-label="Artikelgate">
-          <a
+          <Link
             aria-current={gateMode === "gated" ? "true" : undefined}
             href={`${articlePath}?gate=gated`}
           >
             Gated
-          </a>
-          <a
+          </Link>
+          <Link
             aria-current={gateMode === "ungated" ? "true" : undefined}
             href={`${articlePath}?gate=ungated`}
           >
             Volledig
-          </a>
+          </Link>
         </div>
-        <a href="/keystatic">Terug naar Keystatic</a>
+        <Link href="/keystatic">Terug naar Keystatic</Link>
         <form action="/preview/end" method="post">
           <button type="submit">Preview sluiten</button>
         </form>

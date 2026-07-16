@@ -8,7 +8,7 @@ import { teamOptions } from "@convex/lib/preferenceCatalog";
 import { DivisionSelector } from "@/components/division-selector";
 import { authClient } from "@/lib/auth-client";
 import { capturePublicEvent } from "@/lib/analytics";
-import { CONSENT_VERSION } from "@/lib/content";
+import { CONSENT_VERSION } from "@/lib/site-config";
 
 type FormStatus =
   | { state: "idle" }

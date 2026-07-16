@@ -1,5 +1,5 @@
 import path from "node:path";
-import Markdoc from "@markdoc/markdoc";
+import Markdoc, { type Node as MarkdocNode } from "@markdoc/markdoc";
 import { createReader } from "@keystatic/core/reader";
 import { createGitHubReader } from "@keystatic/core/reader/github";
 import keystaticConfig, {
@@ -10,13 +10,12 @@ import type {
   IllustrationTone,
   PublishedArticle,
 } from "../content/articles";
-
-export const SITE_URL = "https://devoetbalgazet.be";
-export const CONSENT_VERSION = "2026-07-16";
+export { formatArticleDate } from "./article-format";
+export { CONSENT_VERSION, SITE_URL } from "./site-config";
 
 export type ArticleSections = {
-  lead: readonly Markdoc.Node[];
-  gated: readonly Markdoc.Node[];
+  lead: readonly MarkdocNode[];
+  gated: readonly MarkdocNode[];
 };
 
 export type ContentStatus = {
@@ -70,7 +69,11 @@ function normalizeOptional(value: string | null): string {
   return value?.trim() ?? "";
 }
 
-function wordCount(node: Markdoc.Node): number {
+function normalizeDatetime(value: string | null): string | null {
+  return value ? new Date(`${value}:00.000Z`).toISOString() : null;
+}
+
+function wordCount(node: MarkdocNode): number {
   let count = 0;
   for (const child of node.walk()) {
     const content = child.attributes.content;
@@ -127,8 +130,8 @@ async function readSnapshot(branch?: string): Promise<ContentSnapshot> {
     return {
       slug,
       status: entry.status,
-      publishedAt: entry.publishedAt,
-      updatedAt: entry.updatedAt,
+      publishedAt: normalizeDatetime(entry.publishedAt),
+      updatedAt: normalizeDatetime(entry.updatedAt),
       authorKey: entry.author,
       author: authorLabels.get(entry.author) ?? entry.author,
       headline: entry.headline.trim(),
@@ -140,7 +143,7 @@ async function readSnapshot(branch?: string): Promise<ContentSnapshot> {
       divisionKeys: entry.divisionKeys,
       teamKeys: entry.teamKeys,
       isGated: entry.isGated,
-      leadParagraphCount: entry.leadParagraphCount,
+      leadParagraphCount: entry.leadParagraphCount ?? 2,
       featured: entry.featured,
       heroImage: entry.heroImage,
       socialImage: entry.socialImage,
@@ -232,16 +235,7 @@ export function splitArticle(article: Article): ArticleSections {
   };
 }
 
-export function formatArticleDate(isoDate: string): string {
-  return new Intl.DateTimeFormat("nl-BE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Europe/Brussels",
-  }).format(new Date(isoDate));
-}
-
-function plainText(nodes: readonly Markdoc.Node[]): string {
+function plainText(nodes: readonly MarkdocNode[]): string {
   const words: string[] = [];
   for (const node of nodes) {
     for (const child of node.walk()) {
@@ -275,7 +269,7 @@ function isSafeLink(value: string): boolean {
 
 function validateMarkdoc(article: Article): string[] {
   const errors = Markdoc.validate(article.body, articleMarkdocConfig).map(
-    (error) => `${article.slug}: ${error.message}`,
+    (error) => `${article.slug}: ${error.error.message}`,
   );
   for (const node of article.body.walk()) {
     const href = node.attributes.href;

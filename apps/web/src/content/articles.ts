@@ -1,4 +1,4 @@
-import type Markdoc from "@markdoc/markdoc";
+import type { Node as MarkdocNode } from "@markdoc/markdoc";
 
 export type ArticleStatus = "draft" | "published" | "archived";
 export type IllustrationTone = "green" | "red" | "gold";
@@ -34,7 +34,7 @@ export type Article = {
   seoDescription: string;
   canonicalOverride: string | null;
   excludeFromSearch: boolean;
-  body: Markdoc.Node;
+  body: MarkdocNode;
 };
 
 export type PublishedArticle = Article & {

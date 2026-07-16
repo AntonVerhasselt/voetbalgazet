@@ -11,7 +11,9 @@ import {
   teamOptions,
 } from "../../convex/lib/preferenceCatalog";
 
-const isHosted = process.env.NODE_ENV === "production";
+const isHosted = Boolean(
+  process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG?.trim(),
+);
 
 const categoryOptions = [
   { label: "Wedstrijdverslagen", value: "wedstrijdverslagen" },
@@ -29,7 +31,7 @@ const authorOptions = [
 ] as const;
 
 const bodyOptions = {
-  heading: { levels: [2, 3] as const },
+  heading: [2, 3] as const,
   blockquote: true,
   orderedList: true,
   unorderedList: true,

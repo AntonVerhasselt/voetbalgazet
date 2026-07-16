@@ -41,7 +41,12 @@ export async function GET(request: Request) {
     path: "/",
   });
 
-  const response = NextResponse.redirect(new URL(target, url.origin));
+  const publicTarget = new URL(target, url.origin);
+  const previewTarget = new URL(
+    `/preview${publicTarget.pathname}${publicTarget.search}`,
+    url.origin,
+  );
+  const response = NextResponse.redirect(previewTarget);
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;

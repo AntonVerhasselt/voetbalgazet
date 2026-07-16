@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { formatArticleDate } from "@/lib/content";
+import { formatArticleDate } from "@/lib/article-format";
 
 type ArchiveEntry = {
   slug: string;
