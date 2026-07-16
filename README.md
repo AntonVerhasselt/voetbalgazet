@@ -61,10 +61,15 @@ If it is missing, the auth proxy falls back to a dead host and `/api/auth/*`
 returns 404. The app can also derive `.site` from `.cloud` when the site URL
 env is absent.
 
-Convex production `SITE_URL` should match the live site host (currently
-`https://www.devoetbalgazet.be` because Vercel redirects apex → www). GitHub
-OAuth App homepage/callback URLs should allow that same host
-(`/api/auth/callback/github`).
+Canonical production host is the **apex** (no www):
+
+- Convex `SITE_URL=https://devoetbalgazet.be`
+- GitHub OAuth homepage: `https://devoetbalgazet.be`
+- GitHub OAuth callback: `https://devoetbalgazet.be/api/auth/callback/github`
+
+In Vercel → Settings → Domains, set `devoetbalgazet.be` as **Primary** and
+redirect `www` → apex. If www stays primary, Vercel 308s apex → www and breaks
+OAuth that expects the non-www callback.
 
 ## Admin authentication
 

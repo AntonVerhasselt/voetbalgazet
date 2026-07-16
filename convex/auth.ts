@@ -7,7 +7,7 @@ import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 
-/** Apex + www so production redirects (Vercel www) don't break OAuth. */
+/** Accept apex + www during host migration; canonical SITE_URL stays apex. */
 function trustedOriginsFor(site: string): string[] {
   try {
     const url = new URL(site);
