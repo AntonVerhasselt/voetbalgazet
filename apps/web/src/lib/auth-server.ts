@@ -16,6 +16,12 @@ function trimEnv(value: string | undefined): string {
 }
 
 function deriveSiteUrl(convexUrl: string): string {
+  if (
+    convexUrl === "http://127.0.0.1:3210" ||
+    convexUrl === "http://localhost:3210"
+  ) {
+    return convexUrl.replace(":3210", ":3211");
+  }
   if (!convexUrl.endsWith(".convex.cloud")) {
     return "";
   }
@@ -40,10 +46,15 @@ function resolveConvexUrls(): ConvexUrls | null {
     return null;
   }
 
-  if (!convexSiteUrl.endsWith(".convex.site")) {
+  const parsedSiteUrl = new URL(convexSiteUrl);
+  const isLocalDevelopmentSite =
+    parsedSiteUrl.protocol === "http:" &&
+    (parsedSiteUrl.hostname === "127.0.0.1" ||
+      parsedSiteUrl.hostname === "localhost") &&
+    parsedSiteUrl.port === "3211";
+  if (!convexSiteUrl.endsWith(".convex.site") && !isLocalDevelopmentSite) {
     throw new Error(
-      `NEXT_PUBLIC_CONVEX_SITE_URL must end with .convex.site (got "${convexSiteUrl}"). ` +
-        "Do not use the .convex.cloud URL here.",
+      `NEXT_PUBLIC_CONVEX_SITE_URL must be a *.convex.site URL or the local Convex HTTP Actions URL (got "${convexSiteUrl}").`,
     );
   }
 
