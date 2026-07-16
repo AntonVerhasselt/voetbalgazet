@@ -57,6 +57,17 @@ Deze cloudomgeving kon de map opnieuw niet openen. Kopieer de bron naar `design/
 | Analytics (optional) | PostHog JS, privacyvriendelijk/cookieless op publieke site en custom admin | [PostHog Next.js](https://posthog.com/docs/libraries/next-js) |
 | Email builder | Open-source `@react-email/editor` + React Email renderer | [React Email editor](https://react.email/docs/editor/getting-started) |
 
+## Externe diensten — basisconfiguratie (16 jul 2026)
+
+| Dienst | Status | Waar geconfigureerd |
+|--------|--------|---------------------|
+| Resend | ✅ Done | Convex env (`RESEND_*`); domain `nieuws.devoetbalgazet.be`; webhooks op `/resend-webhook` |
+| Cloudflare R2 | ✅ Done | Convex env (`R2_*`); bucket + `media.devoetbalgazet.be` |
+| PostHog Cloud EU | ✅ Done | Vercel + lokale dev (`NEXT_PUBLIC_POSTHOG_*`) |
+| Cloudflare DNS | ✅ Done | Nameservers actief; Email Routing voor `redactie@` |
+
+Details en resterende launchchecks: [`newsletter-admin-dashboard/09-launch-todos.md`](./newsletter-admin-dashboard/09-launch-todos.md).
+
 ## Three functional areas in one Next.js/Vercel deployment
 
 ```

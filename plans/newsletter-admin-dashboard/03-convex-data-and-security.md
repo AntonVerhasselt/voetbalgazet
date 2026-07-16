@@ -398,7 +398,8 @@ De Resend-component beheert provider-idempotency; de app bewaakt daarnaast dat d
 
 ## Webhookveiligheid
 
-- Endpoint via Convex HTTP action.
+- Endpoint via Convex HTTP action op vast pad **`/resend-webhook`** (POST), gemount in `convex/http.ts` naar `resend.handleResendEventWebhook` zoals de officiële Resend-component voorschrijft.
+- Volledige URL: **`{CONVEX_SITE_URL}/resend-webhook`** (per Convex-deployment; productie en development hebben elk hun eigen host).
 - Signaturecontrole door de Resend-component met `RESEND_WEBHOOK_SECRET`.
 - Onbekende eventtypes veilig negeren en meten.
 - Dedupe op provider event ID.

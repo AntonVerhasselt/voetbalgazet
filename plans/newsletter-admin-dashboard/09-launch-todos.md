@@ -2,6 +2,19 @@
 
 Alle product- en architectuurvragen voor het MVP zijn beantwoord. Dit document bevat alleen concrete inputs, configuratie en controles die vóór echte productie-e-mail nog moeten gebeuren.
 
+## Externe diensten — basisconfiguratie voltooid (16 jul 2026)
+
+De volgende provider-setup is afgerond (secrets staan in Convex/Vercel, niet in git):
+
+| Dienst | Status | Notities |
+|--------|--------|----------|
+| **Resend** | ✅ | Sending domain `nieuws.devoetbalgazet.be` verified; `RESEND_API_KEY` + `RESEND_WEBHOOK_SECRET` in Convex (dev + prod); webhooks op `{CONVEX_SITE_URL}/resend-webhook` |
+| **Cloudflare R2** | ✅ | Bucket `voetbalgazet-bucket`; `R2_*` env vars in Convex (dev + prod); custom domain `media.devoetbalgazet.be` **Active** |
+| **PostHog** | ✅ | PostHog Cloud EU; `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com` in Vercel + lokale dev |
+| **DNS / redactie-mail** | ✅ | DNS via Cloudflare; `redactie@devoetbalgazet.be` ontvangt via Email Routing → Gmail; verzenden via Gmail send-as; root SPF bijgewerkt |
+
+Nog open vóór code-implementatie: `EMAIL_TOKEN_SECRET` en `EMAIL_ADDRESS_HMAC_SECRET` in Convex (dev + prod).
+
 ## Bedrijfs- en footergegevens
 
 - [x] KBO-naam: YARU DAKEN (rechtsvorm: Besloten Vennootschap; weergave in copy: YARU DAKEN BV)
@@ -29,14 +42,15 @@ Bevestigde adressen:
 
 Launchchecks:
 
-- [ ] `nieuws.devoetbalgazet.be` als Resend sending domain configureren
-- [ ] SPF valideren
-- [ ] DKIM valideren
+- [x] `nieuws.devoetbalgazet.be` als Resend sending domain configureren
+- [x] SPF valideren
+- [x] DKIM valideren
 - [ ] DMARC instellen en rapportage opvolgen
-- [ ] Reply-To mailbox operationeel en gemonitord
-- [ ] Resend production API key in Convex environment
-- [ ] Resend webhook secret in Convex environment
-- [ ] Alle vereiste delivery/webhookeventtypes activeren
+- [x] Reply-To mailbox operationeel en gemonitord (`redactie@devoetbalgazet.be` via Cloudflare Email Routing + Gmail)
+- [x] Resend API key in Convex environment (dev + prod)
+- [x] Resend webhook op `{CONVEX_SITE_URL}/resend-webhook` (pad `/resend-webhook`)
+- [x] Resend webhook secret als `RESEND_WEBHOOK_SECRET` in Convex environment (dev + prod)
+- [x] Alle vereiste delivery/webhookeventtypes activeren (`email.*`)
 - [ ] Open- en clicktracking activeren
 - [ ] Opens in admin als indicatief labelen
 - [ ] `List-Unsubscribe` en RFC 8058 `List-Unsubscribe-Post` testen
@@ -46,10 +60,10 @@ Launchchecks:
 
 Bevestigde mediahost: `media.devoetbalgazet.be`.
 
-- [ ] Aparte/gepaste Cloudflare R2 bucket configureren
-- [ ] Restricted R2 API token aanmaken
-- [ ] R2 secrets alleen in Convex environment instellen
-- [ ] Custom domain `media.devoetbalgazet.be` koppelen
+- [x] Aparte/gepaste Cloudflare R2 bucket configureren (`voetbalgazet-bucket`)
+- [x] Restricted R2 API token aanmaken
+- [x] R2 secrets alleen in Convex environment instellen (dev + prod)
+- [x] Custom domain `media.devoetbalgazet.be` koppelen (status Active)
 - [ ] CORS beperken tot development, staging en production admin origins
 - [ ] Cacheheaders voor e-mailbeelden controleren
 - [ ] JPEG, PNG, WebP en GIF testen

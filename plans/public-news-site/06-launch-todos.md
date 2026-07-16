@@ -23,7 +23,8 @@ Werk daarna alle placeholders in [`05-privacy-and-terms-copy.md`](./05-privacy-a
 - [ ] Definitieve juridische entiteiten, regio's en subverwerkers van Convex, Vercel, Resend, PostHog en R2 controleren
 - [ ] Verwerkersovereenkomsten/DPA's afsluiten
 - [ ] Internationale doorgiftegronden documenteren
-- [ ] PostHog Cloud EU en uitgeschakelde IP-capture verifiëren
+- [x] PostHog Cloud EU project en env vars geconfigureerd (`NEXT_PUBLIC_POSTHOG_*` in Vercel + lokale dev)
+- [x] PostHog Cloud EU en uitgeschakelde IP-capture ingesteld in projectinstellingen
 - [ ] Retentie technisch instellen: security/errorlogs 90 dagen, analytics 24 maanden, support 24 maanden
 - [ ] Supportprocedure voor inzage, correctie en volledige verwijdering testen
 - [ ] Consentcopy en consentversie exact gelijk maken aan live formulier

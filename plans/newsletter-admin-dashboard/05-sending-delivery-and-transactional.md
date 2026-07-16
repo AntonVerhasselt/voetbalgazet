@@ -327,6 +327,13 @@ Bij provideronzekerheid eerst status reconciliëren. Zolang die onzeker blijft, 
 
 ## Webhooks
 
+Vaste endpoint-URL (Resend Convex component):
+
+- pad: **`POST /resend-webhook`** in `convex/http.ts`;
+- volledige URL: **`{CONVEX_SITE_URL}/resend-webhook`**.
+
+In Resend: webhook aanmaken op die URL, alle `email.*` events inschakelen, signing secret zetten als Convex env `RESEND_WEBHOOK_SECRET`.
+
 Abonneer minimaal op:
 
 - sent;
