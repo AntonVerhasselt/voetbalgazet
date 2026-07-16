@@ -12,7 +12,6 @@ import {
   preferenceKeysForSubscriber,
 } from "./lib/subscriberPreferences";
 import {
-  consentSourceValidator,
   divisionOptionValidator,
   preferenceSnapshotValidator,
   signupFlowValidator,
@@ -20,6 +19,22 @@ import {
 } from "./lib/validators";
 
 const acceptedResponse = { accepted: true } as const;
+const CURRENT_CONSENT_VERSION = "2026-07-16";
+const completeSignupArgs = {
+  email: v.string(),
+  website: v.optional(v.string()),
+  divisionKeys: v.array(v.string()),
+  teamKey: v.optional(v.string()),
+};
+
+type CompleteSignupArgs = {
+  email: string;
+  website?: string;
+  divisionKeys: string[];
+  teamKey?: string;
+};
+
+type SignupSource = "article_gate" | "homepage_inline";
 
 async function beginSubscriberSignup(
   ctx: MutationCtx,
@@ -58,6 +73,72 @@ async function beginSubscriberSignup(
   });
 
   return { accepted: true, flow: "preferences" };
+}
+
+async function completeSubscriberSignup(
+  ctx: MutationCtx,
+  args: CompleteSignupArgs,
+  source: SignupSource,
+): Promise<typeof acceptedResponse> {
+  if (args.website && args.website.trim().length > 0) {
+    return acceptedResponse;
+  }
+
+  const normalizedEmail = normalizeAndValidateEmail(args.email);
+  let subscriber = await ctx.db
+    .query("subscribers")
+    .withIndex("by_normalized_email", (query) =>
+      query.eq("normalizedEmail", normalizedEmail),
+    )
+    .unique();
+
+  if (subscriber?.siteAccess || subscriber?.preferenceStatus === "complete") {
+    return acceptedResponse;
+  }
+
+  if (!subscriber) {
+    const subscriberId = await ctx.db.insert("subscribers", {
+      normalizedEmail,
+      signupStartedAt: Date.now(),
+      siteAccess: false,
+      newsletterSubscribed: false,
+      divisionIds: [],
+      preferenceStatus: "pending",
+      emailDeliveryStatus: "unknown",
+    });
+    subscriber = await ctx.db.get("subscribers", subscriberId);
+  }
+  if (!subscriber) {
+    throw new Error("De inschrijving kon niet worden opgeslagen.");
+  }
+
+  await applySubscriberPreferences(
+    ctx,
+    subscriber._id,
+    args.divisionKeys,
+    args.teamKey,
+  );
+
+  const capturedAt = Date.now();
+  await ctx.db.patch("subscribers", subscriber._id, {
+    siteAccess: true,
+    siteAccessGrantedAt: capturedAt,
+    newsletterSubscribed: true,
+    newsletterSubscribedAt: capturedAt,
+    unsubscribedAt: undefined,
+    consentVersion: CURRENT_CONSENT_VERSION,
+    consentCapturedAt: capturedAt,
+    consentSource: source,
+  });
+  await ctx.db.insert("subscriberConsentEvents", {
+    subscriberId: subscriber._id,
+    action: "subscribe",
+    consentVersion: CURRENT_CONSENT_VERSION,
+    source,
+    capturedAt,
+  });
+
+  return acceptedResponse;
 }
 
 export const listPreferenceCatalog = query({
@@ -102,79 +183,19 @@ export const beginSignup = mutation({
   },
 });
 
-export const completeSignup = mutation({
-  args: {
-    email: v.string(),
-    website: v.optional(v.string()),
-    divisionKeys: v.array(v.string()),
-    teamKey: v.optional(v.string()),
-    consentVersion: v.string(),
-    consentSource: consentSourceValidator,
-  },
+export const completeArticleSignup = mutation({
+  args: completeSignupArgs,
   returns: v.object({ accepted: v.literal(true) }),
   handler: async (ctx, args) => {
-    if (args.website && args.website.trim().length > 0) {
-      return acceptedResponse;
-    }
-    if (!args.consentVersion.trim()) {
-      throw new Error("De consentversie ontbreekt.");
-    }
+    return await completeSubscriberSignup(ctx, args, "article_gate");
+  },
+});
 
-    const normalizedEmail = normalizeAndValidateEmail(args.email);
-    let subscriber = await ctx.db
-      .query("subscribers")
-      .withIndex("by_normalized_email", (query) =>
-        query.eq("normalizedEmail", normalizedEmail),
-      )
-      .unique();
-
-    if (subscriber?.siteAccess || subscriber?.preferenceStatus === "complete") {
-      return acceptedResponse;
-    }
-
-    if (!subscriber) {
-      const subscriberId = await ctx.db.insert("subscribers", {
-        normalizedEmail,
-        signupStartedAt: Date.now(),
-        siteAccess: false,
-        newsletterSubscribed: false,
-        divisionIds: [],
-        preferenceStatus: "pending",
-        emailDeliveryStatus: "unknown",
-      });
-      subscriber = await ctx.db.get("subscribers", subscriberId);
-    }
-    if (!subscriber) {
-      throw new Error("De inschrijving kon niet worden opgeslagen.");
-    }
-
-    await applySubscriberPreferences(
-      ctx,
-      subscriber._id,
-      args.divisionKeys,
-      args.teamKey,
-    );
-
-    const capturedAt = Date.now();
-    await ctx.db.patch("subscribers", subscriber._id, {
-      siteAccess: true,
-      siteAccessGrantedAt: capturedAt,
-      newsletterSubscribed: true,
-      newsletterSubscribedAt: capturedAt,
-      unsubscribedAt: undefined,
-      consentVersion: args.consentVersion,
-      consentCapturedAt: capturedAt,
-      consentSource: args.consentSource,
-    });
-    await ctx.db.insert("subscriberConsentEvents", {
-      subscriberId: subscriber._id,
-      action: "subscribe",
-      consentVersion: args.consentVersion,
-      source: args.consentSource,
-      capturedAt,
-    });
-
-    return acceptedResponse;
+export const completeHomepageSignup = mutation({
+  args: completeSignupArgs,
+  returns: v.object({ accepted: v.literal(true) }),
+  handler: async (ctx, args) => {
+    return await completeSubscriberSignup(ctx, args, "homepage_inline");
   },
 });
 

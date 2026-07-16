@@ -5,6 +5,7 @@ import { anonymous, magicLink } from "better-auth/plugins";
 import { components } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
 import authConfig from "./auth.config";
+import { parseBootstrapRoleMap } from "./lib/adminRoles";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 const isSecureSite = siteUrl.startsWith("https://");
@@ -31,6 +32,13 @@ async function sendMagicLinkEmail(data: {
   email: string;
   url: string;
 }): Promise<void> {
+  const adminRoles = parseBootstrapRoleMap(
+    process.env.ADMIN_BOOTSTRAP_ROLE_MAP,
+  );
+  if (adminRoles.has(data.email.normalize("NFKC").trim().toLowerCase())) {
+    throw new Error("Gebruik GitHub voor de redactieomgeving.");
+  }
+
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
     if (isSecureSite) {

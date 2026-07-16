@@ -33,21 +33,24 @@ function getConvexClient(): ConvexHttpClient {
   return new ConvexHttpClient(convexUrl);
 }
 
-async function startReaderSession(email: string): Promise<void> {
-  const anonymousResult = await authClient.signIn.anonymous();
-  if (anonymousResult.error) {
-    const currentSession = await authClient.getSession();
-    if (!currentSession.data) {
+async function startReaderSession(
+  email: string,
+): Promise<{ verificationLinkSent: boolean }> {
+  const currentSession = await authClient.getSession();
+  if (!currentSession.data) {
+    const anonymousResult = await authClient.signIn.anonymous();
+    if (anonymousResult.error) {
       throw new Error("De leessessie kon niet worden gestart.");
     }
   }
 
   const callbackURL =
     typeof window === "undefined" ? "/" : window.location.pathname;
-  await authClient.signIn.magicLink({
+  const magicLinkResult = await authClient.signIn.magicLink({
     email,
     callbackURL,
   });
+  return { verificationLinkSent: !magicLinkResult.error };
 }
 
 export function SignupForm({
@@ -102,12 +105,13 @@ export function SignupForm({
         email,
         website,
       });
-      await startReaderSession(email);
+      const { verificationLinkSent } = await startReaderSession(email);
       setStep("success");
       setStatus({
         state: "success",
-        message:
-          "Je kunt verder lezen. Als dit adres al bij ons bekend is, ontvang je ook een veilige bevestigingslink.",
+        message: verificationLinkSent
+          ? "Je kunt verder lezen. Als dit adres al bij ons bekend is, ontvang je ook een veilige bevestigingslink."
+          : "Je kunt verder lezen. De bevestigingsmail kon niet worden verstuurd; probeer die later opnieuw via Voorkeuren.",
       });
       capturePublicEvent("subscription_succeeded", {
         article_id: articleId,
@@ -179,20 +183,23 @@ export function SignupForm({
 
     try {
       const client = getConvexClient();
-      await client.mutation(api.subscribers.completeSignup, {
+      const completeSignup =
+        source === "article_gate"
+          ? api.subscribers.completeArticleSignup
+          : api.subscribers.completeHomepageSignup;
+      await client.mutation(completeSignup, {
         email,
         website,
         divisionKeys: selectedDivisions,
         ...(selectedTeam ? { teamKey: selectedTeam } : {}),
-        consentVersion: CONSENT_VERSION,
-        consentSource: source,
       });
-      await startReaderSession(email);
+      const { verificationLinkSent } = await startReaderSession(email);
       setStep("success");
       setStatus({
         state: "success",
-        message:
-          "Welkom bij De Voetbalgazet. Je kunt meteen verder lezen; je veilige bevestigingslink is onderweg.",
+        message: verificationLinkSent
+          ? "Welkom bij De Voetbalgazet. Je kunt meteen verder lezen; je veilige bevestigingslink is onderweg."
+          : "Welkom bij De Voetbalgazet. Je kunt meteen verder lezen; de bevestigingsmail kon nog niet worden verstuurd.",
       });
       capturePublicEvent("subscription_succeeded", {
         article_id: articleId,
