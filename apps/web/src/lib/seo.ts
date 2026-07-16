@@ -1,11 +1,11 @@
-import type { Article } from "../content/articles";
+import type { Article, PublishedArticle } from "../content/articles";
 import { SITE_URL } from "./content";
 
 export function articleUrl(article: Article): string {
   return `${SITE_URL}/nieuws/${article.slug}`;
 }
 
-export function buildNewsArticleJsonLd(article: Article) {
+export function buildNewsArticleJsonLd(article: PublishedArticle) {
   const gatedFields = article.isGated
     ? {
         isAccessibleForFree: false,

@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { articles } from "../apps/web/src/content/articles";
+import { getPublishedArticles } from "../apps/web/src/lib/content";
 import {
   buildNewsArticleJsonLd,
   serializeJsonLd,
 } from "../apps/web/src/lib/seo";
 
 describe("NewsArticle structured data", () => {
-  it("marks gated content with the paywall selector", () => {
-    const article = articles.find((item) => item.isGated)!;
+  it("marks gated content with the paywall selector", async () => {
+    const article = (await getPublishedArticles()).find(
+      (item) => item.isGated,
+    )!;
     const jsonLd = buildNewsArticleJsonLd(article);
     expect(jsonLd.isAccessibleForFree).toBe(false);
     expect(jsonLd).toMatchObject({
@@ -18,8 +20,10 @@ describe("NewsArticle structured data", () => {
     });
   });
 
-  it("omits hasPart for free articles", () => {
-    const article = articles.find((item) => !item.isGated)!;
+  it("omits hasPart for free articles", async () => {
+    const article = (await getPublishedArticles()).find(
+      (item) => !item.isGated,
+    )!;
     const jsonLd = buildNewsArticleJsonLd(article);
     expect(jsonLd.isAccessibleForFree).toBe(true);
     expect("hasPart" in jsonLd).toBe(false);

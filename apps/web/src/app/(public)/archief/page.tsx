@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ArchivePage() {
-  const entries = getPublishedArticles().map((article) => ({
+export default async function ArchivePage() {
+  const entries = (await getPublishedArticles()).map((article) => ({
     slug: article.slug,
     headline: article.headline,
     dek: article.dek,

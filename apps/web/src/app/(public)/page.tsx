@@ -3,8 +3,8 @@ import { ArticleIllustration } from "@/components/article-illustration";
 import { SignupForm } from "@/components/signup-form";
 import { formatArticleDate, getPublishedArticles } from "@/lib/content";
 
-export default function Home() {
-  const publishedArticles = getPublishedArticles();
+export default async function Home() {
+  const publishedArticles = await getPublishedArticles();
   const featuredArticle =
     publishedArticles.find((article) => article.featured) ??
     publishedArticles[0];

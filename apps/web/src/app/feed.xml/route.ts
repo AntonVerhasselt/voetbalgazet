@@ -15,8 +15,9 @@ function escapeXml(value: string): string {
     .replaceAll("'", "&apos;");
 }
 
-export function GET() {
-  const items = getPublishedArticles()
+export async function GET() {
+  const publishedArticles = await getPublishedArticles();
+  const items = publishedArticles
     .map((article) => {
       const url = `${SITE_URL}/nieuws/${article.slug}`;
       const excerpt = `${excerptArticle(article)} Lees verder op De Voetbalgazet.`;
@@ -43,7 +44,7 @@ export function GET() {
     "<description>Lokaal voetbal, echte verhalen.</description>" +
     "<language>nl-BE</language>" +
     `<lastBuildDate>${new Date(
-      getPublishedArticles()[0]?.publishedAt ?? "2026-07-16T00:00:00.000Z",
+      publishedArticles[0]?.publishedAt ?? "2026-07-16T00:00:00.000Z",
     ).toUTCString()}</lastBuildDate>` +
     items +
     "</channel></rss>";

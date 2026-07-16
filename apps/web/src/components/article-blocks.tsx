@@ -1,23 +1,13 @@
-import type { ArticleBlock } from "@/content/articles";
+import * as React from "react";
+import Markdoc from "@markdoc/markdoc";
+import { articleMarkdocConfig } from "../../keystatic.config";
 
 export function ArticleBlocks({
   blocks,
 }: {
-  blocks: readonly ArticleBlock[];
+  blocks: readonly Markdoc.Node[];
 }) {
-  return blocks.map((block, index) => {
-    const key = `${block.type}-${index}`;
-    if (block.type === "heading") {
-      return <h2 key={key}>{block.text}</h2>;
-    }
-    if (block.type === "quote") {
-      return (
-        <blockquote key={key}>
-          <p>“{block.text}”</p>
-          <cite>{block.attribution}</cite>
-        </blockquote>
-      );
-    }
-    return <p key={key}>{block.text}</p>;
-  });
+  const document = new Markdoc.Node("document", {}, [...blocks]);
+  const renderable = Markdoc.transform(document, articleMarkdocConfig);
+  return <>{Markdoc.renderers.react(renderable, React)}</>;
 }

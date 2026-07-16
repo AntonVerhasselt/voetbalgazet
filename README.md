@@ -1,6 +1,6 @@
 # De Voetbalgazet
 
-Phase 2 public site for a mobile-first Flemish local-football publication.
+Phase 3 admin MVP for a mobile-first Flemish local-football publication.
 
 ## Included
 
@@ -12,10 +12,14 @@ Phase 2 public site for a mobile-first Flemish local-football publication.
 - Better Auth reader/admin login through a same-origin Next.js route
 - server-side admin role enforcement for `admin`, `journalist`, and `viewer`
 - paywall-aware NewsArticle JSON-LD, canonical and social metadata
+- Keystatic article editing with local development and hosted GitHub storage
+- Git-backed Markdoc articles, settings, taxonomy validation and image fields
+- editor-only, signed Next.js Draft Mode preview with mobile and gate controls
+- branded mobile-first admin landing and article-management handoff
 - strict TypeScript, Convex ESLint rules, and focused content/auth tests
 
-Keystatic/GitHub authoring belongs to Phase 3. Campaign production, delivery
-webhooks and newsletter reporting belong to Phase 4.
+Campaign production, delivery webhooks and newsletter reporting belong to
+Phase 4.
 
 Operational docs (admin GitHub login, Vercel + Convex URLs): see [`docs/`](./docs/).
 
@@ -113,6 +117,9 @@ flow.
 Set `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST` in the web
 environment to enable cookieless browser analytics. Without both values,
 analytics remains disabled.
+
+For Keystatic GitHub App setup, preview credentials and the Git/Vercel
+publishing flow, see [`docs/keystatic-admin.md`](./docs/keystatic-admin.md).
 
 ## Checks
 

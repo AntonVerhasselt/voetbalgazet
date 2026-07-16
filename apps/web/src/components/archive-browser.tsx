@@ -2,22 +2,20 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { Article } from "@/content/articles";
 import { formatArticleDate } from "@/lib/content";
 
-type ArchiveEntry = Pick<
-  Article,
-  | "slug"
-  | "headline"
-  | "dek"
-  | "category"
-  | "categoryKey"
-  | "provinceKey"
-  | "divisionKeys"
-  | "teamKeys"
-  | "publishedAt"
-  | "readingTime"
->;
+type ArchiveEntry = {
+  slug: string;
+  headline: string;
+  dek: string;
+  category: string;
+  categoryKey: string;
+  provinceKey: string;
+  divisionKeys: readonly string[];
+  teamKeys: readonly string[];
+  publishedAt: string;
+  readingTime: string;
+};
 
 export function ArchiveBrowser({
   entries,

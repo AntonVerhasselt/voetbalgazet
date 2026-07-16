@@ -1,0 +1,31 @@
+items:
+  - { key: antwerpen-p1, label: 1ste provinciale Antwerpen, provinceKey: antwerpen, level: 1, active: true, sortOrder: 0 }
+  - { key: antwerpen-p2a, label: 2de provinciale A Antwerpen, provinceKey: antwerpen, level: 2, active: true, sortOrder: 1 }
+  - { key: antwerpen-p2b, label: 2de provinciale B Antwerpen, provinceKey: antwerpen, level: 2, active: true, sortOrder: 2 }
+  - { key: antwerpen-p3a, label: 3de provinciale A Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 3 }
+  - { key: antwerpen-p3b, label: 3de provinciale B Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 4 }
+  - { key: antwerpen-p3c, label: 3de provinciale C Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 5 }
+  - { key: limburg-p1, label: 1ste provinciale Limburg, provinceKey: limburg, level: 1, active: true, sortOrder: 100 }
+  - { key: limburg-p2a, label: 2de provinciale A Limburg, provinceKey: limburg, level: 2, active: true, sortOrder: 101 }
+  - { key: limburg-p2b, label: 2de provinciale B Limburg, provinceKey: limburg, level: 2, active: true, sortOrder: 102 }
+  - { key: limburg-p3a, label: 3de provinciale A Limburg, provinceKey: limburg, level: 3, active: true, sortOrder: 103 }
+  - { key: limburg-p3b, label: 3de provinciale B Limburg, provinceKey: limburg, level: 3, active: true, sortOrder: 104 }
+  - { key: limburg-p3c, label: 3de provinciale C Limburg, provinceKey: limburg, level: 3, active: true, sortOrder: 105 }
+  - { key: oost-vlaanderen-p1, label: 1ste provinciale Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 1, active: true, sortOrder: 200 }
+  - { key: oost-vlaanderen-p2a, label: 2de provinciale A Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 2, active: true, sortOrder: 201 }
+  - { key: oost-vlaanderen-p2b, label: 2de provinciale B Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 2, active: true, sortOrder: 202 }
+  - { key: oost-vlaanderen-p3a, label: 3de provinciale A Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 203 }
+  - { key: oost-vlaanderen-p3b, label: 3de provinciale B Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 204 }
+  - { key: oost-vlaanderen-p3c, label: 3de provinciale C Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 205 }
+  - { key: vlaams-brabant-p1, label: 1ste provinciale Vlaams-Brabant, provinceKey: vlaams-brabant, level: 1, active: true, sortOrder: 300 }
+  - { key: vlaams-brabant-p2a, label: 2de provinciale A Vlaams-Brabant, provinceKey: vlaams-brabant, level: 2, active: true, sortOrder: 301 }
+  - { key: vlaams-brabant-p2b, label: 2de provinciale B Vlaams-Brabant, provinceKey: vlaams-brabant, level: 2, active: true, sortOrder: 302 }
+  - { key: vlaams-brabant-p3a, label: 3de provinciale A Vlaams-Brabant, provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 303 }
+  - { key: vlaams-brabant-p3b, label: 3de provinciale B Vlaams-Brabant, provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 304 }
+  - { key: vlaams-brabant-p3c, label: 3de provinciale C Vlaams-Brabant, provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 305 }
+  - { key: west-vlaanderen-p1, label: 1ste provinciale West-Vlaanderen, provinceKey: west-vlaanderen, level: 1, active: true, sortOrder: 400 }
+  - { key: west-vlaanderen-p2a, label: 2de provinciale A West-Vlaanderen, provinceKey: west-vlaanderen, level: 2, active: true, sortOrder: 401 }
+  - { key: west-vlaanderen-p2b, label: 2de provinciale B West-Vlaanderen, provinceKey: west-vlaanderen, level: 2, active: true, sortOrder: 402 }
+  - { key: west-vlaanderen-p3a, label: 3de provinciale A West-Vlaanderen, provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 403 }
+  - { key: west-vlaanderen-p3b, label: 3de provinciale B West-Vlaanderen, provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 404 }
+  - { key: west-vlaanderen-p3c, label: 3de provinciale C West-Vlaanderen, provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 405 }

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getPublishedArticles, SITE_URL } from "@/lib/content";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: "daily", priority: 1 },
     {
@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticPages,
-    ...getPublishedArticles().map((article) => ({
+    ...(await getPublishedArticles()).map((article) => ({
       url: `${SITE_URL}/nieuws/${article.slug}`,
       lastModified: article.updatedAt ?? article.publishedAt,
       changeFrequency: "weekly" as const,

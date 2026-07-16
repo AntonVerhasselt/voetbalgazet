@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { api } from "@convex/_generated/api";
-import {
-  fetchAuthQuery,
-  isAuthBackendConfigured,
-} from "@/lib/auth-server";
+import { getAdminSession } from "@/lib/admin-session";
+import { AdminNav } from "./admin-nav";
 import { SignOutButton } from "./sign-out-button";
 
 const roleLabels = {
@@ -12,18 +9,6 @@ const roleLabels = {
   journalist: "Journalist",
   viewer: "Lezer",
 } as const;
-
-async function getAdminSession() {
-  if (!isAuthBackendConfigured()) {
-    return null;
-  }
-
-  try {
-    return await fetchAuthQuery(api.admin.getSession, {});
-  } catch {
-    return null;
-  }
-}
 
 export default async function ProtectedAdminLayout({
   children,
@@ -49,17 +34,10 @@ export default async function ProtectedAdminLayout({
         </div>
       </header>
       <div className="admin-shell__body">
-        <nav className="admin-nav" aria-label="Redactienavigatie">
-          <Link href="/admin" aria-current="page">
-            Overzicht
-          </Link>
-          <span aria-disabled="true">Artikels</span>
-          <span aria-disabled="true">Nieuwsbrieven</span>
-          <span aria-disabled="true">Abonnees</span>
-          {session.role === "admin" ? (
-            <span aria-disabled="true">Instellingen</span>
-          ) : null}
-        </nav>
+        <AdminNav
+          canEditArticles={session.role !== "viewer"}
+          isAdmin={session.role === "admin"}
+        />
         <main className="admin-content">{children}</main>
       </div>
     </div>
