@@ -166,7 +166,9 @@ export const teamOptions = [
   },
 ] as const satisfies readonly TeamOption[];
 
-export const divisionKeys = new Set(
+export const divisionKeys: ReadonlySet<string> = new Set(
   divisionOptions.map((division) => division.key),
 );
-export const teamKeys = new Set(teamOptions.map((team) => team.key));
+export const teamKeys: ReadonlySet<string> = new Set(
+  teamOptions.map((team) => team.key),
+);
