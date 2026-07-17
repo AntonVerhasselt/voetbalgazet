@@ -25,6 +25,8 @@ type AgentSessionBody = {
   secret?: unknown;
 };
 
+type AgentAccessEventResult = "success" | "failure" | "disabled";
+
 function trimEnv(value: string | undefined): string {
   return value?.trim() ?? "";
 }
@@ -113,6 +115,64 @@ function buildForwardHeaders(request: Request, siteUrl: string): Headers {
   return headers;
 }
 
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function postAgentAccessBridge(
+  convexSiteUrl: string,
+  secret: string,
+  path: "/agent-access/prepare" | "/agent-access/event",
+  body: {
+    result?: AgentAccessEventResult;
+    ipHash?: string;
+    userAgent?: string;
+  },
+): Promise<unknown> {
+  const response = await fetch(`${convexSiteUrl}${path}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json",
+      authorization: `Bearer ${secret}`,
+    },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw new Error(`Agent access bridge failed with HTTP ${response.status}`);
+  }
+  return (await response.json()) as unknown;
+}
+
+async function prepareAgentSessionViaBridge(
+  convexSiteUrl: string,
+  secret: string,
+  args: { ipHash: string; userAgent?: string },
+): Promise<string> {
+  const data = await postAgentAccessBridge(
+    convexSiteUrl,
+    secret,
+    "/agent-access/prepare",
+    args,
+  );
+  if (!isJsonObject(data) || typeof data.email !== "string") {
+    throw new Error("Agent access bridge returned an invalid prepare payload.");
+  }
+  return data.email;
+}
+
+async function recordAgentAccessEventViaBridge(
+  convexSiteUrl: string,
+  secret: string,
+  args: {
+    result: AgentAccessEventResult;
+    ipHash: string;
+    userAgent?: string;
+  },
+): Promise<void> {
+  await postAgentAccessBridge(convexSiteUrl, secret, "/agent-access/event", args);
+}
+
 export async function POST(request: Request): Promise<Response> {
   if (!isAgentAccessEnabled()) {
     return new Response(null, { status: 404 });
@@ -143,11 +203,14 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const secret = await parseSecret(request);
+  const configuredSecret = getAgentAccessSecret();
+  if (!configuredSecret) {
+    return new Response(null, { status: 404 });
+  }
   if (!secret || !verifyAgentAccessSecret(secret)) {
     recordAgentAccessFailure(ipHash);
     try {
-      const client = new ConvexHttpClient(convexUrl);
-      await client.mutation(api.agentAccess.recordAgentAccessEvent, {
+      await recordAgentAccessEventViaBridge(convexSiteUrl, configuredSecret, {
         result: "failure",
         ipHash,
         userAgent,
@@ -160,16 +223,10 @@ export async function POST(request: Request): Promise<Response> {
 
   const siteUrl =
     trimEnv(process.env.SITE_URL) || new URL(request.url).origin;
-  const password = await deriveAgentPassword(secret);
-  const configuredSecret = getAgentAccessSecret();
-  if (!configuredSecret) {
-    return new Response(null, { status: 404 });
-  }
+  const password = await deriveAgentPassword(configuredSecret);
 
   try {
-    const client = new ConvexHttpClient(convexUrl);
-    await client.mutation(api.agentAccess.prepareAgentSession, {
-      secret: configuredSecret,
+    await prepareAgentSessionViaBridge(convexSiteUrl, configuredSecret, {
       ipHash,
       userAgent,
     });
@@ -247,7 +304,7 @@ export async function POST(request: Request): Promise<Response> {
     const authedClient = new ConvexHttpClient(convexUrl);
     authedClient.setAuth(token);
     await authedClient.mutation(api.agentAccess.ensureAgentMembership, {});
-    await authedClient.mutation(api.agentAccess.recordAgentAccessEvent, {
+    await recordAgentAccessEventViaBridge(convexSiteUrl, configuredSecret, {
       result: "success",
       ipHash,
       userAgent,

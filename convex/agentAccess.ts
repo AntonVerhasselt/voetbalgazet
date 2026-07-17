@@ -1,13 +1,12 @@
 import { v } from "convex/values";
 import { authComponent, createAuth } from "./auth";
 import type { MutationCtx } from "./_generated/server";
-import { mutation } from "./_generated/server";
+import { internalMutation, mutation } from "./_generated/server";
 import {
   AGENT_DISPLAY_NAME,
   AGENT_EMAIL,
   deriveAgentPassword,
   readConfiguredAgentAccessSecret,
-  secretsEqual,
 } from "./lib/agentAccessShared";
 
 const agentAccessResultValidator = v.union(
@@ -33,14 +32,11 @@ async function insertEvent(
 }
 
 /**
- * Verify the agent secret, ensure the Better Auth credential user exists
- * (and password matches the current secret), and write an audit event on
- * failure/disabled. Called from the Next.js agent-session route before
- * email sign-in.
+ * Ensure the Better Auth credential user exists and the password matches the
+ * current secret. Only callable through the authenticated Convex HTTP bridge.
  */
-export const prepareAgentSession = mutation({
+export const prepareAgentSession = internalMutation({
   args: {
-    secret: v.string(),
     ipHash: v.optional(v.string()),
     userAgent: v.optional(v.string()),
   },
@@ -58,15 +54,6 @@ export const prepareAgentSession = mutation({
         userAgent: args.userAgent,
       });
       throw new Error("Agenttoegang is uitgeschakeld.");
-    }
-
-    if (!secretsEqual(args.secret, configured)) {
-      await insertEvent(ctx, {
-        result: "failure",
-        ipHash: args.ipHash,
-        userAgent: args.userAgent,
-      });
-      throw new Error("Ongeldige agenttoegang.");
     }
 
     const password = await deriveAgentPassword(configured);
@@ -175,7 +162,7 @@ export const ensureAgentMembership = mutation({
   },
 });
 
-export const recordAgentAccessEvent = mutation({
+export const recordAgentAccessEvent = internalMutation({
   args: {
     result: agentAccessResultValidator,
     ipHash: v.optional(v.string()),
