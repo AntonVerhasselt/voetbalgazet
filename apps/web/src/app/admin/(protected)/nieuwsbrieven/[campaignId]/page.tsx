@@ -10,8 +10,10 @@ import Link from "next/link";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { EmailEditor, type EmailEditorRef } from "@react-email/editor";
-import "@react-email/editor/themes/default.css";
+import {
+  NewsletterEmailEditor,
+  type NewsletterEmailEditorRef,
+} from "@/components/newsletter-email-editor";
 import { useUploadFile } from "@convex-dev/r2/react";
 import type { JSONContent } from "@tiptap/core";
 import { sanitizeEditorDocumentJson } from "@convex/lib/compliance";
@@ -94,7 +96,7 @@ function CampaignEditorForm({
     syncMetadata: api.r2.syncMetadata,
   });
 
-  const editorRef = useRef<EmailEditorRef>(null);
+  const editorRef = useRef<NewsletterEmailEditorRef>(null);
   const [internalName, setInternalName] = useState(campaign.internalName);
   const [subject, setSubject] = useState(campaign.subject);
   const [preheader, setPreheader] = useState(campaign.preheader ?? "");
@@ -149,7 +151,7 @@ function CampaignEditorForm({
   );
 
   const handleEditorUpdate = useCallback(
-    (ref: EmailEditorRef) => {
+    (ref: NewsletterEmailEditorRef) => {
       const json = ref.getJSON();
       scheduleSave({ documentJson: JSON.stringify(json) });
     },
@@ -189,10 +191,9 @@ function CampaignEditorForm({
         </p>
       )}
 
-      <div className="newsletter-editor-layout">
-        {/* Left: fields + editor */}
-        <div>
-          <div className="newsletter-editor-fields">
+      <div className="newsletter-editor-layout newsletter-editor-page">
+        <div className="newsletter-editor-fields">
+          <div className="newsletter-editor-fields__meta">
             <div className="admin-field">
               <label className="admin-field__label" htmlFor="internalName">
                 Interne naam
@@ -245,46 +246,53 @@ function CampaignEditorForm({
             </div>
           </div>
 
-          <div className="newsletter-editor-main">
-            <EmailEditor
+          <div className="newsletter-editor-toolbar">
+            <button
+              type="button"
+              className="newsletter-action-btn"
+              aria-pressed={showPreview}
+              onClick={() => setShowPreview((v) => !v)}
+            >
+              {showPreview ? "Terug naar editor" : "Voorbeeld tonen"}
+            </button>
+            <p
+              className={`newsletter-editor-save-status newsletter-editor-save-status--${saveStatus}`}
+            >
+              {saveStatus === "saving" && "Opslaan…"}
+              {saveStatus === "saved" && "Opgeslagen"}
+              {saveStatus === "error" && (saveError ?? "Opslaan mislukt")}
+            </p>
+          </div>
+        </div>
+
+        <div className="newsletter-editor-stage">
+          <div
+            className="newsletter-editor-main"
+            hidden={showPreview}
+            aria-hidden={showPreview}
+          >
+            <NewsletterEmailEditor
               ref={editorRef}
               content={initialContent}
               onUpdate={handleEditorUpdate}
               onUploadImage={canEdit ? handleUploadImage : undefined}
               editable={canEdit}
+              showInspector={canEdit}
             />
           </div>
-
-          <p
-            className={`newsletter-editor-save-status newsletter-editor-save-status--${saveStatus}`}
-          >
-            {saveStatus === "saving" && "Opslaan…"}
-            {saveStatus === "saved" && "Opgeslagen"}
-            {saveStatus === "error" && (saveError ?? "Opslaan mislukt")}
-          </p>
-        </div>
-
-        {/* Right: preview */}
-        <div className="newsletter-preview-panel">
-          <span>Voorbeeld</span>
-          <button
-            className="newsletter-action-btn"
-            style={{ width: "fit-content" }}
-            onClick={() => setShowPreview((v) => !v)}
-          >
-            {showPreview ? "Voorbeeld verbergen" : "Voorbeeld tonen"}
-          </button>
-          {showPreview && (
-            <iframe
-              className="newsletter-preview-frame"
-              srcDoc={
-                previewHtml ||
-                "<p style='padding:2rem;color:#888;font-family:sans-serif'>Sla eerst op om een voorbeeld te zien.</p>"
-              }
-              title="E-mailvoorvertoning"
-              sandbox="allow-same-origin"
-            />
-          )}
+          {showPreview ? (
+            <div className="newsletter-preview-panel newsletter-preview-panel--stage">
+              <iframe
+                className="newsletter-preview-frame"
+                srcDoc={
+                  previewHtml ||
+                  "<p style='padding:2rem;color:#888;font-family:sans-serif'>Sla eerst op om een voorbeeld te zien.</p>"
+                }
+                title="E-mailvoorvertoning"
+                sandbox="allow-same-origin"
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </>

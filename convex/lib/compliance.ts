@@ -1,8 +1,8 @@
 /** Locked campaign compliance footer — YARU DAKEN BV. */
 
 export const COMPLIANCE_FOOTER_VERSION = "1";
-export const RENDERER_VERSION = "1";
-export const THEME_VERSION = "1";
+export const RENDERER_VERSION = "2";
+export const THEME_VERSION = "2";
 export const EDITOR_FORMAT = "react-email-editor" as const;
 export const EDITOR_FORMAT_VERSION = 1;
 export const MAX_DOCUMENT_JSON_BYTES = 256 * 1024;
