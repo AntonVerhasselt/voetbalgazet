@@ -1,8 +1,10 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
+import { internalMutation } from "./_generated/server";
 import { adminMutation, adminQuery, viewerQuery } from "./lib/adminAuth";
 import {
   COMPLIANCE,
+  campaignStatusLabel,
   emptyEditorDocumentJson,
 } from "./lib/compliance";
 import {
@@ -21,6 +23,10 @@ import {
   readMarketingKillSwitch,
 } from "./lib/runtimeSettings";
 import { resend } from "./resendClient";
+
+function siteBaseUrl(): string {
+  return (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/$/u, "");
+}
 
 function isSendingDomainVerified(fromAddress: string): boolean {
   const domain = fromAddress.split("@")[1]?.toLowerCase();
@@ -524,9 +530,19 @@ export const getMarketingKillSwitch = viewerQuery({
 });
 
 export const setMarketingKillSwitch = adminMutation({
-  args: { value: marketingKillSwitchValueValidator },
+  args: {
+    value: marketingKillSwitchValueValidator,
+    reason: v.string(),
+  },
   returns: marketingKillSwitchValueValidator,
   handler: async (ctx, args) => {
+    const reason = args.reason.trim();
+    if (reason.length < 3) {
+      throw new Error("Geef een reden op (minstens 3 tekens).");
+    }
+    if (reason.length > 500) {
+      throw new Error("Reden mag maximaal 500 tekens zijn.");
+    }
     const now = Date.now();
     const existing = await ctx.db
       .query("appRuntimeSettings")
@@ -546,7 +562,127 @@ export const setMarketingKillSwitch = adminMutation({
         updatedBy: ctx.adminUser._id,
       });
     }
+    await ctx.db.insert("newsletterAuditEvents", {
+      action: "kill_switch_toggled",
+      actorUserId: ctx.adminUser._id,
+      metadata: JSON.stringify({ value: args.value, reason }),
+      createdAt: now,
+    });
     return args.value;
+  },
+});
+
+/**
+ * Email all active Admins + initiating Journalist when a send ends failed /
+ * partially_failed. Dedupes addresses. Uses the admin_send_alert template.
+ */
+export const dispatchAdminSendAlert = internalMutation({
+  args: {
+    campaignId: v.id("newsletterCampaigns"),
+    sendId: v.id("newsletterSends"),
+    status: v.union(
+      v.literal("failed"),
+      v.literal("partially_failed"),
+      v.literal("sent"),
+      v.literal("cancelled"),
+    ),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const campaign = await ctx.db.get(args.campaignId);
+    const send = await ctx.db.get(args.sendId);
+    if (!campaign || !send) {
+      return null;
+    }
+
+    const definition = await ctx.db
+      .query("transactionalEmailDefinitions")
+      .withIndex("by_type", (q) => q.eq("type", "admin_send_alert"))
+      .unique();
+    if (!definition || definition.status === "disabled") {
+      return null;
+    }
+
+    let documentJson = definition.documentJson;
+    let subject = definition.subject;
+    let preheader = definition.preheader;
+    if (definition.activeRevisionId) {
+      const revision = await ctx.db.get(definition.activeRevisionId);
+      if (revision) {
+        documentJson = revision.documentJson;
+        subject = revision.subject;
+        preheader = revision.preheader;
+      }
+    }
+
+    const recipientEmails = new Set<string>();
+    const staff = await ctx.db.query("users").take(200);
+    for (const user of staff) {
+      if (user.disabledAt !== undefined) {
+        continue;
+      }
+      if (user.role === "admin") {
+        recipientEmails.add(user.email.trim().toLowerCase());
+      }
+    }
+    const initiator = await ctx.db.get(send.requestedBy);
+    if (initiator && initiator.disabledAt === undefined) {
+      recipientEmails.add(initiator.email.trim().toLowerCase());
+    }
+    if (recipientEmails.size === 0) {
+      recipientEmails.add(COMPLIANCE.replyTo);
+    }
+
+    const statusLabel = campaignStatusLabel(args.status);
+    const dashboardUrl = `${siteBaseUrl()}/admin/nieuwsbrieven/${campaign._id}/resultaten`;
+    const variables = {
+      campaignName: campaign.internalName,
+      status: statusLabel,
+      dashboardUrl,
+    };
+    const rendered = renderTransactionalEmail({
+      documentJson,
+      subject,
+      preheader,
+      variables,
+    });
+    const resolvedSubject = subject
+      .replaceAll("{{campaignName}}", campaign.internalName)
+      .replaceAll("{{status}}", statusLabel)
+      .replaceAll("{{dashboardUrl}}", dashboardUrl);
+
+    const sender = await ctx.db
+      .query("emailSenderProfiles")
+      .withIndex("by_default", (q) => q.eq("isDefault", true))
+      .unique();
+    const fromName = sender?.fromName ?? COMPLIANCE.defaultFromName;
+    const fromAddress = sender?.fromAddress ?? COMPLIANCE.defaultFromAddress;
+    const replyTo = sender?.replyTo ?? COMPLIANCE.replyTo;
+
+    let sentCount = 0;
+    for (const to of recipientEmails) {
+      await resend.sendEmail(ctx, {
+        from: `${fromName} <${fromAddress}>`,
+        to,
+        replyTo: [replyTo],
+        subject: resolvedSubject,
+        html: rendered.html,
+        text: rendered.text,
+      });
+      sentCount += 1;
+    }
+
+    await ctx.db.insert("newsletterAuditEvents", {
+      action: "admin_send_alert_sent",
+      campaignId: args.campaignId,
+      sendId: args.sendId,
+      metadata: JSON.stringify({
+        status: args.status,
+        recipientCount: sentCount,
+      }),
+      createdAt: Date.now(),
+    });
+    return null;
   },
 });
 

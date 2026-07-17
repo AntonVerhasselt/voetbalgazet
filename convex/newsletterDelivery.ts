@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
+import { isHardBounceEvent } from "./lib/bounce";
 import { addSuppression } from "./lib/suppressions";
 
 const RECIPIENT_RANK: Record<string, number> = {
@@ -132,11 +133,11 @@ export const applyProviderEvent = internalMutation({
       }
     }
 
-    const bounceType = args.bounceType?.toLowerCase() ?? "";
-    const bounceSubType = args.bounceSubType?.toLowerCase() ?? "";
-    const isHardBounce =
-      args.eventType === "email.bounced" &&
-      (bounceType.includes("hard") || bounceSubType.includes("hard"));
+    const isHardBounce = isHardBounceEvent(
+      args.eventType,
+      args.bounceType,
+      args.bounceSubType,
+    );
     if (isHardBounce || args.eventType === "email.complained") {
       const subscriber = await ctx.db.get(recipient.subscriberId);
       if (subscriber) {

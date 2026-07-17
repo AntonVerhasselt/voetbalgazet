@@ -164,7 +164,6 @@ Deze cloudomgeving kon de lokale Open Design-map opnieuw niet lezen. Kopieer de 
 - [ ] Vercel buildvalidatie
 - [ ] Newsletteradmin volgens verfijnd dossier
 - [ ] Mobile acceptance op 320, 375 en 768 px
-- [ ] Open Design-assets naar repository
 
 ## Niet in huidige scope
 

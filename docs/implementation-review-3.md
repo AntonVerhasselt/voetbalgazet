@@ -186,27 +186,20 @@ Second-review regressions also still fixed:
 | Item | Notes |
 |------|-------|
 | Pagefind full-text search | Archive search is MVP surface |
-| Open Design source in `design/open-design/` | Needs local designer export |
 | Official VV taxonomy import | Human data confirmation |
 | Hosted Keystatic GitHub App smoke | Manual ops |
 | Vercel Preview ↔ Convex URL pair | Manual Vercel env |
 | Full DSR export/erase tooling | Support process; no bulk erase in MVP |
 | Provider batching / workpool at 100k | Improved paging; Resend batch API still incremental |
 | Dual renderer perfect visual parity | Contract in `emails/README.md`; shared package not fully extracted |
-| Pixel-perfect Open Design parity | Blocked on missing assets |
+
+> Open Design asset-copy todos were removed from launch checklists (17 Jul 2026); live tokens live in `plans/ui-ux/`.
 
 ---
 
 ## H. Priority order if fixing next
 
-1. **W3-1** Hard-bounce → suppression (sender reputation / compliance)  
-2. **W3-2** Recovery → `adminMutation`  
-3. **W3-5** Dedupe `newsletter_article_link_opened`  
-4. **W3-3** Kill-switch reason + audit  
-5. **W3-7** Prefs session timeout UX  
-6. **W3-4** Wire `admin_send_alert` (or defer explicitly in plan)  
-7. **W3-6** Taxonomy deactivate + preview counts  
-8. Doc hygiene: mark DMARC / List-Unsubscribe launch todos; refresh fix-status
+Third-review Warnings W3-1 … W3-9 were addressed on this branch after the review write-up. Remaining work is intentional non-code / launch ops (see §G).
 
 ---
 

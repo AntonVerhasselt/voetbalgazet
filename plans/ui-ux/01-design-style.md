@@ -2,7 +2,7 @@
 
 Bron van waarheid voor de huidige publieke site: `apps/web/src/app/globals.css` en `apps/web/src/components/article-illustration.tsx`.
 
-Dit document legt de tokens vast die we nu gebruiken, plus de typografische illustratiestijl als beeldvervanging. Open Design blijft referentie voor latere pixel-perfecte afstemming; deze waarden gelden tot die bron in de repo staat.
+Dit document legt de tokens vast die we nu gebruiken, plus de typografische illustratiestijl als beeldvervanging. Deze waarden (afgeleid van `apps/web/src/app/globals.css`) zijn de bron van waarheid voor de UI.
 
 ## Kleuren
 

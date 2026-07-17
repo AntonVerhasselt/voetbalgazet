@@ -3,7 +3,7 @@ import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery } from "./_generated/server";
-import { editorMutation, viewerQuery } from "./lib/adminAuth";
+import { adminMutation, editorMutation, viewerQuery } from "./lib/adminAuth";
 import {
   COMPLIANCE,
   EDITOR_FORMAT,
@@ -940,6 +940,11 @@ export const prepareRecipients = internalMutation({
         status: "failed",
         recipientCount: 0,
       });
+      await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+        campaignId: send.campaignId,
+        sendId: args.sendId,
+        status: "failed",
+      });
       return null;
     }
 
@@ -993,6 +998,13 @@ async function finalizeQueuedSend(
     status: finalStatus,
     ...(finalStatus !== "failed" ? { sentAt: now } : {}),
   });
+  if (finalStatus === "failed" || finalStatus === "partially_failed") {
+    await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+      campaignId: send.campaignId,
+      sendId: send._id,
+      status: finalStatus,
+    });
+  }
 }
 
 export const enqueueRecipientBatch = internalMutation({
@@ -1017,6 +1029,11 @@ export const enqueueRecipientBatch = internalMutation({
         completedAt: now,
       });
       await ctx.db.patch(send.campaignId, {
+        status: "failed",
+      });
+      await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+        campaignId: send.campaignId,
+        sendId: args.sendId,
         status: "failed",
       });
       return null;
@@ -1296,7 +1313,7 @@ export const listFailedRecipients = viewerQuery({
   },
 });
 
-export const recoverFailedRecipients = editorMutation({
+export const recoverFailedRecipients = adminMutation({
   args: {
     sendId: v.id("newsletterSends"),
     recipientIds: v.optional(v.array(v.id("newsletterRecipients"))),

@@ -19,7 +19,6 @@ export function ArticleAnalytics({
   const captured = useRef(false);
   const leadCaptured = useRef(false);
   const depthsCaptured = useRef<Set<number>>(new Set());
-  const emailLinkCaptured = useRef(false);
 
   useEffect(() => {
     if (captured.current) {
@@ -37,20 +36,6 @@ export function ArticleAnalytics({
       is_gated: isGated,
     });
   }, [articleId, authorKey, categoryKey, divisionKey, isGated]);
-
-  useEffect(() => {
-    if (emailLinkCaptured.current) {
-      return;
-    }
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("from") !== "email") {
-      return;
-    }
-    emailLinkCaptured.current = true;
-    capturePublicEvent("newsletter_article_link_opened", {
-      article_id: articleId,
-    });
-  }, [articleId]);
 
   useEffect(() => {
     const lead = document.querySelector<HTMLElement>("[data-article-lead]");

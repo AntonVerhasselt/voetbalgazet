@@ -10,7 +10,6 @@ De bouwvolgorde minimaliseert risico: eerst auth, data en renderer; daarna edito
 
 ### Nodig
 
-- Open Design-assets naar repository/gedeelde map;
 - definitief publiek domein;
 - from/reply-to;
 - fysieke/editoriale footercopy;

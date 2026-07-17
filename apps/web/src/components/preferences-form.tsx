@@ -24,8 +24,14 @@ export function PreferencesForm() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetch("/api/reader/preferences", { cache: "no-store" }).then(
-      async (response) => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 12_000);
+
+    void fetch("/api/reader/preferences", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
         if (cancelled) return;
         if (!response.ok) {
           setRequiresVerification(true);
@@ -41,10 +47,23 @@ export function PreferencesForm() {
           division_count: data.divisionKeys.length,
           has_team: Boolean(data.teamKey),
         });
-      },
-    );
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setRequiresVerification(true);
+        setLoading(false);
+        setMessage(
+          "Je sessie kon niet worden gecontroleerd. Vraag een nieuwe veilige link aan.",
+        );
+      })
+      .finally(() => {
+        window.clearTimeout(timeoutId);
+      });
+
     return () => {
       cancelled = true;
+      controller.abort();
+      window.clearTimeout(timeoutId);
     };
   }, []);
 
@@ -151,6 +170,7 @@ export function PreferencesForm() {
           Alleen een bevestigd e-mailadres mag bestaande voorkeuren bekijken of
           wijzigen.
         </p>
+        {message ? <p role="status">{message}</p> : null}
         <label>
           E-mailadres
           <input

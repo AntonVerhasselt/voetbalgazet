@@ -17,6 +17,7 @@ import type * as http from "../http.js";
 import type * as lib_adminAuth from "../lib/adminAuth.js";
 import type * as lib_adminRoles from "../lib/adminRoles.js";
 import type * as lib_agentAccessShared from "../lib/agentAccessShared.js";
+import type * as lib_bounce from "../lib/bounce.js";
 import type * as lib_compliance from "../lib/compliance.js";
 import type * as lib_email from "../lib/email.js";
 import type * as lib_emailLinkToken from "../lib/emailLinkToken.js";
@@ -56,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   "lib/adminAuth": typeof lib_adminAuth;
   "lib/adminRoles": typeof lib_adminRoles;
   "lib/agentAccessShared": typeof lib_agentAccessShared;
+  "lib/bounce": typeof lib_bounce;
   "lib/compliance": typeof lib_compliance;
   "lib/email": typeof lib_email;
   "lib/emailLinkToken": typeof lib_emailLinkToken;

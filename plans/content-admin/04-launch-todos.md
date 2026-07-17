@@ -1,13 +1,5 @@
 # Launch-todo's artikeladmin
 
-## Open Design
-
-- [ ] Lokale Open Design-map kopiëren naar `design/open-design/`
-- [ ] `brand-spec.md`, `styles.css`, HTML-prototypes en assets opnemen
-- [ ] Logo/licentie/bron controleren
-- [ ] Mobiele screenshots/reference states toevoegen
-- [ ] Tokens documenteren in gedeelde UI-plan
-
 ## Keystatic
 
 - [ ] `@keystatic/core`, `@keystatic/next`, `@markdoc/markdoc` versies controleren

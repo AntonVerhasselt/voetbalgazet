@@ -108,5 +108,5 @@ Details en resterende launchchecks: [`newsletter-admin-dashboard/09-launch-todos
 | Public-siteplan | Completed |
 | Newsletter-adminplan | Product/architecture decisions completed — launch inputs tracked separately |
 | Content-adminplan | Detailed Keystatic and publishing plan added |
-| Shared UI/UX | Mobile-first specification complete; Open Design source still needs repository copy |
+| Shared UI/UX | Mobile-first specification complete (`plans/ui-ux/`) |
 | Plan coherence | Cross-references aligned; AI journalist scope removed; Keystatic integrated |

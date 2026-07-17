@@ -104,14 +104,20 @@ async function ensureTeamFromCatalog(
 async function runTaxonomySync(ctx: MutationCtx): Promise<{
   divisionsCreated: number;
   divisionsUpdated: number;
+  divisionsDeactivated: number;
   teamsCreated: number;
   teamsUpdated: number;
+  teamsDeactivated: number;
 }> {
   let divisionsCreated = 0;
   let divisionsUpdated = 0;
+  let divisionsDeactivated = 0;
   let teamsCreated = 0;
   let teamsUpdated = 0;
+  let teamsDeactivated = 0;
   const divisionIdByKey = new Map<string, Id<"divisions">>();
+  const catalogDivisionKeys = new Set<string>(divisionOptions.map((d) => d.key));
+  const catalogTeamKeys = new Set<string>(teamOptions.map((t) => t.key));
 
   for (const option of divisionOptions) {
     const result = await ensureDivisionFromCatalog(ctx, option.key);
@@ -138,19 +144,57 @@ async function runTaxonomySync(ctx: MutationCtx): Promise<{
     }
   }
 
+  let divisionCursor: string | null = null;
+  let divisionsDone = false;
+  while (!divisionsDone) {
+    const page = await ctx.db
+      .query("divisions")
+      .paginate({ numItems: 200, cursor: divisionCursor });
+    for (const row of page.page) {
+      if (row.active && !catalogDivisionKeys.has(row.externalKey)) {
+        await ctx.db.patch(row._id, { active: false });
+        divisionsDeactivated += 1;
+      }
+    }
+    divisionsDone = page.isDone;
+    divisionCursor = page.isDone ? null : page.continueCursor;
+  }
+
+  let teamCursor: string | null = null;
+  let teamsDone = false;
+  while (!teamsDone) {
+    const page = await ctx.db
+      .query("teams")
+      .paginate({ numItems: 200, cursor: teamCursor });
+    for (const row of page.page) {
+      if (row.active && !catalogTeamKeys.has(row.externalKey)) {
+        await ctx.db.patch(row._id, { active: false });
+        teamsDeactivated += 1;
+      }
+    }
+    teamsDone = page.isDone;
+    teamCursor = page.isDone ? null : page.continueCursor;
+  }
+
   return {
     divisionsCreated,
     divisionsUpdated,
+    divisionsDeactivated,
     teamsCreated,
     teamsUpdated,
+    teamsDeactivated,
   };
 }
 
 async function previewTaxonomySyncData(ctx: MutationCtx | QueryCtx) {
   let divisionsToCreate = 0;
   let divisionsToUpdate = 0;
+  let divisionsToDeactivate = 0;
   let teamsToCreate = 0;
   let teamsToUpdate = 0;
+  let teamsToDeactivate = 0;
+  const catalogDivisionKeys = new Set<string>(divisionOptions.map((d) => d.key));
+  const catalogTeamKeys = new Set<string>(teamOptions.map((t) => t.key));
 
   for (const option of divisionOptions) {
     const existing = await ctx.db
@@ -190,11 +234,43 @@ async function previewTaxonomySyncData(ctx: MutationCtx | QueryCtx) {
     }
   }
 
+  let divisionCursor: string | null = null;
+  let divisionsDone = false;
+  while (!divisionsDone) {
+    const page = await ctx.db
+      .query("divisions")
+      .paginate({ numItems: 200, cursor: divisionCursor });
+    for (const row of page.page) {
+      if (row.active && !catalogDivisionKeys.has(row.externalKey)) {
+        divisionsToDeactivate += 1;
+      }
+    }
+    divisionsDone = page.isDone;
+    divisionCursor = page.isDone ? null : page.continueCursor;
+  }
+
+  let teamCursor: string | null = null;
+  let teamsDone = false;
+  while (!teamsDone) {
+    const page = await ctx.db
+      .query("teams")
+      .paginate({ numItems: 200, cursor: teamCursor });
+    for (const row of page.page) {
+      if (row.active && !catalogTeamKeys.has(row.externalKey)) {
+        teamsToDeactivate += 1;
+      }
+    }
+    teamsDone = page.isDone;
+    teamCursor = page.isDone ? null : page.continueCursor;
+  }
+
   return {
     divisionsToCreate,
     divisionsToUpdate,
+    divisionsToDeactivate,
     teamsToCreate,
     teamsToUpdate,
+    teamsToDeactivate,
     catalogDivisionCount: divisionOptions.length,
     catalogTeamCount: teamOptions.length,
   };
@@ -206,8 +282,10 @@ export const previewTaxonomySync = adminMutation({
   returns: v.object({
     divisionsToCreate: v.number(),
     divisionsToUpdate: v.number(),
+    divisionsToDeactivate: v.number(),
     teamsToCreate: v.number(),
     teamsToUpdate: v.number(),
+    teamsToDeactivate: v.number(),
     catalogDivisionCount: v.number(),
     catalogTeamCount: v.number(),
   }),
@@ -221,8 +299,10 @@ export const previewTaxonomySyncInternal = internalMutation({
   returns: v.object({
     divisionsToCreate: v.number(),
     divisionsToUpdate: v.number(),
+    divisionsToDeactivate: v.number(),
     teamsToCreate: v.number(),
     teamsToUpdate: v.number(),
+    teamsToDeactivate: v.number(),
     catalogDivisionCount: v.number(),
     catalogTeamCount: v.number(),
   }),
@@ -236,8 +316,10 @@ export const syncTaxonomyFromCatalog = adminMutation({
   returns: v.object({
     divisionsCreated: v.number(),
     divisionsUpdated: v.number(),
+    divisionsDeactivated: v.number(),
     teamsCreated: v.number(),
     teamsUpdated: v.number(),
+    teamsDeactivated: v.number(),
   }),
   handler: async (ctx) => {
     const result = await runTaxonomySync(ctx);
@@ -256,8 +338,10 @@ export const syncTaxonomyInternal = internalMutation({
   returns: v.object({
     divisionsCreated: v.number(),
     divisionsUpdated: v.number(),
+    divisionsDeactivated: v.number(),
     teamsCreated: v.number(),
     teamsUpdated: v.number(),
+    teamsDeactivated: v.number(),
   }),
   handler: async (ctx) => {
     return await runTaxonomySync(ctx);

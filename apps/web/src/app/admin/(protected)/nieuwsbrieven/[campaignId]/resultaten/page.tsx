@@ -45,6 +45,7 @@ export default function ResultatenPage({
   const campaignData = useQuery(api.newsletterCampaigns.getCampaign, {
     campaignId,
   });
+  const session = useQuery(api.admin.getSession);
   const sendResults = useQuery(api.newsletterSend.getSendResults, {
     campaignId,
   });
@@ -55,6 +56,7 @@ export default function ResultatenPage({
       : "skip",
   );
   const recoverFailed = useMutation(api.newsletterSend.recoverFailedRecipients);
+  const canRecover = session?.role === "admin";
 
   if (!campaignData) {
     return (
@@ -226,16 +228,22 @@ export default function ResultatenPage({
                   ))}
                 </ul>
               )}
-              <button
-                type="button"
-                className="signup-form__primary"
-                disabled={recovering || (failedRecipients?.length ?? 0) === 0}
-                onClick={() => {
-                  void handleRecoverAll();
-                }}
-              >
-                {recovering ? "Herstellen…" : "Herstel mislukte ontvangers"}
-              </button>
+              {canRecover ? (
+                <button
+                  type="button"
+                  className="signup-form__primary"
+                  disabled={recovering || (failedRecipients?.length ?? 0) === 0}
+                  onClick={() => {
+                    void handleRecoverAll();
+                  }}
+                >
+                  {recovering ? "Herstellen…" : "Herstel mislukte ontvangers"}
+                </button>
+              ) : (
+                <p className="admin-notice" style={{ marginTop: "0.75rem" }}>
+                  Alleen beheerders kunnen mislukte ontvangers herstellen.
+                </p>
+              )}
               {recoverMessage && (
                 <p className="admin-notice" style={{ marginTop: "0.75rem" }}>
                   {recoverMessage}

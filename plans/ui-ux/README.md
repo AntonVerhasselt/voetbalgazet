@@ -11,32 +11,11 @@ Dit dossier geldt voor:
 |----------|--------|
 | [01-design-style.md](./01-design-style.md) | Live kleuren, typografie en typografische illustraties (“Zondag langs de lijn”, wedstrijdvariant, rotatiepalet groen/rood/goud) |
 
-## Designbron en beschikbaarheid
+## Designbron
 
-Bronpad:
-
-```text
-/Users/antonverhasselt/Library/Application Support/Open Design/namespaces/release-stable-intel/data/projects/a132ea15-213e-409f-9e25-e762711453c3
-```
-
-Verwachte bronbestanden:
-
-| Bestand | Gebruik |
-|---------|---------|
-| `brand-spec.md` | kleur-, type-, spacing- en tone-of-voicebron |
-| `styles.css` | tokens en bestaande componentstates |
-| `homepage.html` | masthead, hero, laatste nieuws, inschrijfmodule |
-| `article.html` | artikeltypografie, beeld, pull quote, bodyritme |
-| `article-gate.html` | lead-in, blur/overgang, mobile bottom sheet |
-| `subscribe.js` | preference-stappen, chips, search en validatie |
-| `mr9gvna8-image.png` | logo/beeldreferentie volgens bestaand plan |
-
-De map is lokaal op de computer van de eigenaar en was opnieuw niet beschikbaar in de cloudomgeving. Daarom:
-
-1. kopieer relevante bron en assets naar `design/open-design/`;
-2. voeg screenshots voor mobile/desktop states toe;
-3. controleer daarna alle tokens en maatvoering;
-4. behandel bestaande tekstuele beschrijvingen tot dan als richtinggevend, niet pixel-perfect.
+Live tokens en compositieregels staan in [`01-design-style.md`](./01-design-style.md)
+(afgeleid van `apps/web/src/app/globals.css`). Historische Open Design-prototypes
+waren een inspiratiebron; de geschreven tokens in deze map zijn de bron van waarheid.
 
 ## Mobile-first volgorde
 
