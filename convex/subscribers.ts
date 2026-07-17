@@ -9,6 +9,10 @@ import {
 import { consumeSignupRateLimit, hashRateLimitValue } from "./lib/rateLimit";
 import { verifyUnsubscribeToken } from "./lib/emailLinkToken";
 import {
+  addSuppression,
+  clearUnsubscribeSuppression,
+} from "./lib/suppressions";
+import {
   applySubscriberPreferences,
   getVerifiedSubscriber,
   preferenceKeysForSubscriber,
@@ -377,6 +381,13 @@ export const confirmUnsubscribe = mutation({
       source: args.source,
       capturedAt,
     });
+    await addSuppression(ctx, {
+      subscriberId: subscriber._id,
+      normalizedEmail,
+      type: "unsubscribe",
+      sourceId: args.source,
+      now: capturedAt,
+    });
 
     return {
       unsubscribed: true as const,
@@ -409,6 +420,11 @@ export const resubscribeToNewsletter = mutation({
       consentVersion: CURRENT_CONSENT_VERSION,
       source: "preferences_resubscribe",
       capturedAt,
+    });
+    await clearUnsubscribeSuppression(ctx, {
+      subscriberId: subscriber._id,
+      normalizedEmail: subscriber.normalizedEmail,
+      now: capturedAt,
     });
     return {
       subscribed: true as const,

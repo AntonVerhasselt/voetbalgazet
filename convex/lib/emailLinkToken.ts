@@ -6,6 +6,8 @@ export type EmailLinkPayload = {
   expiresAt: number;
 };
 
+const DEFAULT_UNSUBSCRIBE_TTL_MS = 1000 * 60 * 60 * 24 * 730; // ~2 years
+
 function emailLinkSecret(): string {
   const secret = process.env.BETTER_AUTH_SECRET?.trim();
   if (secret) {
@@ -13,6 +15,34 @@ function emailLinkSecret(): string {
   }
   // Local anonymous Convex agent deployments may omit Better Auth secrets.
   return "local-email-link-dev-only";
+}
+
+function encodeBase64Url(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+function encodePayload(payload: EmailLinkPayload): string {
+  return encodeBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
+}
+
+/** Mint a newsletter-only unsubscribe token for campaign footers. */
+export async function createUnsubscribeToken(
+  email: string,
+  now = Date.now(),
+  ttlMs = DEFAULT_UNSUBSCRIBE_TTL_MS,
+): Promise<string> {
+  const payload: EmailLinkPayload = {
+    email: email.normalize("NFKC").trim().toLowerCase(),
+    purpose: "newsletter_unsubscribe",
+    expiresAt: now + ttlMs,
+  };
+  const encoded = encodePayload(payload);
+  const sig = encodeBase64Url(await signature(encoded));
+  return `${encoded}.${sig}`;
 }
 
 function decodeBase64Url(value: string): string {

@@ -24,5 +24,6 @@ Short operational notes for De Voetbalgazet.
 | [Phase 3 follow-ups](./phase-3-follow-ups.md) | Post-merge todos: hosted Keystatic, taxonomy, reader launch gaps |
 | [Phase 3 manual checklist](./phase-3-manual-checklist.md) | Step-by-step ops: GitHub App, smoke publish, roles, newsletter-only unsubscribe |
 | [Vercel + Convex deploy](./vercel-deploy.md) | Production build, env vars, domains (apex vs www) |
+| [Phase 4 newsletter](./phase-4-newsletter.md) | Campaigns, editor, Resend sends, audience, webhooks |
 
 For product/architecture plans, see `/plans`.
