@@ -1243,6 +1243,36 @@ a {
   text-transform: uppercase;
 }
 
+.article-share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 1.25rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.article-share__label {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.article-share__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+
+.article-share__actions .text-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
 .latest__archive-link {
   margin-top: 1.5rem;
 }

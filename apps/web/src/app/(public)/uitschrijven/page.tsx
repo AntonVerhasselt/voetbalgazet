@@ -52,7 +52,7 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
   if (status === "bevestigd") {
     return (
       <main className="shell legal-page">
-        <UnsubscribeAnalytics />
+        <UnsubscribeAnalytics status={status} />
         <h1>Je bent uitgeschreven van de nieuwsbrief</h1>
         <p>
           Je ontvangt geen wekelijkse nieuwsbrief meer. Dit verandert niets aan

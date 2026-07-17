@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { capturePublicEvent } from "@/lib/analytics";
 
-export function UnsubscribeAnalytics() {
-  const captured = useRef(false);
-
+export function UnsubscribeAnalytics({
+  status,
+}: {
+  status: string | undefined;
+}) {
   useEffect(() => {
-    if (captured.current) {
-      return;
+    if (status === "bevestigd") {
+      capturePublicEvent("newsletter_unsubscribed", {
+        reason_code: "confirmed",
+      });
     }
-    captured.current = true;
-    capturePublicEvent("newsletter_unsubscribed", {});
-  }, []);
+  }, [status]);
 
   return null;
 }

@@ -719,12 +719,62 @@ function renderComplianceFooterText(links: ComplianceLinks): string {
   ].join("\n");
 }
 
+function isOwnNewsArticleUrl(href: string, siteUrl: string): boolean {
+  try {
+    const link = new URL(href);
+    const site = new URL(siteUrl);
+    if (link.origin !== site.origin) {
+      return false;
+    }
+    return /^\/nieuws\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/u.test(link.pathname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Append opaque campaign analytics id + UTM params to own-domain article links.
+ * Never logs recipient identity; `cid` is the send analyticsId only.
+ */
+export function withCampaignAnalyticsLinks(
+  value: string,
+  args: { siteUrl: string; campaignAnalyticsId: string },
+): string {
+  const cid = args.campaignAnalyticsId.trim();
+  if (!cid || !/^[a-zA-Z0-9_-]{1,64}$/u.test(cid)) {
+    return value;
+  }
+
+  return value.replace(
+    /https?:\/\/[^\s"'<>]+/giu,
+    (match) => {
+      if (!isOwnNewsArticleUrl(match, args.siteUrl)) {
+        return match;
+      }
+      try {
+        const url = new URL(match);
+        url.searchParams.set("cid", cid);
+        if (!url.searchParams.has("utm_source")) {
+          url.searchParams.set("utm_source", "newsletter");
+        }
+        if (!url.searchParams.has("utm_medium")) {
+          url.searchParams.set("utm_medium", "email");
+        }
+        return url.toString();
+      } catch {
+        return match;
+      }
+    },
+  );
+}
+
 export function renderCampaignEmail(args: {
   documentJson: string;
   subject: string;
   preheader?: string;
   links: ComplianceLinks;
   includeFooter?: boolean;
+  campaignAnalyticsId?: string;
 }): RenderedEmail {
   const doc = parseEditorDocument(args.documentJson);
   const bodyHtml = renderNode(doc);
@@ -734,7 +784,7 @@ export function renderCampaignEmail(args: {
     ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(args.preheader)}</div>`
     : "";
 
-  const html = `<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
@@ -764,9 +814,20 @@ export function renderCampaignEmail(args: {
 </html>`;
 
   const textBody = nodeToText(doc).trim();
-  const text = includeFooter
+  let text = includeFooter
     ? `${textBody}\n\n${renderComplianceFooterText(args.links)}`
     : textBody;
+
+  if (args.campaignAnalyticsId) {
+    html = withCampaignAnalyticsLinks(html, {
+      siteUrl: args.links.siteUrl,
+      campaignAnalyticsId: args.campaignAnalyticsId,
+    });
+    text = withCampaignAnalyticsLinks(text, {
+      siteUrl: args.links.siteUrl,
+      campaignAnalyticsId: args.campaignAnalyticsId,
+    });
+  }
 
   return {
     html,

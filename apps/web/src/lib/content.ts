@@ -214,12 +214,34 @@ export async function getArticle(
 }
 
 export async function getContentStatus(): Promise<ContentStatus> {
-  const articles = await getAllArticles();
-  return {
-    drafts: articles.filter((article) => article.status === "draft").length,
-    published: articles.filter((article) => article.status === "published").length,
-    archived: articles.filter((article) => article.status === "archived").length,
-  };
+  // Count statuses without full Markdoc/image validation. Admin dashboards only
+  // need tallies; pulling the full validated snapshot is slower and can throw
+  // when optional assets are absent from a serverless trace.
+  const reader = readerForBranch();
+  const entries = await reader.collections.articles.all();
+  let drafts = 0;
+  let published = 0;
+  let archived = 0;
+  for (const { entry } of entries) {
+    if (entry.status === "draft") {
+      drafts += 1;
+    } else if (entry.status === "published") {
+      published += 1;
+    } else if (entry.status === "archived") {
+      archived += 1;
+    }
+  }
+  return { drafts, published, archived };
+}
+
+/** Admin UI helper: never throw; log and return null if content is unreadable. */
+export async function getContentStatusSafe(): Promise<ContentStatus | null> {
+  try {
+    return await getContentStatus();
+  } catch (error) {
+    console.error("Content status failed", error);
+    return null;
+  }
 }
 
 export function splitArticle(article: Article): ArticleSections {

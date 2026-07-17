@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatArticleDate } from "@/lib/article-format";
+import { capturePublicEvent } from "@/lib/analytics";
 
 type ArchiveEntry = {
   slug: string;
@@ -29,6 +30,8 @@ export function ArchiveBrowser({
   const [team, setTeam] = useState("");
   const [year, setYear] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const searchOpened = useRef(false);
+  const lastSearchKey = useRef<string | null>(null);
 
   const options = useMemo(
     () => ({
@@ -66,6 +69,54 @@ export function ArchiveBrowser({
   const hasFilters = Boolean(
     query || category || province || division || team || year,
   );
+
+  useEffect(() => {
+    const normalizedQuery = query.trim();
+    const hasSearchIntent = Boolean(
+      normalizedQuery || category || province || division || team || year,
+    );
+    if (!hasSearchIntent) {
+      lastSearchKey.current = null;
+      return;
+    }
+
+    const key = [
+      normalizedQuery.length,
+      category,
+      province,
+      division,
+      team,
+      year,
+      filteredEntries.length,
+    ].join("|");
+    if (lastSearchKey.current === key) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      lastSearchKey.current = key;
+      capturePublicEvent("search_performed", {
+        query_length: normalizedQuery.length,
+        result_count: filteredEntries.length,
+        has_category_filter: Boolean(category),
+        has_province_filter: Boolean(province),
+        has_division_filter: Boolean(division),
+        has_team_filter: Boolean(team),
+        has_year_filter: Boolean(year),
+        source_page: "archive",
+      });
+    }, 400);
+
+    return () => window.clearTimeout(timeout);
+  }, [
+    category,
+    division,
+    filteredEntries.length,
+    province,
+    query,
+    team,
+    year,
+  ]);
 
   function reset(): void {
     setQuery("");
@@ -125,6 +176,24 @@ export function ArchiveBrowser({
     clear: () => void;
   } => filter !== null);
 
+  function onSearchFocus(): void {
+    if (searchOpened.current) {
+      return;
+    }
+    searchOpened.current = true;
+    capturePublicEvent("search_opened", {
+      source_page: "archive",
+    });
+  }
+
+  function onResultClick(articleId: string, position: number): void {
+    capturePublicEvent("search_result_clicked", {
+      article_id: articleId,
+      position,
+      source_page: "archive",
+    });
+  }
+
   return (
     <div className="archive-browser">
       <div className="archive-mobile-tools">
@@ -181,6 +250,7 @@ export function ArchiveBrowser({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            onFocus={onSearchFocus}
             placeholder="Zoek een verhaal"
           />
         </label>
@@ -264,15 +334,21 @@ export function ArchiveBrowser({
             Geen verhalen gevonden. Pas je filters aan of wis ze allemaal.
           </p>
         ) : (
-          filteredEntries.map((entry) => (
+          filteredEntries.map((entry, index) => (
             <article className="archive-card" key={entry.slug}>
               <p className="eyebrow">{entry.category}</p>
               <h2>
-                <Link href={`/nieuws/${entry.slug}`}>{entry.headline}</Link>
+                <Link
+                  href={`/nieuws/${entry.slug}`}
+                  onClick={() => onResultClick(entry.slug, index + 1)}
+                >
+                  {entry.headline}
+                </Link>
               </h2>
               <Link
                 className="archive-card__description"
                 href={`/nieuws/${entry.slug}`}
+                onClick={() => onResultClick(entry.slug, index + 1)}
               >
                 {entry.dek}
               </Link>

@@ -2,18 +2,32 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArticleIllustration } from "@/components/article-illustration";
 import { HomepageSignupBand } from "@/components/homepage-signup-band";
+import { TrackedArticleLink } from "@/components/tracked-article-link";
 import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, getPublishedArticles } from "@/lib/content";
 import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site-config";
 import type { PublishedArticle } from "@/content/articles";
 
-function StoryRow({ article }: { article: PublishedArticle }) {
+function StoryRow({
+  article,
+  position,
+}: {
+  article: PublishedArticle;
+  position: number;
+}) {
   return (
     <article className="story-row">
       <div>
         <p className="eyebrow">{article.category}</p>
         <h3>
-          <Link href={`/nieuws/${article.slug}`}>{article.headline}</Link>
+          <TrackedArticleLink
+            href={`/nieuws/${article.slug}`}
+            articleId={article.slug}
+            slot="latest_list"
+            position={position}
+          >
+            {article.headline}
+          </TrackedArticleLink>
         </h3>
       </div>
       <div>
@@ -102,26 +116,37 @@ export default async function Home() {
           <div className="home-lead__copy">
             <p className="eyebrow">{featuredArticle.kicker}</p>
             <h1 id="hero-heading">
-              <Link href={`/nieuws/${featuredArticle.slug}`}>
+              <TrackedArticleLink
+                href={`/nieuws/${featuredArticle.slug}`}
+                articleId={featuredArticle.slug}
+                slot="featured_headline"
+                position={1}
+              >
                 {featuredArticle.headline}
-              </Link>
+              </TrackedArticleLink>
             </h1>
-            <Link
+            <TrackedArticleLink
               className="home-lead__description"
               href={`/nieuws/${featuredArticle.slug}`}
+              articleId={featuredArticle.slug}
+              slot="featured_dek"
+              position={1}
             >
               {featuredArticle.dek}
-            </Link>
+            </TrackedArticleLink>
             <div className="article-meta">
               <span>{featuredArticle.author}</span>
               <span>{formatArticleDate(featuredArticle.publishedAt)}</span>
               <span>{featuredArticle.readingTime}</span>
             </div>
           </div>
-          <Link
+          <TrackedArticleLink
             className="home-lead__image"
             href={`/nieuws/${featuredArticle.slug}`}
-            aria-label={featuredArticle.headline}
+            articleId={featuredArticle.slug}
+            slot="featured_image"
+            position={1}
+            ariaLabel={featuredArticle.headline}
           >
             <ArticleIllustration
               tone={featuredArticle.illustrationTone}
@@ -130,7 +155,7 @@ export default async function Home() {
               subtitle={illustration.subtitle}
               alt={featuredArticle.heroAlt}
             />
-          </Link>
+          </TrackedArticleLink>
         </article>
 
         <Link className="home-lead__archive" href="/archief">
@@ -143,8 +168,12 @@ export default async function Home() {
           <h2 id="latest-heading">Het laatste</h2>
           <p>Recent verschenen, zonder het hoofdverhaal</p>
         </div>
-        {latestArticles.map((article) => (
-          <StoryRow key={article.slug} article={article} />
+        {latestArticles.map((article, index) => (
+          <StoryRow
+            key={article.slug}
+            article={article}
+            position={index + 1}
+          />
         ))}
         <Link className="text-link latest__archive-link" href="/archief">
           Zoek in het archief <span aria-hidden="true">→</span>
@@ -164,8 +193,12 @@ export default async function Home() {
                 <h2 id={headingId}>{section.category}</h2>
                 <p>Eén rubriek, één ritme</p>
               </div>
-              {section.articles.slice(0, 3).map((article) => (
-                <StoryRow key={article.slug} article={article} />
+              {section.articles.slice(0, 3).map((article, index) => (
+                <StoryRow
+                  key={article.slug}
+                  article={article}
+                  position={index + 1}
+                />
               ))}
             </section>
           );

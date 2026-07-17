@@ -220,6 +220,7 @@ async function createRevision(
     campaign: Doc<"newsletterCampaigns">;
     userId: Id<"users">;
     reason: "manual" | "test" | "send";
+    campaignAnalyticsId?: string;
   },
 ): Promise<Id<"newsletterRevisions">> {
   const rendered = renderCampaignEmail({
@@ -232,6 +233,7 @@ async function createRevision(
       privacyUrl: `${siteBaseUrl()}${COMPLIANCE.privacyPath}`,
       siteUrl: siteBaseUrl(),
     },
+    campaignAnalyticsId: args.campaignAnalyticsId,
   });
   const latest = await ctx.db
     .query("newsletterRevisions")
@@ -414,10 +416,12 @@ export const requestSendNow = editorMutation({
       );
     }
 
+    const sendAnalyticsId = analyticsId();
     const revisionId = await createRevision(ctx, {
       campaign,
       userId: ctx.adminUser._id,
       reason: "send",
+      campaignAnalyticsId: sendAnalyticsId,
     });
     const now = Date.now();
     const sendId = await ctx.db.insert("newsletterSends", {
@@ -425,7 +429,7 @@ export const requestSendNow = editorMutation({
       revisionId,
       audienceDefinitionId: audience._id,
       status: "preparing",
-      analyticsId: analyticsId(),
+      analyticsId: sendAnalyticsId,
       requestedBy: ctx.adminUser._id,
       requestedAt: now,
       queuedCount: 0,
@@ -511,10 +515,12 @@ export const scheduleSend = editorMutation({
       );
     }
 
+    const sendAnalyticsId = analyticsId();
     const revisionId = await createRevision(ctx, {
       campaign,
       userId: ctx.adminUser._id,
       reason: "send",
+      campaignAnalyticsId: sendAnalyticsId,
     });
     const generation = (campaign.scheduleGeneration ?? 0) + 1;
     const jobId = await ctx.scheduler.runAt(
@@ -528,6 +534,7 @@ export const scheduleSend = editorMutation({
         revisionId,
         audienceDefinitionId: audience._id,
         requestedBy: ctx.adminUser._id,
+        analyticsId: sendAnalyticsId,
       },
     );
 
@@ -589,6 +596,7 @@ export const executeScheduledSend = internalMutation({
     revisionId: v.id("newsletterRevisions"),
     audienceDefinitionId: v.id("newsletterAudienceDefinitions"),
     requestedBy: v.id("users"),
+    analyticsId: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -618,7 +626,7 @@ export const executeScheduledSend = internalMutation({
       revisionId: args.revisionId,
       audienceDefinitionId: args.audienceDefinitionId,
       status: "preparing",
-      analyticsId: analyticsId(),
+      analyticsId: args.analyticsId,
       requestedBy: args.requestedBy,
       requestedAt: now,
       scheduledFor: campaign.scheduledFor,

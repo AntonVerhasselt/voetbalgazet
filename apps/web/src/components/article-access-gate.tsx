@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { SignupForm } from "@/components/signup-form";
-import { capturePublicEvent } from "@/lib/analytics";
+import { capturePublicEvent, bucketDurationMs } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
 import { hasReaderAccess } from "@/lib/reader-access";
 
@@ -36,6 +36,7 @@ export function ArticleAccessGate({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const impressionCaptured = useRef(false);
   const sessionCaptured = useRef(false);
+  const sessionCheckStartedAt = useRef<number | null>(null);
   const lockedScrollY = useRef(0);
   const didLockScroll = useRef(false);
   // Soft gate: only anonymous readers, verified e-mail sessions, or a fresh
@@ -43,12 +44,20 @@ export function ArticleAccessGate({
   const unlocked = hasReaderAccess(session?.user) || locallyUnlocked;
 
   useEffect(() => {
+    if (sessionCheckStartedAt.current === null) {
+      sessionCheckStartedAt.current = performance.now();
+    }
+  }, []);
+
+  useEffect(() => {
     if (isPending || sessionCaptured.current) {
       return;
     }
     sessionCaptured.current = true;
+    const startedAt = sessionCheckStartedAt.current ?? performance.now();
     capturePublicEvent("auth_session_check_completed", {
       access_level: unlocked ? "reader" : "none",
+      duration_bucket: bucketDurationMs(performance.now() - startedAt),
     });
   }, [isPending, unlocked]);
 

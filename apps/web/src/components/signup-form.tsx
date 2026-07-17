@@ -5,7 +5,7 @@ import { useId, useMemo, useState, type FormEvent } from "react";
 import { teamOptions } from "@convex/lib/preferenceCatalog";
 import { DivisionSelector } from "@/components/division-selector";
 import { authClient } from "@/lib/auth-client";
-import { capturePublicEvent } from "@/lib/analytics";
+import { capturePublicEvent, capturePublicException } from "@/lib/analytics";
 import { CONSENT_VERSION } from "@/lib/site-config";
 
 type FormStatus =
@@ -181,6 +181,10 @@ export function SignupForm({
         error_code: "email_step_failed",
         step: "email",
       });
+      capturePublicException(error, {
+        error_code: "subscription_email_step_failed",
+        source,
+      });
     }
   }
 
@@ -323,6 +327,10 @@ export function SignupForm({
         source,
         error_code: "preferences_step_failed",
         step: "preferences",
+      });
+      capturePublicException(error, {
+        error_code: "subscription_preferences_step_failed",
+        source,
       });
     }
   }

@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-session";
-import { getContentStatus } from "@/lib/content";
+import { getContentStatusSafe } from "@/lib/content";
 
 export default async function ArticlesAdminPage() {
   const [session, status] = await Promise.all([
     getAdminSession(),
-    getContentStatus(),
+    getContentStatusSafe(),
   ]);
   if (!session || session.role === "viewer") {
     redirect("/admin?fout=onvoldoende-rechten");
@@ -25,15 +25,15 @@ export default async function ArticlesAdminPage() {
       <section className="admin-editor-launch">
         <div>
           <span>Concepten</span>
-          <strong>{status.drafts}</strong>
+          <strong>{status?.drafts ?? "—"}</strong>
         </div>
         <div>
           <span>Gepubliceerd</span>
-          <strong>{status.published}</strong>
+          <strong>{status?.published ?? "—"}</strong>
         </div>
         <div>
           <span>Gearchiveerd</span>
-          <strong>{status.archived}</strong>
+          <strong>{status?.archived ?? "—"}</strong>
         </div>
         <Link className="admin-editor-launch__button" href="/keystatic">
           Keystatic openen <span aria-hidden="true">→</span>
