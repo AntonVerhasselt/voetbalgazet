@@ -23,6 +23,8 @@ Dit dossier is de bron van waarheid voor artikelbewerking en -publicatie.
 | [04-launch-todos.md](./04-launch-todos.md) | GitHub App, assets, contentdata en launchchecks |
 | [05-taxonomies-and-settings.md](./05-taxonomies-and-settings.md) | Stabiele keys en synccontract voor reeksen, clubs, categorieën en auteurs |
 
+Na merge: operationele restpunten staan in [`docs/phase-3-follow-ups.md`](../../docs/phase-3-follow-ups.md).
+
 ## Waarom geen Convex-artikelkopie
 
 Een dubbele contentbron zou synchronisatieproblemen introduceren:
