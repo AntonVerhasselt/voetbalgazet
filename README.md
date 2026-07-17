@@ -39,7 +39,8 @@ Tracked again in [`docs/phase-3-follow-ups.md`](./docs/phase-3-follow-ups.md).
 - Branded mobile-first `/admin` shell linking to Artikels
 - strict TypeScript, Convex ESLint rules, and focused unit tests
 
-Newsletter editor, audiences, and sends belong to Phase 4.
+Newsletter admin (campaigns, editor, Resend sends): see
+[`docs/phase-4-newsletter.md`](./docs/phase-4-newsletter.md).
 
 Operational docs: [`docs/`](./docs/) (admin auth, Keystatic, Convex cloud agents,
 Vercel).
