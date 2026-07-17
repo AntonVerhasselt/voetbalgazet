@@ -15,6 +15,7 @@ coverage/
 .env
 .env.*
 !.env.example
+.agent-session.cookies
 
 *.tsbuildinfo
 npm-debug.log*
