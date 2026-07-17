@@ -1,13 +1,7 @@
-export type IllustrationMode = "generic" | "match" | "custom";
-
 export type IllustrationCopyInput = {
-  illustrationMode: IllustrationMode;
   category: string;
-  kicker: string;
-  homeTeam: string;
-  awayTeam: string;
-  competitionLabel: string;
-  divisionKeys: readonly string[];
+  illustrationTitle: string;
+  illustrationSubtitle: string;
 };
 
 export type IllustrationCopy = {
@@ -16,39 +10,15 @@ export type IllustrationCopy = {
   subtitle: string;
 };
 
+const DEFAULT_TITLE = "Zondag";
+const DEFAULT_SUBTITLE = "langs de lijn";
+
 export function getIllustrationCopy(
   article: IllustrationCopyInput,
 ): IllustrationCopy {
-  const eyebrow = article.category || "Lokaal";
-
-  if (article.illustrationMode === "generic") {
-    return {
-      eyebrow,
-      title: "Zondag",
-      subtitle: "langs de lijn",
-    };
-  }
-
-  if (article.illustrationMode === "match") {
-    return {
-      eyebrow,
-      title: article.homeTeam || article.kicker || "Thuis",
-      subtitle:
-        article.awayTeam ||
-        article.competitionLabel ||
-        article.divisionKeys[0]?.replaceAll("-", " ") ||
-        "uit",
-    };
-  }
-
-  // custom: prefer explicit match fields, then editorial kicker/competition
   return {
-    eyebrow,
-    title: article.homeTeam || article.kicker || "Lokaal",
-    subtitle:
-      article.awayTeam ||
-      article.competitionLabel ||
-      article.divisionKeys[0]?.replaceAll("-", " ") ||
-      "voetbal",
+    eyebrow: article.category || "Lokaal",
+    title: article.illustrationTitle.trim() || DEFAULT_TITLE,
+    subtitle: article.illustrationSubtitle.trim() || DEFAULT_SUBTITLE,
   };
 }

@@ -405,7 +405,9 @@ a {
   font-size: clamp(3rem, 12vw, 7rem);
   font-style: italic;
   font-weight: 700;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
   letter-spacing: -0.055em;
   line-height: 0.85;
 }
@@ -419,10 +421,15 @@ a {
 
 .article-illustration__subtitle {
   margin-left: auto;
+  max-width: 100%;
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 2vw, 1.15rem);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-align: right;
 }
 
 .article-illustration--compact {

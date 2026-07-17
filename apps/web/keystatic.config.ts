@@ -227,15 +227,6 @@ export default config({
           })),
           defaultValue: [],
         }),
-        illustrationMode: fields.select({
-          label: "Beeldmodus",
-          options: [
-            { label: "Typografisch", value: "generic" },
-            { label: "Wedstrijd", value: "match" },
-            { label: "Eigen beeld", value: "custom" },
-          ],
-          defaultValue: "generic",
-        }),
         illustrationTone: fields.select({
           label: "Illustratiekleur",
           options: [
@@ -246,9 +237,18 @@ export default config({
           ],
           defaultValue: "auto",
         }),
-        homeTeam: fields.text({ label: "Thuisploeg" }),
-        awayTeam: fields.text({ label: "Uitploeg" }),
-        competitionLabel: fields.text({ label: "Wedstrijd/reekslabel" }),
+        illustrationTitle: fields.text({
+          label: "Illustratietitel",
+          description:
+            "Grote tekst op de typografische illustratie. Gebruik Enter voor een nieuwe regel. Leeg = Zondag.",
+          multiline: true,
+        }),
+        illustrationSubtitle: fields.text({
+          label: "Illustratiesubtitel",
+          description:
+            "Kleine tekst onder de lijn. Gebruik Enter voor een nieuwe regel. Leeg = langs de lijn.",
+          multiline: true,
+        }),
         heroImage: fields.image({
           label: "Hoofdbeeld",
           directory: "public/images/articles",
