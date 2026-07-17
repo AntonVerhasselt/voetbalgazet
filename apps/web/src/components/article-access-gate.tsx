@@ -29,16 +29,17 @@ export function ArticleAccessGate({
 }) {
   const { data: session, isPending } = authClient.useSession();
   const [locallyUnlocked, setLocallyUnlocked] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
   const [signupStep, setSignupStep] = useState<
     "email" | "preferences" | "success"
   >("email");
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const reopenRef = useRef<HTMLButtonElement>(null);
   const impressionCaptured = useRef(false);
   const sessionCaptured = useRef(false);
   const lockedScrollY = useRef(0);
   const didLockScroll = useRef(false);
+  // Soft gate: any Better Auth session (anonymous reader after signup, or
+  // verified) unlocks. Technical bypass of soft HTML remains acceptable per
+  // Phase 2 plan; the sheet itself must stay mandatory until then.
   const unlocked = Boolean(session?.user) || locallyUnlocked;
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export function ArticleAccessGate({
   }, [isPending, unlocked]);
 
   useEffect(() => {
-    if (isPending || unlocked || dismissed) {
+    if (isPending || unlocked) {
       return;
     }
     if (!impressionCaptured.current) {
@@ -96,18 +97,7 @@ export function ArticleAccessGate({
         restoreScrollPosition(lockedScrollY.current);
       });
     };
-  }, [articleId, dismissed, isPending, leadLength, unlocked]);
-
-  useEffect(() => {
-    if (!dismissed || !didLockScroll.current) {
-      return;
-    }
-    reopenRef.current?.focus({ preventScroll: true });
-    restoreScrollPosition(lockedScrollY.current);
-    requestAnimationFrame(() => {
-      restoreScrollPosition(lockedScrollY.current);
-    });
-  }, [dismissed]);
+  }, [articleId, isPending, leadLength, unlocked]);
 
   useEffect(() => {
     if (!unlocked || !didLockScroll.current) {
@@ -120,9 +110,9 @@ export function ArticleAccessGate({
   }, [unlocked]);
 
   function keepFocusInside(event: KeyboardEvent<HTMLDivElement>): void {
+    // Mandatory sheet: Escape must not dismiss (plans/public-news-site UX).
     if (event.key === "Escape") {
       event.preventDefault();
-      setDismissed(true);
       return;
     }
     if (event.key !== "Tab") {
@@ -158,13 +148,7 @@ export function ArticleAccessGate({
   return (
     <div
       className={`article-access article-access--${
-        isPending
-          ? "checking"
-          : unlocked
-            ? "unlocked"
-            : dismissed
-              ? "dismissed"
-              : "locked"
+        isPending ? "checking" : unlocked ? "unlocked" : "locked"
       }`}
     >
       <div className="article-lead">{preview}</div>
@@ -174,13 +158,9 @@ export function ArticleAccessGate({
           Leestoegang controleren…
         </div>
       )}
-      {!isPending && !unlocked && !dismissed && (
+      {!isPending && !unlocked && (
         <div className="gate-layer">
-          <div
-            className="gate-layer__fade"
-            aria-hidden="true"
-            onClick={() => setDismissed(true)}
-          />
+          <div className="gate-layer__fade" aria-hidden="true" />
           <div
             className={`gate-sheet gate-sheet--${signupStep}`}
             role="dialog"
@@ -189,14 +169,6 @@ export function ArticleAccessGate({
             onKeyDown={keepFocusInside}
           >
             <div className="gate-sheet__inner">
-              <button
-                className="gate-sheet__close"
-                type="button"
-                onClick={() => setDismissed(true)}
-                aria-label="Sluit inschrijfformulier"
-              >
-                <span aria-hidden="true">×</span>
-              </button>
               <p className="eyebrow">Gratis voor abonnees</p>
               <h2 id="gate-heading" ref={headingRef} tabIndex={-1}>
                 {signupStep === "preferences"
@@ -217,18 +189,6 @@ export function ArticleAccessGate({
               />
             </div>
           </div>
-        </div>
-      )}
-      {!isPending && !unlocked && dismissed && (
-        <div className="gate-reopen">
-          <p>Abonneer gratis om het volledige artikel te lezen.</p>
-          <button
-            ref={reopenRef}
-            type="button"
-            onClick={() => setDismissed(false)}
-          >
-            Toon inschrijving
-          </button>
         </div>
       )}
     </div>
