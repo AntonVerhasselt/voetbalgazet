@@ -1,10 +1,52 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArticleIllustration } from "@/components/article-illustration";
-import { SignupForm } from "@/components/signup-form";
+import { HomepageSignupBand } from "@/components/homepage-signup-band";
 import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, getPublishedArticles } from "@/lib/content";
 import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site-config";
+import type { PublishedArticle } from "@/content/articles";
+
+function StoryRow({ article }: { article: PublishedArticle }) {
+  return (
+    <article className="story-row">
+      <div>
+        <p className="eyebrow">{article.category}</p>
+        <h3>
+          <Link href={`/nieuws/${article.slug}`}>{article.headline}</Link>
+        </h3>
+      </div>
+      <div>
+        <p>{article.dek}</p>
+        <span className="story-row__meta">
+          {formatArticleDate(article.publishedAt)} · {article.readingTime}
+        </span>
+      </div>
+    </article>
+  );
+}
+
+function groupByCategory(
+  articles: readonly PublishedArticle[],
+): Array<{ category: string; articles: PublishedArticle[] }> {
+  const groups = new Map<string, PublishedArticle[]>();
+  for (const article of articles) {
+    const group = groups.get(article.category) ?? [];
+    group.push(article);
+    groups.set(article.category, group);
+  }
+  return [...groups.entries()].map(([category, group]) => ({
+    category,
+    articles: group,
+  }));
+}
+
+function categoryHeadingId(category: string): string {
+  return `category-${category
+    .toLocaleLowerCase("nl-BE")
+    .replaceAll(/[^a-z0-9]+/gu, "-")
+    .replaceAll(/^-|-$/gu, "")}`;
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const publishedArticles = await getPublishedArticles();
@@ -43,9 +85,14 @@ export default async function Home() {
   if (!featuredArticle) {
     return null;
   }
-  const secondaryArticles = publishedArticles
+  const latestArticles = publishedArticles
     .filter((article) => article.slug !== featuredArticle.slug)
-    .slice(0, 3);
+    .slice(0, 5);
+  const categorySections = groupByCategory(
+    publishedArticles.filter((article) => article.slug !== featuredArticle.slug),
+  )
+    .filter((section) => section.articles.length > 0)
+    .slice(0, 4);
   const illustration = getIllustrationCopy(featuredArticle);
 
   return (
@@ -86,41 +133,46 @@ export default async function Home() {
           </Link>
         </article>
 
-        <div className="home-lead__secondary" aria-label="Meer verhalen">
-          {secondaryArticles.map((article) => (
-            <article className="home-lead__story" key={article.slug}>
-              <p className="eyebrow">{article.kicker}</p>
-              <Link
-                className="home-lead__story-link"
-                href={`/nieuws/${article.slug}`}
-              >
-                <h2>{article.headline}</h2>
-              </Link>
-            </article>
-          ))}
-        </div>
         <Link className="home-lead__archive" href="/archief">
           Volledig archief <span aria-hidden="true">→</span>
         </Link>
       </section>
 
-      <section
-        className="signup-band"
-        id="inschrijven"
-        aria-labelledby="signup-heading"
-      >
-        <div className="shell signup-band__inner">
-          <div>
-            <p className="eyebrow">Blijf langs de lijn</p>
-            <h2 id="signup-heading">Verhalen uit jouw reeks, in je mailbox.</h2>
-            <p>
-              Kies minstens één reeks en optioneel je favoriete club. Je krijgt
-              meteen toegang tot alle verhalen en onze wekelijkse nieuwsbrief.
-            </p>
-          </div>
-          <SignupForm source="homepage_inline" />
+      <section className="shell latest" aria-labelledby="latest-heading">
+        <div className="section-heading">
+          <h2 id="latest-heading">Het laatste</h2>
+          <p>Recent verschenen, zonder het hoofdverhaal</p>
         </div>
+        {latestArticles.map((article) => (
+          <StoryRow key={article.slug} article={article} />
+        ))}
+        <Link className="text-link latest__archive-link" href="/archief">
+          Zoek in het archief <span aria-hidden="true">→</span>
+        </Link>
       </section>
+
+      <section className="home-sections" aria-label="Verhalen per categorie">
+        {categorySections.map((section) => {
+          const headingId = categoryHeadingId(section.category);
+          return (
+            <section
+              className="shell home-category"
+              key={section.category}
+              aria-labelledby={headingId}
+            >
+              <div className="section-heading">
+                <h2 id={headingId}>{section.category}</h2>
+                <p>Eén rubriek, één ritme</p>
+              </div>
+              {section.articles.slice(0, 3).map((article) => (
+                <StoryRow key={article.slug} article={article} />
+              ))}
+            </section>
+          );
+        })}
+      </section>
+
+      <HomepageSignupBand />
     </main>
   );
 }

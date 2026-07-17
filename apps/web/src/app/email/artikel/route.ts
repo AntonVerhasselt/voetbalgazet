@@ -34,11 +34,16 @@ export async function GET(request: Request) {
       articleSlug: slug,
     });
     const verifyUrl = new URL("/api/auth/magic-link/verify", requestUrl.origin);
+    const callbackUrl = new URL(exchange.callbackPath, requestUrl.origin);
+    callbackUrl.searchParams.set("from", "email");
     verifyUrl.searchParams.set("token", exchange.magicLinkToken);
-    verifyUrl.searchParams.set("callbackURL", exchange.callbackPath);
+    verifyUrl.searchParams.set(
+      "callbackURL",
+      `${callbackUrl.pathname}${callbackUrl.search}`,
+    );
     verifyUrl.searchParams.set(
       "errorCallbackURL",
-      `${exchange.callbackPath}?auth_fout=1`,
+      `${callbackUrl.pathname}${callbackUrl.search}&auth_fout=1`,
     );
     return NextResponse.redirect(verifyUrl, 303);
   } catch {

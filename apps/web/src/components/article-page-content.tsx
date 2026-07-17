@@ -5,6 +5,7 @@ import { ArticleAccessGate } from "@/components/article-access-gate";
 import { ArticleAnalytics } from "@/components/article-analytics";
 import { ArticleBlocks } from "@/components/article-blocks";
 import { ArticleIllustration } from "@/components/article-illustration";
+import { ArticleShareControls } from "@/components/article-share-controls";
 import { PreviewArticleGate } from "@/components/preview-article-gate";
 import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, splitArticle } from "@/lib/content";
@@ -67,6 +68,12 @@ export function ArticlePageContent({
             )}
             <span>{article.readingTime}</span>
           </div>
+          {!isPreview ? (
+            <ArticleShareControls
+              articleId={article.slug}
+              headline={article.headline}
+            />
+          ) : null}
         </header>
 
         <div className="shell shell--wide article__hero">
@@ -98,7 +105,24 @@ export function ArticlePageContent({
           )}
         </div>
 
-        <div className="shell shell--article article__body">
+        <div className="shell shell--article article__body" data-article-body>
+          {!isPreview ? (
+            <>
+              <span
+                className="article-lead-sentinel"
+                data-article-lead
+                aria-hidden="true"
+              />
+              {[25, 50, 75].map((depth) => (
+                <span
+                  className={`article-read-marker article-read-marker--${depth}`}
+                  data-read-depth={depth}
+                  aria-hidden="true"
+                  key={depth}
+                />
+              ))}
+            </>
+          ) : null}
           {isPreview &&
           article.isGated &&
           previewGateMode === "gated" ? (

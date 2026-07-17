@@ -4,7 +4,7 @@ import {
   buildNewsArticleJsonLd,
   serializeJsonLd,
 } from "../apps/web/src/lib/seo";
-import { DEFAULT_OG_IMAGE } from "../apps/web/src/lib/site-config";
+import { DEFAULT_OG_IMAGE, SITE_URL } from "../apps/web/src/lib/site-config";
 
 describe("NewsArticle structured data", () => {
   it("marks gated content with the paywall selector", async () => {
@@ -36,5 +36,22 @@ describe("NewsArticle structured data", () => {
 
   it("exposes a default OG image fallback for typographic articles", () => {
     expect(DEFAULT_OG_IMAGE).toBe("https://devoetbalgazet.be/opengraph-image");
+  });
+
+  it("includes article images and publisher logo", async () => {
+    const article = (await getPublishedArticles())[0]!;
+    const jsonLd = buildNewsArticleJsonLd(article);
+    expect(jsonLd.image).toEqual([
+      new URL(
+        article.socialImage ?? article.heroImage ?? DEFAULT_OG_IMAGE,
+        SITE_URL,
+      ).toString(),
+    ]);
+    expect(jsonLd.publisher).toMatchObject({
+      logo: {
+        "@type": "ImageObject",
+        url: DEFAULT_OG_IMAGE,
+      },
+    });
   });
 });

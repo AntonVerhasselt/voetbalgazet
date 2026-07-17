@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@convex/_generated/api";
+import { UnsubscribeAnalytics } from "@/components/unsubscribe-analytics";
 import { isPlausibleEmailLinkToken } from "@/lib/email-link-token";
 
 export const metadata: Metadata = {
@@ -51,6 +52,7 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
   if (status === "bevestigd") {
     return (
       <main className="shell legal-page">
+        <UnsubscribeAnalytics />
         <h1>Je bent uitgeschreven van de nieuwsbrief</h1>
         <p>
           Je ontvangt geen wekelijkse nieuwsbrief meer. Dit verandert niets aan

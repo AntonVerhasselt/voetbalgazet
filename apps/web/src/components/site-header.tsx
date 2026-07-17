@@ -17,6 +17,7 @@ export function SiteHeader() {
         <div className="shell site-nav__inner">
           <Link href="/">Voorpagina</Link>
           <Link href="/archief">Archief</Link>
+          <Link href="/archief">Zoeken</Link>
           <Link className="site-nav__subscribe" href="/#inschrijven">
             Abonneren
           </Link>
