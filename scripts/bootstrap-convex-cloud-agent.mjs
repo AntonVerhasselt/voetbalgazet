@@ -46,25 +46,39 @@ function upsertEnvFile(filePath, updates) {
     ? readFileSync(filePath, "utf8").split("\n")
     : [];
   const seen = new Set();
-  const next = lines.map((line) => {
+  /** @type {string[]} */
+  const next = [];
+  for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) {
-      return line;
+      next.push(line);
+      continue;
     }
     const key = trimmed.slice(0, trimmed.indexOf("=")).trim();
+    // Drop earlier duplicates of the same key so Convex CLI can rewrite safely.
     if (key in updates) {
+      if (seen.has(key)) continue;
       seen.add(key);
-      return `${key}=${updates[key]}`;
+      next.push(`${key}=${updates[key]}`);
+      continue;
     }
-    return line;
-  });
+    if (seen.has(key)) continue;
+    seen.add(key);
+    next.push(line);
+  }
   for (const [key, value] of Object.entries(updates)) {
     if (!seen.has(key)) {
       if (next.length > 0 && next[next.length - 1] !== "") next.push("");
       next.push(`${key}=${value}`);
     }
   }
-  writeFileSync(filePath, `${next.filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n").replace(/\n*$/u, "\n")}`);
+  writeFileSync(
+    filePath,
+    `${next
+      .filter((l, i, a) => !(l === "" && a[i - 1] === ""))
+      .join("\n")
+      .replace(/\n*$/u, "\n")}`,
+  );
 }
 
 const deployKey = process.env.CONVEX_DEPLOY_KEY?.trim();
