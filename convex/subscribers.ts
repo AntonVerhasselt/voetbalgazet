@@ -6,7 +6,8 @@ import {
   divisionOptions,
   teamOptions,
 } from "./lib/preferenceCatalog";
-import { consumeSignupRateLimit } from "./lib/rateLimit";
+import { consumeSignupRateLimit, hashRateLimitValue } from "./lib/rateLimit";
+import { verifyUnsubscribeToken } from "./lib/emailLinkToken";
 import {
   applySubscriberPreferences,
   getVerifiedSubscriber,
@@ -295,7 +296,7 @@ export const startSignup = mutation({
 
 export const confirmUnsubscribe = mutation({
   args: {
-    email: v.string(),
+    token: v.string(),
     source: v.union(
       v.literal("email_unsubscribe"),
       v.literal("one_click_unsubscribe"),
@@ -306,7 +307,41 @@ export const confirmUnsubscribe = mutation({
     siteAccessPreserved: v.literal(true),
   }),
   handler: async (ctx, args) => {
-    const normalizedEmail = normalizeAndValidateEmail(args.email);
+    const payload = await verifyUnsubscribeToken(args.token);
+    if (!payload) {
+      throw new Error("Ongeldige of verlopen uitschrijflink.");
+    }
+
+    const normalizedEmail = normalizeAndValidateEmail(payload.email);
+    const now = Date.now();
+    const rateKeyHash = hashRateLimitValue(`unsubscribe:${normalizedEmail}`);
+    const bucket = await ctx.db
+      .query("signupRateLimits")
+      .withIndex("by_key_hash", (query) => query.eq("keyHash", rateKeyHash))
+      .unique();
+    if (!bucket || now - bucket.windowStartedAt >= 60 * 60 * 1000) {
+      if (bucket) {
+        await ctx.db.patch("signupRateLimits", bucket._id, {
+          count: 1,
+          windowStartedAt: now,
+        });
+      } else {
+        await ctx.db.insert("signupRateLimits", {
+          keyHash: rateKeyHash,
+          count: 1,
+          windowStartedAt: now,
+        });
+      }
+    } else if (bucket.count >= 20) {
+      throw new Error(
+        "Te veel uitschrijfpogingen. Wacht even en probeer later opnieuw.",
+      );
+    } else {
+      await ctx.db.patch("signupRateLimits", bucket._id, {
+        count: bucket.count + 1,
+      });
+    }
+
     const subscriber = await ctx.db
       .query("subscribers")
       .withIndex("by_normalized_email", (query) =>
@@ -314,7 +349,7 @@ export const confirmUnsubscribe = mutation({
       )
       .unique();
 
-    // Always return success shape to avoid email enumeration.
+    // Always return success shape to avoid email enumeration after auth.
     if (!subscriber) {
       return {
         unsubscribed: true as const,

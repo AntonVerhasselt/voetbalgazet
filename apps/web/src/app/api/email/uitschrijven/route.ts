@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@convex/_generated/api";
-import { verifyUnsubscribeToken } from "@/lib/email-link-token";
 
 export const runtime = "nodejs";
 
@@ -13,66 +12,52 @@ function getClient(): ConvexHttpClient {
   return new ConvexHttpClient(convexUrl);
 }
 
-async function confirm(
-  token: string,
-  source: "email_unsubscribe" | "one_click_unsubscribe",
-) {
-  const payload = verifyUnsubscribeToken(token);
-  if (!payload) {
-    return { ok: false as const, status: 400 as const };
+function readTokenAndOneClick(form: FormData, requestUrl: URL): {
+  token: string;
+  oneClick: boolean;
+} {
+  const listUnsubscribe = String(form.get("List-Unsubscribe") ?? "");
+  const oneClick = listUnsubscribe.toLowerCase() === "one-click";
+  let token = String(form.get("token") ?? "");
+  if (!token || token.toLowerCase() === "one-click") {
+    token = requestUrl.searchParams.get("token") ?? "";
   }
-  const client = getClient();
-  await client.mutation(api.subscribers.confirmUnsubscribe, {
-    email: payload.email,
-    source,
-  });
-  return { ok: true as const };
+  return { token, oneClick };
 }
 
 export async function POST(request: Request) {
+  const requestUrl = new URL(request.url);
   const contentType = request.headers.get("content-type") ?? "";
-  let token = "";
+  let token = requestUrl.searchParams.get("token") ?? "";
   let oneClick = false;
 
-  if (contentType.includes("application/x-www-form-urlencoded")) {
-    const form = await request.formData();
-    token = String(form.get("token") ?? form.get("List-Unsubscribe") ?? "");
-    oneClick =
-      String(form.get("List-Unsubscribe") ?? "").toLowerCase() ===
-        "one-click" || form.has("List-Unsubscribe");
-    // RFC 8058 sends List-Unsubscribe=One-Click; token stays in query.
-    if (!token || token.toLowerCase() === "one-click") {
-      token = new URL(request.url).searchParams.get("token") ?? "";
+  try {
+    if (contentType.includes("application/json")) {
+      const body = (await request.json()) as { token?: string };
+      token = body.token ?? token;
+    } else {
+      const form = await request.formData();
+      const parsed = readTokenAndOneClick(form, requestUrl);
+      token = parsed.token || token;
+      oneClick = parsed.oneClick;
     }
-  } else if (contentType.includes("application/json")) {
-    const body = (await request.json()) as { token?: string };
-    token = body.token ?? "";
-  } else {
-    token = new URL(request.url).searchParams.get("token") ?? "";
-    const form = await request.formData().catch(() => null);
-    if (form) {
-      token = token || String(form.get("token") ?? "");
-      oneClick =
-        String(form.get("List-Unsubscribe") ?? "").toLowerCase() ===
-        "one-click";
-    }
+  } catch {
+    // Keep query-string token for RFC 8058 clients that POST an empty body.
   }
 
   if (!token) {
-    return NextResponse.json({ error: "Ongeldige link." }, { status: 400 });
+    return NextResponse.redirect(
+      new URL("/uitschrijven?status=ongeldig", request.url),
+      303,
+    );
   }
 
   try {
-    const result = await confirm(
+    const client = getClient();
+    await client.mutation(api.subscribers.confirmUnsubscribe, {
       token,
-      oneClick ? "one_click_unsubscribe" : "email_unsubscribe",
-    );
-    if (!result.ok) {
-      return NextResponse.redirect(
-        new URL("/uitschrijven?status=ongeldig", request.url),
-        303,
-      );
-    }
+      source: oneClick ? "one_click_unsubscribe" : "email_unsubscribe",
+    });
     if (oneClick) {
       return new NextResponse(null, { status: 200 });
     }
