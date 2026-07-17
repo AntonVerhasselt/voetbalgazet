@@ -3,7 +3,9 @@ import Link from "next/link";
 import { verifyUnsubscribeToken } from "@/lib/email-link-token";
 
 export const metadata: Metadata = {
-  title: "Uitschrijven",
+  title: "Nieuwsbrief uitschrijven",
+  description:
+    "Schrijf je uit van de wekelijkse nieuwsbrief. Je toegang tot artikels blijft behouden.",
   robots: { index: false, follow: false },
 };
 
@@ -20,14 +22,17 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
   if (status === "bevestigd") {
     return (
       <main className="shell legal-page">
-        <h1>Je bent uitgeschreven</h1>
+        <h1>Je bent uitgeschreven van de nieuwsbrief</h1>
         <p>
-          Je ontvangt geen wekelijkse nieuwsbrief meer. Je toegang tot artikels
-          op de site blijft behouden.
+          Je ontvangt geen wekelijkse nieuwsbrief meer. Dit verandert niets aan
+          je toegang tot artikels op de website — die blijft gewoon bestaan.
         </p>
         <p>
-          <Link href="/voorkeuren">Voorkeuren beheren</Link>
-          {" · "}
+          Wil je later opnieuw de nieuwsbrief? Open de voorkeurenlink in een
+          eerdere mail of vraag een veilige link via{" "}
+          <Link href="/voorkeuren">voorkeuren</Link>.
+        </p>
+        <p>
           <Link href="/">Terug naar de homepage</Link>
         </p>
       </main>
@@ -37,10 +42,10 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
   if (status === "ongeldig" || (token && !payload)) {
     return (
       <main className="shell legal-page">
-        <h1>Link niet geldig</h1>
+        <h1>Nieuwsbrief-link niet geldig</h1>
         <p>
-          Deze uitschrijflink is verlopen of ongeldig. Open de nieuwste
-          nieuwsbrief of pas je voorkeuren aan via je mailboxlink.
+          Deze uitschrijflink voor de nieuwsbrief is verlopen of ongeldig. Open
+          de nieuwste nieuwsbrief of pas je voorkeuren aan via je mailboxlink.
         </p>
         <p>
           <Link href="/">Terug naar de homepage</Link>
@@ -53,9 +58,10 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
     return (
       <main className="shell legal-page">
         <h1>Even iets misgelopen</h1>
-        <p>Probeer het later opnieuw of mail ons via de privacycontactpagina.</p>
         <p>
-          <Link href="/privacy">Privacy</Link>
+          We konden je nieuwsbriefuitschrijving niet bevestigen. Probeer het
+          later opnieuw of mail{" "}
+          <Link href="/privacy">onze privacycontactpagina</Link>.
         </p>
       </main>
     );
@@ -65,6 +71,12 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
     return (
       <main className="shell legal-page">
         <h1>Nieuwsbrief uitschrijven</h1>
+        <p>
+          Deze pagina is alleen bedoeld om je van de <strong>wekelijkse
+          nieuwsbrief</strong> uit te schrijven via de link in die mail. Er is
+          geen uitschrijving voor website-toegang: artikels blijven leesbaar
+          zolang je lezerssessie of toegang actief is.
+        </p>
         <p>
           Open de uitschrijflink in je nieuwsbrief. We schrijven je pas uit
           nadat je hier bevestigt, zodat mailboxscanners je niet per ongeluk
@@ -79,12 +91,16 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
       <h1>Nieuwsbrief uitschrijven?</h1>
       <p>
         Bevestig dat je geen wekelijkse nieuwsbrief meer wilt ontvangen op{" "}
-        <strong>{payload.email}</strong>. Je artikels-toegang blijft bestaan.
+        <strong>{payload.email}</strong>.
+      </p>
+      <p>
+        <strong>Let op:</strong> dit stopt alleen de nieuwsbrief. Je toegang tot
+        artikels op de site blijft behouden.
       </p>
       <form action="/api/email/uitschrijven" method="post">
         <input type="hidden" name="token" value={token} />
         <button type="submit" className="signup-form__primary">
-          Ja, schrijf me uit
+          Ja, schrijf me uit van de nieuwsbrief
         </button>
       </form>
       <p>

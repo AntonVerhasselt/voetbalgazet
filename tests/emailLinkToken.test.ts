@@ -10,7 +10,7 @@ describe("unsubscribe email tokens", () => {
     const token = createUnsubscribeToken("Reader@Example.com", now);
     expect(verifyUnsubscribeToken(token, now + 1000)).toMatchObject({
       email: "reader@example.com",
-      purpose: "unsubscribe",
+      purpose: "newsletter_unsubscribe",
     });
   });
 

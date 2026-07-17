@@ -1,4 +1,4 @@
-export type EmailLinkPurpose = "unsubscribe";
+export type EmailLinkPurpose = "newsletter_unsubscribe";
 
 export type EmailLinkPayload = {
   email: string;
@@ -23,10 +23,12 @@ function decodeBase64Url(value: string): string {
 
 function decodePayload(encoded: string): EmailLinkPayload | null {
   try {
-    const parsed = JSON.parse(decodeBase64Url(encoded)) as Partial<EmailLinkPayload>;
+    const parsed = JSON.parse(
+      decodeBase64Url(encoded),
+    ) as Partial<EmailLinkPayload>;
     if (
       typeof parsed.email !== "string" ||
-      parsed.purpose !== "unsubscribe" ||
+      parsed.purpose !== "newsletter_unsubscribe" ||
       typeof parsed.expiresAt !== "number"
     ) {
       return null;
@@ -77,6 +79,10 @@ async function signature(payload: string): Promise<Uint8Array> {
   return new Uint8Array(signed);
 }
 
+/**
+ * Verifies a newsletter unsubscribe token.
+ * Never grants or revokes siteAccess — that is a separate status.
+ */
 export async function verifyUnsubscribeToken(
   token: string,
   now = Date.now(),

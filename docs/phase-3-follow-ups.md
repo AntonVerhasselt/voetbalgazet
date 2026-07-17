@@ -5,12 +5,14 @@ These items are **not** merge blockers; the Phase 3 code path is already
 verified (tests, lint, typecheck, build, and local smoke of public site +
 agent admin + `/keystatic`).
 
+**Manual operator steps:** [`phase-3-manual-checklist.md`](./phase-3-manual-checklist.md).
+
 ## Production Keystatic (hosted editing)
 
 Local/Cursor agents use Keystatic **local** storage + git. Production editors
 need GitHub mode.
 
-- [ ] Create/configure the Keystatic GitHub App (repo-scoped)
+- [ ] Create/configure the Keystatic GitHub App (repo-scoped) — see manual checklist §1
 - [x] Set Vercel env: `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET`, `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` (Preview + Production)
 - [ ] Optional: `KEYSTATIC_GITHUB_READER_TOKEN` + `KEYSTATIC_PREVIEW_BRANCH_PREFIXES` for draft-branch preview
 - [ ] Smoke hosted `/keystatic` save → commit on the expected branch
@@ -29,9 +31,13 @@ See also: [`keystatic-admin.md`](./keystatic-admin.md).
 
 ## Public site / reader launch gaps
 
-Inherited from Phase 2; still open for launch quality:
+Inherited from Phase 2:
 
-- [x] `/uitschrijven` + POST `/api/email/uitschrijven` (UI confirm + RFC 8058 one-click)
+- [x] `/uitschrijven` + POST `/api/email/uitschrijven` — **newsletter only**
+  (`newsletterSubscribed = false`; **`siteAccess` never revoked**). Matches
+  [`plans/public-news-site/02-access-and-auth.md`](../plans/public-news-site/02-access-and-auth.md) Flow 5.
+  There is **no** “uitschrijven van de website” flow.
+- [x] `/voorkeuren` shows newsletter on/off + resubscribe CTA (plan Flow 6)
 - [x] Better Auth `onLinkAccount` + sync `subscribers.emailVerifiedAt` on magic-link verify
 - [x] Stronger signup abuse controls: Next.js `/api/signup` IP rate limit + Convex IP bucket
 - [x] Open Graph / social images: default `opengraph-image` + article/home fallbacks
@@ -55,12 +61,15 @@ decision; do not treat it as a hard paywall.
 
 Already shown as disabled in `/admin` — no Phase 3 work required:
 
-- Nieuwsbrieven editor / targeting / send (will mint unsubscribe tokens via `createUnsubscribeToken`)
+- Nieuwsbrieven editor / targeting / send (will mint tokens via `createUnsubscribeToken`
+  with purpose `newsletter_unsubscribe`)
 - Abonneebeheer
+- Full `suppressions` table for bounce/complaint (newsletter ops)
 
 ## Suggested remaining order
 
-1. Hosted Keystatic smoke publish on production (secrets already set)  
-2. Optional draft-branch reader token  
-3. DPA / processor paperwork  
-4. Open Design + mobile a11y launch checks  
+1. Hosted Keystatic smoke publish on production (secrets already set) — checklist §2  
+2. Optional draft-branch reader token — checklist §3  
+3. Newsletter unsubscribe smoke once you can mint a token — checklist §4  
+4. DPA / processor paperwork — checklist §7  
+5. Open Design + mobile a11y launch checks — checklist §8  

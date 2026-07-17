@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export type EmailLinkPurpose = "unsubscribe";
+/** Purpose-bound email tokens. Only newsletter unsubscribe — never site access. */
+export type EmailLinkPurpose = "newsletter_unsubscribe";
 
 export type EmailLinkPayload = {
   email: string;
@@ -36,7 +37,7 @@ function decodePayload(encoded: string): EmailLinkPayload | null {
     ) as Partial<EmailLinkPayload>;
     if (
       typeof parsed.email !== "string" ||
-      parsed.purpose !== "unsubscribe" ||
+      parsed.purpose !== "newsletter_unsubscribe" ||
       typeof parsed.expiresAt !== "number"
     ) {
       return null;
@@ -51,6 +52,7 @@ function decodePayload(encoded: string): EmailLinkPayload | null {
   }
 }
 
+/** Mint a newsletter-only unsubscribe token (Phase 4 campaign footer). */
 export function createUnsubscribeToken(
   email: string,
   now = Date.now(),
@@ -58,7 +60,7 @@ export function createUnsubscribeToken(
 ): string {
   const payload: EmailLinkPayload = {
     email: email.normalize("NFKC").trim().toLowerCase(),
-    purpose: "unsubscribe",
+    purpose: "newsletter_unsubscribe",
     expiresAt: now + ttlMs,
   };
   const encoded = encodePayload(payload);

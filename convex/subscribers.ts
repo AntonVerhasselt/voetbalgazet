@@ -365,6 +365,7 @@ export const confirmUnsubscribe = mutation({
     }
 
     const capturedAt = Date.now();
+    // Newsletter only — never revoke siteAccess or sessions.
     await ctx.db.patch("subscribers", subscriber._id, {
       newsletterSubscribed: false,
       unsubscribedAt: capturedAt,
@@ -380,6 +381,38 @@ export const confirmUnsubscribe = mutation({
     return {
       unsubscribed: true as const,
       siteAccessPreserved: true as const,
+    };
+  },
+});
+
+export const resubscribeToNewsletter = mutation({
+  args: {},
+  returns: v.object({
+    subscribed: v.literal(true),
+    siteAccessUnchanged: v.literal(true),
+  }),
+  handler: async (ctx) => {
+    const subscriber = await getVerifiedSubscriber(ctx);
+    const capturedAt = Date.now();
+    // Resubscribe is newsletter-only; siteAccess is never granted or revoked here.
+    await ctx.db.patch("subscribers", subscriber._id, {
+      newsletterSubscribed: true,
+      newsletterSubscribedAt: capturedAt,
+      unsubscribedAt: undefined,
+      consentVersion: CURRENT_CONSENT_VERSION,
+      consentCapturedAt: capturedAt,
+      consentSource: "preferences_resubscribe",
+    });
+    await ctx.db.insert("subscriberConsentEvents", {
+      subscriberId: subscriber._id,
+      action: "subscribe",
+      consentVersion: CURRENT_CONSENT_VERSION,
+      source: "preferences_resubscribe",
+      capturedAt,
+    });
+    return {
+      subscribed: true as const,
+      siteAccessUnchanged: true as const,
     };
   },
 });
