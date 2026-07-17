@@ -90,6 +90,32 @@ export default defineSchema({
     windowStartedAt: v.number(),
   }).index("by_key_hash", ["keyHash"]),
 
+  emailLinkTokens: defineTable({
+    tokenHash: v.string(),
+    purpose: v.union(
+      v.literal("newsletter_unsubscribe"),
+      v.literal("article_access"),
+      v.literal("preferences_access"),
+    ),
+    subscriberId: v.id("subscribers"),
+    expiresAt: v.number(),
+    createdAt: v.number(),
+    usedAt: v.optional(v.number()),
+    articleSlug: v.optional(v.string()),
+    sendId: v.optional(v.id("newsletterSends")),
+    campaignId: v.optional(v.id("newsletterCampaigns")),
+  })
+    .index("by_token_hash", ["tokenHash"])
+    .index("by_subscriber_and_purpose", ["subscriberId", "purpose"])
+    .index("by_expires_at", ["expiresAt"]),
+
+  appRuntimeSettings: defineTable({
+    key: v.string(),
+    value: v.string(),
+    updatedAt: v.number(),
+    updatedBy: v.optional(v.id("users")),
+  }).index("by_key", ["key"]),
+
   agentAccessEvents: defineTable({
     at: v.number(),
     result: v.union(
@@ -251,7 +277,8 @@ export default defineSchema({
       "recipientId",
       "providerTimestamp",
     ])
-    .index("by_send_and_eventType", ["sendId", "eventType"]),
+    .index("by_send_and_eventType", ["sendId", "eventType"])
+    .index("by_receivedAt", ["receivedAt"]),
 
   emailSuppressions: defineTable({
     subscriberId: v.optional(v.id("subscribers")),

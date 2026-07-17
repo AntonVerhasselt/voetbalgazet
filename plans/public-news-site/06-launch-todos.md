@@ -58,4 +58,3 @@ De juridische review is een aanbeveling en geen technische launch blocker volgen
 - [ ] Sitemap, robots en excerpt-RSS valideren
 - [ ] Accessibility- en keyboardtest van gate en voorkeuren
 - [ ] Core Web Vitals en gate-layoutshift testen
-- [ ] Open Design-assets naar een gedeeld, implementeerbaar repositorypad kopiëren

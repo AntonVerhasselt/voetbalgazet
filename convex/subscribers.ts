@@ -7,7 +7,7 @@ import {
   teamOptions,
 } from "./lib/preferenceCatalog";
 import { consumeSignupRateLimit, hashRateLimitValue } from "./lib/rateLimit";
-import { verifyUnsubscribeToken } from "./lib/emailLinkToken";
+import { lookupEmailLinkToken } from "./lib/emailLinkTokensDb";
 import {
   addSuppression,
   clearUnsubscribeSuppression,
@@ -311,14 +311,32 @@ export const confirmUnsubscribe = mutation({
     siteAccessPreserved: v.literal(true),
   }),
   handler: async (ctx, args) => {
-    const payload = await verifyUnsubscribeToken(args.token);
-    if (!payload) {
+    const now = Date.now();
+    const tokenRecord = await lookupEmailLinkToken(
+      ctx,
+      args.token,
+      "newsletter_unsubscribe",
+    );
+    if (!tokenRecord || tokenRecord.expiresAt < now) {
       throw new Error("Ongeldige of verlopen uitschrijflink.");
     }
 
-    const normalizedEmail = normalizeAndValidateEmail(payload.email);
-    const now = Date.now();
-    const rateKeyHash = hashRateLimitValue(`unsubscribe:${normalizedEmail}`);
+    const subscriber = await ctx.db.get(
+      "subscribers",
+      tokenRecord.subscriberId,
+    );
+
+    // Always return success shape to avoid subscriber enumeration after token auth.
+    if (!subscriber) {
+      return {
+        unsubscribed: true as const,
+        siteAccessPreserved: true as const,
+      };
+    }
+
+    const rateKeyHash = hashRateLimitValue(
+      `unsubscribe:${subscriber.normalizedEmail}`,
+    );
     const bucket = await ctx.db
       .query("signupRateLimits")
       .withIndex("by_key_hash", (query) => query.eq("keyHash", rateKeyHash))
@@ -346,21 +364,6 @@ export const confirmUnsubscribe = mutation({
       });
     }
 
-    const subscriber = await ctx.db
-      .query("subscribers")
-      .withIndex("by_normalized_email", (query) =>
-        query.eq("normalizedEmail", normalizedEmail),
-      )
-      .unique();
-
-    // Always return success shape to avoid email enumeration after auth.
-    if (!subscriber) {
-      return {
-        unsubscribed: true as const,
-        siteAccessPreserved: true as const,
-      };
-    }
-
     if (!subscriber.newsletterSubscribed && subscriber.unsubscribedAt) {
       return {
         unsubscribed: true as const,
@@ -383,7 +386,7 @@ export const confirmUnsubscribe = mutation({
     });
     await addSuppression(ctx, {
       subscriberId: subscriber._id,
-      normalizedEmail,
+      normalizedEmail: subscriber.normalizedEmail,
       type: "unsubscribe",
       sourceId: args.source,
       now: capturedAt,

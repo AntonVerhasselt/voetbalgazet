@@ -147,6 +147,5 @@ npm run build
 
 ## Design source
 
-The canonical Open Design export still needs to be copied into
-`design/open-design/`. Until then, the implementation follows the written
-design direction but does not claim pixel parity.
+Live tokens and composition rules live in `plans/ui-ux/`. The implementation
+follows that written design direction.

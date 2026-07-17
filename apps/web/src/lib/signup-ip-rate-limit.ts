@@ -9,6 +9,8 @@ const buckets = new Map<string, RateBucket>();
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_HITS = 30;
 
+// Process-local throttle smooths accidental bursts; Convex consumes the
+// authoritative IP/email buckets so multi-instance deployments stay protected.
 export function clientIpFromRequest(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {

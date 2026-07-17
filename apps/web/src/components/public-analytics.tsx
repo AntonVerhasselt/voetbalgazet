@@ -57,13 +57,14 @@ function PublicAnalyticsInner() {
 
     const articleId = articleIdFromPath(pathname);
     const cid = campaignAnalyticsId(search);
-    if (articleId && cid && !newsletterHandled.current) {
+    const fromEmail = searchParams.get("from") === "email";
+    if (articleId && (cid || fromEmail) && !newsletterHandled.current) {
       newsletterHandled.current = true;
       capturePublicEvent("newsletter_article_link_opened", {
         article_id: articleId,
-        campaign_analytics_id: cid,
+        ...(cid ? { campaign_analytics_id: cid } : {}),
       });
-      stripSensitiveSearchParams(["cid"]);
+      stripSensitiveSearchParams(["cid", "from"]);
     }
 
     if (!authHandled.current) {

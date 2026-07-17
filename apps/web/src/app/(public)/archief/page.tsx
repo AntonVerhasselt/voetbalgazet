@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ArchiveBrowser } from "@/components/archive-browser";
-import { getPublishedArticles } from "@/lib/content";
+import { getSearchablePublishedArticles } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Archief",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ArchivePage() {
-  const entries = (await getPublishedArticles()).map((article) => ({
+  const entries = (await getSearchablePublishedArticles()).map((article) => ({
     slug: article.slug,
     headline: article.headline,
     dek: article.dek,

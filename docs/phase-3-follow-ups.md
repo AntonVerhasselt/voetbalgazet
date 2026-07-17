@@ -66,7 +66,7 @@ decision; do not treat it as a hard paywall.
 - [x] Homepage hero illustration copy follows the featured article via `getIllustrationCopy`
 - [x] Link [`keystatic-admin.md`](./keystatic-admin.md) from this docs index
 - [ ] Finish remaining checks in `plans/content-admin/04-launch-todos.md`
-  (Open Design assets, a11y, GitHub App ops smoke)
+  (a11y, GitHub App ops smoke)
 
 ## Phase 4 placeholders
 
@@ -83,4 +83,4 @@ Already shown as disabled in `/admin` — no Phase 3 work required:
 2. Optional draft-branch reader token — checklist §3  
 3. Newsletter unsubscribe smoke once you can mint a token — checklist §4  
 4. DPA / processor paperwork — checklist §7  
-5. Open Design + mobile a11y launch checks — checklist §8  
+5. Mobile a11y launch checks — checklist §8  

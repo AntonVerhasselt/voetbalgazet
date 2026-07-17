@@ -390,13 +390,24 @@ export const updateDraft = editorMutation({
     }
     const now = Date.now();
     const nextRevision = campaign.revisionNumber + 1;
+    const nextSubject =
+      args.subject !== undefined ? args.subject.trim() : campaign.subject;
+    const nextPreheader =
+      args.preheader !== undefined ? args.preheader.trim() : campaign.preheader;
+    const nextDocumentJson = args.documentJson ?? campaign.documentJson;
+    const testInvalidated =
+      nextSubject !== campaign.subject ||
+      (nextPreheader ?? "") !== (campaign.preheader ?? "") ||
+      nextDocumentJson !== campaign.documentJson;
     const patch: Partial<Doc<"newsletterCampaigns">> = {
       updatedAt: now,
       updatedBy: ctx.adminUser._id,
       revisionNumber: nextRevision,
-      lastSuccessfulTestRevisionId: undefined,
-      lastSuccessfulTestAt: undefined,
     };
+    if (testInvalidated) {
+      patch.lastSuccessfulTestRevisionId = undefined;
+      patch.lastSuccessfulTestAt = undefined;
+    }
     if (args.internalName !== undefined) {
       const name = args.internalName.trim();
       if (!name) {
@@ -405,20 +416,20 @@ export const updateDraft = editorMutation({
       patch.internalName = name;
     }
     if (args.subject !== undefined) {
-      patch.subject = args.subject.trim();
+      patch.subject = nextSubject;
     }
     if (args.preheader !== undefined) {
-      patch.preheader = args.preheader.trim();
+      patch.preheader = nextPreheader;
     }
     if (args.documentJson !== undefined) {
-      patch.documentJson = args.documentJson;
+      patch.documentJson = nextDocumentJson;
       const rendered = renderCampaignEmail({
-        documentJson: args.documentJson,
-        subject: args.subject?.trim() || campaign.subject || "Voorbeeld",
-        preheader: args.preheader ?? campaign.preheader,
+        documentJson: nextDocumentJson,
+        subject: nextSubject || "Voorbeeld",
+        preheader: nextPreheader,
         links: {
           unsubscribeUrl: `${siteBaseUrl()}/uitschrijven`,
-          preferencesUrl: `${siteBaseUrl()}${COMPLIANCE.preferencesPath}`,
+          preferencesUrl: `${siteBaseUrl()}/email/voorkeuren`,
           privacyUrl: `${siteBaseUrl()}${COMPLIANCE.privacyPath}`,
           siteUrl: siteBaseUrl(),
         },
@@ -465,7 +476,7 @@ export const saveRevision = editorMutation({
       preheader: campaign.preheader,
       links: {
         unsubscribeUrl: `${siteBaseUrl()}/uitschrijven`,
-        preferencesUrl: `${siteBaseUrl()}${COMPLIANCE.preferencesPath}`,
+        preferencesUrl: `${siteBaseUrl()}/email/voorkeuren`,
         privacyUrl: `${siteBaseUrl()}${COMPLIANCE.privacyPath}`,
         siteUrl: siteBaseUrl(),
       },
@@ -683,10 +694,16 @@ export const previewAudience = editorQuery({
       throw new Error("Audience-definitie ontbreekt.");
     }
 
-    const subscribed: Doc<"subscribers">[] = [];
+    const subscribedSampleSource: Doc<"subscribers">[] = [];
     let cursor: string | null = null;
     let isDone = false;
+    let excludedUnsubscribe = 0;
+    let excludedSuppression = 0;
+    let excludedDivisionFilter = 0;
+    let excludedTeamFilter = 0;
+    let eligibleCount = 0;
     // Paginate the full subscribed set (same source as prepareRecipients).
+    // Keep only a small sample in memory — do not accumulate all eligible rows.
     while (!isDone) {
       const page = await ctx.db
         .query("subscribers")
@@ -694,54 +711,49 @@ export const previewAudience = editorQuery({
           q.eq("newsletterSubscribed", true),
         )
         .paginate({ numItems: 500, cursor });
-      subscribed.push(...page.page);
+      for (const subscriber of page.page) {
+        if (subscriber.unsubscribedAt !== undefined) {
+          excludedUnsubscribe += 1;
+          continue;
+        }
+        if (
+          await hasActiveSuppression(ctx, {
+            subscriberId: subscriber._id,
+            normalizedEmail: subscriber.normalizedEmail,
+          })
+        ) {
+          excludedSuppression += 1;
+          continue;
+        }
+        if (definition.divisionIds.length > 0) {
+          const matchesDivision = subscriber.divisionIds.some((id) =>
+            definition.divisionIds.includes(id),
+          );
+          if (!matchesDivision) {
+            excludedDivisionFilter += 1;
+            continue;
+          }
+        }
+        if (definition.favoriteTeamIds.length > 0) {
+          if (
+            !subscriber.favoriteTeamId ||
+            !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
+          ) {
+            excludedTeamFilter += 1;
+            continue;
+          }
+        }
+        eligibleCount += 1;
+        if (subscribedSampleSource.length < 20) {
+          subscribedSampleSource.push(subscriber);
+        }
+      }
       isDone = page.isDone;
       cursor = page.isDone ? null : page.continueCursor;
     }
 
-    let excludedUnsubscribe = 0;
-    let excludedSuppression = 0;
-    let excludedDivisionFilter = 0;
-    let excludedTeamFilter = 0;
-    const eligible: Doc<"subscribers">[] = [];
-
-    for (const subscriber of subscribed) {
-      if (subscriber.unsubscribedAt !== undefined) {
-        excludedUnsubscribe += 1;
-        continue;
-      }
-      if (
-        await hasActiveSuppression(ctx, {
-          subscriberId: subscriber._id,
-          normalizedEmail: subscriber.normalizedEmail,
-        })
-      ) {
-        excludedSuppression += 1;
-        continue;
-      }
-      if (definition.divisionIds.length > 0) {
-        const matchesDivision = subscriber.divisionIds.some((id) =>
-          definition.divisionIds.includes(id),
-        );
-        if (!matchesDivision) {
-          excludedDivisionFilter += 1;
-          continue;
-        }
-      }
-      if (definition.favoriteTeamIds.length > 0) {
-        if (
-          !subscriber.favoriteTeamId ||
-          !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
-        ) {
-          excludedTeamFilter += 1;
-          continue;
-        }
-      }
-      eligible.push(subscriber);
-    }
-
     const sample = [];
-    for (const subscriber of eligible.slice(0, 20)) {
+    for (const subscriber of subscribedSampleSource) {
       const divisionLabels: string[] = [];
       for (const divisionId of subscriber.divisionIds) {
         const division = await ctx.db.get(divisionId);
@@ -761,17 +773,15 @@ export const previewAudience = editorQuery({
     }
 
     const eligibleBeforeFilters =
-      eligible.length +
-      excludedDivisionFilter +
-      excludedTeamFilter;
+      eligibleCount + excludedDivisionFilter + excludedTeamFilter;
     const percentOfActive =
       eligibleBeforeFilters === 0
         ? 0
-        : Math.round((eligible.length / eligibleBeforeFilters) * 1000) / 10;
+        : Math.round((eligibleCount / eligibleBeforeFilters) * 1000) / 10;
 
     return {
       eligibleBeforeFilters,
-      eligibleAfterFilters: eligible.length,
+      eligibleAfterFilters: eligibleCount,
       excludedUnsubscribe,
       excludedSuppression,
       excludedDivisionFilter,

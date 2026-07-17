@@ -3,6 +3,8 @@ import type { MutationCtx } from "../_generated/server";
 const SIGNUP_WINDOW_MS = 60 * 60 * 1000;
 const SIGNUP_MAX_ATTEMPTS = 12;
 const SIGNUP_IP_MAX_ATTEMPTS = 40;
+const AGENT_ACCESS_WINDOW_MS = 60 * 60 * 1000;
+const AGENT_ACCESS_IP_MAX_ATTEMPTS = 30;
 
 export function hashRateLimitValue(value: string): string {
   let hash = 0x811c9dc5;
@@ -17,6 +19,7 @@ async function consumeRateLimitBucket(
   ctx: MutationCtx,
   key: string,
   now: number,
+  windowMs: number,
   maxAttempts: number,
   errorMessage: string,
 ): Promise<void> {
@@ -26,7 +29,7 @@ async function consumeRateLimitBucket(
     .withIndex("by_key_hash", (query) => query.eq("keyHash", keyHash))
     .unique();
 
-  if (!bucket || now - bucket.windowStartedAt >= SIGNUP_WINDOW_MS) {
+  if (!bucket || now - bucket.windowStartedAt >= windowMs) {
     if (bucket) {
       await ctx.db.patch("signupRateLimits", bucket._id, {
         count: 1,
@@ -60,6 +63,7 @@ export async function consumeSignupRateLimit(
     ctx,
     `email:${normalizedEmail}`,
     now,
+    SIGNUP_WINDOW_MS,
     SIGNUP_MAX_ATTEMPTS,
     "Te veel inschrijfpogingen. Wacht even en probeer later opnieuw.",
   );
@@ -68,8 +72,24 @@ export async function consumeSignupRateLimit(
       ctx,
       `ip:${clientIpHash}`,
       now,
+      SIGNUP_WINDOW_MS,
       SIGNUP_IP_MAX_ATTEMPTS,
       "Te veel inschrijfpogingen vanaf dit netwerk. Wacht even en probeer later opnieuw.",
     );
   }
+}
+
+export async function consumeAgentAccessRateLimit(
+  ctx: MutationCtx,
+  ipHash: string,
+  now: number,
+): Promise<void> {
+  await consumeRateLimitBucket(
+    ctx,
+    `agent-access:ip:${ipHash}`,
+    now,
+    AGENT_ACCESS_WINDOW_MS,
+    AGENT_ACCESS_IP_MAX_ATTEMPTS,
+    "Te veel agent-aanmeldpogingen vanaf dit netwerk. Wacht even en probeer later opnieuw.",
+  );
 }

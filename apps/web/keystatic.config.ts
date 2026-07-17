@@ -17,12 +17,36 @@ import {
   defaultCategoryValue,
 } from "./src/lib/content-settings-options";
 
-const isHosted = Boolean(
-  process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG?.trim(),
-);
+export type KeystaticStorageKind = "local" | "github";
+
+function readStorageOverride(): KeystaticStorageKind | null {
+  const value = process.env.KEYSTATIC_STORAGE?.trim();
+  if (!value) {
+    return null;
+  }
+  if (value === "local" || value === "github") {
+    return value;
+  }
+  throw new Error("KEYSTATIC_STORAGE moet 'local' of 'github' zijn.");
+}
+
+export function resolveKeystaticStorageKind(): KeystaticStorageKind {
+  return (
+    readStorageOverride() ??
+    (process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG?.trim()
+      ? "github"
+      : "local")
+  );
+}
+
+function githubBranchPrefix(): string | undefined {
+  return process.env.KEYSTATIC_GITHUB_BRANCH_PREFIX?.trim() || undefined;
+}
 
 const defaultAuthor = defaultAuthorValue;
 const defaultCategory = defaultCategoryValue;
+const storageKind = resolveKeystaticStorageKind();
+const branchPrefix = githubBranchPrefix();
 
 const bodyOptions = {
   heading: [2, 3] as const,
@@ -98,12 +122,12 @@ const settingsItemFields = {
 };
 
 export default config({
-  storage: isHosted
+  storage: storageKind === "github"
     ? {
         kind: "github",
         repo: "AntonVerhasselt/voetbalgazet",
         pathPrefix: "apps/web",
-        branchPrefix: "content/",
+        ...(branchPrefix ? { branchPrefix } : {}),
       }
     : { kind: "local" },
   locale: "nl-NL",
@@ -162,7 +186,7 @@ export default config({
         publishedAt: fields.datetime({
           label: "Publicatiedatum",
           description:
-            "Verplicht zodra de status Gepubliceerd is. Vul Europe/Brussels-lokale tijd in (CET/CEST); opslag gebeurt als UTC.",
+            "Verplicht zodra de status Gepubliceerd is. Publicatie zonder datum faalt in de buildvalidatie. Vul Europe/Brussels-lokale tijd in (CET/CEST); opslag gebeurt als UTC.",
         }),
         updatedAt: fields.datetime({
           label: "Laatst inhoudelijk bijgewerkt",
@@ -281,7 +305,7 @@ export default config({
         body: fields.markdoc({
           label: "Inhoud",
           description:
-            "Gebruik alleen tussenkoppen H2/H3, citaten, lijsten, links en beelden.",
+            "Gebruik alleen tussenkoppen H2/H3, citaten, lijsten, links en beelden. Een citaatblok wordt op de artikelsite als pull quote gestyled.",
           options: bodyOptions,
         }),
       },

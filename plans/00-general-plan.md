@@ -194,8 +194,7 @@ Detailed source of truth: [`newsletter-admin-dashboard/`](./newsletter-admin-das
 
 ## Next refinement topics
 
-1. Kopieer Open Design-bron/assets naar de repository.
-2. Configureer Keystatic GitHub App en repositoryrechten.
-3. Bevestig privacy-/supportadres en verantwoordelijke uitgever.
-4. Importeer officiële club-/reekstaxonomie.
-5. Rond mobile usabilitytests voor site, Keystatic en nieuwsbriefadmin af.
+1. Configureer Keystatic GitHub App en repositoryrechten.
+2. Bevestig privacy-/supportadres en verantwoordelijke uitgever.
+3. Importeer officiële club-/reekstaxonomie.
+4. Rond mobile usabilitytests voor site, Keystatic en nieuwsbriefadmin af.

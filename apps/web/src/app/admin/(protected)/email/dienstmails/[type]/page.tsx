@@ -22,6 +22,8 @@ const VALID_TYPES = [
   "magic_link",
   "verify_email",
   "unsubscribe_confirmed",
+  "preferences_changed",
+  "admin_send_alert",
 ] as const;
 
 type TransactionalType = (typeof VALID_TYPES)[number];

@@ -11,10 +11,12 @@ Run the regular web app:
 npm run dev:web
 ```
 
-Keystatic uses local storage outside production. Open `/admin`, sign in through
-the real Convex development deployment, then choose **Artikels**. Saves under
-`/keystatic` write directly to `apps/web/content/` and
-`apps/web/public/images/articles/`.
+Keystatic uses `KEYSTATIC_STORAGE=local|github` when set. Without that override,
+it keeps the existing default: GitHub mode when
+`NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` is configured, local storage otherwise.
+Open `/admin`, sign in through the real Convex development deployment, then
+choose **Artikels**. Local saves under `/keystatic` write directly to
+`apps/web/content/` and `apps/web/public/images/articles/`.
 
 ## GitHub App
 
@@ -41,6 +43,10 @@ In local development (no GitHub App slug), `/api/keystatic/*` additionally
 requires a Better Auth editor session so filesystem write endpoints stay
 private. Production refuses local storage mode entirely.
 
+By default, GitHub mode writes to the configured repository branch. Set
+`KEYSTATIC_GITHUB_BRANCH_PREFIX` only when a branch/PR editing flow is needed;
+daily production-branch publishing leaves it unset.
+
 ## Draft preview
 
 Set a server-only fine-grained GitHub token with read-only repository Contents
@@ -60,7 +66,8 @@ are uncached, `noindex`, omit PostHog events, and never query subscriber state.
 
 1. Keep new entries at `status: draft`.
 2. Use preview for 360 px, 390 px, gated, and full-content checks.
-3. Set `status: published` and `publishedAt`.
+3. Set `status: published` and `publishedAt`; the build rejects published
+   articles without a publication date.
 4. Save. Keystatic commits content and images to Git.
 5. Git triggers Vercel. Content validation must pass before the deployment is
    promoted.
@@ -68,3 +75,10 @@ are uncached, `noindex`, omit PostHog events, and never query subscriber state.
 Archived and draft entries remain in Git but are absent from public static
 params, the homepage, archive, sitemap, and RSS. Roll back content through a
 normal Git revert; do not publish through a Convex mutation.
+
+Set **Uitsluiten van zoeken** for published canonical pages that should stay out
+of archive/search listings, RSS, and the sitemap. The article URL still builds,
+but emits `noindex`.
+
+Use Markdoc quote blocks as pull quotes. The public article CSS styles
+`.article__body blockquote` with the pull-quote treatment.

@@ -23,6 +23,14 @@ export const handleEmailEvent = internalMutation({
       resendEmailId: args.id,
       eventType: args.event.type,
       createdAt: args.event.created_at,
+      bounceType:
+        args.event.type === "email.bounced"
+          ? args.event.data.bounce.type
+          : undefined,
+      bounceSubType:
+        args.event.type === "email.bounced"
+          ? args.event.data.bounce.subType
+          : undefined,
     });
     return null;
   },

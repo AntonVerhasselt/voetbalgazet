@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
+import { isHardBounceEvent } from "./lib/bounce";
 import { addSuppression } from "./lib/suppressions";
 
 const RECIPIENT_RANK: Record<string, number> = {
@@ -48,6 +49,8 @@ export const applyProviderEvent = internalMutation({
     resendEmailId: v.string(),
     eventType: v.string(),
     createdAt: v.string(),
+    bounceType: v.optional(v.string()),
+    bounceSubType: v.optional(v.string()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -80,6 +83,7 @@ export const applyProviderEvent = internalMutation({
       eventType: args.eventType,
       providerTimestamp,
       receivedAt: Date.now(),
+      reasonCode: args.bounceSubType ?? args.bounceType,
       schemaVersion: 1,
     });
 
@@ -129,20 +133,21 @@ export const applyProviderEvent = internalMutation({
       }
     }
 
-    if (
-      args.eventType === "email.bounced" ||
-      args.eventType === "email.complained"
-    ) {
+    const isHardBounce = isHardBounceEvent(
+      args.eventType,
+      args.bounceType,
+      args.bounceSubType,
+    );
+    if (isHardBounce || args.eventType === "email.complained") {
       const subscriber = await ctx.db.get(recipient.subscriberId);
       if (subscriber) {
         await addSuppression(ctx, {
           subscriberId: subscriber._id,
           normalizedEmail: subscriber.normalizedEmail,
-          type:
-            args.eventType === "email.bounced" ? "hard_bounce" : "complaint",
+          type: isHardBounce ? "hard_bounce" : "complaint",
           sourceId: args.resendEmailId,
         });
-        if (args.eventType === "email.bounced") {
+        if (isHardBounce) {
           await ctx.db.patch(subscriber._id, {
             emailDeliveryStatus: "bounced",
           });

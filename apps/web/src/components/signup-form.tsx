@@ -76,6 +76,7 @@ export function SignupForm({
   variant = "dark",
 }: SignupFormProps) {
   const inputId = useId();
+  const emailStatusId = `${inputId}-email-status`;
   const [status, setStatus] = useState<FormStatus>({ state: "idle" });
   const [step, setStep] = useState<"email" | "preferences" | "success">(
     "email",
@@ -96,8 +97,32 @@ export function SignupForm({
     );
   }, [selectedDivisions, teamQuery]);
 
+  function validateEmailStep(): string | null {
+    const normalizedEmail = email.trim();
+    if (
+      !normalizedEmail ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(normalizedEmail)
+    ) {
+      setStatus({
+        state: "error",
+        message: "Vul een geldig e-mailadres in om verder te gaan.",
+      });
+      capturePublicEvent("gate_email_rejected", {
+        article_id: articleId,
+        source,
+        reason: "invalid_email",
+      });
+      return null;
+    }
+    return normalizedEmail;
+  }
+
   async function handleEmailSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const normalizedEmail = validateEmailStep();
+    if (!normalizedEmail) {
+      return;
+    }
     setStatus({ state: "submitting" });
     capturePublicEvent("gate_email_submitted", {
       article_id: articleId,
@@ -107,7 +132,7 @@ export function SignupForm({
     try {
       const result = (await postSignup({
         action: "begin",
-        email,
+        email: normalizedEmail,
         website,
       })) as { flow: "preferences" | "continue_reading" };
       if (result.flow === "preferences") {
@@ -120,11 +145,11 @@ export function SignupForm({
 
       await postSignup({
         action: "returning",
-        email,
+        email: normalizedEmail,
         website,
       });
       const { sessionStarted, verificationLinkSent } =
-        await startReaderSession(email);
+        await startReaderSession(normalizedEmail);
       setStep("success");
       onStepChange?.("success");
       setStatus({
@@ -159,6 +184,60 @@ export function SignupForm({
       capturePublicException(error, {
         error_code: "subscription_email_step_failed",
         source,
+      });
+    }
+  }
+
+  async function handleReturningReader(): Promise<void> {
+    const normalizedEmail = validateEmailStep();
+    if (!normalizedEmail) {
+      return;
+    }
+    setStatus({ state: "submitting" });
+    capturePublicEvent("gate_email_submitted", {
+      article_id: articleId,
+      source,
+      is_returning_flow: true,
+    });
+
+    try {
+      await postSignup({
+        action: "returning",
+        email: normalizedEmail,
+        website,
+      });
+      const { sessionStarted, verificationLinkSent } =
+        await startReaderSession(normalizedEmail);
+      setStep("success");
+      onStepChange?.("success");
+      setStatus({
+        state: "success",
+        message: sessionStarted
+          ? verificationLinkSent
+            ? "Je kunt verder lezen. Als dit adres al bij ons bekend is, ontvang je ook een veilige bevestigingslink."
+            : "Je kunt verder lezen. De bevestigingsmail kon niet worden verstuurd; probeer die later opnieuw via Voorkeuren."
+          : "Je kunt nu verder lezen. We konden je toegang op dit apparaat nog niet bewaren.",
+      });
+      capturePublicEvent("subscription_succeeded", {
+        article_id: articleId,
+        source,
+        access_level: sessionStarted ? "reader" : "temporary_reader",
+        is_returning_flow: true,
+      });
+      onUnlocked?.();
+    } catch (error) {
+      setStatus({
+        state: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Dat lukte niet. Controleer je e-mailadres en probeer opnieuw.",
+      });
+      capturePublicEvent("subscription_failed", {
+        article_id: articleId,
+        source,
+        error_code: "returning_step_failed",
+        step: "email",
       });
     }
   }
@@ -211,13 +290,13 @@ export function SignupForm({
       await postSignup({
         action: "complete",
         source,
-        email,
+        email: email.trim(),
         website,
         divisionKeys: selectedDivisions,
         ...(selectedTeam ? { teamKey: selectedTeam } : {}),
       });
       const { sessionStarted, verificationLinkSent } =
-        await startReaderSession(email);
+        await startReaderSession(email.trim());
       setStep("success");
       onStepChange?.("success");
       setStatus({
@@ -356,6 +435,7 @@ export function SignupForm({
     <form
       className={`signup-form signup-form--${variant}`}
       onSubmit={handleEmailSubmit}
+      noValidate
     >
       <label htmlFor={`${inputId}-email`}>E-mailadres</label>
       <div className="signup-form__row">
@@ -368,6 +448,8 @@ export function SignupForm({
           maxLength={254}
           placeholder="jij@voorbeeld.be"
           value={email}
+          aria-invalid={status.state === "error" ? true : undefined}
+          aria-describedby={emailStatusId}
           onFocus={() =>
             capturePublicEvent("gate_email_started", {
               article_id: articleId,
@@ -381,6 +463,16 @@ export function SignupForm({
           {status.state === "submitting" ? "Even geduld…" : "Ga verder"}
         </button>
       </div>
+      <button
+        className="signup-form__secondary"
+        type="button"
+        disabled={status.state === "submitting"}
+        onClick={() => {
+          void handleReturningReader();
+        }}
+      >
+        Al abonnee? Lees verder
+      </button>
       <div className="signup-form__honeypot" aria-hidden="true">
         <label htmlFor={`${inputId}-website`}>Website</label>
         <input
@@ -394,6 +486,7 @@ export function SignupForm({
         />
       </div>
       <p
+        id={emailStatusId}
         className={`signup-form__status signup-form__status--${status.state}`}
         aria-live="polite"
       >

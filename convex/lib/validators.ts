@@ -107,6 +107,8 @@ export const transactionalEmailTypeValidator = v.union(
   v.literal("magic_link"),
   v.literal("verify_email"),
   v.literal("unsubscribe_confirmed"),
+  v.literal("preferences_changed"),
+  v.literal("admin_send_alert"),
 );
 
 export const transactionalDefinitionStatusValidator = v.union(
@@ -134,6 +136,10 @@ export const auditActionValidator = v.union(
   v.literal("transactional_updated"),
   v.literal("transactional_published"),
   v.literal("suppression_cleared"),
+  v.literal("failed_recipients_recovered"),
+  v.literal("taxonomy_synced"),
+  v.literal("kill_switch_toggled"),
+  v.literal("admin_send_alert_sent"),
 );
 
 export const campaignSummaryValidator = v.object({

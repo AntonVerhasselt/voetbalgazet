@@ -1,23 +1,39 @@
 import { describe, expect, it } from "vitest";
 import {
-  createUnsubscribeToken,
-  verifyUnsubscribeToken,
-} from "../apps/web/src/lib/email-link-token";
+  ARTICLE_ACCESS_TTL_MS,
+  PREFERENCES_ACCESS_TTL_MS,
+  UNSUBSCRIBE_TTL_MS,
+  generateOpaqueToken,
+  hashToken,
+  ttlForEmailLinkPurpose,
+  verifyTokenHash,
+} from "../convex/lib/emailLinkToken";
 
-describe("unsubscribe email tokens", () => {
-  it("round-trips a valid token", () => {
-    const now = Date.UTC(2026, 6, 17, 12, 0, 0);
-    const token = createUnsubscribeToken("Reader@Example.com", now);
-    expect(verifyUnsubscribeToken(token, now + 1000)).toMatchObject({
-      email: "reader@example.com",
-      purpose: "newsletter_unsubscribe",
-    });
+describe("opaque email link tokens", () => {
+  it("generates opaque tokens without email payloads", () => {
+    const token = generateOpaqueToken();
+    expect(token).toMatch(/^[A-Za-z0-9_-]{32,128}$/u);
+    expect(token).not.toContain("@");
+    expect(token).not.toContain("reader");
   });
 
-  it("rejects tampered or expired tokens", () => {
-    const now = Date.UTC(2026, 6, 17, 12, 0, 0);
-    const token = createUnsubscribeToken("reader@example.com", now, 60_000);
-    expect(verifyUnsubscribeToken(`${token}x`, now)).toBeNull();
-    expect(verifyUnsubscribeToken(token, now + 120_000)).toBeNull();
+  it("round-trips token hashes", async () => {
+    const token = "opaque-token-for-test";
+    const hash = await hashToken(token);
+    expect(hash).toMatch(/^[a-f0-9]{64}$/u);
+    expect(await verifyTokenHash(token, hash)).toBe(true);
+    expect(await verifyTokenHash(`${token}x`, hash)).toBe(false);
+  });
+
+  it("uses purpose-specific TTLs", () => {
+    expect(ttlForEmailLinkPurpose("newsletter_unsubscribe")).toBe(
+      UNSUBSCRIBE_TTL_MS,
+    );
+    expect(ttlForEmailLinkPurpose("article_access")).toBe(
+      ARTICLE_ACCESS_TTL_MS,
+    );
+    expect(ttlForEmailLinkPurpose("preferences_access")).toBe(
+      PREFERENCES_ACCESS_TTL_MS,
+    );
   });
 });

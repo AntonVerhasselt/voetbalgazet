@@ -187,9 +187,8 @@ If `privacy@` is wrong for your mailbox provider, update
 
 From `plans/content-admin/04-launch-todos.md`:
 
-1. Copy Open Design assets into `design/open-design/` when available.
-2. Mobile a11y smoke on `/admin` and `/keystatic` (320–390 px, 44 px targets, keyboard).
-3. Official Voetbal Vlaanderen taxonomy import when licensing is clear
+1. Mobile a11y smoke on `/admin` and `/keystatic` (320–390 px, 44 px targets, keyboard).
+2. Official Voetbal Vlaanderen taxonomy import when licensing is clear
    (today: YAML + Convex catalog kept in sync by tests).
 
 ---

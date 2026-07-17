@@ -1,21 +1,31 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
-import type { MutationCtx } from "./_generated/server";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery } from "./_generated/server";
-import { editorMutation, viewerQuery } from "./lib/adminAuth";
+import { adminMutation, editorMutation, viewerQuery } from "./lib/adminAuth";
 import {
   COMPLIANCE,
   EDITOR_FORMAT,
   EDITOR_FORMAT_VERSION,
 } from "./lib/compliance";
 import { normalizeAndValidateEmail } from "./lib/email";
-import { createUnsubscribeToken } from "./lib/emailLinkToken";
+import {
+  ARTICLE_ACCESS_TTL_MS,
+  PREFERENCES_ACCESS_TTL_MS,
+  UNSUBSCRIBE_TTL_MS,
+} from "./lib/emailLinkToken";
+import { mintEmailLinkToken } from "./lib/emailLinkTokensDb";
+import { extractEmailMediaR2Keys } from "./lib/emailMedia";
 import { renderCampaignEmail } from "./lib/emailRender";
+import { assertMarketingSendEnabled } from "./lib/runtimeSettings";
 import { hasActiveSuppression } from "./lib/suppressions";
 import { resend } from "./resendClient";
 
 const PREPARE_BATCH = 100;
+const ARTICLE_SLUG_PATTERN = "[a-z0-9]+(?:-[a-z0-9]+)*";
+const ENQUEUE_BATCH = 50;
+const COUNT_BATCH = 1000;
 
 function siteBaseUrl(): string {
   return (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/$/u, "");
@@ -25,6 +35,163 @@ function analyticsId(): string {
   const bytes = new Uint8Array(12);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function articleUrlPattern(siteBase: string): RegExp {
+  return new RegExp(
+    `${escapeRegExp(siteBase)}/nieuws/(${ARTICLE_SLUG_PATTERN})(?:[?#][^"'\\s<)]*)?`,
+    "gu",
+  );
+}
+
+function collectArticleSlugs(siteBase: string, contents: readonly string[]): Set<string> {
+  const slugs = new Set<string>();
+  for (const content of contents) {
+    for (const match of content.matchAll(articleUrlPattern(siteBase))) {
+      const slug = match[1];
+      if (slug) {
+        slugs.add(slug);
+      }
+    }
+  }
+  return slugs;
+}
+
+function replaceArticleLinks(
+  content: string,
+  siteBase: string,
+  articleToken: string,
+): string {
+  return content.replace(
+    articleUrlPattern(siteBase),
+    (_match, slug: string) =>
+      `${siteBase}/email/artikel?token=${encodeURIComponent(articleToken)}&slug=${encodeURIComponent(slug)}`,
+  );
+}
+
+function replacePreferencesLinks(
+  content: string,
+  siteBase: string,
+  preferencesUrl: string,
+): string {
+  return content
+    .replaceAll(`${siteBase}/email/voorkeuren`, preferencesUrl)
+    .replaceAll(`${siteBase}${COMPLIANCE.preferencesPath}`, preferencesUrl);
+}
+
+type EligibilityCursor =
+  | {
+      mode: "subscribed";
+      cursor: string | null;
+    }
+  | {
+      mode: "division";
+      index: number;
+      cursor: string | null;
+    }
+  | {
+      mode: "team";
+      index: number;
+      cursor: string | null;
+    };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function decodeEligibilityCursor(value: string | null): EligibilityCursor | null {
+  if (!value) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!isRecord(parsed) || typeof parsed.mode !== "string") {
+      return { mode: "subscribed", cursor: value };
+    }
+    const cursor =
+      typeof parsed.cursor === "string" || parsed.cursor === null
+        ? parsed.cursor
+        : null;
+    if (parsed.mode === "subscribed") {
+      return { mode: "subscribed", cursor };
+    }
+    if (
+      (parsed.mode === "division" || parsed.mode === "team") &&
+      typeof parsed.index === "number" &&
+      Number.isInteger(parsed.index) &&
+      parsed.index >= 0
+    ) {
+      return { mode: parsed.mode, index: parsed.index, cursor };
+    }
+  } catch {
+    return { mode: "subscribed", cursor: value };
+  }
+  return { mode: "subscribed", cursor: value };
+}
+
+function encodeEligibilityCursor(cursor: EligibilityCursor): string {
+  return JSON.stringify(cursor);
+}
+
+async function subscriberCanReceiveNewsletter(
+  ctx: QueryCtx,
+  subscriber: Doc<"subscribers">,
+): Promise<boolean> {
+  if (!subscriber.newsletterSubscribed || subscriber.unsubscribedAt !== undefined) {
+    return false;
+  }
+  if (
+    await hasActiveSuppression(ctx, {
+      subscriberId: subscriber._id,
+      normalizedEmail: subscriber.normalizedEmail,
+    })
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function subscriberMatchesAudienceFilters(
+  subscriber: Doc<"subscribers">,
+  definition: Doc<"newsletterAudienceDefinitions">,
+  options: { divisionAlreadyMatched?: boolean } = {},
+): boolean {
+  if (!options.divisionAlreadyMatched && definition.divisionIds.length > 0) {
+    const matches = subscriber.divisionIds.some((id) =>
+      definition.divisionIds.includes(id),
+    );
+    if (!matches) {
+      return false;
+    }
+  }
+  if (definition.favoriteTeamIds.length > 0) {
+    if (
+      !subscriber.favoriteTeamId ||
+      !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+async function markEmailMediaUsedByHtml(
+  ctx: MutationCtx,
+  html: string,
+): Promise<void> {
+  for (const r2Key of extractEmailMediaR2Keys(html)) {
+    const media = await ctx.db
+      .query("emailMedia")
+      .withIndex("by_r2Key", (q) => q.eq("r2Key", r2Key))
+      .unique();
+    if (media && !media.usedBySentEmail) {
+      await ctx.db.patch(media._id, { usedBySentEmail: true });
+    }
+  }
 }
 
 async function writeAudit(
@@ -62,7 +229,7 @@ async function createRevision(
     preheader: args.campaign.preheader,
     links: {
       unsubscribeUrl: `${siteBaseUrl()}/uitschrijven`,
-      preferencesUrl: `${siteBaseUrl()}${COMPLIANCE.preferencesPath}`,
+      preferencesUrl: `${siteBaseUrl()}/email/voorkeuren`,
       privacyUrl: `${siteBaseUrl()}${COMPLIANCE.privacyPath}`,
       siteUrl: siteBaseUrl(),
     },
@@ -137,7 +304,8 @@ function contentMatchesTest(
   return Boolean(
     test &&
       test.documentJson === campaign.documentJson &&
-      test.subject === campaign.subject,
+      test.subject === campaign.subject &&
+      (test.preheader ?? "") === (campaign.preheader ?? ""),
   );
 }
 
@@ -171,12 +339,8 @@ export const requestTestSend = editorMutation({
       throw new Error("Revisie of afzender ontbreekt.");
     }
 
-    const unsubscribeToken = await createUnsubscribeToken(toEmail);
-    const unsubUrl = `${siteBaseUrl()}/uitschrijven?token=${encodeURIComponent(unsubscribeToken)}`;
-    const html = revision.html.replaceAll(
-      `${siteBaseUrl()}/uitschrijven`,
-      unsubUrl,
-    );
+    const unsubUrl = `${siteBaseUrl()}/uitschrijven`;
+    const html = revision.html;
     const text = `${revision.text}\n\nUitschrijven: ${unsubUrl}`;
 
     try {
@@ -234,6 +398,8 @@ export const requestSendNow = editorMutation({
       return existing._id;
     }
 
+    await assertMarketingSendEnabled(ctx);
+
     const { campaign, audience, sender } = await loadSendable(
       ctx,
       args.campaignId,
@@ -285,7 +451,22 @@ export const requestSendNow = editorMutation({
       sendRequestedBy: ctx.adminUser._id,
       clientRequestId: args.clientRequestId,
       eligibleCountAtPreview: args.expectedPreviewCount,
+      scheduledFor: undefined,
+      scheduleGeneration:
+        campaign.status === "scheduled"
+          ? (campaign.scheduleGeneration ?? 0) + 1
+          : campaign.scheduleGeneration,
+      scheduledJobId: undefined,
     });
+
+    if (campaign.status === "scheduled") {
+      await writeAudit(ctx, {
+        action: "schedule_overridden_send_now",
+        actorUserId: ctx.adminUser._id,
+        campaignId: args.campaignId,
+        sendId,
+      });
+    }
 
     await writeAudit(ctx, {
       action: "send_confirmed",
@@ -316,6 +497,8 @@ export const scheduleSend = editorMutation({
   },
   returns: v.object({ ok: v.boolean() }),
   handler: async (ctx, args) => {
+    await assertMarketingSendEnabled(ctx);
+
     const { campaign, audience } = await loadSendable(ctx, args.campaignId);
     if (campaign.revisionNumber !== args.expectedRevisionNumber) {
       throw new Error("Concept is gewijzigd. Herlaad en probeer opnieuw.");
@@ -390,8 +573,7 @@ export const cancelSchedule = editorMutation({
       );
     }
     await ctx.db.patch(args.campaignId, {
-      // Return to draft so the campaign can be edited and rescheduled.
-      status: "draft",
+      status: "cancelled",
       scheduledFor: undefined,
       scheduleGeneration: (campaign.scheduleGeneration ?? 0) + 1,
       scheduledJobId: undefined,
@@ -490,54 +672,201 @@ export const listEligibleSubscriberPage = internalQuery({
     if (!definition) {
       return { subscriberIds: [], continueCursor: null, isDone: true };
     }
-    const page = await ctx.db
+    const decodedCursor = decodeEligibilityCursor(args.paginationOpts.cursor);
+    const subscriberIds: Id<"subscribers">[] = [];
+
+    if (definition.divisionIds.length > 0) {
+      let divisionIndex =
+        decodedCursor?.mode === "division" ? decodedCursor.index : 0;
+      let divisionCursor =
+        decodedCursor?.mode === "division" ? decodedCursor.cursor : null;
+      while (
+        subscriberIds.length < args.paginationOpts.numItems &&
+        divisionIndex < definition.divisionIds.length
+      ) {
+        const divisionId = definition.divisionIds[divisionIndex];
+        if (!divisionId) {
+          divisionIndex += 1;
+          divisionCursor = null;
+          continue;
+        }
+        const preferencePage = await ctx.db
+          .query("subscriberDivisionPreferences")
+          .withIndex("by_division_and_subscriber", (q) =>
+            q.eq("divisionId", divisionId),
+          )
+          .paginate({
+            numItems: args.paginationOpts.numItems - subscriberIds.length,
+            cursor: divisionCursor,
+          });
+        for (const preference of preferencePage.page) {
+          const subscriber = await ctx.db.get(preference.subscriberId);
+          if (
+            subscriber &&
+            (await subscriberCanReceiveNewsletter(ctx, subscriber)) &&
+            subscriberMatchesAudienceFilters(subscriber, definition, {
+              divisionAlreadyMatched: true,
+            })
+          ) {
+            subscriberIds.push(subscriber._id);
+          }
+        }
+        if (preferencePage.isDone) {
+          divisionIndex += 1;
+          divisionCursor = null;
+        } else {
+          divisionCursor = preferencePage.continueCursor;
+          break;
+        }
+      }
+      const isDone = divisionIndex >= definition.divisionIds.length;
+      return {
+        subscriberIds,
+        continueCursor: isDone
+          ? null
+          : encodeEligibilityCursor({
+              mode: "division",
+              index: divisionIndex,
+              cursor: divisionCursor,
+            }),
+        isDone,
+      };
+    }
+
+    if (definition.favoriteTeamIds.length > 0) {
+      let teamIndex = decodedCursor?.mode === "team" ? decodedCursor.index : 0;
+      let teamCursor = decodedCursor?.mode === "team" ? decodedCursor.cursor : null;
+      while (
+        subscriberIds.length < args.paginationOpts.numItems &&
+        teamIndex < definition.favoriteTeamIds.length
+      ) {
+        const teamId = definition.favoriteTeamIds[teamIndex];
+        if (!teamId) {
+          teamIndex += 1;
+          teamCursor = null;
+          continue;
+        }
+        const teamPage = await ctx.db
+          .query("subscribers")
+          .withIndex("by_favorite_team_and_newsletter", (q) =>
+            q.eq("favoriteTeamId", teamId).eq("newsletterSubscribed", true),
+          )
+          .paginate({
+            numItems: args.paginationOpts.numItems - subscriberIds.length,
+            cursor: teamCursor,
+          });
+        for (const subscriber of teamPage.page) {
+          if (
+            (await subscriberCanReceiveNewsletter(ctx, subscriber)) &&
+            subscriberMatchesAudienceFilters(subscriber, definition)
+          ) {
+            subscriberIds.push(subscriber._id);
+          }
+        }
+        if (teamPage.isDone) {
+          teamIndex += 1;
+          teamCursor = null;
+        } else {
+          teamCursor = teamPage.continueCursor;
+          break;
+        }
+      }
+      const isDone = teamIndex >= definition.favoriteTeamIds.length;
+      return {
+        subscriberIds,
+        continueCursor: isDone
+          ? null
+          : encodeEligibilityCursor({
+              mode: "team",
+              index: teamIndex,
+              cursor: teamCursor,
+            }),
+        isDone,
+      };
+    }
+
+    const subscribedPage = await ctx.db
       .query("subscribers")
       .withIndex("by_newsletter_subscribed", (q) =>
         q.eq("newsletterSubscribed", true),
       )
       .paginate({
         numItems: args.paginationOpts.numItems,
-        cursor: args.paginationOpts.cursor,
+        cursor:
+          decodedCursor?.mode === "subscribed"
+            ? decodedCursor.cursor
+            : args.paginationOpts.cursor,
       });
-
-    const subscriberIds: Id<"subscribers">[] = [];
-    for (const subscriber of page.page) {
-      if (subscriber.unsubscribedAt !== undefined) {
-        continue;
-      }
+    for (const subscriber of subscribedPage.page) {
       if (
-        await hasActiveSuppression(ctx, {
-          subscriberId: subscriber._id,
-          normalizedEmail: subscriber.normalizedEmail,
-        })
+        (await subscriberCanReceiveNewsletter(ctx, subscriber)) &&
+        subscriberMatchesAudienceFilters(subscriber, definition)
       ) {
-        continue;
+        subscriberIds.push(subscriber._id);
       }
-      if (definition.divisionIds.length > 0) {
-        const matches = subscriber.divisionIds.some((id) =>
-          definition.divisionIds.includes(id),
-        );
-        if (!matches) {
-          continue;
-        }
-      }
-      if (definition.favoriteTeamIds.length > 0) {
-        if (
-          !subscriber.favoriteTeamId ||
-          !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
-        ) {
-          continue;
-        }
-      }
-      subscriberIds.push(subscriber._id);
     }
     return {
       subscriberIds,
+      continueCursor: subscribedPage.isDone
+        ? null
+        : encodeEligibilityCursor({
+            mode: "subscribed",
+            cursor: subscribedPage.continueCursor,
+          }),
+      isDone: subscribedPage.isDone,
+    };
+  },
+});
+
+export const countPreparedRecipientsPage = internalQuery({
+  args: {
+    sendId: v.id("newsletterSends"),
+    cursor: v.union(v.string(), v.null()),
+  },
+  returns: v.object({
+    count: v.number(),
+    continueCursor: v.union(v.string(), v.null()),
+    isDone: v.boolean(),
+  }),
+  handler: async (ctx, args) => {
+    const page = await ctx.db
+      .query("newsletterRecipients")
+      .withIndex("by_send_and_status", (q) =>
+        q.eq("sendId", args.sendId).eq("status", "prepared"),
+      )
+      .paginate({ numItems: COUNT_BATCH, cursor: args.cursor });
+    return {
+      count: page.page.length,
       continueCursor: page.isDone ? null : page.continueCursor,
       isDone: page.isDone,
     };
   },
 });
+
+type PreparedRecipientsCountPage = {
+  count: number;
+  continueCursor: string | null;
+  isDone: boolean;
+};
+
+async function countPreparedRecipients(
+  ctx: MutationCtx,
+  sendId: Id<"newsletterSends">,
+): Promise<number> {
+  let count = 0;
+  let cursor: string | null = null;
+  let isDone = false;
+  while (!isDone) {
+    const page: PreparedRecipientsCountPage = await ctx.runQuery(
+      internal.newsletterSend.countPreparedRecipientsPage,
+      { sendId, cursor },
+    );
+    count += page.count;
+    isDone = page.isDone;
+    cursor = page.continueCursor;
+  }
+  return count;
+}
 
 export const prepareRecipients = internalMutation({
   args: {
@@ -598,14 +927,9 @@ export const prepareRecipients = internalMutation({
       return null;
     }
 
-    const prepared = await ctx.db
-      .query("newsletterRecipients")
-      .withIndex("by_send_and_status", (q) =>
-        q.eq("sendId", args.sendId).eq("status", "prepared"),
-      )
-      .collect();
+    const preparedCount = await countPreparedRecipients(ctx, args.sendId);
 
-    if (prepared.length === 0) {
+    if (preparedCount === 0) {
       await ctx.db.patch(args.sendId, {
         status: "failed",
         lastErrorCode: "AUDIENCE_EMPTY",
@@ -616,33 +940,102 @@ export const prepareRecipients = internalMutation({
         status: "failed",
         recipientCount: 0,
       });
+      await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+        campaignId: send.campaignId,
+        sendId: args.sendId,
+        status: "failed",
+      });
       return null;
     }
 
     await ctx.db.patch(args.sendId, {
       status: "sending",
-      expectedRecipientCount: prepared.length,
+      expectedRecipientCount: preparedCount,
     });
     await ctx.db.patch(send.campaignId, {
       status: "sending",
-      recipientCount: prepared.length,
+      recipientCount: preparedCount,
     });
 
     await ctx.scheduler.runAfter(
       0,
       internal.newsletterSend.enqueueRecipientBatch,
-      { sendId: args.sendId },
+      { sendId: args.sendId, cursor: null },
     );
     return null;
   },
 });
 
+async function finalizeQueuedSend(
+  ctx: MutationCtx,
+  send: Doc<"newsletterSends">,
+): Promise<void> {
+  const current = await ctx.db.get(send._id);
+  if (!current) {
+    return;
+  }
+  // Nothing queued -> failed; queued plus failures -> partially failed; else sent.
+  const finalStatus: Doc<"newsletterSends">["status"] =
+    current.queuedCount === 0
+      ? "failed"
+      : current.failedCount > 0
+        ? "partially_failed"
+        : "sent";
+  const now = Date.now();
+  await ctx.db.patch(send._id, {
+    status: finalStatus,
+    completedAt: now,
+    ...(finalStatus === "failed" && current.queuedCount === 0
+      ? {
+          lastErrorCode:
+            current.suppressedCount > 0 && current.failedCount === 0
+              ? "ALL_SUPPRESSED"
+              : current.lastErrorCode ?? "NOTHING_QUEUED",
+        }
+      : {}),
+  });
+  await ctx.db.patch(send.campaignId, {
+    status: finalStatus,
+    ...(finalStatus !== "failed" ? { sentAt: now } : {}),
+  });
+  if (finalStatus === "failed" || finalStatus === "partially_failed") {
+    await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+      campaignId: send.campaignId,
+      sendId: send._id,
+      status: finalStatus,
+    });
+  }
+}
+
 export const enqueueRecipientBatch = internalMutation({
-  args: { sendId: v.id("newsletterSends") },
+  args: {
+    sendId: v.id("newsletterSends"),
+    cursor: v.union(v.string(), v.null()),
+  },
   returns: v.null(),
   handler: async (ctx, args) => {
     const send = await ctx.db.get(args.sendId);
     if (!send || send.status !== "sending") {
+      return null;
+    }
+    try {
+      await assertMarketingSendEnabled(ctx);
+    } catch {
+      // Do not rethrow: Convex rolls back patches if the mutation throws.
+      const now = Date.now();
+      await ctx.db.patch(args.sendId, {
+        status: "failed",
+        lastErrorCode: "MARKETING_KILL_SWITCH",
+        completedAt: now,
+      });
+      await ctx.db.patch(send.campaignId, {
+        status: "failed",
+      });
+      await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+        campaignId: send.campaignId,
+        sendId: args.sendId,
+        status: "failed",
+      });
       return null;
     }
     const revision = await ctx.db.get(send.revisionId);
@@ -659,43 +1052,24 @@ export const enqueueRecipientBatch = internalMutation({
       return null;
     }
 
-    const batch = await ctx.db
+    const page = await ctx.db
       .query("newsletterRecipients")
       .withIndex("by_send_and_status", (q) =>
         q.eq("sendId", args.sendId).eq("status", "prepared"),
       )
-      .take(50);
+      .paginate({ numItems: ENQUEUE_BATCH, cursor: args.cursor });
+    const batch = page.page;
 
     if (batch.length === 0) {
-      const current = await ctx.db.get(args.sendId);
-      if (!current) {
+      if (!page.isDone) {
+        await ctx.scheduler.runAfter(
+          0,
+          internal.newsletterSend.enqueueRecipientBatch,
+          { sendId: args.sendId, cursor: page.continueCursor },
+        );
         return null;
       }
-      // Nothing queued → failed (covers all-suppressed / all-failed).
-      // Some queued + some failed → partially_failed. Else → sent.
-      const finalStatus =
-        current.queuedCount === 0
-          ? "failed"
-          : current.failedCount > 0
-            ? "partially_failed"
-            : "sent";
-      const now = Date.now();
-      await ctx.db.patch(args.sendId, {
-        status: finalStatus,
-        completedAt: now,
-        ...(finalStatus === "failed" && current.queuedCount === 0
-          ? {
-              lastErrorCode:
-                current.suppressedCount > 0 && current.failedCount === 0
-                  ? "ALL_SUPPRESSED"
-                  : current.lastErrorCode ?? "NOTHING_QUEUED",
-            }
-          : {}),
-      });
-      await ctx.db.patch(send.campaignId, {
-        status: finalStatus,
-        ...(finalStatus !== "failed" ? { sentAt: now } : {}),
-      });
+      await finalizeQueuedSend(ctx, send);
       return null;
     }
 
@@ -730,16 +1104,47 @@ export const enqueueRecipientBatch = internalMutation({
       }
 
       try {
-        const token = await createUnsubscribeToken(subscriber.normalizedEmail);
-        const unsubUrl = `${siteBaseUrl()}/uitschrijven?token=${encodeURIComponent(token)}`;
-        const html = revision.html.replaceAll(
-          `${siteBaseUrl()}/uitschrijven`,
-          unsubUrl,
+        const now = Date.now();
+        const siteBase = siteBaseUrl();
+        const unsubscribeToken = await mintEmailLinkToken(ctx, {
+          purpose: "newsletter_unsubscribe",
+          subscriberId: subscriber._id,
+          expiresAt: now + UNSUBSCRIBE_TTL_MS,
+          sendId: send._id,
+          campaignId: send.campaignId,
+        });
+        const preferencesToken = await mintEmailLinkToken(ctx, {
+          purpose: "preferences_access",
+          subscriberId: subscriber._id,
+          expiresAt: now + PREFERENCES_ACCESS_TTL_MS,
+          sendId: send._id,
+          campaignId: send.campaignId,
+        });
+        const unsubscribeUrl = `${siteBase}/uitschrijven?token=${encodeURIComponent(unsubscribeToken)}`;
+        const listUnsubscribeUrl = `${siteBase}/api/email/uitschrijven?token=${encodeURIComponent(unsubscribeToken)}`;
+        const preferencesUrl = `${siteBase}/email/voorkeuren?token=${encodeURIComponent(preferencesToken)}`;
+        let html = replacePreferencesLinks(
+          revision.html.replaceAll(`${siteBase}/uitschrijven`, unsubscribeUrl),
+          siteBase,
+          preferencesUrl,
         );
-        const text = revision.text.replaceAll(
-          `${siteBaseUrl()}/uitschrijven`,
-          unsubUrl,
+        let text = replacePreferencesLinks(
+          revision.text.replaceAll(`${siteBase}/uitschrijven`, unsubscribeUrl),
+          siteBase,
+          preferencesUrl,
         );
+        const articleSlugs = collectArticleSlugs(siteBase, [html, text]);
+        if (articleSlugs.size > 0) {
+          const articleToken = await mintEmailLinkToken(ctx, {
+            purpose: "article_access",
+            subscriberId: subscriber._id,
+            expiresAt: now + ARTICLE_ACCESS_TTL_MS,
+            sendId: send._id,
+            campaignId: send.campaignId,
+          });
+          html = replaceArticleLinks(html, siteBase, articleToken);
+          text = replaceArticleLinks(text, siteBase, articleToken);
+        }
         const emailId = await resend.sendEmail(ctx, {
           from: `${sender.fromName} <${sender.fromAddress}>`,
           to: subscriber.normalizedEmail,
@@ -748,7 +1153,7 @@ export const enqueueRecipientBatch = internalMutation({
           html,
           text,
           headers: [
-            { name: "List-Unsubscribe", value: `<${unsubUrl}>` },
+            { name: "List-Unsubscribe", value: `<${listUnsubscribeUrl}>` },
             {
               name: "List-Unsubscribe-Post",
               value: "List-Unsubscribe=One-Click",
@@ -783,10 +1188,19 @@ export const enqueueRecipientBatch = internalMutation({
       });
     }
 
+    if (queuedDelta > 0) {
+      await markEmailMediaUsedByHtml(ctx, revision.html);
+    }
+
+    if (page.isDone) {
+      await finalizeQueuedSend(ctx, send);
+      return null;
+    }
+
     await ctx.scheduler.runAfter(
       0,
       internal.newsletterSend.enqueueRecipientBatch,
-      { sendId: args.sendId },
+      { sendId: args.sendId, cursor: page.continueCursor },
     );
     return null;
   },
@@ -849,5 +1263,138 @@ export const getSendResults = viewerQuery({
       },
       campaignStatus: campaign?.status ?? "unknown",
     };
+  },
+});
+
+function maskEmailAddress(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) {
+    return "***";
+  }
+  return `${local.slice(0, 1)}***@${domain}`;
+}
+
+export const listFailedRecipients = viewerQuery({
+  args: {
+    sendId: v.id("newsletterSends"),
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      recipientId: v.id("newsletterRecipients"),
+      maskedEmail: v.string(),
+      errorCode: v.optional(v.string()),
+      failedAt: v.optional(v.number()),
+      recoverable: v.boolean(),
+    }),
+  ),
+  handler: async (ctx, args) => {
+    const limit = Math.min(Math.max(args.limit ?? 50, 1), 100);
+    const failed = await ctx.db
+      .query("newsletterRecipients")
+      .withIndex("by_send_and_status", (q) =>
+        q.eq("sendId", args.sendId).eq("status", "failed"),
+      )
+      .take(limit);
+    const rows = [];
+    for (const recipient of failed) {
+      const subscriber = await ctx.db.get(recipient.subscriberId);
+      rows.push({
+        recipientId: recipient._id,
+        maskedEmail: subscriber
+          ? maskEmailAddress(subscriber.normalizedEmail)
+          : "***",
+        errorCode: recipient.errorCode,
+        failedAt: recipient.failedAt,
+        recoverable: Boolean(subscriber?.newsletterSubscribed),
+      });
+    }
+    return rows;
+  },
+});
+
+export const recoverFailedRecipients = adminMutation({
+  args: {
+    sendId: v.id("newsletterSends"),
+    recipientIds: v.optional(v.array(v.id("newsletterRecipients"))),
+  },
+  returns: v.object({
+    requeued: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    await assertMarketingSendEnabled(ctx);
+    const send = await ctx.db.get(args.sendId);
+    if (!send) {
+      throw new Error("Verzending niet gevonden.");
+    }
+    if (!["sent", "partially_failed", "failed"].includes(send.status)) {
+      throw new Error("Herstel is alleen mogelijk na een afgeronde verzending.");
+    }
+
+    const failed = await ctx.db
+      .query("newsletterRecipients")
+      .withIndex("by_send_and_status", (q) =>
+        q.eq("sendId", args.sendId).eq("status", "failed"),
+      )
+      .take(200);
+    const selectedIds = args.recipientIds
+      ? new Set(args.recipientIds)
+      : null;
+    const selected = selectedIds
+      ? failed.filter((row) => selectedIds.has(row._id))
+      : failed;
+
+    let requeued = 0;
+    for (const recipient of selected) {
+      const subscriber = await ctx.db.get(recipient.subscriberId);
+      if (!subscriber?.newsletterSubscribed) {
+        continue;
+      }
+      if (
+        await hasActiveSuppression(ctx, {
+          subscriberId: subscriber._id,
+          normalizedEmail: subscriber.normalizedEmail,
+        })
+      ) {
+        continue;
+      }
+      await ctx.db.patch(recipient._id, {
+        status: "prepared",
+        errorCode: undefined,
+        failedAt: undefined,
+        resendEmailId: undefined,
+      });
+      requeued += 1;
+    }
+
+    if (requeued === 0) {
+      return { requeued: 0 };
+    }
+
+    await ctx.db.patch(args.sendId, {
+      status: "sending",
+      failedCount: Math.max(0, send.failedCount - requeued),
+      completedAt: undefined,
+      lastErrorCode: undefined,
+    });
+    await ctx.db.patch(send.campaignId, {
+      status: "sending",
+    });
+    await writeAudit(ctx, {
+      action: "failed_recipients_recovered",
+      actorUserId: ctx.adminUser._id,
+      campaignId: send.campaignId,
+      sendId: args.sendId,
+      metadata: JSON.stringify({ requeued }),
+    });
+    await ctx.scheduler.runAfter(
+      0,
+      internal.newsletterSend.enqueueRecipientBatch,
+      {
+        sendId: args.sendId,
+        cursor: null,
+      },
+    );
+    return { requeued };
   },
 });

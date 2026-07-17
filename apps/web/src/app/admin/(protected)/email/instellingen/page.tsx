@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
+import { captureAdminEvent } from "@/lib/analytics";
 
 export default function InstellingenPage() {
   const settings = useQuery(api.newsletterAdmin.getSenderSettings);
   const updateSenderSettings = useMutation(
     api.newsletterAdmin.updateSenderSettings,
+  );
+  const setMarketingKillSwitch = useMutation(
+    api.newsletterAdmin.setMarketingKillSwitch,
   );
 
   const [fromNameOverride, setFromNameOverride] = useState<string | null>(null);
@@ -18,6 +22,9 @@ export default function InstellingenPage() {
   const [saving, setSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [killSwitchSaving, setKillSwitchSaving] = useState(false);
+  const [killSwitchError, setKillSwitchError] = useState<string | null>(null);
+  const [killSwitchReason, setKillSwitchReason] = useState("");
 
   const fromName = fromNameOverride ?? settings?.fromName ?? "";
   const fromAddress = fromAddressOverride ?? settings?.fromAddress ?? "";
@@ -37,6 +44,34 @@ export default function InstellingenPage() {
       );
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleToggleKillSwitch() {
+    if (!settings) return;
+    const reason = killSwitchReason.trim();
+    if (reason.length < 3) {
+      setKillSwitchError("Geef een reden op (minstens 3 tekens).");
+      return;
+    }
+    setKillSwitchSaving(true);
+    setKillSwitchError(null);
+    try {
+      const nextValue = settings.marketingKillSwitch === "on" ? "off" : "on";
+      await setMarketingKillSwitch({
+        value: nextValue,
+        reason,
+      });
+      captureAdminEvent("newsletter_kill_switch_toggled", {
+        value: nextValue,
+      });
+      setKillSwitchReason("");
+    } catch (err) {
+      setKillSwitchError(
+        err instanceof Error ? err.message : "Noodstop aanpassen mislukt",
+      );
+    } finally {
+      setKillSwitchSaving(false);
     }
   }
 
@@ -114,6 +149,68 @@ export default function InstellingenPage() {
 
       {settings && (
         <div style={{ marginTop: "2rem" }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "1.2rem",
+              marginBottom: "0.75rem",
+            }}
+          >
+            Marketingnoodstop
+          </h2>
+          <div
+            className={
+              settings.marketingKillSwitch === "on"
+                ? "admin-error"
+                : "admin-notice"
+            }
+            style={{ marginBottom: "1rem" }}
+          >
+            {settings.marketingKillSwitch === "on"
+              ? "Marketingverzendingen zijn geblokkeerd."
+              : "Marketingverzendingen zijn toegestaan."}
+          </div>
+          {killSwitchError && <p className="admin-error">{killSwitchError}</p>}
+          <div className="admin-field" style={{ marginBottom: "0.75rem" }}>
+            <label className="admin-field__label" htmlFor="killSwitchReason">
+              Reden (verplicht, audit)
+            </label>
+            <textarea
+              id="killSwitchReason"
+              className="admin-field__input"
+              value={killSwitchReason}
+              onChange={(e) => setKillSwitchReason(e.target.value)}
+              rows={3}
+              maxLength={500}
+              placeholder="Waarom schakel je de noodstop in of uit?"
+              required
+            />
+          </div>
+          <button
+            className="admin-button"
+            type="button"
+            onClick={handleToggleKillSwitch}
+            disabled={killSwitchSaving || killSwitchReason.trim().length < 3}
+            style={{
+              width: "auto",
+              marginBottom: "2rem",
+              background:
+                settings.marketingKillSwitch === "on"
+                  ? "transparent"
+                  : "var(--accent)",
+              color:
+                settings.marketingKillSwitch === "on"
+                  ? "var(--ink)"
+                  : "white",
+            }}
+          >
+            {killSwitchSaving
+              ? "Aanpassen…"
+              : settings.marketingKillSwitch === "on"
+                ? "Noodstop uitschakelen"
+                : "Noodstop inschakelen"}
+          </button>
+
           <h2
             style={{
               fontFamily: "var(--font-display)",

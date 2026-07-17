@@ -188,7 +188,6 @@ Geen raw e-mail, e-mailhash, magic token, vrije formuliertekst of URL-token. Ses
 
 ## MVP-checklist
 
-- [ ] Open Design-assets in toegankelijke repository plaatsen
 - [ ] Design tokens, masthead, footer en responsive layouts
 - [ ] Statische homepage, archief en artikeltemplate
 - [ ] `isGated` en publieke lead-in

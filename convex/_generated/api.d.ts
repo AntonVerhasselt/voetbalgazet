@@ -11,16 +11,22 @@
 import type * as admin from "../admin.js";
 import type * as agentAccess from "../agentAccess.js";
 import type * as auth from "../auth.js";
+import type * as crons from "../crons.js";
+import type * as emailLinks from "../emailLinks.js";
 import type * as http from "../http.js";
 import type * as lib_adminAuth from "../lib/adminAuth.js";
 import type * as lib_adminRoles from "../lib/adminRoles.js";
 import type * as lib_agentAccessShared from "../lib/agentAccessShared.js";
+import type * as lib_bounce from "../lib/bounce.js";
 import type * as lib_compliance from "../lib/compliance.js";
 import type * as lib_email from "../lib/email.js";
 import type * as lib_emailLinkToken from "../lib/emailLinkToken.js";
+import type * as lib_emailLinkTokensDb from "../lib/emailLinkTokensDb.js";
+import type * as lib_emailMedia from "../lib/emailMedia.js";
 import type * as lib_emailRender from "../lib/emailRender.js";
 import type * as lib_preferenceCatalog from "../lib/preferenceCatalog.js";
 import type * as lib_rateLimit from "../lib/rateLimit.js";
+import type * as lib_runtimeSettings from "../lib/runtimeSettings.js";
 import type * as lib_subscriberPreferences from "../lib/subscriberPreferences.js";
 import type * as lib_suppressions from "../lib/suppressions.js";
 import type * as lib_validators from "../lib/validators.js";
@@ -30,7 +36,10 @@ import type * as newsletterDelivery from "../newsletterDelivery.js";
 import type * as newsletterSend from "../newsletterSend.js";
 import type * as r2 from "../r2.js";
 import type * as resendClient from "../resendClient.js";
+import type * as retention from "../retention.js";
 import type * as subscribers from "../subscribers.js";
+import type * as taxonomy from "../taxonomy.js";
+import type * as testOps from "../testOps.js";
 
 import type {
   ApiFromModules,
@@ -42,16 +51,22 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   agentAccess: typeof agentAccess;
   auth: typeof auth;
+  crons: typeof crons;
+  emailLinks: typeof emailLinks;
   http: typeof http;
   "lib/adminAuth": typeof lib_adminAuth;
   "lib/adminRoles": typeof lib_adminRoles;
   "lib/agentAccessShared": typeof lib_agentAccessShared;
+  "lib/bounce": typeof lib_bounce;
   "lib/compliance": typeof lib_compliance;
   "lib/email": typeof lib_email;
   "lib/emailLinkToken": typeof lib_emailLinkToken;
+  "lib/emailLinkTokensDb": typeof lib_emailLinkTokensDb;
+  "lib/emailMedia": typeof lib_emailMedia;
   "lib/emailRender": typeof lib_emailRender;
   "lib/preferenceCatalog": typeof lib_preferenceCatalog;
   "lib/rateLimit": typeof lib_rateLimit;
+  "lib/runtimeSettings": typeof lib_runtimeSettings;
   "lib/subscriberPreferences": typeof lib_subscriberPreferences;
   "lib/suppressions": typeof lib_suppressions;
   "lib/validators": typeof lib_validators;
@@ -61,7 +76,10 @@ declare const fullApi: ApiFromModules<{
   newsletterSend: typeof newsletterSend;
   r2: typeof r2;
   resendClient: typeof resendClient;
+  retention: typeof retention;
   subscribers: typeof subscribers;
+  taxonomy: typeof taxonomy;
+  testOps: typeof testOps;
 }>;
 
 /**

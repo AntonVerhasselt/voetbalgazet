@@ -10,6 +10,7 @@ import {
 import { SignupForm } from "@/components/signup-form";
 import { capturePublicEvent, bucketDurationMs } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
+import { hasReaderAccess } from "@/lib/reader-access";
 
 function restoreScrollPosition(scrollY: number): void {
   // Two-arg form stays instant even when html has scroll-behavior: smooth.
@@ -38,10 +39,9 @@ export function ArticleAccessGate({
   const sessionCheckStartedAt = useRef<number | null>(null);
   const lockedScrollY = useRef(0);
   const didLockScroll = useRef(false);
-  // Soft gate: any Better Auth session (anonymous reader after signup, or
-  // verified) unlocks. Technical bypass of soft HTML remains acceptable per
-  // Phase 2 plan; the sheet itself must stay mandatory until then.
-  const unlocked = Boolean(session?.user) || locallyUnlocked;
+  // Soft gate: only anonymous readers, verified e-mail sessions, or a fresh
+  // local signup unlock the article body.
+  const unlocked = hasReaderAccess(session?.user) || locallyUnlocked;
 
   useEffect(() => {
     if (sessionCheckStartedAt.current === null) {

@@ -29,6 +29,7 @@ export function ArchiveBrowser({
   const [division, setDivision] = useState("");
   const [team, setTeam] = useState("");
   const [year, setYear] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const searchOpened = useRef(false);
   const lastSearchKey = useRef<string | null>(null);
 
@@ -126,6 +127,55 @@ export function ArchiveBrowser({
     setYear("");
   }
 
+  const activeFilters = [
+    query
+      ? {
+          key: "query",
+          label: `Zoek: ${query}`,
+          clear: () => setQuery(""),
+        }
+      : null,
+    category
+      ? {
+          key: "category",
+          label: category,
+          clear: () => setCategory(""),
+        }
+      : null,
+    province
+      ? {
+          key: "province",
+          label: province.replaceAll("-", " "),
+          clear: () => setProvince(""),
+        }
+      : null,
+    division
+      ? {
+          key: "division",
+          label: division,
+          clear: () => setDivision(""),
+        }
+      : null,
+    team
+      ? {
+          key: "team",
+          label: team,
+          clear: () => setTeam(""),
+        }
+      : null,
+    year
+      ? {
+          key: "year",
+          label: year,
+          clear: () => setYear(""),
+        }
+      : null,
+  ].filter((filter): filter is {
+    key: string;
+    label: string;
+    clear: () => void;
+  } => filter !== null);
+
   function onSearchFocus(): void {
     if (searchOpened.current) {
       return;
@@ -146,12 +196,53 @@ export function ArchiveBrowser({
 
   return (
     <div className="archive-browser">
-      <aside className="archive-filters" aria-label="Filter het archief">
-        <div className="archive-filters__heading">
-          <h2>Filters</h2>
-          <button type="button" onClick={reset} disabled={!hasFilters}>
+      <div className="archive-mobile-tools">
+        <button
+          className="archive-filter-toggle"
+          type="button"
+          aria-expanded={filtersOpen}
+          aria-controls="archive-filters"
+          onClick={() => setFiltersOpen(true)}
+        >
+          Filters
+        </button>
+        {activeFilters.length > 0 ? (
+          <button type="button" onClick={reset}>
             Wis alles
           </button>
+        ) : null}
+      </div>
+
+      {filtersOpen ? (
+        <button
+          className="archive-filters__backdrop"
+          type="button"
+          aria-label="Sluit filters"
+          onClick={() => setFiltersOpen(false)}
+        />
+      ) : null}
+
+      <aside
+        id="archive-filters"
+        className={`archive-filters${
+          filtersOpen ? " archive-filters--open" : ""
+        }`}
+        aria-label="Filter het archief"
+      >
+        <div className="archive-filters__heading">
+          <h2>Filters</h2>
+          <div>
+            <button type="button" onClick={reset} disabled={!hasFilters}>
+              Wis alles
+            </button>
+            <button
+              className="archive-filters__close"
+              type="button"
+              onClick={() => setFiltersOpen(false)}
+            >
+              Sluit
+            </button>
+          </div>
         </div>
         <label>
           Zoek in titel en intro
@@ -225,6 +316,15 @@ export function ArchiveBrowser({
       </aside>
 
       <section className="archive-results" aria-live="polite">
+        {activeFilters.length > 0 ? (
+          <div className="archive-chips" aria-label="Actieve filters">
+            {activeFilters.map((filter) => (
+              <button type="button" key={filter.key} onClick={filter.clear}>
+                {filter.label} <span aria-hidden="true">×</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
         <div className="archive-results__count">
           <strong>{filteredEntries.length}</strong>{" "}
           {filteredEntries.length === 1 ? "verhaal" : "verhalen"}
