@@ -11,7 +11,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function ArchivePage() {
+export default async function ArchivePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const entries = (await getSearchablePublishedArticles()).map((article) => ({
     slug: article.slug,
     headline: article.headline,
@@ -35,7 +40,11 @@ export default async function ArchivePage() {
           redactionele index blijft voor iedere bezoeker hetzelfde.
         </p>
       </header>
-      <ArchiveBrowser entries={entries} />
+      <ArchiveBrowser
+        key={q?.trim() ?? ""}
+        entries={entries}
+        initialQuery={q?.trim() ?? ""}
+      />
     </main>
   );
 }

@@ -20,17 +20,19 @@ type ArchiveEntry = {
 
 export function ArchiveBrowser({
   entries,
+  initialQuery = "",
 }: {
   entries: readonly ArchiveEntry[];
+  initialQuery?: string;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState("");
   const [province, setProvince] = useState("");
   const [division, setDivision] = useState("");
   const [team, setTeam] = useState("");
   const [year, setYear] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const searchOpened = useRef(false);
+  const searchOpened = useRef(Boolean(initialQuery.trim()));
   const lastSearchKey = useRef<string | null>(null);
 
   const options = useMemo(
