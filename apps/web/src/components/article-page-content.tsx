@@ -48,6 +48,9 @@ export function ArticlePageContent({
           />
           <ArticleEngagement
             articleId={article.slug}
+            categoryKey={article.categoryKey}
+            divisionKey={article.divisionKeys[0] ?? "general"}
+            authorKey={article.authorKey}
             leadLength={article.leadParagraphCount}
             isGated={article.isGated}
           />
