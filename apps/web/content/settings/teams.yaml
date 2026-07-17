@@ -1,0 +1,67 @@
+items:
+  - key: kfc-duffel
+    label: KFC Duffel
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksv-aartselaar
+    label: KSV Aartselaar
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: tor-deurne-pirates
+    label: TOR Deurne Pirates
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-landen
+    label: FC Landen
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvc-kessel-lo
+    label: KVC Kessel-Lo
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-merelbeke
+    label: KFC Merelbeke
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-heusden-sport
+    label: KFC Heusden Sport
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-helson
+    label: KFC Helson
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kfc-paal-tervant
+    label: KFC Paal-Tervant
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kfc-varsenaere
+    label: KFC Varsenaere
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-lendelede-sport
+    label: KFC Lendelede Sport
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []

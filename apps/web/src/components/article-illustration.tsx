@@ -1,18 +1,28 @@
 export function ArticleIllustration({
   compact = false,
+  tone = "green",
+  eyebrow = "Lokale verhalen",
+  title = "Zondag",
+  subtitle = "langs de lijn",
+  alt = "Typografische illustratie: zondag langs de lijn",
 }: {
   compact?: boolean;
+  tone?: "green" | "red" | "gold";
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  alt?: string;
 }) {
   return (
     <figure
-      className={`article-illustration${compact ? " article-illustration--compact" : ""}`}
+      className={`article-illustration article-illustration--${tone}${compact ? " article-illustration--compact" : ""}`}
       role="img"
-      aria-label="Typografische illustratie: zondag langs de lijn"
+      aria-label={alt}
     >
-      <span className="article-illustration__eyebrow">Lokale verhalen</span>
-      <span className="article-illustration__title">Zondag</span>
+      <span className="article-illustration__eyebrow">{eyebrow}</span>
+      <span className="article-illustration__title">{title}</span>
       <span className="article-illustration__rule" />
-      <span className="article-illustration__subtitle">langs de lijn</span>
+      <span className="article-illustration__subtitle">{subtitle}</span>
     </figure>
   );
 }

@@ -1,0 +1,31 @@
+items:
+  - key: wedstrijdverslagen
+    label: Wedstrijdverslagen
+    description: Verslagen en verhalen rond lokale wedstrijden.
+    active: true
+    sortOrder: 10
+  - key: transfernieuws
+    label: Transfernieuws
+    description: Transfers, kernopbouw en bewegingen tussen clubs.
+    active: true
+    sortOrder: 20
+  - key: interviews
+    label: Interviews
+    description: Gesprekken met spelers, trainers en vrijwilligers.
+    active: true
+    sortOrder: 30
+  - key: analyse
+    label: Analyse
+    description: Duiding bij het lokale voetbal.
+    active: true
+    sortOrder: 40
+  - key: jeugd
+    label: Jeugd
+    description: Verhalen uit jeugdopleidingen en jeugdcompetities.
+    active: true
+    sortOrder: 50
+  - key: clubnieuws
+    label: Clubnieuws
+    description: Nieuws en reportages uit Vlaamse voetbalclubs.
+    active: true
+    sortOrder: 60

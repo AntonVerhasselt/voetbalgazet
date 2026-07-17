@@ -1,0 +1,19 @@
+items:
+  - key: redactie
+    displayName: Redactie De Voetbalgazet
+    role: Redactie
+    bio: De gezamenlijke redactie van De Voetbalgazet.
+    image: null
+    active: true
+  - key: lotte-vermeiren
+    displayName: Lotte Vermeiren
+    role: Journalist
+    bio: Schrijft reportages over clubs en vrijwilligers.
+    image: null
+    active: true
+  - key: milan-de-smet
+    displayName: Milan De Smet
+    role: Journalist
+    bio: Volgt jeugdvoetbal en trainers in Vlaanderen.
+    image: null
+    active: true

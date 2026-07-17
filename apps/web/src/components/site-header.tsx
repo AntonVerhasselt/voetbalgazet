@@ -16,8 +16,10 @@ export function SiteHeader() {
       <nav className="site-nav" aria-label="Hoofdnavigatie">
         <div className="shell site-nav__inner">
           <Link href="/">Voorpagina</Link>
-          <Link href="/nieuws/zondagen-langs-de-lijn">Verhalen</Link>
-          <Link href="/#inschrijven">Inschrijven</Link>
+          <Link href="/archief">Archief</Link>
+          <Link className="site-nav__subscribe" href="/#inschrijven">
+            Abonneren
+          </Link>
         </div>
       </nav>
     </header>

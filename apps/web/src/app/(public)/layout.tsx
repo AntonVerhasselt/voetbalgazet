@@ -1,3 +1,4 @@
+import { PublicAnalytics } from "@/components/public-analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
@@ -8,6 +9,7 @@ export default function PublicLayout({
 }>) {
   return (
     <>
+      <PublicAnalytics />
       <SiteHeader />
       {children}
       <SiteFooter />

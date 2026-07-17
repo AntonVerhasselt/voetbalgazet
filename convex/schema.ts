@@ -60,6 +60,20 @@ export default defineSchema({
     capturedAt: v.number(),
   }).index("by_subscriber", ["subscriberId"]),
 
+  subscriberDivisionPreferences: defineTable({
+    subscriberId: v.id("subscribers"),
+    divisionId: v.id("divisions"),
+  })
+    .index("by_subscriber", ["subscriberId"])
+    .index("by_division", ["divisionId"])
+    .index("by_subscriber_and_division", ["subscriberId", "divisionId"]),
+
+  signupRateLimits: defineTable({
+    keyHash: v.string(),
+    count: v.number(),
+    windowStartedAt: v.number(),
+  }).index("by_key_hash", ["keyHash"]),
+
   agentAccessEvents: defineTable({
     at: v.number(),
     result: v.union(

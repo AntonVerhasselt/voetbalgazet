@@ -12,11 +12,14 @@ export function SiteFooter() {
         </div>
         <nav aria-label="Voettekst">
           <Link href="/#inschrijven">Inschrijven</Link>
-          <Link href="/nieuws/zondagen-langs-de-lijn">Laatste verhaal</Link>
+          <Link href="/archief">Archief</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/voorwaarden">Voorwaarden</Link>
+          <a href="mailto:redactie@devoetbalgazet.be">Contact</a>
         </nav>
         <p className="site-footer__legal">
-          © 2026 De Voetbalgazet. Dit is een funderingsversie; privacy- en
-          contactgegevens volgen vóór lancering.
+          © 2026 De Voetbalgazet · YARU DAKEN BV · Van Duyststraat 60, 2100
+          Antwerpen · KBO 1017.634.522 · btw BE 1017.634.522
         </p>
       </div>
     </footer>

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { authComponent } from "./auth";
+import { authComponent, createAuth } from "./auth";
+import type { MutationCtx } from "./_generated/server";
 import { mutation } from "./_generated/server";
 import { viewerQuery } from "./lib/adminAuth";
 import { parseBootstrapRoleMap } from "./lib/adminRoles";
@@ -10,10 +11,21 @@ const adminSessionValidator = v.object({
   role: adminRoleValidator,
 });
 
+async function requireGithubAccount(
+  ctx: MutationCtx,
+): Promise<void> {
+  const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
+  const accounts = await auth.api.listUserAccounts({ headers });
+  if (!accounts.some((account) => account.providerId === "github")) {
+    throw new Error("Meld je voor de redactieomgeving aan via GitHub.");
+  }
+}
+
 export const claimConfiguredMembership = mutation({
   args: {},
   returns: adminSessionValidator,
   handler: async (ctx) => {
+    await requireGithubAccount(ctx);
     const authUser = await authComponent.getAuthUser(ctx);
     const normalizedEmail = authUser.email.trim().toLowerCase();
     const existingMembership = await ctx.db

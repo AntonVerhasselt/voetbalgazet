@@ -1,26 +1,28 @@
 # De Voetbalgazet
 
-Phase 1 foundation for a mobile-first Flemish local-football publication.
+Flemish local-football publication: public site (Phase 2) plus Keystatic
+article admin MVP (Phase 3).
 
 ## Included
 
-- Next.js 16 public site with a static homepage and sample article
-- provisional Open Design-inspired tokens and responsive editorial UI
-- Convex schema for subscribers, consent evidence, taxonomies, and admin users
-- privacy-safe, idempotent signup-start mutation
-- Better Auth admin login through a same-origin Next.js route
-- server-side admin role enforcement for `admin`, `journalist`, and `viewer`
+- Next.js public site with static Markdoc articles, email gate, and preferences
+- Convex subscribers, consent evidence, taxonomies, and admin users
+- Better Auth admin login (GitHub) through a same-origin Next.js route
+- Keystatic artikeladmin (`/keystatic`) with Git-backed Markdoc + YAML settings
+- Signed draft preview (`/preview/*`) with gate/ungated mobile checks
+- Branded mobile-first `/admin` shell linking to Artikels
 - strict TypeScript, Convex ESLint rules, and focused unit tests
 
-Reader sessions, the article gate, real division/team data, Keystatic, email
-delivery, and newsletter tooling belong to later phases.
+Newsletter editor, audiences, and sends belong to Phase 4.
 
-Operational docs (admin GitHub login, Vercel + Convex URLs): see [`docs/`](./docs/).
+Operational docs: [`docs/`](./docs/) (admin auth, Keystatic, Convex cloud agents,
+Vercel).
 
 ## Development
 
 ```bash
 npm install
+npm run bootstrap:convex   # Cloud Agents: requires CONVEX_DEPLOY_KEY secret
 npm run dev
 ```
 
@@ -34,9 +36,18 @@ npm run dev:web
 Use `npx convex dev` for development. Do not use `npx convex deploy` except in
 an intentional production release workflow (or the Vercel build below).
 
-The Convex development command creates `.env.local` with the public Convex
-URLs. Copy those public values to `apps/web/.env.local` when the web workspace
-does not pick up the root environment automatically.
+### Cursor Cloud Agents
+
+Do **not** rely on `npx convex login` (GitHub OAuth) inside Cloud Agents — that
+session lives only on that VM and disappears on the next pod. Set a Cursor
+secret `CONVEX_DEPLOY_KEY` and run:
+
+```bash
+npm ci
+npm run bootstrap:convex
+```
+
+Details: [`docs/cloud-agent-auth.md`](./docs/cloud-agent-auth.md).
 
 ## Vercel production build
 
@@ -57,6 +68,9 @@ Required Vercel env (Production):
 | `CONVEX_DEPLOY_KEY` | Production deploy key from Convex |
 | `NEXT_PUBLIC_CONVEX_URL` | `https://calculating-eel-615.convex.cloud` |
 | `NEXT_PUBLIC_CONVEX_SITE_URL` | `https://calculating-eel-615.convex.site` |
+
+Also set Keystatic GitHub App secrets when hosting the editor — see
+[`docs/keystatic-admin.md`](./docs/keystatic-admin.md).
 
 `NEXT_PUBLIC_CONVEX_SITE_URL` is the Convex **HTTP Actions** URL (`.convex.site`),
 not the cloud URL. For this production deployment it must be the **non-regional**

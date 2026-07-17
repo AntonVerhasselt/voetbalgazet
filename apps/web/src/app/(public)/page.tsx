@@ -1,53 +1,74 @@
 import Link from "next/link";
 import { ArticleIllustration } from "@/components/article-illustration";
 import { SignupForm } from "@/components/signup-form";
-import { articles } from "@/content/articles";
+import { formatArticleDate, getPublishedArticles } from "@/lib/content";
 
-export default function Home() {
-  const featuredArticle = articles[0];
+export default async function Home() {
+  const publishedArticles = await getPublishedArticles();
+  const featuredArticle =
+    publishedArticles.find((article) => article.featured) ??
+    publishedArticles[0];
+  if (!featuredArticle) {
+    return null;
+  }
+  const secondaryArticles = publishedArticles
+    .filter((article) => article.slug !== featuredArticle.slug)
+    .slice(0, 3);
 
   return (
     <main>
-      <section className="shell hero" aria-labelledby="hero-heading">
-        <div className="hero__copy">
-          <p className="eyebrow">{featuredArticle.kicker}</p>
-          <h1 id="hero-heading">{featuredArticle.headline}</h1>
-          <p className="dek">{featuredArticle.dek}</p>
-          <div className="article-meta">
-            <span>{featuredArticle.author}</span>
-            <span>12 juli 2026</span>
-            <span>{featuredArticle.readingTime}</span>
-          </div>
-          <Link
-            className="text-link"
-            href={`/nieuws/${featuredArticle.slug}`}
-          >
-            Lees het verhaal <span aria-hidden="true">→</span>
-          </Link>
-        </div>
-        <ArticleIllustration />
-      </section>
-
-      <section className="shell latest" aria-labelledby="latest-heading">
-        <div className="section-heading">
-          <p>De redactie selecteert</p>
-          <h2 id="latest-heading">Het laatste</h2>
-        </div>
-        <article className="story-row">
-          <ArticleIllustration compact />
-          <div>
-            <p className="eyebrow">{featuredArticle.category}</p>
-            <h3>
+      <section className="shell home-lead" aria-labelledby="hero-heading">
+        <article className="home-lead__main">
+          <div className="home-lead__copy">
+            <p className="eyebrow">{featuredArticle.kicker}</p>
+            <h1 id="hero-heading">
               <Link href={`/nieuws/${featuredArticle.slug}`}>
                 {featuredArticle.headline}
               </Link>
-            </h3>
-            <p>{featuredArticle.dek}</p>
-            <span className="story-row__meta">
-              12 juli 2026 · {featuredArticle.readingTime}
-            </span>
+            </h1>
+            <Link
+              className="home-lead__description"
+              href={`/nieuws/${featuredArticle.slug}`}
+            >
+              {featuredArticle.dek}
+            </Link>
+            <div className="article-meta">
+              <span>{featuredArticle.author}</span>
+              <span>{formatArticleDate(featuredArticle.publishedAt)}</span>
+              <span>{featuredArticle.readingTime}</span>
+            </div>
           </div>
+          <Link
+            className="home-lead__image"
+            href={`/nieuws/${featuredArticle.slug}`}
+            aria-label={featuredArticle.headline}
+          >
+            <ArticleIllustration
+              tone={featuredArticle.illustrationTone}
+              eyebrow={featuredArticle.category}
+              title="Zondag"
+              subtitle="langs de lijn"
+              alt={featuredArticle.heroAlt}
+            />
+          </Link>
         </article>
+
+        <div className="home-lead__secondary" aria-label="Meer verhalen">
+          {secondaryArticles.map((article) => (
+            <article className="home-lead__story" key={article.slug}>
+              <p className="eyebrow">{article.kicker}</p>
+              <Link
+                className="home-lead__story-link"
+                href={`/nieuws/${article.slug}`}
+              >
+                <h2>{article.headline}</h2>
+              </Link>
+            </article>
+          ))}
+        </div>
+        <Link className="home-lead__archive" href="/archief">
+          Volledig archief <span aria-hidden="true">→</span>
+        </Link>
       </section>
 
       <section
@@ -60,11 +81,11 @@ export default function Home() {
             <p className="eyebrow">Blijf langs de lijn</p>
             <h2 id="signup-heading">Verhalen uit jouw reeks, in je mailbox.</h2>
             <p>
-              Start met je e-mailadres. Bij de opening kies je minstens één
-              reeks en optioneel je favoriete club.
+              Kies minstens één reeks en optioneel je favoriete club. Je krijgt
+              meteen toegang tot alle verhalen en onze wekelijkse nieuwsbrief.
             </p>
           </div>
-          <SignupForm />
+          <SignupForm source="homepage_inline" />
         </div>
       </section>
     </main>
