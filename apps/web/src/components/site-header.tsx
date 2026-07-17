@@ -96,7 +96,9 @@ export function SiteHeader() {
         <p>Lokaal voetbal, echte verhalen.</p>
       </div>
       <nav className="site-nav" aria-label="Hoofdnavigatie">
-        <div className="shell site-nav__inner">
+        <div
+          className={`shell site-nav__inner${searchOpen ? " site-nav__inner--search-open" : ""}`}
+        >
           <div
             ref={containerRef}
             className={`site-nav__search${searchOpen ? " site-nav__search--open" : ""}`}
