@@ -76,7 +76,10 @@ export default function PrivacyPage() {
           Een strikt noodzakelijke HttpOnly-sessiecookie onthoudt je toegang
           maximaal 90 dagen en kan bij actief gebruik worden vernieuwd.
           Authenticatietokens staan niet in localStorage. Publieke analytics is
-          standaard cookieless; session replay staat uit.
+          standaard cookieless (geen trackingcookies) en session replay staat
+          uit. We meten alleen geaggregeerde productevents zoals paginatypes,
+          artikel-ID&apos;s, inschrijfstappen, leesdiepte, zoeklengte en
+          technische fouten — nooit e-mailadressen of formuliertekst.
         </p>
         <p>
           Uitschrijven stopt alleen de nieuwsbrief. Je website-toegang blijft

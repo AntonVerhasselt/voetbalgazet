@@ -4,7 +4,9 @@ import type { Article } from "@/content/articles";
 import { ArticleAccessGate } from "@/components/article-access-gate";
 import { ArticleAnalytics } from "@/components/article-analytics";
 import { ArticleBlocks } from "@/components/article-blocks";
+import { ArticleEngagement } from "@/components/article-engagement";
 import { ArticleIllustration } from "@/components/article-illustration";
+import { ArticleShare } from "@/components/article-share";
 import { PreviewArticleGate } from "@/components/preview-article-gate";
 import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, splitArticle } from "@/lib/content";
@@ -36,12 +38,20 @@ export function ArticlePageContent({
   return (
     <main>
       {!isPreview ? (
-        <ArticleAnalytics
-          articleId={article.slug}
-          category={article.categoryKey}
-          division={article.divisionKeys[0] ?? "general"}
-          isGated={article.isGated}
-        />
+        <>
+          <ArticleAnalytics
+            articleId={article.slug}
+            categoryKey={article.categoryKey}
+            divisionKey={article.divisionKeys[0] ?? "general"}
+            authorKey={article.authorKey}
+            isGated={article.isGated}
+          />
+          <ArticleEngagement
+            articleId={article.slug}
+            leadLength={article.leadParagraphCount}
+            isGated={article.isGated}
+          />
+        </>
       ) : null}
       {jsonLd && !isPreview ? (
         <script
@@ -128,6 +138,9 @@ export function ArticlePageContent({
               ? "Conceptpreview"
               : `Gepubliceerd in ${article.category}`}
           </p>
+          {!isPreview ? (
+            <ArticleShare articleId={article.slug} headline={article.headline} />
+          ) : null}
           <Link className="text-link" href="/#inschrijven">
             Ontvang verhalen uit jouw reeks <span aria-hidden="true">→</span>
           </Link>

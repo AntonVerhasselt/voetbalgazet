@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArticleIllustration } from "@/components/article-illustration";
 import { SignupForm } from "@/components/signup-form";
+import { TrackedArticleLink } from "@/components/tracked-article-link";
 import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, getPublishedArticles } from "@/lib/content";
 import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site-config";
@@ -55,26 +56,37 @@ export default async function Home() {
           <div className="home-lead__copy">
             <p className="eyebrow">{featuredArticle.kicker}</p>
             <h1 id="hero-heading">
-              <Link href={`/nieuws/${featuredArticle.slug}`}>
+              <TrackedArticleLink
+                href={`/nieuws/${featuredArticle.slug}`}
+                articleId={featuredArticle.slug}
+                slot="featured_headline"
+                position={1}
+              >
                 {featuredArticle.headline}
-              </Link>
+              </TrackedArticleLink>
             </h1>
-            <Link
+            <TrackedArticleLink
               className="home-lead__description"
               href={`/nieuws/${featuredArticle.slug}`}
+              articleId={featuredArticle.slug}
+              slot="featured_dek"
+              position={1}
             >
               {featuredArticle.dek}
-            </Link>
+            </TrackedArticleLink>
             <div className="article-meta">
               <span>{featuredArticle.author}</span>
               <span>{formatArticleDate(featuredArticle.publishedAt)}</span>
               <span>{featuredArticle.readingTime}</span>
             </div>
           </div>
-          <Link
+          <TrackedArticleLink
             className="home-lead__image"
             href={`/nieuws/${featuredArticle.slug}`}
-            aria-label={featuredArticle.headline}
+            articleId={featuredArticle.slug}
+            slot="featured_image"
+            position={1}
+            ariaLabel={featuredArticle.headline}
           >
             <ArticleIllustration
               tone={featuredArticle.illustrationTone}
@@ -83,19 +95,22 @@ export default async function Home() {
               subtitle={illustration.subtitle}
               alt={featuredArticle.heroAlt}
             />
-          </Link>
+          </TrackedArticleLink>
         </article>
 
         <div className="home-lead__secondary" aria-label="Meer verhalen">
-          {secondaryArticles.map((article) => (
+          {secondaryArticles.map((article, index) => (
             <article className="home-lead__story" key={article.slug}>
               <p className="eyebrow">{article.kicker}</p>
-              <Link
+              <TrackedArticleLink
                 className="home-lead__story-link"
                 href={`/nieuws/${article.slug}`}
+                articleId={article.slug}
+                slot="secondary"
+                position={index + 1}
               >
                 <h2>{article.headline}</h2>
-              </Link>
+              </TrackedArticleLink>
             </article>
           ))}
         </div>

@@ -202,4 +202,44 @@ describe("emailRender", () => {
       }),
     ).toContain("reeks: P1 Antwerpen");
   });
+
+  it("appends opaque campaign analytics ids to own-domain article links", () => {
+    const documentJson = JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Lees",
+              marks: [
+                {
+                  type: "link",
+                  attrs: {
+                    href: "https://devoetbalgazet.be/nieuws/derby-reportage",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const rendered = renderCampaignEmail({
+      documentJson,
+      subject: "Test",
+      links: {
+        unsubscribeUrl: "https://devoetbalgazet.be/uitschrijven",
+        preferencesUrl: "https://devoetbalgazet.be/voorkeuren",
+        privacyUrl: "https://devoetbalgazet.be/privacy",
+        siteUrl: "https://devoetbalgazet.be",
+      },
+      campaignAnalyticsId: "abc123def456",
+    });
+    expect(rendered.html).toContain("cid=abc123def456");
+    expect(rendered.html).toContain("utm_source=newsletter");
+    expect(rendered.html).toContain("utm_medium=email");
+    expect(rendered.html).toContain("/nieuws/derby-reportage?");
+  });
 });
