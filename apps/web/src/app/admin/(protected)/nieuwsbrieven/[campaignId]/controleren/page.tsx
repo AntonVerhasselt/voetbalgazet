@@ -22,46 +22,53 @@ function CampaignSubNav({ campaignId }: { campaignId: string }) {
 
 function formatDatetime(ts: number): string {
   return new Date(ts).toLocaleString("nl-BE", {
+    timeZone: "Europe/Brussels",
     dateStyle: "medium",
     timeStyle: "short",
   });
 }
 
-/** Convert a datetime-local string (Brussels time) to UTC ms. */
+/** Convert a datetime-local string (Brussels wall time) to UTC ms. */
 function brusselsLocalToUtcMs(localValue: string): number {
-  // datetime-local format: "YYYY-MM-DDTHH:mm"
-  // We interpret the value as Europe/Brussels local time.
-  // Strategy: try to compute the offset by formatting a UTC date in Brussels TZ.
   const [datePart, timePart] = localValue.split("T");
   if (!datePart || !timePart) throw new Error("Ongeldige datum/tijd");
   const [year, month, day] = datePart.split("-").map(Number);
   const [hour, minute] = timePart.split(":").map(Number);
+  if (
+    [year, month, day, hour, minute].some(
+      (n) => typeof n !== "number" || Number.isNaN(n),
+    )
+  ) {
+    throw new Error("Ongeldige datum/tijd");
+  }
 
-  // Create a "UTC proxy" by treating the local date as UTC
-  const proxyUtc = Date.UTC(year, month - 1, day, hour, minute);
-
-  // Format that proxy in Brussels TZ to find the offset
-  const formatted = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Brussels",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(proxyUtc);
-
-  // Parse the formatted output
-  // en-GB format: "DD/MM/YYYY, HH:mm"
-  const match = formatted.match(
-    /(\d{2})\/(\d{2})\/(\d{4}),\s*(\d{2}):(\d{2})/,
-  );
-  if (!match) return proxyUtc;
-
-  const [, fDay, fMonth, fYear, fHour, fMinute] = match.map(Number);
-  const proxyLocal = Date.UTC(fYear, fMonth - 1, fDay, fHour, fMinute);
-  const offsetMs = proxyUtc - proxyLocal;
-  return proxyUtc + offsetMs;
+  // Iteratively find the UTC instant whose Brussels local time matches.
+  let utcMs = Date.UTC(year, month - 1, day, hour, minute);
+  for (let i = 0; i < 3; i += 1) {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Brussels",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(new Date(utcMs));
+    const get = (type: string) =>
+      Number(parts.find((p) => p.type === type)?.value);
+    const asLocalUtc = Date.UTC(
+      get("year"),
+      get("month") - 1,
+      get("day"),
+      get("hour") === 24 ? 0 : get("hour"),
+      get("minute"),
+    );
+    const desiredAsUtc = Date.UTC(year, month - 1, day, hour, minute);
+    const diff = desiredAsUtc - asLocalUtc;
+    utcMs += diff;
+    if (diff === 0) break;
+  }
+  return utcMs;
 }
 
 export default function ControlerenPage({
