@@ -4,6 +4,7 @@ import { betterAuth, type BetterAuthOptions } from "better-auth/minimal";
 import { components } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
 import authConfig from "./auth.config";
+import { AGENT_EMAIL } from "./lib/agentAccessShared";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 
@@ -38,6 +39,31 @@ function createAuthOptions(ctx: GenericCtx<DataModel>): BetterAuthOptions {
     session: {
       expiresIn: 60 * 60 * 24 * 7,
       updateAge: 60 * 60 * 24,
+    },
+    // Email/password is an internal agent mechanism only — no UI on
+    // /admin/inloggen. Public sign-up stays disabled; the agent user is
+    // provisioned via convex/agentAccess.ts.
+    emailAndPassword: {
+      enabled: true,
+      disableSignUp: true,
+      requireEmailVerification: false,
+    },
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (user) => {
+            if (user.email.trim().toLowerCase() === AGENT_EMAIL) {
+              return {
+                data: {
+                  ...user,
+                  emailVerified: true,
+                },
+              };
+            }
+            return { data: user };
+          },
+        },
+      },
     },
     ...(betterAuthSecret ? { secret: betterAuthSecret } : {}),
     ...(githubClientId && githubClientSecret
