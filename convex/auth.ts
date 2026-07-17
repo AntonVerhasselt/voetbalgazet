@@ -5,6 +5,7 @@ import { anonymous, magicLink } from "better-auth/plugins";
 import { components } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
 import authConfig from "./auth.config";
+import { AGENT_EMAIL } from "./lib/agentAccessShared";
 import { parseBootstrapRoleMap } from "./lib/adminRoles";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
@@ -103,6 +104,31 @@ function createAuthOptions(ctx: GenericCtx<DataModel>): BetterAuthOptions {
         secure: isSecureSite,
         sameSite: "lax",
         path: "/",
+      },
+    },
+    // Email/password is an internal agent mechanism only — no UI on
+    // /admin/inloggen. Public sign-up stays disabled; the agent user is
+    // provisioned via convex/agentAccess.ts.
+    emailAndPassword: {
+      enabled: true,
+      disableSignUp: true,
+      requireEmailVerification: false,
+    },
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (user) => {
+            if (user.email.trim().toLowerCase() === AGENT_EMAIL) {
+              return {
+                data: {
+                  ...user,
+                  emailVerified: true,
+                },
+              };
+            }
+            return { data: user };
+          },
+        },
       },
     },
     ...(betterAuthSecret ? { secret: betterAuthSecret } : {}),
