@@ -46,7 +46,7 @@ Desktop is een verrijking van dezelfde flows, geen apart product.
 - ruime maar niet verspillende mobile spacing;
 - paper grain alleen decoratief en performance-safe.
 
-Exacte live tokens staan in [`01-design-style.md`](./01-design-style.md) (afgeleid van `apps/web/src/app/globals.css`). Open Design `brand-spec.md`/`styles.css` blijft latere pixel-perfecte afstemming.
+Exacte live tokens staan in [`01-design-style.md`](./01-design-style.md) (afgeleid van `apps/web/src/app/globals.css`).
 
 ### Interactie
 
