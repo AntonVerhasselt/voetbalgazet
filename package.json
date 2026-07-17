@@ -15,7 +15,8 @@
     "dev:convex:agent": "CONVEX_AGENT_MODE=anonymous convex dev",
     "lint": "npm run lint --workspace web && eslint --config eslint.config.mjs convex",
     "test": "vitest run",
-    "typecheck": "npm run typecheck --workspace web && tsc --noEmit -p convex/tsconfig.json"
+    "typecheck": "npm run typecheck --workspace web && tsc --noEmit -p convex/tsconfig.json",
+    "agent:login": "node scripts/agent-login.mjs"
   },
   "dependencies": {
     "@convex-dev/better-auth": "^0.12.5",

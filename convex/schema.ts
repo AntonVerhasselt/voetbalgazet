@@ -73,4 +73,15 @@ export default defineSchema({
     count: v.number(),
     windowStartedAt: v.number(),
   }).index("by_key_hash", ["keyHash"]),
+
+  agentAccessEvents: defineTable({
+    at: v.number(),
+    result: v.union(
+      v.literal("success"),
+      v.literal("failure"),
+      v.literal("disabled"),
+    ),
+    ipHash: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+  }).index("by_at", ["at"]),
 });

@@ -95,6 +95,54 @@ If the proxy host is wrong, the API may return **502** with `proxyTarget` set to
 the Convex site URL it tried. That value must match the working `.convex.site`
 host for the deployment.
 
+## Agent access (Cursor Cloud)
+
+Cursor agents should **not** use GitHub OAuth (2FA / CAPTCHA). They use a
+separate door that still issues a normal Better Auth session:
+
+```text
+AGENT_ACCESS_SECRET
+  → POST /api/admin/agent-session
+  → Better Auth session cookie (agent user)
+  → /admin  (same protected layout / getSession)
+```
+
+Interactive page: `/admin/agent-inloggen` (noindex, not linked from the public
+site or from `/admin/inloggen`).
+
+### One secret
+
+| Where | Value |
+|-------|--------|
+| Cursor Runtime Secret | `AGENT_ACCESS_SECRET` (≥ 32 chars) |
+| Next.js (`apps/web/.env.local` or root `.env.agent-access.local`) | same |
+| Convex deployment env | **same value** (needed for `prepareAgentSession`) |
+| Production Vercel / prod Convex | **unset** (door closed → 404) |
+
+Role is always `admin`. Agent email is fixed:
+`cursor-agent@agents.devoetbalgazet.local` (not in `ADMIN_BOOTSTRAP_ROLE_MAP`).
+
+### Smoke test
+
+```bash
+# With Next on :3000 and AGENT_ACCESS_SECRET set in both Next + Convex:
+curl -sS -D - -o /tmp/agent.json -X POST \
+  'http://localhost:3000/api/admin/agent-session' \
+  -H 'content-type: application/json' \
+  --data-raw "{\"secret\":\"$AGENT_ACCESS_SECRET\"}"
+
+# Or: npm run agent:login
+```
+
+Expect **200**, `Set-Cookie`, and JSON `{ "ok": true, "email": "...", "role": "admin" }`.
+Unset / short secret → **404**. Wrong secret → **401**.
+
+### Keystatic note
+
+An agent session unlocks the custom Convex admin. Hosted Keystatic GitHub
+writes still need Keystatic’s GitHub App login; agents should use Keystatic
+local mode + git on a feature branch. See `plans/agent-access/`.
+
 Direct Convex check (bypasses Next.js):
 
 ```bash
