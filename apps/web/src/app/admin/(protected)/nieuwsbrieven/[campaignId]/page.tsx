@@ -191,10 +191,9 @@ function CampaignEditorForm({
         </p>
       )}
 
-      <div className="newsletter-editor-layout">
-        {/* Left: fields + editor */}
-        <div>
-          <div className="newsletter-editor-fields">
+      <div className="newsletter-editor-layout newsletter-editor-page">
+        <div className="newsletter-editor-fields">
+          <div className="newsletter-editor-fields__meta">
             <div className="admin-field">
               <label className="admin-field__label" htmlFor="internalName">
                 Interne naam
@@ -247,7 +246,31 @@ function CampaignEditorForm({
             </div>
           </div>
 
-          <div className="newsletter-editor-main">
+          <div className="newsletter-editor-toolbar">
+            <button
+              type="button"
+              className="newsletter-action-btn"
+              aria-pressed={showPreview}
+              onClick={() => setShowPreview((v) => !v)}
+            >
+              {showPreview ? "Terug naar editor" : "Voorbeeld tonen"}
+            </button>
+            <p
+              className={`newsletter-editor-save-status newsletter-editor-save-status--${saveStatus}`}
+            >
+              {saveStatus === "saving" && "Opslaan…"}
+              {saveStatus === "saved" && "Opgeslagen"}
+              {saveStatus === "error" && (saveError ?? "Opslaan mislukt")}
+            </p>
+          </div>
+        </div>
+
+        <div className="newsletter-editor-stage">
+          <div
+            className="newsletter-editor-main"
+            hidden={showPreview}
+            aria-hidden={showPreview}
+          >
             <NewsletterEmailEditor
               ref={editorRef}
               content={initialContent}
@@ -257,37 +280,19 @@ function CampaignEditorForm({
               showInspector={canEdit}
             />
           </div>
-
-          <p
-            className={`newsletter-editor-save-status newsletter-editor-save-status--${saveStatus}`}
-          >
-            {saveStatus === "saving" && "Opslaan…"}
-            {saveStatus === "saved" && "Opgeslagen"}
-            {saveStatus === "error" && (saveError ?? "Opslaan mislukt")}
-          </p>
-        </div>
-
-        {/* Right: preview */}
-        <div className="newsletter-preview-panel">
-          <span>Voorbeeld</span>
-          <button
-            className="newsletter-action-btn"
-            style={{ width: "fit-content" }}
-            onClick={() => setShowPreview((v) => !v)}
-          >
-            {showPreview ? "Voorbeeld verbergen" : "Voorbeeld tonen"}
-          </button>
-          {showPreview && (
-            <iframe
-              className="newsletter-preview-frame"
-              srcDoc={
-                previewHtml ||
-                "<p style='padding:2rem;color:#888;font-family:sans-serif'>Sla eerst op om een voorbeeld te zien.</p>"
-              }
-              title="E-mailvoorvertoning"
-              sandbox="allow-same-origin"
-            />
-          )}
+          {showPreview ? (
+            <div className="newsletter-preview-panel newsletter-preview-panel--stage">
+              <iframe
+                className="newsletter-preview-frame"
+                srcDoc={
+                  previewHtml ||
+                  "<p style='padding:2rem;color:#888;font-family:sans-serif'>Sla eerst op om een voorbeeld te zien.</p>"
+                }
+                title="E-mailvoorvertoning"
+                sandbox="allow-same-origin"
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </>

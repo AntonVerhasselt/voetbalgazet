@@ -7,6 +7,7 @@ import {
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import type { Content, Editor, JSONContent } from "@tiptap/core";
 import { EditorProvider, useCurrentEditor } from "@tiptap/react";
@@ -122,9 +123,9 @@ function EditorBridges({
 /**
  * Full-featured React Email editor for nieuwsbrief / dienstmail drafting.
  *
- * Includes StarterKit blocks (headings, lists, quote, code, button, section,
- * columns, table, divider), image upload, spacer, bubble menus, slash
- * commands, Voetbalgazet theming, and the design inspector sidebar.
+ * Layout follows the React Email Inspector docs: a fixed-height flex row with
+ * `flex-1 min-w-0` canvas and a `w-60 shrink-0` inspector sidebar — not stacked
+ * vertically on mobile (which buried the inspector below the canvas).
  */
 export const NewsletterEmailEditor = forwardRef<
   NewsletterEmailEditorRef,
@@ -143,6 +144,7 @@ export const NewsletterEmailEditor = forwardRef<
   ref,
 ) {
   const helpersRef = useRef<NewsletterEmailEditorRef | null>(null);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
 
   useImperativeHandle(ref, () => ({
     getEmail: async () =>
@@ -183,8 +185,6 @@ export const NewsletterEmailEditor = forwardRef<
       }),
       EmailTheming.configure({ theme: voetbalgazetEmailTheme }),
       Spacer,
-      // Always register image so existing image nodes remain in the schema
-      // (paste/drop/slash upload only work when onUploadImage is provided).
       imageExtension,
     ];
   }, [placeholder, imageExtension]);
@@ -201,11 +201,39 @@ export const NewsletterEmailEditor = forwardRef<
       className={[
         "newsletter-re-shell",
         showInspector ? "newsletter-re-shell--with-inspector" : "",
+        showInspector && inspectorOpen
+          ? "newsletter-re-shell--inspector-open"
+          : "",
         className ?? "",
       ]
         .filter(Boolean)
         .join(" ")}
     >
+      {showInspector ? (
+        <div className="newsletter-re-toolbar">
+          <p className="newsletter-re-hint">
+            Typ <kbd>/</kbd> voor blokken · selecteer tekst voor opmaak
+          </p>
+          <button
+            type="button"
+            className="newsletter-re-inspector-toggle"
+            aria-expanded={inspectorOpen}
+            aria-controls="newsletter-re-inspector"
+            onClick={() => setInspectorOpen((open) => !open)}
+          >
+            {inspectorOpen ? "Ontwerp sluiten" : "Ontwerp"}
+          </button>
+        </div>
+      ) : (
+        <p className="newsletter-re-hint newsletter-re-hint--solo">
+          Typ <kbd>/</kbd> voor blokken · selecteer tekst voor opmaak
+        </p>
+      )}
+
+      {/*
+        Docs pattern: flex row + fixed height, canvas flex-1 min-w-0,
+        inspector w-60 shrink-0. See react.email/docs/editor/features/inspector
+      */}
       <div className="newsletter-re-shell__row">
         <EditorProvider
           extensions={extensions}
@@ -235,28 +263,35 @@ export const NewsletterEmailEditor = forwardRef<
           {onUploadImage ? <BubbleMenu.ImageDefault /> : null}
           <SlashCommand items={slashItems} />
           {showInspector ? (
-            <Inspector.Root className="newsletter-re-inspector">
-              <div className="newsletter-re-inspector__header">
-                <span>Ontwerp</span>
-                <p>
-                  Document, blok of tekst selecteren om kleuren, padding,
-                  typografie en uitlijning aan te passen.
-                </p>
-              </div>
-              <Inspector.Breadcrumb />
-              <Inspector.Document />
-              <Inspector.Node />
-              <Inspector.Text />
-            </Inspector.Root>
+            <>
+              {inspectorOpen ? (
+                <button
+                  type="button"
+                  className="newsletter-re-inspector-backdrop"
+                  aria-label="Ontwerpanel sluiten"
+                  onClick={() => setInspectorOpen(false)}
+                />
+              ) : null}
+              <Inspector.Root
+                id="newsletter-re-inspector"
+                className="newsletter-re-inspector"
+              >
+                <div className="newsletter-re-inspector__header">
+                  <span>Ontwerp</span>
+                  <p>
+                    Document, blok of tekst selecteren om kleuren, padding,
+                    typografie en uitlijning aan te passen.
+                  </p>
+                </div>
+                <Inspector.Breadcrumb />
+                <Inspector.Document />
+                <Inspector.Node />
+                <Inspector.Text />
+              </Inspector.Root>
+            </>
           ) : null}
         </EditorProvider>
       </div>
-      <p className="newsletter-re-hint">
-        Typ <kbd>/</kbd> voor blokken (tekst, knop, sectie, 2–4 kolommen,
-        spacer, tabel
-        {onUploadImage ? ", afbeelding" : ""}) · selecteer tekst voor opmaak
-        {showInspector ? " · klik een blok voor de inspector" : ""}
-      </p>
     </div>
   );
 });

@@ -189,10 +189,9 @@ function DienstmailEditorForm({
         </p>
       )}
 
-      <div className="newsletter-editor-layout">
-        {/* Left: fields + editor */}
-        <div>
-          <div className="newsletter-editor-fields">
+      <div className="newsletter-editor-layout newsletter-editor-page">
+        <div className="newsletter-editor-fields">
+          <div className="newsletter-editor-fields__meta">
             <div className="admin-field">
               <label className="admin-field__label" htmlFor="subject">
                 Onderwerp
@@ -227,6 +226,18 @@ function DienstmailEditorForm({
             </div>
           </div>
 
+          <div className="newsletter-editor-toolbar">
+            <p
+              className={`newsletter-editor-save-status newsletter-editor-save-status--${saveStatus}`}
+            >
+              {saveStatus === "saving" && "Opslaan…"}
+              {saveStatus === "saved" && "Opgeslagen"}
+              {saveStatus === "error" && (saveError ?? "Opslaan mislukt")}
+            </p>
+          </div>
+        </div>
+
+        <div className="newsletter-editor-stage">
           <div className="newsletter-editor-main">
             <NewsletterEmailEditor
               ref={editorRef}
@@ -237,81 +248,65 @@ function DienstmailEditorForm({
               showInspector={canEdit}
             />
           </div>
-
-          <p
-            className={`newsletter-editor-save-status newsletter-editor-save-status--${saveStatus}`}
-          >
-            {saveStatus === "saving" && "Opslaan…"}
-            {saveStatus === "saved" && "Opgeslagen"}
-            {saveStatus === "error" && (saveError ?? "Opslaan mislukt")}
-          </p>
-
-          {canEdit && (
-            <div
-              style={{
-                display: "flex",
-                gap: "0.75rem",
-                marginTop: "1rem",
-                flexWrap: "wrap",
-              }}
-            >
-              <button
-                className="admin-button"
-                style={{
-                  width: "auto",
-                  background: "var(--accent)",
-                  borderColor: "var(--accent)",
-                }}
-                onClick={handlePublish}
-                disabled={publishing}
-              >
-                {publishing ? "Publiceren…" : "Revisie publiceren"}
-              </button>
-            </div>
-          )}
-
-          {publishResult && <p className="admin-notice">{publishResult}</p>}
-          {publishError && <p className="admin-error">{publishError}</p>}
         </div>
 
-        {/* Right: test send */}
-        <div>
-          <div className="newsletter-section" style={{ marginTop: 0, paddingTop: 0, border: 0 }}>
-            <h2>Testmail versturen</h2>
-            <div className="admin-field">
-              <label className="admin-field__label" htmlFor="testEmail">
-                Naar
-              </label>
-              <input
-                id="testEmail"
-                className="admin-field__input"
-                type="email"
-                value={testEmail}
-                onChange={(e) => setTestEmail(e.target.value)}
-              />
-            </div>
+        {canEdit && (
+          <div className="newsletter-editor-actions">
             <button
               className="admin-button"
-              style={{ marginTop: "0.5rem" }}
-              onClick={handleTestSend}
-              disabled={testSending || !canEdit}
+              style={{
+                width: "auto",
+                background: "var(--accent)",
+                borderColor: "var(--accent)",
+              }}
+              onClick={handlePublish}
+              disabled={publishing}
             >
-              {testSending ? "Versturen…" : "Testmail versturen"}
+              {publishing ? "Publiceren…" : "Revisie publiceren"}
             </button>
-            {testResult && <p className="admin-notice">{testResult}</p>}
-            {testError && <p className="admin-error">{testError}</p>}
           </div>
+        )}
 
-          <div className="newsletter-section">
-            <h2>Status</h2>
-            <p style={{ fontSize: "0.88rem" }}>
-              <strong>Status:</strong>{" "}
-              {definition.status === "active" ? "✓ Actief" : "Concept"}
-            </p>
-            <p style={{ fontSize: "0.88rem" }}>
-              <strong>Type:</strong> {definition.type}
-            </p>
+        {publishResult && <p className="admin-notice">{publishResult}</p>}
+        {publishError && <p className="admin-error">{publishError}</p>}
+      </div>
+
+      <div className="newsletter-editor-side-panels">
+        <div className="newsletter-section" style={{ marginTop: "1.5rem" }}>
+          <h2>Testmail versturen</h2>
+          <div className="admin-field">
+            <label className="admin-field__label" htmlFor="testEmail">
+              Naar
+            </label>
+            <input
+              id="testEmail"
+              className="admin-field__input"
+              type="email"
+              value={testEmail}
+              onChange={(e) => setTestEmail(e.target.value)}
+            />
           </div>
+          <button
+            className="admin-button"
+            style={{ marginTop: "0.5rem" }}
+            onClick={handleTestSend}
+            disabled={testSending || !canEdit}
+          >
+            {testSending ? "Versturen…" : "Testmail versturen"}
+          </button>
+          {testResult && <p className="admin-notice">{testResult}</p>}
+          {testError && <p className="admin-error">{testError}</p>}
+        </div>
+
+        <div className="newsletter-section">
+          <h2>Status</h2>
+          <p style={{ fontSize: "0.88rem" }}>
+            <strong>Status:</strong>{" "}
+            {definition.status === "active" ? "✓ Actief" : "Concept"}
+          </p>
+          <p style={{ fontSize: "0.88rem" }}>
+            <strong>Type:</strong> {definition.type}
+          </p>
         </div>
       </div>
     </>
