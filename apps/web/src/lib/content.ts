@@ -1,4 +1,5 @@
 import path from "node:path";
+import { existsSync } from "node:fs";
 import Markdoc, { type Node as MarkdocNode } from "@markdoc/markdoc";
 import { createReader } from "@keystatic/core/reader";
 import { createGitHubReader } from "@keystatic/core/reader/github";
@@ -267,6 +268,16 @@ function isSafeLink(value: string): boolean {
   }
 }
 
+function publicImagePath(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+  if (value.startsWith("/")) {
+    return path.join(appRoot(), "public", value.slice(1));
+  }
+  return path.join(appRoot(), "public", value);
+}
+
 function validateMarkdoc(article: Article): string[] {
   const errors = Markdoc.validate(article.body, articleMarkdocConfig).map(
     (error) => `${article.slug}: ${error.error.message}`,
@@ -275,6 +286,19 @@ function validateMarkdoc(article: Article): string[] {
     const href = node.attributes.href;
     if (node.type === "link" && typeof href === "string" && !isSafeLink(href)) {
       errors.push(`${article.slug}: onveilige link "${href}".`);
+    }
+    if (node.type === "image") {
+      const src = node.attributes.src;
+      const alt = node.attributes.alt;
+      if (typeof alt !== "string" || !alt.trim()) {
+        errors.push(`${article.slug}: inlinebeeld mist alternatieve tekst.`);
+      }
+      if (typeof src === "string") {
+        const imagePath = publicImagePath(src);
+        if (imagePath && !existsSync(imagePath) && !src.startsWith("http")) {
+          errors.push(`${article.slug}: inlinebeeld bestaat niet (${src}).`);
+        }
+      }
     }
   }
   return errors;
@@ -299,11 +323,34 @@ export function validateArticles(
     if (article.status === "published" && !article.publishedAt) {
       errors.push(`${article.slug}: een gepubliceerd artikel mist publishedAt.`);
     }
+    if (
+      article.status === "published" &&
+      article.publishedAt &&
+      Number.isNaN(Date.parse(article.publishedAt))
+    ) {
+      errors.push(`${article.slug}: publishedAt is geen geldige datum.`);
+    }
     if (!article.headline || !article.dek || !article.authorKey) {
       errors.push(`${article.slug}: verplichte publicatiemetadata ontbreekt.`);
     }
     if (article.heroImage && !article.heroAlt) {
       errors.push(`${article.slug}: het hoofdbeeld mist alternatieve tekst.`);
+    }
+    if (article.heroImage && !article.heroCredit.trim()) {
+      errors.push(`${article.slug}: het hoofdbeeld mist een beeldcredit.`);
+    }
+    if (article.socialImage && !article.heroAlt && !article.seoTitle) {
+      errors.push(
+        `${article.slug}: social beeld zonder SEO-titel of hero-alt mist context.`,
+      );
+    }
+    for (const image of [article.heroImage, article.socialImage]) {
+      const imagePath = publicImagePath(image);
+      if (imagePath && !existsSync(imagePath)) {
+        errors.push(
+          `${article.slug}: afbeelding bestaat niet (${image ?? ""}).`,
+        );
+      }
     }
     if (
       article.canonicalOverride &&

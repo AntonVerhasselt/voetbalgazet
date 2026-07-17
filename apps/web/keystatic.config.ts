@@ -10,25 +10,19 @@ import {
   provinceOptions,
   teamOptions,
 } from "../../convex/lib/preferenceCatalog";
+import {
+  authorOptions,
+  categoryOptions,
+  defaultAuthorValue,
+  defaultCategoryValue,
+} from "./src/lib/content-settings-options";
 
 const isHosted = Boolean(
   process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG?.trim(),
 );
 
-const categoryOptions = [
-  { label: "Wedstrijdverslagen", value: "wedstrijdverslagen" },
-  { label: "Transfernieuws", value: "transfernieuws" },
-  { label: "Interviews", value: "interviews" },
-  { label: "Analyse", value: "analyse" },
-  { label: "Jeugd", value: "jeugd" },
-  { label: "Clubnieuws", value: "clubnieuws" },
-] as const;
-
-const authorOptions = [
-  { label: "Redactie De Voetbalgazet", value: "redactie" },
-  { label: "Lotte Vermeiren", value: "lotte-vermeiren" },
-  { label: "Milan De Smet", value: "milan-de-smet" },
-] as const;
+const defaultAuthor = defaultAuthorValue;
+const defaultCategory = defaultCategoryValue;
 
 const bodyOptions = {
   heading: [2, 3] as const,
@@ -173,7 +167,7 @@ export default config({
         author: fields.select({
           label: "Auteur",
           options: authorOptions,
-          defaultValue: "redactie",
+          defaultValue: defaultAuthor,
         }),
         headline: fields.text({
           label: "Kop",
@@ -189,7 +183,7 @@ export default config({
         category: fields.select({
           label: "Categorie",
           options: categoryOptions,
-          defaultValue: "clubnieuws",
+          defaultValue: defaultCategory,
         }),
         isGated: fields.checkbox({
           label: "E-mailgate",
@@ -414,7 +408,7 @@ export default config({
         defaultAuthorKey: fields.select({
           label: "Standaardauteur",
           options: authorOptions,
-          defaultValue: "redactie",
+          defaultValue: defaultAuthor,
         }),
         defaultGated: fields.checkbox({
           label: "Nieuwe artikels standaard gated",

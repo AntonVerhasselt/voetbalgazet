@@ -27,9 +27,17 @@ export function AdminNav({ canEditArticles, isAdmin }: AdminNavProps) {
       ) : (
         <span aria-disabled="true">Artikels</span>
       )}
-      <span aria-disabled="true">Nieuwsbrieven · fase 4</span>
-      <span aria-disabled="true">Abonnees · fase 4</span>
-      {isAdmin ? <span aria-disabled="true">Instellingen · fase 4</span> : null}
+      <span className="admin-nav__phase" aria-disabled="true">
+        Nieuwsbrieven · fase 4
+      </span>
+      <span className="admin-nav__phase" aria-disabled="true">
+        Abonnees · fase 4
+      </span>
+      {isAdmin ? (
+        <span className="admin-nav__phase" aria-disabled="true">
+          Instellingen · fase 4
+        </span>
+      ) : null}
     </nav>
   );
 }

@@ -32,8 +32,7 @@ export function isAllowedPreviewBranch(branch: string): boolean {
     return false;
   }
   const prefixes = (
-    process.env.KEYSTATIC_PREVIEW_BRANCH_PREFIXES ??
-    "master,main,content/,cursor/"
+    process.env.KEYSTATIC_PREVIEW_BRANCH_PREFIXES ?? "master,main,content/"
   )
     .split(",")
     .map((value) => value.trim())

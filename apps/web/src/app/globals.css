@@ -1482,6 +1482,7 @@ a {
   display: flex;
   align-items: flex-end;
   flex-direction: column;
+  max-width: min(48vw, 16rem);
   color: var(--ink-muted);
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -1492,6 +1493,13 @@ a {
   color: var(--ink);
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.admin-header__email {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-signout {
@@ -1536,6 +1544,10 @@ a {
 
 .admin-nav span[aria-disabled="true"] {
   color: var(--ink-muted);
+}
+
+.admin-nav__phase {
+  display: none;
 }
 
 .admin-content {
@@ -1946,6 +1958,10 @@ a {
   .admin-nav span {
     border-right: 0;
     border-bottom: 1px solid var(--rule);
+  }
+
+  .admin-nav__phase {
+    display: inline-flex;
   }
 
   .admin-task-grid {

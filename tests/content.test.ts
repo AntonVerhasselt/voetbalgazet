@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  authorSelectOptions,
+  categorySelectOptions,
+} from "../apps/web/src/lib/content-settings";
+import {
+  authorOptions,
+  categoryOptions,
+} from "../apps/web/src/lib/content-settings-options";
+import {
   excerptArticle,
   getAllArticles,
   getPublishedArticles,
@@ -8,6 +16,11 @@ import {
 } from "../apps/web/src/lib/content";
 
 describe("Keystatic article pipeline", () => {
+  it("keeps Keystatic select options aligned with Git settings YAML", () => {
+    expect(authorOptions).toEqual(authorSelectOptions());
+    expect(categoryOptions).toEqual(categorySelectOptions());
+  });
+
   it("reads Markdoc and only publishes newest-first entries", async () => {
     const [all, published] = await Promise.all([
       getAllArticles(),

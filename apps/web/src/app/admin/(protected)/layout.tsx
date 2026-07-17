@@ -29,7 +29,9 @@ export default async function ProtectedAdminLayout({
         </Link>
         <div className="admin-header__account">
           <span>{roleLabels[session.role]}</span>
-          <span>{session.email}</span>
+          <span className="admin-header__email" title={session.email}>
+            {session.email}
+          </span>
           <SignOutButton />
         </div>
       </header>
