@@ -401,8 +401,6 @@ export const requestTest = adminMutation({
         preheader: row.preheader,
         documentJson: row.documentJson,
       }),
-      updatedAt: now,
-      updatedBy: ctx.adminUser._id,
     });
     return { ok: true };
   },

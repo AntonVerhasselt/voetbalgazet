@@ -30,7 +30,7 @@ import { mergeCampaignStatusPages } from "./lib/campaignList";
 import { hasActiveSuppression } from "./lib/suppressions";
 
 /** Cap full-list preview scans so large lists do not time out the query. */
-const AUDIENCE_PREVIEW_SCAN_CAP = 5_000;
+const AUDIENCE_PREVIEW_SCAN_CAP = 2_000;
 
 type AnyCtx = QueryCtx | MutationCtx;
 
