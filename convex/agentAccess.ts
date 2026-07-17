@@ -8,6 +8,9 @@ import {
   deriveAgentPassword,
   readConfiguredAgentAccessSecret,
 } from "./lib/agentAccessShared";
+import {
+  consumeAgentAccessRateLimit as consumeAgentAccessRateLimitBucket,
+} from "./lib/rateLimit";
 
 const agentAccessResultValidator = v.union(
   v.literal("success"),
@@ -103,6 +106,17 @@ export const prepareAgentSession = internalMutation({
     }
 
     return { email: AGENT_EMAIL };
+  },
+});
+
+export const consumeAgentAccessRateLimit = internalMutation({
+  args: {
+    ipHash: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await consumeAgentAccessRateLimitBucket(ctx, args.ipHash, Date.now());
+    return null;
   },
 });
 

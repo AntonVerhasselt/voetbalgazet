@@ -17,6 +17,7 @@ import {
   excerptArticle,
   getAllArticles,
   getPublishedArticles,
+  getSearchablePublishedArticles,
   splitArticle,
   validateArticles,
 } from "../apps/web/src/lib/content";
@@ -121,6 +122,22 @@ describe("Keystatic article pipeline", () => {
           index === 0 ||
           published[index - 1]!.publishedAt >= article.publishedAt,
       ),
+    ).toBe(true);
+  });
+
+  it("keeps excludeFromSearch articles out of archive/search feeds", async () => {
+    const [all, searchable] = await Promise.all([
+      getAllArticles(),
+      getSearchablePublishedArticles(),
+    ]);
+    const searchableSlugs = new Set(searchable.map((article) => article.slug));
+    expect(
+      searchable.every((article) => !article.excludeFromSearch),
+    ).toBe(true);
+    expect(
+      all
+        .filter((article) => article.excludeFromSearch)
+        .every((article) => !searchableSlugs.has(article.slug)),
     ).toBe(true);
   });
 

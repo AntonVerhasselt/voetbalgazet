@@ -135,6 +135,65 @@ const TRANSACTIONAL_TYPES = [
       ],
     }),
   },
+  {
+    type: "preferences_changed" as const,
+    displayName: "Voorkeuren aangepast",
+    allowedVariableKeys: ["preferencesUrl"],
+    requiredVariableKeys: ["preferencesUrl"],
+    subject: "Je voorkeuren zijn bijgewerkt",
+    documentJson: JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "heading",
+          attrs: { level: 1 },
+          content: [{ type: "text", text: "Je voorkeuren zijn bijgewerkt" }],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "We hebben je nieuwsbriefvoorkeuren opgeslagen. Je kunt ze later opnieuw aanpassen via deze link:",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "{{preferencesUrl}}" }],
+        },
+      ],
+    }),
+  },
+  {
+    type: "admin_send_alert" as const,
+    displayName: "AdminSendAlert",
+    allowedVariableKeys: ["campaignName", "status", "dashboardUrl"],
+    requiredVariableKeys: ["campaignName", "status", "dashboardUrl"],
+    subject: "Nieuwsbriefstatus: {{campaignName}}",
+    documentJson: JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "heading",
+          attrs: { level: 1 },
+          content: [{ type: "text", text: "Nieuwsbriefstatus" }],
+        },
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "{{campaignName}} staat op " },
+            { type: "text", text: "{{status}}" },
+            { type: "text", text: "." },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "{{dashboardUrl}}" }],
+        },
+      ],
+    }),
+  },
 ] as const;
 
 export const listDefinitions = viewerQuery({

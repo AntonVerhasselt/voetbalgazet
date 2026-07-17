@@ -54,6 +54,12 @@ export async function generateMetadata({
       description: article.seoDescription || article.dek,
       images: [image],
     },
+    robots: article.excludeFromSearch
+      ? {
+          index: false,
+          follow: true,
+        }
+      : undefined,
   };
 }
 

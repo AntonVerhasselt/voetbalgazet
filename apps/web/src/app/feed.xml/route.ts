@@ -1,6 +1,6 @@
 import {
   excerptArticle,
-  getPublishedArticles,
+  getSearchablePublishedArticles,
   SITE_URL,
 } from "@/lib/content";
 
@@ -16,7 +16,7 @@ function escapeXml(value: string): string {
 }
 
 export async function GET() {
-  const publishedArticles = await getPublishedArticles();
+  const publishedArticles = await getSearchablePublishedArticles();
   const items = publishedArticles
     .map((article) => {
       const url = `${SITE_URL}/nieuws/${article.slug}`;

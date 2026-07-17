@@ -107,6 +107,8 @@ export const transactionalEmailTypeValidator = v.union(
   v.literal("magic_link"),
   v.literal("verify_email"),
   v.literal("unsubscribe_confirmed"),
+  v.literal("preferences_changed"),
+  v.literal("admin_send_alert"),
 );
 
 export const transactionalDefinitionStatusValidator = v.union(

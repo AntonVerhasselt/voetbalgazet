@@ -1,12 +1,12 @@
 import { makeRouteHandler } from "@keystatic/next/route-handler";
-import keystaticConfig from "../../../../../keystatic.config";
+import keystaticConfig, {
+  resolveKeystaticStorageKind,
+} from "../../../../../keystatic.config";
 import { getEditorSession } from "@/lib/admin-session";
 
 export const runtime = "nodejs";
 
-const isHosted = Boolean(
-  process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG?.trim(),
-);
+const storageKind = resolveKeystaticStorageKind();
 const { GET: keystaticGet, POST: keystaticPost } = makeRouteHandler({
   config: keystaticConfig,
 });
@@ -18,7 +18,7 @@ async function withLocalEditorGuard(
   // GitHub mode relies on Keystatic's own OAuth + repository permissions.
   // Local mode exposes filesystem write endpoints and must require a
   // Better Auth redaction session.
-  if (!isHosted) {
+  if (storageKind === "local") {
     if (process.env.NODE_ENV === "production") {
       return new Response(
         "Keystatic GitHub mode is verplicht in productie.",

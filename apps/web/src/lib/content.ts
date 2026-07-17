@@ -198,6 +198,14 @@ export async function getPublishedArticles(): Promise<
     );
 }
 
+export async function getSearchablePublishedArticles(): Promise<
+  readonly PublishedArticle[]
+> {
+  return (await getPublishedArticles()).filter(
+    (article) => !article.excludeFromSearch,
+  );
+}
+
 export async function getArticle(
   slug: string,
   branch?: string,

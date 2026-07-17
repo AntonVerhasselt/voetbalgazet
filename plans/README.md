@@ -104,7 +104,7 @@ Details en resterende launchchecks: [`newsletter-admin-dashboard/09-launch-todos
 | Area | Status |
 |------|--------|
 | Design prototype | Done (Open Design) |
-| Project codebase | Not started |
+| Project codebase | Implemented (Phases 1–4); review findings addressed on `cursor/fix-review-findings-f684` |
 | Public-siteplan | Completed |
 | Newsletter-adminplan | Product/architecture decisions completed — launch inputs tracked separately |
 | Content-adminplan | Detailed Keystatic and publishing plan added |

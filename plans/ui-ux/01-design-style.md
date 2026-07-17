@@ -137,6 +137,6 @@ Zolang er geen foto is, is deze illustratie de **standaard hero** voor artikels.
 - [x] Live tokens gedocumenteerd vanuit `globals.css`
 - [x] Illustratiegroen `#243f2c` en accentrood `#9f2f24` vastgelegd
 - [x] Derde rotatiekleur goud `#b8922a` gekozen
-- [ ] CSS-modifiers `article-illustration--green|red|gold` in de app
-- [ ] Matchvariant met clubnamen in component + contentmodel
-- [ ] Deterministische of redactionele toonkeuze bij publiceren
+- [x] CSS-modifiers `article-illustration--green|red|gold` in de app
+- [x] Matchvariant met clubnamen in component + contentmodel
+- [x] Deterministische of redactionele toonkeuze bij publiceren

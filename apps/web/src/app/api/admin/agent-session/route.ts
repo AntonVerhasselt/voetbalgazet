@@ -27,6 +27,12 @@ type AgentSessionBody = {
 
 type AgentAccessEventResult = "success" | "failure" | "disabled";
 
+class AgentAccessBridgeError extends Error {
+  constructor(readonly status: number) {
+    super(`Agent access bridge failed with HTTP ${status}`);
+  }
+}
+
 function trimEnv(value: string | undefined): string {
   return value?.trim() ?? "";
 }
@@ -139,7 +145,7 @@ async function postAgentAccessBridge(
     body: JSON.stringify(body),
   });
   if (!response.ok) {
-    throw new Error(`Agent access bridge failed with HTTP ${response.status}`);
+    throw new AgentAccessBridgeError(response.status);
   }
   return (await response.json()) as unknown;
 }
@@ -233,6 +239,9 @@ export async function POST(request: Request): Promise<Response> {
   } catch (error) {
     console.error("Agent session prepare failed", error);
     recordAgentAccessFailure(ipHash);
+    if (error instanceof AgentAccessBridgeError && error.status === 429) {
+      return Response.json({ ok: false }, { status: 429 });
+    }
     return Response.json({ ok: false }, { status: 500 });
   }
 

@@ -85,10 +85,21 @@ http.route({
     } catch {
       return jsonResponse({ ok: false }, 400);
     }
+    const ipHash = optionalString(body.ipHash);
+    if (!ipHash) {
+      return jsonResponse({ ok: false }, 400);
+    }
+    try {
+      await ctx.runMutation(internal.agentAccess.consumeAgentAccessRateLimit, {
+        ipHash,
+      });
+    } catch {
+      return jsonResponse({ ok: false }, 429);
+    }
     const result = await ctx.runMutation(
       internal.agentAccess.prepareAgentSession,
       {
-        ipHash: optionalString(body.ipHash),
+        ipHash,
         userAgent: optionalString(body.userAgent),
       },
     );
@@ -107,9 +118,23 @@ http.route({
     let body: Record<string, unknown>;
     try {
       body = await readJsonObject(req);
+      const result = parseAgentAccessResult(body.result);
+      const ipHash = optionalString(body.ipHash);
+      if (result === "failure" && ipHash) {
+        try {
+          await ctx.runMutation(
+            internal.agentAccess.consumeAgentAccessRateLimit,
+            {
+              ipHash,
+            },
+          );
+        } catch {
+          return jsonResponse({ ok: false }, 429);
+        }
+      }
       await ctx.runMutation(internal.agentAccess.recordAgentAccessEvent, {
-        result: parseAgentAccessResult(body.result),
-        ipHash: optionalString(body.ipHash),
+        result,
+        ipHash,
         userAgent: optionalString(body.userAgent),
       });
     } catch {

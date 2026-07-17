@@ -30,6 +30,7 @@ import { Spacer } from "./spacer-extension";
 import { newsletterSlashCommands } from "./slash-commands";
 import { voetbalgazetEmailTheme } from "./theme";
 
+// Saved TipTap JSON must stay renderable by Convex; see emails/README.md.
 export type NewsletterEmailEditorRef = {
   getEmail: () => Promise<{ html: string; text: string }>;
   getEmailHTML: () => Promise<string>;

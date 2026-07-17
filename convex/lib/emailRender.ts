@@ -7,6 +7,7 @@ import {
   sanitizeEditorDocumentJson,
 } from "./compliance";
 
+// Keep this Convex-safe renderer in sync with the browser editor contract in emails/README.md.
 export type TipTapMark = {
   type: string;
   attrs?: Record<string, unknown>;
