@@ -3,7 +3,6 @@
 import {
   use,
   useCallback,
-  useEffect,
   useRef,
   useState,
 } from "react";
@@ -27,32 +26,40 @@ function isValidType(s: string): s is TransactionalType {
   return (VALID_TYPES as readonly string[]).includes(s);
 }
 
-export default function DienstmailEditorPage({
-  params,
-}: {
-  params: Promise<{ type: string }>;
-}) {
-  const { type: typeStr } = use(params);
-  const isValid = isValidType(typeStr);
-  const type = isValid ? typeStr : ("welcome" as TransactionalType);
+interface DienstmailDefinition {
+  subject: string;
+  preheader?: string;
+  documentJson: string;
+  canEdit: boolean;
+  displayName: string;
+  allowedVariableKeys: string[];
+  requiredVariableKeys: string[];
+  status: string;
+  type: string;
+}
 
-  const definition = useQuery(
-    api.newsletterAdmin.getDefinition,
-    isValid ? { type } : "skip",
-  );
+function DienstmailEditorForm({
+  type,
+  definition,
+}: {
+  type: TransactionalType;
+  definition: DienstmailDefinition;
+}) {
   const updateDraft = useMutation(api.newsletterAdmin.updateDraft);
   const publishRevision = useMutation(api.newsletterAdmin.publishRevision);
   const requestTest = useMutation(api.newsletterAdmin.requestTest);
 
   const editorRef = useRef<EmailEditorRef>(null);
-  const [isMounted, setIsMounted] = useState(false);
-  const [initialContent, setInitialContent] = useState<
-    JSONContent | undefined
-  >(undefined);
-  const [editorReady, setEditorReady] = useState(false);
+  const [initialContent] = useState<JSONContent | undefined>(() => {
+    try {
+      return JSON.parse(definition.documentJson) as JSONContent;
+    } catch {
+      return undefined;
+    }
+  });
 
-  const [subject, setSubject] = useState("");
-  const [preheader, setPreheader] = useState("");
+  const [subject, setSubject] = useState(definition.subject);
+  const [preheader, setPreheader] = useState(definition.preheader ?? "");
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
@@ -69,25 +76,7 @@ export default function DienstmailEditorPage({
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!definition || editorReady) return;
-    setSubject(definition.subject);
-    setPreheader(definition.preheader ?? "");
-    try {
-      setInitialContent(
-        JSON.parse(definition.documentJson) as JSONContent,
-      );
-    } catch {
-      setInitialContent(undefined);
-    }
-    setEditorReady(true);
-  }, [definition, editorReady]);
-
-  const canEdit = definition?.canEdit ?? false;
+  const canEdit = definition.canEdit;
 
   const scheduleSave = useCallback(
     (updates: {
@@ -152,39 +141,6 @@ export default function DienstmailEditorPage({
     } finally {
       setTestSending(false);
     }
-  }
-
-  if (!isValid) {
-    return (
-      <div className="admin-page-heading">
-        <p className="admin-error">Ongeldig e-mailtype: {typeStr}</p>
-        <Link href="/admin/email/dienstmails" className="newsletter-action-link">
-          ← Terug naar dienstmails
-        </Link>
-      </div>
-    );
-  }
-
-  if (definition === undefined) {
-    return (
-      <div className="admin-page-heading">
-        <p className="admin-notice">Laden…</p>
-      </div>
-    );
-  }
-
-  if (definition === null) {
-    return (
-      <div className="admin-page-heading">
-        <p className="admin-error">
-          Dienstmail niet gevonden. Klik op "Ontbrekende types aanmaken" in
-          het overzicht.
-        </p>
-        <Link href="/admin/email/dienstmails" className="newsletter-action-link">
-          ← Terug naar dienstmails
-        </Link>
-      </div>
-    );
   }
 
   return (
@@ -252,18 +208,12 @@ export default function DienstmailEditorPage({
           </div>
 
           <div className="newsletter-editor-main">
-            {isMounted && editorReady ? (
-              <EmailEditor
-                ref={editorRef}
-                content={initialContent}
-                onUpdate={handleEditorUpdate}
-                editable={canEdit}
-              />
-            ) : (
-              <div style={{ padding: "2rem", color: "var(--ink-muted)" }}>
-                Editor laden…
-              </div>
-            )}
+            <EmailEditor
+              ref={editorRef}
+              content={initialContent}
+              onUpdate={handleEditorUpdate}
+              editable={canEdit}
+            />
           </div>
 
           <p
@@ -344,4 +294,54 @@ export default function DienstmailEditorPage({
       </div>
     </>
   );
+}
+
+export default function DienstmailEditorPage({
+  params,
+}: {
+  params: Promise<{ type: string }>;
+}) {
+  const { type: typeStr } = use(params);
+  const isValid = isValidType(typeStr);
+  const type = isValid ? typeStr : ("welcome" as TransactionalType);
+
+  const definition = useQuery(
+    api.newsletterAdmin.getDefinition,
+    isValid ? { type } : "skip",
+  );
+
+  if (!isValid) {
+    return (
+      <div className="admin-page-heading">
+        <p className="admin-error">Ongeldig e-mailtype: {typeStr}</p>
+        <Link href="/admin/email/dienstmails" className="newsletter-action-link">
+          ← Terug naar dienstmails
+        </Link>
+      </div>
+    );
+  }
+
+  if (definition === undefined) {
+    return (
+      <div className="admin-page-heading">
+        <p className="admin-notice">Laden…</p>
+      </div>
+    );
+  }
+
+  if (definition === null) {
+    return (
+      <div className="admin-page-heading">
+        <p className="admin-error">
+          Dienstmail niet gevonden. Klik op &quot;Ontbrekende types aanmaken&quot; in
+          het overzicht.
+        </p>
+        <Link href="/admin/email/dienstmails" className="newsletter-action-link">
+          ← Terug naar dienstmails
+        </Link>
+      </div>
+    );
+  }
+
+  return <DienstmailEditorForm type={type} definition={definition} />;
 }

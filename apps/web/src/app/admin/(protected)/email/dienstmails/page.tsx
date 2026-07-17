@@ -83,7 +83,7 @@ export default function DienstmailsPage() {
         ) : definitions.length === 0 ? (
           <div className="dienstmails-item">
             <span style={{ color: "var(--ink-muted)" }}>
-              Geen dienstmails gevonden. Klik op "Ontbrekende types aanmaken"
+              Geen dienstmails gevonden. Klik op &quot;Ontbrekende types aanmaken&quot;
               hierboven.
             </span>
           </div>

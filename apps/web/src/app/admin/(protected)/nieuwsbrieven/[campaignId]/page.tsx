@@ -3,7 +3,6 @@
 import {
   use,
   useCallback,
-  useEffect,
   useRef,
   useState,
 } from "react";
@@ -67,17 +66,26 @@ function CampaignSubNav({
   );
 }
 
-export default function CampaignEditorPage({
-  params,
-}: {
-  params: Promise<{ campaignId: string }>;
-}) {
-  const { campaignId: campaignIdStr } = use(params);
-  const campaignId = campaignIdStr as Id<"newsletterCampaigns">;
+interface CampaignForEditor {
+  internalName: string;
+  subject: string;
+  preheader?: string;
+  documentJson: string;
+  revisionNumber: number;
+  canEdit: boolean;
+  status: string;
+  previewHtml?: string;
+}
 
-  const campaignData = useQuery(api.newsletterCampaigns.getCampaign, {
-    campaignId,
-  });
+function CampaignEditorForm({
+  campaignId,
+  campaignIdStr,
+  campaign,
+}: {
+  campaignId: Id<"newsletterCampaigns">;
+  campaignIdStr: string;
+  campaign: CampaignForEditor;
+}) {
   const updateDraft = useMutation(api.newsletterCampaigns.updateDraft);
   const resolvePublicUrl = useMutation(api.r2.resolvePublicUrl);
   const uploadFile = useUploadFile({
@@ -86,46 +94,25 @@ export default function CampaignEditorPage({
   });
 
   const editorRef = useRef<EmailEditorRef>(null);
-  const [isMounted, setIsMounted] = useState(false);
-  const [initialContent, setInitialContent] = useState<
-    JSONContent | undefined
-  >(undefined);
-  const [editorReady, setEditorReady] = useState(false);
-
-  const [internalName, setInternalName] = useState("");
-  const [subject, setSubject] = useState("");
-  const [preheader, setPreheader] = useState("");
+  const [internalName, setInternalName] = useState(campaign.internalName);
+  const [subject, setSubject] = useState(campaign.subject);
+  const [preheader, setPreheader] = useState(campaign.preheader ?? "");
+  const [initialContent] = useState<JSONContent | undefined>(() => {
+    try {
+      return JSON.parse(campaign.documentJson) as JSONContent;
+    } catch {
+      return undefined;
+    }
+  });
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
-  const revisionRef = useRef<number>(0);
+  const revisionRef = useRef<number>(campaign.revisionNumber);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Mount guard for client-only editor
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Initialize fields and editor content from query (once)
-  useEffect(() => {
-    const campaign = campaignData?.campaign;
-    if (!campaign) return;
-    if (!editorReady) {
-      setInternalName(campaign.internalName);
-      setSubject(campaign.subject);
-      setPreheader(campaign.preheader ?? "");
-      revisionRef.current = campaign.revisionNumber;
-      try {
-        setInitialContent(JSON.parse(campaign.documentJson) as JSONContent);
-      } catch {
-        setInitialContent(undefined);
-      }
-      setEditorReady(true);
-    }
-  }, [campaignData, editorReady]);
-
-  const canEdit = campaignData?.campaign?.canEdit ?? false;
+  const canEdit = campaign.canEdit;
+  const previewHtml = campaign.previewHtml ?? "";
 
   const scheduleSave = useCallback(
     (updates: {
@@ -174,28 +161,6 @@ export default function CampaignEditorPage({
     },
     [uploadFile, resolvePublicUrl],
   );
-
-  const campaign = campaignData?.campaign;
-  const previewHtml = campaign?.previewHtml ?? "";
-
-  if (campaignData === undefined) {
-    return (
-      <div className="admin-page-heading">
-        <p className="admin-notice">Laden…</p>
-      </div>
-    );
-  }
-
-  if (campaignData === null || !campaign) {
-    return (
-      <div className="admin-page-heading">
-        <p className="admin-error">Campagne niet gevonden.</p>
-        <Link href="/admin/nieuwsbrieven" className="newsletter-action-link">
-          ← Terug naar overzicht
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -278,19 +243,13 @@ export default function CampaignEditorPage({
           </div>
 
           <div className="newsletter-editor-main">
-            {isMounted && editorReady ? (
-              <EmailEditor
-                ref={editorRef}
-                content={initialContent}
-                onUpdate={handleEditorUpdate}
-                onUploadImage={canEdit ? handleUploadImage : undefined}
-                editable={canEdit}
-              />
-            ) : (
-              <div style={{ padding: "2rem", color: "var(--ink-muted)" }}>
-                Editor laden…
-              </div>
-            )}
+            <EmailEditor
+              ref={editorRef}
+              content={initialContent}
+              onUpdate={handleEditorUpdate}
+              onUploadImage={canEdit ? handleUploadImage : undefined}
+              editable={canEdit}
+            />
           </div>
 
           <p
@@ -326,5 +285,45 @@ export default function CampaignEditorPage({
         </div>
       </div>
     </>
+  );
+}
+
+export default function CampaignEditorPage({
+  params,
+}: {
+  params: Promise<{ campaignId: string }>;
+}) {
+  const { campaignId: campaignIdStr } = use(params);
+  const campaignId = campaignIdStr as Id<"newsletterCampaigns">;
+
+  const campaignData = useQuery(api.newsletterCampaigns.getCampaign, {
+    campaignId,
+  });
+
+  if (campaignData === undefined) {
+    return (
+      <div className="admin-page-heading">
+        <p className="admin-notice">Laden…</p>
+      </div>
+    );
+  }
+
+  if (campaignData === null || !campaignData.campaign) {
+    return (
+      <div className="admin-page-heading">
+        <p className="admin-error">Campagne niet gevonden.</p>
+        <Link href="/admin/nieuwsbrieven" className="newsletter-action-link">
+          ← Terug naar overzicht
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <CampaignEditorForm
+      campaignId={campaignId}
+      campaignIdStr={campaignIdStr}
+      campaign={campaignData.campaign}
+    />
   );
 }

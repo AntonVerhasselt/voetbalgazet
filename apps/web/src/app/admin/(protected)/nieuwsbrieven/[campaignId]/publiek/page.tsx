@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
@@ -36,42 +36,42 @@ export default function PubliekPage({
     campaignId,
   });
   const catalog = useQuery(api.newsletterCampaigns.listCatalog);
+  const [now] = useState(() => Date.now());
   const previewAudience = useQuery(
     api.newsletterCampaigns.previewAudience,
-    campaignData ? { campaignId, now: Date.now() } : "skip",
+    campaignData ? { campaignId, now } : "skip",
   );
   const updateAudience = useMutation(api.newsletterCampaigns.updateAudience);
 
-  const [selectedDivisions, setSelectedDivisions] = useState<
-    Id<"divisions">[]
-  >([]);
-  const [selectedTeams, setSelectedTeams] = useState<Id<"teams">[]>([]);
-  const [initialized, setInitialized] = useState(false);
+  const [divisionOverride, setDivisionOverride] = useState<
+    Id<"divisions">[] | null
+  >(null);
+  const [teamOverride, setTeamOverride] = useState<Id<"teams">[] | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  useEffect(() => {
-    const audience = campaignData?.audience;
-    if (!initialized && audience) {
-      setSelectedDivisions(audience.divisionIds);
-      setSelectedTeams(audience.favoriteTeamIds);
-      setInitialized(true);
-    }
-  }, [campaignData?.audience, initialized]);
+  const selectedDivisions =
+    divisionOverride ?? (campaignData?.audience?.divisionIds ?? []);
+  const selectedTeams =
+    teamOverride ?? (campaignData?.audience?.favoriteTeamIds ?? []);
 
   const canEdit = campaignData?.campaign?.canEdit ?? false;
 
   function toggleDivision(id: Id<"divisions">) {
-    setSelectedDivisions((prev) =>
-      prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id],
+    setDivisionOverride(
+      selectedDivisions.includes(id)
+        ? selectedDivisions.filter((d) => d !== id)
+        : [...selectedDivisions, id],
     );
   }
 
   function toggleTeam(id: Id<"teams">) {
-    setSelectedTeams((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+    setTeamOverride(
+      selectedTeams.includes(id)
+        ? selectedTeams.filter((t) => t !== id)
+        : [...selectedTeams, id],
     );
   }
 

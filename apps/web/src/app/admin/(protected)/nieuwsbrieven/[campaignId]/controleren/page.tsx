@@ -75,9 +75,10 @@ export default function ControlerenPage({
   const campaignData = useQuery(api.newsletterCampaigns.getCampaign, {
     campaignId,
   });
+  const [now] = useState(() => Date.now());
   const previewAudience = useQuery(
     api.newsletterCampaigns.previewAudience,
-    campaignData ? { campaignId, now: Date.now() } : "skip",
+    campaignData ? { campaignId, now } : "skip",
   );
 
   const requestTestSend = useMutation(api.newsletterSend.requestTestSend);
@@ -387,7 +388,7 @@ export default function ControlerenPage({
           <div className="newsletter-modal">
             <h2>Nieuwsbrief nu versturen?</h2>
             <p>
-              Je gaat de nieuwsbrief "{campaign.internalName}" sturen naar{" "}
+              Je gaat de nieuwsbrief &quot;{campaign.internalName}&quot; sturen naar{" "}
               <strong>{expectedPreviewCount} ontvangers</strong>. Dit kan
               niet ongedaan worden gemaakt.
             </p>

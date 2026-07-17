@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
 
@@ -10,22 +10,18 @@ export default function InstellingenPage() {
     api.newsletterAdmin.updateSenderSettings,
   );
 
-  const [fromName, setFromName] = useState("");
-  const [fromAddress, setFromAddress] = useState("");
-  const [replyTo, setReplyTo] = useState("");
-  const [initialized, setInitialized] = useState(false);
+  const [fromNameOverride, setFromNameOverride] = useState<string | null>(null);
+  const [fromAddressOverride, setFromAddressOverride] = useState<
+    string | null
+  >(null);
+  const [replyToOverride, setReplyToOverride] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (settings && !initialized) {
-      setFromName(settings.fromName);
-      setFromAddress(settings.fromAddress);
-      setReplyTo(settings.replyTo);
-      setInitialized(true);
-    }
-  }, [settings, initialized]);
+  const fromName = fromNameOverride ?? settings?.fromName ?? "";
+  const fromAddress = fromAddressOverride ?? settings?.fromAddress ?? "";
+  const replyTo = replyToOverride ?? settings?.replyTo ?? "";
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -68,7 +64,7 @@ export default function InstellingenPage() {
                 className="admin-field__input"
                 type="text"
                 value={fromName}
-                onChange={(e) => setFromName(e.target.value)}
+                onChange={(e) => setFromNameOverride(e.target.value)}
                 required
               />
             </div>
@@ -82,7 +78,7 @@ export default function InstellingenPage() {
                 className="admin-field__input"
                 type="email"
                 value={fromAddress}
-                onChange={(e) => setFromAddress(e.target.value)}
+                onChange={(e) => setFromAddressOverride(e.target.value)}
                 required
               />
             </div>
@@ -96,7 +92,7 @@ export default function InstellingenPage() {
                 className="admin-field__input"
                 type="email"
                 value={replyTo}
-                onChange={(e) => setReplyTo(e.target.value)}
+                onChange={(e) => setReplyToOverride(e.target.value)}
                 required
               />
             </div>
