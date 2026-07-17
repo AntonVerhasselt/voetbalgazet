@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@convex/_generated/api";
+import { getPublicRequestOrigin } from "@/lib/request-origin";
 
 export const runtime = "nodejs";
 
@@ -27,6 +28,7 @@ function readTokenAndOneClick(form: FormData, requestUrl: URL): {
 
 export async function POST(request: Request) {
   const requestUrl = new URL(request.url);
+  const publicOrigin = getPublicRequestOrigin(request);
   const contentType = request.headers.get("content-type") ?? "";
   let token = requestUrl.searchParams.get("token") ?? "";
   let oneClick = false;
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
 
   if (!token) {
     return NextResponse.redirect(
-      new URL("/uitschrijven?status=ongeldig", request.url),
+      new URL("/uitschrijven?status=ongeldig", publicOrigin),
       303,
     );
   }
@@ -62,12 +64,12 @@ export async function POST(request: Request) {
       return new NextResponse(null, { status: 200 });
     }
     return NextResponse.redirect(
-      new URL("/uitschrijven?status=bevestigd", request.url),
+      new URL("/uitschrijven?status=bevestigd", publicOrigin),
       303,
     );
   } catch {
     return NextResponse.redirect(
-      new URL("/uitschrijven?status=fout", request.url),
+      new URL("/uitschrijven?status=fout", publicOrigin),
       303,
     );
   }
