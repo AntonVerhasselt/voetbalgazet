@@ -11,6 +11,11 @@ import { SignupForm } from "@/components/signup-form";
 import { capturePublicEvent } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
 
+function restoreScrollPosition(scrollY: number): void {
+  // Two-arg form stays instant even when html has scroll-behavior: smooth.
+  window.scrollTo(0, scrollY);
+}
+
 export function ArticleAccessGate({
   articleId,
   leadLength,
@@ -32,6 +37,8 @@ export function ArticleAccessGate({
   const reopenRef = useRef<HTMLButtonElement>(null);
   const impressionCaptured = useRef(false);
   const sessionCaptured = useRef(false);
+  const lockedScrollY = useRef(0);
+  const didLockScroll = useRef(false);
   const unlocked = Boolean(session?.user) || locallyUnlocked;
 
   useEffect(() => {
@@ -57,19 +64,60 @@ export function ArticleAccessGate({
       });
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    headingRef.current?.focus();
+    lockedScrollY.current = window.scrollY;
+    didLockScroll.current = true;
+    const { body, documentElement } = document;
+    const previousOverflow = body.style.overflow;
+    const previousPosition = body.style.position;
+    const previousTop = body.style.top;
+    const previousWidth = body.style.width;
+    const previousPaddingRight = body.style.paddingRight;
+    const scrollbarGap = window.innerWidth - documentElement.clientWidth;
+
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${lockedScrollY.current}px`;
+    body.style.width = "100%";
+    if (scrollbarGap > 0) {
+      body.style.paddingRight = `${scrollbarGap}px`;
+    }
+
+    headingRef.current?.focus({ preventScroll: true });
+
     return () => {
-      document.body.style.overflow = previousOverflow;
+      body.style.overflow = previousOverflow;
+      body.style.position = previousPosition;
+      body.style.top = previousTop;
+      body.style.width = previousWidth;
+      body.style.paddingRight = previousPaddingRight;
+      restoreScrollPosition(lockedScrollY.current);
+      // Re-apply after paint in case focus/layout shifts the viewport.
+      requestAnimationFrame(() => {
+        restoreScrollPosition(lockedScrollY.current);
+      });
     };
   }, [articleId, dismissed, isPending, leadLength, unlocked]);
 
   useEffect(() => {
-    if (dismissed) {
-      reopenRef.current?.focus();
+    if (!dismissed || !didLockScroll.current) {
+      return;
     }
+    reopenRef.current?.focus({ preventScroll: true });
+    restoreScrollPosition(lockedScrollY.current);
+    requestAnimationFrame(() => {
+      restoreScrollPosition(lockedScrollY.current);
+    });
   }, [dismissed]);
+
+  useEffect(() => {
+    if (!unlocked || !didLockScroll.current) {
+      return;
+    }
+    restoreScrollPosition(lockedScrollY.current);
+    requestAnimationFrame(() => {
+      restoreScrollPosition(lockedScrollY.current);
+    });
+  }, [unlocked]);
 
   function keepFocusInside(event: KeyboardEvent<HTMLDivElement>): void {
     if (event.key === "Escape") {
@@ -91,10 +139,10 @@ export function ArticleAccessGate({
     const last = focusable.item(focusable.length - 1);
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
-      last.focus();
+      last?.focus({ preventScroll: true });
     } else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault();
-      first.focus();
+      first?.focus({ preventScroll: true });
     }
   }
 
