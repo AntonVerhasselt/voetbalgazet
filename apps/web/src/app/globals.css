@@ -2424,6 +2424,89 @@ a {
   background: var(--white);
 }
 
+/* React Email editor shell (Inspector + canvas) */
+.newsletter-re-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
+}
+
+.newsletter-re-shell__row {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 520px;
+  width: 100%;
+}
+
+.newsletter-re-shell .tiptap,
+.newsletter-re-shell [class*="ProseMirror"],
+.newsletter-re-canvas {
+  min-height: 420px;
+  padding: 1.25rem 1.1rem;
+  outline: none;
+}
+
+.newsletter-re-canvas {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--white);
+}
+
+.newsletter-re-inspector {
+  flex: 0 0 240px;
+  width: 240px;
+  max-width: 42vw;
+  border-left: 1px solid var(--rule);
+  background: var(--paper-deep, #f5f0e8);
+  padding: 0.85rem 0.75rem;
+  overflow-y: auto;
+  font-size: 0.82rem;
+}
+
+.newsletter-re-inspector__header {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.newsletter-re-inspector__header > span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.newsletter-re-inspector__header > p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.newsletter-re-hint {
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border-top: 1px solid var(--rule);
+  background: var(--paper-deep, #f5f0e8);
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.newsletter-re-hint kbd {
+  display: inline-block;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--rule);
+  background: var(--white);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
 .newsletter-editor-save-status {
   min-height: 1.5rem;
   margin-top: 0.5rem;
@@ -2868,6 +2951,24 @@ a {
 
   .newsletter-editor-main {
     min-height: 360px;
+  }
+
+  .newsletter-re-shell__row {
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .newsletter-re-inspector {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    border-left: none;
+    border-top: 1px solid var(--rule);
+    max-height: 280px;
+  }
+
+  .newsletter-re-canvas {
+    min-height: 320px;
   }
 
   .newsletter-preview-frame {

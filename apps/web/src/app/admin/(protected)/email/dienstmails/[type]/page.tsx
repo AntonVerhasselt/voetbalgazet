@@ -9,8 +9,11 @@ import {
 import Link from "next/link";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
-import { EmailEditor, type EmailEditorRef } from "@react-email/editor";
-import "@react-email/editor/themes/default.css";
+import {
+  NewsletterEmailEditor,
+  type NewsletterEmailEditorRef,
+} from "@/components/newsletter-email-editor";
+import { useUploadFile } from "@convex-dev/r2/react";
 import type { JSONContent } from "@tiptap/core";
 import { sanitizeEditorDocumentJson } from "@convex/lib/compliance";
 
@@ -49,8 +52,13 @@ function DienstmailEditorForm({
   const updateDraft = useMutation(api.newsletterAdmin.updateDraft);
   const publishRevision = useMutation(api.newsletterAdmin.publishRevision);
   const requestTest = useMutation(api.newsletterAdmin.requestTest);
+  const resolvePublicUrl = useMutation(api.r2.resolvePublicUrl);
+  const uploadFile = useUploadFile({
+    generateUploadUrl: api.r2.generateUploadUrl,
+    syncMetadata: api.r2.syncMetadata,
+  });
 
-  const editorRef = useRef<EmailEditorRef>(null);
+  const editorRef = useRef<NewsletterEmailEditorRef>(null);
   const [initialContent] = useState<JSONContent | undefined>(() => {
     try {
       return JSON.parse(
@@ -107,11 +115,20 @@ function DienstmailEditorForm({
   );
 
   const handleEditorUpdate = useCallback(
-    (ref: EmailEditorRef) => {
+    (ref: NewsletterEmailEditorRef) => {
       const json = ref.getJSON();
       scheduleSave({ documentJson: JSON.stringify(json) });
     },
     [scheduleSave],
+  );
+
+  const handleUploadImage = useCallback(
+    async (file: File): Promise<{ url: string }> => {
+      const r2Key = await uploadFile(file);
+      const { publicUrl } = await resolvePublicUrl({ r2Key });
+      return { url: publicUrl };
+    },
+    [uploadFile, resolvePublicUrl],
   );
 
   async function handlePublish() {
@@ -211,11 +228,13 @@ function DienstmailEditorForm({
           </div>
 
           <div className="newsletter-editor-main">
-            <EmailEditor
+            <NewsletterEmailEditor
               ref={editorRef}
               content={initialContent}
               onUpdate={handleEditorUpdate}
+              onUploadImage={canEdit ? handleUploadImage : undefined}
               editable={canEdit}
+              showInspector={canEdit}
             />
           </div>
 
