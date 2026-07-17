@@ -1,6 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { adminMutation, adminQuery, viewerQuery } from "./lib/adminAuth";
 import {
   COMPLIANCE,
@@ -12,6 +13,11 @@ import {
   validateDocumentForSend,
   parseEditorDocument,
 } from "./lib/emailRender";
+import {
+  TRANSACTIONAL_TYPE_SEEDS,
+  seedForType,
+  transactionalContentFingerprint,
+} from "./lib/transactionalTypes";
 import {
   transactionalDefinitionStatusValidator,
   transactionalEmailTypeValidator,
@@ -33,174 +39,113 @@ function isSendingDomainVerified(fromAddress: string): boolean {
   return domain === COMPLIANCE.sendingDomain;
 }
 
-const TRANSACTIONAL_TYPES = [
-  {
-    type: "welcome" as const,
-    displayName: "Welkomstmail",
-    allowedVariableKeys: ["confirmUrl", "firstName"],
-    requiredVariableKeys: ["confirmUrl"],
-    subject: "Welkom bij De Voetbalgazet",
-    documentJson: JSON.stringify({
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "Welkom bij De Voetbalgazet" }],
-        },
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "Je kunt meteen verder lezen. Bevestig je e-mailadres om later je voorkeuren veilig aan te passen.",
-            },
-          ],
-        },
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "{{confirmUrl}}" }],
-        },
-      ],
-    }),
+async function resolveSender(ctx: MutationCtx): Promise<{
+  fromName: string;
+  fromAddress: string;
+  replyTo: string;
+}> {
+  const sender = await ctx.db
+    .query("emailSenderProfiles")
+    .withIndex("by_default", (q) => q.eq("isDefault", true))
+    .unique();
+  return {
+    fromName: sender?.fromName ?? COMPLIANCE.defaultFromName,
+    fromAddress: sender?.fromAddress ?? COMPLIANCE.defaultFromAddress,
+    replyTo: sender?.replyTo ?? COMPLIANCE.replyTo,
+  };
+}
+
+async function resolveTransactionalContent(
+  ctx: MutationCtx,
+  type: (typeof TRANSACTIONAL_TYPE_SEEDS)[number]["type"],
+): Promise<{
+  documentJson: string;
+  subject: string;
+  preheader: string | undefined;
+  allowedVariableKeys: string[];
+  requiredVariableKeys: string[];
+  disabled: boolean;
+}> {
+  const definition = await ctx.db
+    .query("transactionalEmailDefinitions")
+    .withIndex("by_type", (q) => q.eq("type", type))
+    .unique();
+  if (definition) {
+    let documentJson = definition.documentJson;
+    let subject = definition.subject;
+    let preheader = definition.preheader;
+    if (definition.activeRevisionId) {
+      const revision = await ctx.db.get(definition.activeRevisionId);
+      if (revision) {
+        documentJson = revision.documentJson;
+        subject = revision.subject;
+        preheader = revision.preheader;
+      }
+    }
+    return {
+      documentJson,
+      subject,
+      preheader,
+      allowedVariableKeys: definition.allowedVariableKeys,
+      requiredVariableKeys: definition.requiredVariableKeys,
+      disabled: definition.status === "disabled",
+    };
+  }
+  const seed = seedForType(type);
+  return {
+    documentJson: seed.documentJson,
+    subject: seed.subject,
+    preheader: undefined,
+    allowedVariableKeys: [...seed.allowedVariableKeys],
+    requiredVariableKeys: [...seed.requiredVariableKeys],
+    disabled: false,
+  };
+}
+
+/**
+ * Send a visually managed transactional email via the Resend component.
+ * Falls back to seed content when the admin catalog row is not yet created.
+ */
+export const sendTransactionalEmail = internalMutation({
+  args: {
+    type: transactionalEmailTypeValidator,
+    toEmail: v.string(),
+    variables: v.record(v.string(), v.string()),
   },
-  {
-    type: "magic_link" as const,
-    displayName: "Magic link",
-    allowedVariableKeys: ["magicUrl"],
-    requiredVariableKeys: ["magicUrl"],
-    subject: "Je aanmeldlink voor De Voetbalgazet",
-    documentJson: JSON.stringify({
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "Meld je aan" }],
-        },
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "Gebruik deze link om jezelf te bevestigen. De link vervalt na korte tijd.",
-            },
-          ],
-        },
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "{{magicUrl}}" }],
-        },
-      ],
-    }),
+  returns: v.object({ sent: v.boolean() }),
+  handler: async (ctx, args) => {
+    const toEmail = normalizeAndValidateEmail(args.toEmail);
+    const content = await resolveTransactionalContent(ctx, args.type);
+    if (content.disabled) {
+      return { sent: false };
+    }
+    for (const key of content.requiredVariableKeys) {
+      if (!args.variables[key]) {
+        throw new Error(`Verplichte variabele ontbreekt: ${key}`);
+      }
+    }
+    const rendered = renderTransactionalEmail({
+      documentJson: content.documentJson,
+      subject: content.subject,
+      preheader: content.preheader,
+      variables: args.variables,
+    });
+    let resolvedSubject = content.subject;
+    for (const [key, value] of Object.entries(args.variables)) {
+      resolvedSubject = resolvedSubject.replaceAll(`{{${key}}}`, value);
+    }
+    const sender = await resolveSender(ctx);
+    await resend.sendEmail(ctx, {
+      from: `${sender.fromName} <${sender.fromAddress}>`,
+      to: toEmail,
+      replyTo: [sender.replyTo],
+      subject: resolvedSubject,
+      html: rendered.html,
+      text: rendered.text,
+    });
+    return { sent: true };
   },
-  {
-    type: "verify_email" as const,
-    displayName: "E-mailverificatie",
-    allowedVariableKeys: ["verifyUrl"],
-    requiredVariableKeys: ["verifyUrl"],
-    subject: "Bevestig je e-mailadres",
-    documentJson: JSON.stringify({
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "Bevestig je e-mailadres" }],
-        },
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "{{verifyUrl}}" }],
-        },
-      ],
-    }),
-  },
-  {
-    type: "unsubscribe_confirmed" as const,
-    displayName: "Uitschrijving bevestigd",
-    allowedVariableKeys: ["preferencesUrl"],
-    requiredVariableKeys: [],
-    subject: "Je bent uitgeschreven van de nieuwsbrief",
-    documentJson: JSON.stringify({
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "Uitschrijving bevestigd" }],
-        },
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "Je ontvangt geen wekelijkse nieuwsbrief meer. Je website-toegang blijft behouden.",
-            },
-          ],
-        },
-      ],
-    }),
-  },
-  {
-    type: "preferences_changed" as const,
-    displayName: "Voorkeuren aangepast",
-    allowedVariableKeys: ["preferencesUrl"],
-    requiredVariableKeys: ["preferencesUrl"],
-    subject: "Je voorkeuren zijn bijgewerkt",
-    documentJson: JSON.stringify({
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "Je voorkeuren zijn bijgewerkt" }],
-        },
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "We hebben je nieuwsbriefvoorkeuren opgeslagen. Je kunt ze later opnieuw aanpassen via deze link:",
-            },
-          ],
-        },
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "{{preferencesUrl}}" }],
-        },
-      ],
-    }),
-  },
-  {
-    type: "admin_send_alert" as const,
-    displayName: "AdminSendAlert",
-    allowedVariableKeys: ["campaignName", "status", "dashboardUrl"],
-    requiredVariableKeys: ["campaignName", "status", "dashboardUrl"],
-    subject: "Nieuwsbriefstatus: {{campaignName}}",
-    documentJson: JSON.stringify({
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "Nieuwsbriefstatus" }],
-        },
-        {
-          type: "paragraph",
-          content: [
-            { type: "text", text: "{{campaignName}} staat op " },
-            { type: "text", text: "{{status}}" },
-            { type: "text", text: "." },
-          ],
-        },
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "{{dashboardUrl}}" }],
-        },
-      ],
-    }),
-  },
-] as const;
+});
 
 export const listDefinitions = viewerQuery({
   args: {},
@@ -244,6 +189,7 @@ export const getDefinition = viewerQuery({
       requiredVariableKeys: v.array(v.string()),
       updatedAt: v.number(),
       canEdit: v.boolean(),
+      lastSuccessfulTestAt: v.optional(v.number()),
     }),
     v.null(),
   ),
@@ -267,6 +213,7 @@ export const getDefinition = viewerQuery({
       requiredVariableKeys: row.requiredVariableKeys,
       updatedAt: row.updatedAt,
       canEdit: ctx.adminUser.role === "admin",
+      lastSuccessfulTestAt: row.lastSuccessfulTestAt,
     };
   },
 });
@@ -277,7 +224,7 @@ export const ensureDefinitions = adminMutation({
   handler: async (ctx) => {
     let created = 0;
     const now = Date.now();
-    for (const def of TRANSACTIONAL_TYPES) {
+    for (const def of TRANSACTIONAL_TYPE_SEEDS) {
       const existing = await ctx.db
         .query("transactionalEmailDefinitions")
         .withIndex("by_type", (q) => q.eq("type", def.type))
@@ -349,6 +296,19 @@ export const publishRevision = adminMutation({
         throw new Error(`Verplichte variabele ontbreekt: {{${key}}}`);
       }
     }
+    const fingerprint = transactionalContentFingerprint({
+      subject: row.subject,
+      preheader: row.preheader,
+      documentJson: row.documentJson,
+    });
+    if (
+      !row.lastSuccessfulTestAt ||
+      row.lastSuccessfulTestFingerprint !== fingerprint
+    ) {
+      throw new Error(
+        "Verstuur eerst een geslaagde testmail van de huidige inhoud.",
+      );
+    }
     const rendered = renderTransactionalEmail({
       documentJson: row.documentJson,
       subject: row.subject,
@@ -385,6 +345,7 @@ export const publishRevision = adminMutation({
       createdAt: now,
       publishedAt: now,
       publishedBy: ctx.adminUser._id,
+      lastSuccessfulTestAt: row.lastSuccessfulTestAt,
     });
     await ctx.db.patch(row._id, {
       activeRevisionId: revisionId,
@@ -423,13 +384,25 @@ export const requestTest = adminMutation({
       preheader: row.preheader,
       variables: fixtureVars,
     });
+    const sender = await resolveSender(ctx);
     await resend.sendEmail(ctx, {
-      from: `${COMPLIANCE.defaultFromName} <${COMPLIANCE.defaultFromAddress}>`,
+      from: `${sender.fromName} <${sender.fromAddress}>`,
       to: toEmail,
-      replyTo: [COMPLIANCE.replyTo],
+      replyTo: [sender.replyTo],
       subject: `[TEST] ${row.subject}`,
       html: rendered.html,
       text: rendered.text,
+    });
+    const now = Date.now();
+    await ctx.db.patch(row._id, {
+      lastSuccessfulTestAt: now,
+      lastSuccessfulTestFingerprint: transactionalContentFingerprint({
+        subject: row.subject,
+        preheader: row.preheader,
+        documentJson: row.documentJson,
+      }),
+      updatedAt: now,
+      updatedBy: ctx.adminUser._id,
     });
     return { ok: true };
   },
@@ -572,41 +545,48 @@ export const setMarketingKillSwitch = adminMutation({
   },
 });
 
+const adminAlertStatusValidator = v.union(
+  v.literal("failed"),
+  v.literal("partially_failed"),
+  v.literal("sent"),
+  v.literal("cancelled"),
+  v.literal("started"),
+  v.literal("bounce_spike"),
+  v.literal("complaint_spike"),
+);
+
 /**
- * Email all active Admins + initiating Journalist when a send ends failed /
- * partially_failed. Dedupes addresses. Uses the admin_send_alert template.
+ * Email all active Admins + initiating Journalist on send outcomes / spikes.
+ * Dedupes addresses. Uses the admin_send_alert template.
  */
 export const dispatchAdminSendAlert = internalMutation({
   args: {
     campaignId: v.id("newsletterCampaigns"),
-    sendId: v.id("newsletterSends"),
-    status: v.union(
-      v.literal("failed"),
-      v.literal("partially_failed"),
-      v.literal("sent"),
-      v.literal("cancelled"),
-    ),
+    sendId: v.optional(v.id("newsletterSends")),
+    status: adminAlertStatusValidator,
   },
   returns: v.null(),
   handler: async (ctx, args) => {
     const campaign = await ctx.db.get(args.campaignId);
-    const send = await ctx.db.get(args.sendId);
-    if (!campaign || !send) {
+    if (!campaign) {
       return null;
     }
+    const send = args.sendId ? await ctx.db.get(args.sendId) : null;
 
     const definition = await ctx.db
       .query("transactionalEmailDefinitions")
       .withIndex("by_type", (q) => q.eq("type", "admin_send_alert"))
       .unique();
-    if (!definition || definition.status === "disabled") {
+    if (definition?.status === "disabled") {
       return null;
     }
 
-    let documentJson = definition.documentJson;
-    let subject = definition.subject;
-    let preheader = definition.preheader;
-    if (definition.activeRevisionId) {
+    let documentJson =
+      definition?.documentJson ?? seedForType("admin_send_alert").documentJson;
+    let subject =
+      definition?.subject ?? seedForType("admin_send_alert").subject;
+    let preheader = definition?.preheader;
+    if (definition?.activeRevisionId) {
       const revision = await ctx.db.get(definition.activeRevisionId);
       if (revision) {
         documentJson = revision.documentJson;
@@ -625,9 +605,12 @@ export const dispatchAdminSendAlert = internalMutation({
         recipientEmails.add(user.email.trim().toLowerCase());
       }
     }
-    const initiator = await ctx.db.get(send.requestedBy);
-    if (initiator && initiator.disabledAt === undefined) {
-      recipientEmails.add(initiator.email.trim().toLowerCase());
+    const initiatorId = send?.requestedBy ?? campaign.sendRequestedBy;
+    if (initiatorId) {
+      const initiator = await ctx.db.get(initiatorId);
+      if (initiator && initiator.disabledAt === undefined) {
+        recipientEmails.add(initiator.email.trim().toLowerCase());
+      }
     }
     if (recipientEmails.size === 0) {
       recipientEmails.add(COMPLIANCE.replyTo);
@@ -651,20 +634,14 @@ export const dispatchAdminSendAlert = internalMutation({
       .replaceAll("{{status}}", statusLabel)
       .replaceAll("{{dashboardUrl}}", dashboardUrl);
 
-    const sender = await ctx.db
-      .query("emailSenderProfiles")
-      .withIndex("by_default", (q) => q.eq("isDefault", true))
-      .unique();
-    const fromName = sender?.fromName ?? COMPLIANCE.defaultFromName;
-    const fromAddress = sender?.fromAddress ?? COMPLIANCE.defaultFromAddress;
-    const replyTo = sender?.replyTo ?? COMPLIANCE.replyTo;
+    const sender = await resolveSender(ctx);
 
     let sentCount = 0;
     for (const to of recipientEmails) {
       await resend.sendEmail(ctx, {
-        from: `${fromName} <${fromAddress}>`,
+        from: `${sender.fromName} <${sender.fromAddress}>`,
         to,
-        replyTo: [replyTo],
+        replyTo: [sender.replyTo],
         subject: resolvedSubject,
         html: rendered.html,
         text: rendered.text,

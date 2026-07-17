@@ -95,7 +95,10 @@ export function campaignStatusLabel(
     | "sent"
     | "partially_failed"
     | "failed"
-    | "cancelled",
+    | "cancelled"
+    | "started"
+    | "bounce_spike"
+    | "complaint_spike",
 ): string {
   switch (status) {
     case "draft":
@@ -114,5 +117,11 @@ export function campaignStatusLabel(
       return "Mislukt";
     case "cancelled":
       return "Geannuleerd";
+    case "started":
+      return "Geplande verzending gestart";
+    case "bounce_spike":
+      return "Bounce-piek";
+    case "complaint_spike":
+      return "Complaint-piek";
   }
 }

@@ -444,6 +444,14 @@ export const requestSendNow = editorMutation({
       expectedRecipientCount: args.expectedPreviewCount,
     });
 
+    if (campaign.status === "scheduled" && campaign.scheduledJobId) {
+      try {
+        await ctx.scheduler.cancel(campaign.scheduledJobId);
+      } catch {
+        // Generation bump still protects if the job already fired.
+      }
+    }
+
     await ctx.db.patch(args.campaignId, {
       status: "preparing",
       sendRevisionId: revisionId,
@@ -572,6 +580,13 @@ export const cancelSchedule = editorMutation({
         "Alleen geplande nieuwsbrieven kunnen worden geannuleerd.",
       );
     }
+    if (campaign.scheduledJobId) {
+      try {
+        await ctx.scheduler.cancel(campaign.scheduledJobId);
+      } catch {
+        // Job may already have started or been cancelled — generation bump still protects.
+      }
+    }
     await ctx.db.patch(args.campaignId, {
       status: "cancelled",
       scheduledFor: undefined,
@@ -582,6 +597,10 @@ export const cancelSchedule = editorMutation({
       action: "schedule_cancelled",
       actorUserId: ctx.adminUser._id,
       campaignId: args.campaignId,
+    });
+    await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+      campaignId: args.campaignId,
+      status: "cancelled",
     });
     return null;
   },
@@ -645,6 +664,11 @@ export const executeScheduledSend = internalMutation({
       status: "preparing",
       sendRequestedAt: now,
       sendRequestedBy: args.requestedBy,
+    });
+    await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+      campaignId: args.campaignId,
+      sendId,
+      status: "started",
     });
     await ctx.scheduler.runAfter(0, internal.newsletterSend.prepareRecipients, {
       sendId,
@@ -998,13 +1022,11 @@ async function finalizeQueuedSend(
     status: finalStatus,
     ...(finalStatus !== "failed" ? { sentAt: now } : {}),
   });
-  if (finalStatus === "failed" || finalStatus === "partially_failed") {
-    await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
-      campaignId: send.campaignId,
-      sendId: send._id,
-      status: finalStatus,
-    });
-  }
+  await ctx.scheduler.runAfter(0, internal.newsletterAdmin.dispatchAdminSendAlert, {
+    campaignId: send.campaignId,
+    sendId: send._id,
+    status: finalStatus,
+  });
 }
 
 export const enqueueRecipientBatch = internalMutation({

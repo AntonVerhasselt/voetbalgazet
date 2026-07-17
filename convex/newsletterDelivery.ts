@@ -1,6 +1,11 @@
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 import { internalMutation } from "./_generated/server";
 import { isHardBounceEvent } from "./lib/bounce";
+import {
+  shouldAlertBounceSpike,
+  shouldAlertComplaintSpike,
+} from "./lib/deliveryAlerts";
 import { addSuppression } from "./lib/suppressions";
 
 const RECIPIENT_RANK: Record<string, number> = {
@@ -114,6 +119,8 @@ export const applyProviderEvent = internalMutation({
         failedCount?: number;
         openedCount?: number;
         clickedCount?: number;
+        bounceSpikeAlertedAt?: number;
+        complaintSpikeAlertedAt?: number;
       } = {};
       if (args.eventType === "email.delivered") {
         patch.deliveredCount = send.deliveredCount + 1;
@@ -128,6 +135,48 @@ export const applyProviderEvent = internalMutation({
       } else if (args.eventType === "email.clicked") {
         patch.clickedCount = send.clickedCount + 1;
       }
+
+      const nextBounced = patch.bouncedCount ?? send.bouncedCount;
+      const nextComplained = patch.complainedCount ?? send.complainedCount;
+      const now = Date.now();
+
+      if (
+        shouldAlertBounceSpike({
+          queuedCount: send.queuedCount,
+          bouncedCount: nextBounced,
+          alreadyAlerted: send.bounceSpikeAlertedAt !== undefined,
+        })
+      ) {
+        patch.bounceSpikeAlertedAt = now;
+        await ctx.scheduler.runAfter(
+          0,
+          internal.newsletterAdmin.dispatchAdminSendAlert,
+          {
+            campaignId: send.campaignId,
+            sendId: send._id,
+            status: "bounce_spike",
+          },
+        );
+      }
+      if (
+        shouldAlertComplaintSpike({
+          queuedCount: send.queuedCount,
+          complainedCount: nextComplained,
+          alreadyAlerted: send.complaintSpikeAlertedAt !== undefined,
+        })
+      ) {
+        patch.complaintSpikeAlertedAt = now;
+        await ctx.scheduler.runAfter(
+          0,
+          internal.newsletterAdmin.dispatchAdminSendAlert,
+          {
+            campaignId: send.campaignId,
+            sendId: send._id,
+            status: "complaint_spike",
+          },
+        );
+      }
+
       if (Object.keys(patch).length > 0) {
         await ctx.db.patch(send._id, patch);
       }

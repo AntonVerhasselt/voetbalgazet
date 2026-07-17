@@ -92,7 +92,9 @@ export function ArticleEngagement({
       return;
     }
 
-    const lead = document.querySelector(".article-lead, .article__body");
+    const lead = document.querySelector(
+      "[data-article-lead], .article-lead, .article__body",
+    );
     if (!lead) {
       return;
     }

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { capturePublicEvent } from "@/lib/analytics";
 
+/** Page-view only — lead/depth live in ArticleEngagement to avoid double-counts. */
 export function ArticleAnalytics({
   articleId,
   categoryKey,
@@ -17,8 +18,6 @@ export function ArticleAnalytics({
   isGated: boolean;
 }) {
   const captured = useRef(false);
-  const leadCaptured = useRef(false);
-  const depthsCaptured = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     if (captured.current) {
@@ -36,54 +35,6 @@ export function ArticleAnalytics({
       is_gated: isGated,
     });
   }, [articleId, authorKey, categoryKey, divisionKey, isGated]);
-
-  useEffect(() => {
-    const lead = document.querySelector<HTMLElement>("[data-article-lead]");
-    const markers = [
-      ...document.querySelectorAll<HTMLElement>("[data-read-depth]"),
-    ];
-    if (!lead && markers.length === 0) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) {
-            continue;
-          }
-          const target = entry.target as HTMLElement;
-          if (target.dataset.articleLead !== undefined && !leadCaptured.current) {
-            leadCaptured.current = true;
-            capturePublicEvent("article_lead_reached", {
-              article_id: articleId,
-            });
-            observer.unobserve(target);
-            continue;
-          }
-          const depth = Number(target.dataset.readDepth);
-          if (!Number.isFinite(depth) || depthsCaptured.current.has(depth)) {
-            continue;
-          }
-          depthsCaptured.current.add(depth);
-          capturePublicEvent("article_read_depth_reached", {
-            article_id: articleId,
-            depth_percent: depth,
-          });
-          observer.unobserve(target);
-        }
-      },
-      { rootMargin: "0px 0px -15% 0px", threshold: 0 },
-    );
-
-    if (lead) {
-      observer.observe(lead);
-    }
-    for (const marker of markers) {
-      observer.observe(marker);
-    }
-    return () => observer.disconnect();
-  }, [articleId]);
 
   return null;
 }

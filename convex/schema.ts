@@ -235,6 +235,8 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
     lastErrorCode: v.optional(v.string()),
     clientRequestId: v.string(),
+    bounceSpikeAlertedAt: v.optional(v.number()),
+    complaintSpikeAlertedAt: v.optional(v.number()),
   })
     .index("by_campaign", ["campaignId"])
     .index("by_status_and_requestedAt", ["status", "requestedAt"])
@@ -322,6 +324,8 @@ export default defineSchema({
     preheader: v.optional(v.string()),
     updatedBy: v.id("users"),
     updatedAt: v.number(),
+    lastSuccessfulTestAt: v.optional(v.number()),
+    lastSuccessfulTestFingerprint: v.optional(v.string()),
   }).index("by_type", ["type"]),
 
   transactionalEmailRevisions: defineTable({

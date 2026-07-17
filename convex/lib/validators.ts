@@ -166,6 +166,8 @@ export const audiencePreviewValidator = v.object({
   percentOfActive: v.number(),
   calculatedAt: v.number(),
   description: v.string(),
+  /** True when the scan hit the preview cap and counts may be incomplete. */
+  isApproximate: v.boolean(),
   sample: v.array(
     v.object({
       maskedEmail: v.string(),

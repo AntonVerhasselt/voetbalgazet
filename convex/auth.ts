@@ -29,55 +29,6 @@ function trustedOriginsFor(site: string): string[] {
 
 export const authComponent = createClient<DataModel>(components.betterAuth);
 
-async function sendMagicLinkEmail(data: {
-  email: string;
-  url: string;
-}): Promise<void> {
-  const adminRoles = parseBootstrapRoleMap(
-    process.env.ADMIN_BOOTSTRAP_ROLE_MAP,
-  );
-  if (adminRoles.has(data.email.normalize("NFKC").trim().toLowerCase())) {
-    throw new Error("Gebruik GitHub voor de redactieomgeving.");
-  }
-
-  const resendApiKey = process.env.RESEND_API_KEY;
-  if (!resendApiKey) {
-    if (isSecureSite) {
-      throw new Error("RESEND_API_KEY ontbreekt voor de verificatiemail.");
-    }
-    return;
-  }
-
-  const from =
-    process.env.EMAIL_FROM ??
-    "De Voetbalgazet <redactie@devoetbalgazet.be>";
-  const safeUrl = data.url.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: [data.email],
-      subject: "Welkom bij De Voetbalgazet",
-      html:
-        "<h1>Welkom bij De Voetbalgazet</h1>" +
-        "<p>Je kunt meteen verder lezen. Bevestig je e-mailadres om later je voorkeuren veilig aan te passen.</p>" +
-        `<p><a href="${safeUrl}">Bevestig mijn e-mailadres</a></p>` +
-        "<p>Deze link vervalt na 15 minuten.</p>",
-      text:
-        "Welkom bij De Voetbalgazet.\n\n" +
-        "Bevestig je e-mailadres om later je voorkeuren veilig aan te passen:\n" +
-        `${data.url}\n\nDeze link vervalt na 15 minuten.`,
-    }),
-  });
-  if (!response.ok) {
-    throw new Error("De verificatiemail kon niet worden verstuurd.");
-  }
-}
-
 function createAuthOptions(ctx: GenericCtx<DataModel>): BetterAuthOptions {
   const githubClientId = process.env.GITHUB_CLIENT_ID;
   const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
@@ -181,7 +132,30 @@ function createAuthOptions(ctx: GenericCtx<DataModel>): BetterAuthOptions {
           max: 5,
         },
         sendMagicLink: async ({ email, url }) => {
-          await sendMagicLinkEmail({ email, url });
+          const adminRoles = parseBootstrapRoleMap(
+            process.env.ADMIN_BOOTSTRAP_ROLE_MAP,
+          );
+          if (adminRoles.has(email.normalize("NFKC").trim().toLowerCase())) {
+            throw new Error("Gebruik GitHub voor de redactieomgeving.");
+          }
+          if (!("runMutation" in ctx)) {
+            if (!isSecureSite) {
+              return;
+            }
+            throw new Error(
+              "Verificatiemail kon niet worden gepland (geen Convex-context).",
+            );
+          }
+          // Combined welcome + confirm flow uses the `welcome` template
+          // (confirmUrl). Plan allows merging Welcome/Verify into one mail.
+          await ctx.runMutation(
+            internal.newsletterAdmin.sendTransactionalEmail,
+            {
+              type: "welcome",
+              toEmail: email,
+              variables: { confirmUrl: url },
+            },
+          );
         },
       }),
     ],
