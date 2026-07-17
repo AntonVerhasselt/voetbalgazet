@@ -56,50 +56,52 @@ export default function AbonneesPage() {
         ) : results.length === 0 ? (
           <p className="newsletter-list__empty">Geen abonnees gevonden.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>E-mailadres</th>
-                <th>Nieuwsbrief</th>
-                <th>Toegang</th>
-                <th>Bezorging</th>
-                <th>Voorkeuren</th>
-                <th>Aangemeld</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((subscriber) => (
-                <tr key={subscriber._id}>
-                  <td style={{ fontFamily: "var(--font-mono)", fontSize: "0.82rem" }}>
-                    {subscriber.maskedEmail}
-                  </td>
-                  <td>
-                    <span
-                      className={`newsletter-badge newsletter-badge--${subscriber.newsletterSubscribed ? "yes" : "no"}`}
-                    >
-                      {subscriber.newsletterSubscribed ? "Ja" : "Nee"}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`newsletter-badge newsletter-badge--${subscriber.siteAccess ? "yes" : "no"}`}
-                    >
-                      {subscriber.siteAccess ? "Ja" : "Nee"}
-                    </span>
-                  </td>
-                  <td style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem" }}>
-                    {subscriber.emailDeliveryStatus}
-                  </td>
-                  <td style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem" }}>
-                    {subscriber.preferenceStatus}
-                  </td>
-                  <td style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", whiteSpace: "nowrap" }}>
-                    {formatDate(subscriber.signupStartedAt)}
-                  </td>
+          <div className="admin-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>E-mailadres</th>
+                  <th>Nieuwsbrief</th>
+                  <th>Toegang</th>
+                  <th>Bezorging</th>
+                  <th>Voorkeuren</th>
+                  <th>Aangemeld</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {results.map((subscriber) => (
+                  <tr key={subscriber._id}>
+                    <td className="newsletter-subscribers__email">
+                      {subscriber.maskedEmail}
+                    </td>
+                    <td>
+                      <span
+                        className={`newsletter-badge newsletter-badge--${subscriber.newsletterSubscribed ? "yes" : "no"}`}
+                      >
+                        {subscriber.newsletterSubscribed ? "Ja" : "Nee"}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`newsletter-badge newsletter-badge--${subscriber.siteAccess ? "yes" : "no"}`}
+                      >
+                        {subscriber.siteAccess ? "Ja" : "Nee"}
+                      </span>
+                    </td>
+                    <td className="newsletter-subscribers__mono">
+                      {subscriber.emailDeliveryStatus}
+                    </td>
+                    <td className="newsletter-subscribers__mono">
+                      {subscriber.preferenceStatus}
+                    </td>
+                    <td className="newsletter-subscribers__mono newsletter-subscribers__date">
+                      {formatDate(subscriber.signupStartedAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {status === "CanLoadMore" && (

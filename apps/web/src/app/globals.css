@@ -1553,8 +1553,8 @@ a {
   background: var(--paper-deep);
 }
 
-.admin-nav a,
-.admin-nav span {
+.admin-nav > a,
+.admin-nav > span {
   display: inline-flex;
   min-width: max-content;
   min-height: 48px;
@@ -1577,6 +1577,15 @@ a {
 
 .admin-nav__phase {
   display: none;
+}
+
+.admin-nav__short {
+  display: none;
+}
+
+.admin-nav__full,
+.admin-nav__short {
+  pointer-events: none;
 }
 
 .admin-content {
@@ -1983,8 +1992,9 @@ a {
     border-bottom: 0;
   }
 
-  .admin-nav a,
-  .admin-nav span {
+  .admin-nav > a,
+  .admin-nav > span {
+    width: 100%;
     border-right: 0;
     border-bottom: 1px solid var(--rule);
   }
@@ -2018,11 +2028,36 @@ a {
     box-shadow: 0 -0.5rem 1.5rem rgb(23 21 17 / 12%);
   }
 
-  .admin-nav a,
-  .admin-nav span {
-    flex: 1 0 auto;
+  .admin-nav > a,
+  .admin-nav > span {
+    flex: 1 1 0;
     justify-content: center;
+    min-width: 0;
+    padding: 0.65rem 0.35rem;
     border-top: 1px solid var(--rule);
+    font-size: 0.68rem;
+    text-align: center;
+  }
+
+  .admin-nav .admin-nav__full {
+    display: none;
+  }
+
+  .admin-nav .admin-nav__short {
+    display: inline;
+  }
+
+  .admin-header {
+    gap: 0.65rem;
+    padding-block: 0.65rem;
+  }
+
+  .admin-header__account {
+    max-width: min(52vw, 11rem);
+  }
+
+  .admin-content {
+    padding-bottom: clamp(2.5rem, 8vw, 4rem);
   }
 }
 
@@ -2335,20 +2370,25 @@ a {
 /* Campaign sub-navigation */
 .campaign-subnav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0;
   margin-block: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   border: 1px solid var(--rule);
 }
 
 .campaign-subnav a {
   display: inline-flex;
-  min-height: 40px;
+  flex: 0 0 auto;
+  min-height: 44px;
   align-items: center;
   padding: 0.45rem 0.9rem;
   border-right: 1px solid var(--rule);
   font-size: 0.8rem;
   font-weight: 700;
+  white-space: nowrap;
   text-decoration: none;
 }
 
@@ -2379,6 +2419,7 @@ a {
 
 .newsletter-editor-main {
   min-height: 480px;
+  overflow-x: auto;
   border: 1px solid var(--rule);
   background: var(--white);
 }
@@ -2436,7 +2477,7 @@ a {
 
 .newsletter-checklist__item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--rule);
@@ -2475,12 +2516,16 @@ a {
 
 .newsletter-checklist__label {
   flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.2rem;
 }
 
 .newsletter-checklist__meta {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   color: var(--ink-muted);
+  overflow-wrap: anywhere;
 }
 
 /* Audience stats */
@@ -2578,12 +2623,13 @@ a {
 
 .newsletter-modal__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.5rem;
 }
 
 .newsletter-modal__actions button {
-  flex: 1;
+  flex: 1 1 8rem;
 }
 
 /* Section dividers */
@@ -2605,10 +2651,40 @@ a {
   margin-top: 1rem;
 }
 
-.newsletter-subscribers table {
+.admin-table-scroll {
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--rule);
+}
+
+.admin-table-scroll > table {
+  margin: 0;
+  border: 0;
+}
+
+.newsletter-subscribers table {
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
+}
+
+.newsletter-subscribers__email {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.newsletter-subscribers__mono {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.newsletter-subscribers__date {
+  white-space: nowrap;
 }
 
 .newsletter-subscribers th {
@@ -2672,6 +2748,11 @@ a {
   background: var(--white);
 }
 
+.dienstmails-item .newsletter-action-link,
+.dienstmails-item .admin-button {
+  flex-shrink: 0;
+}
+
 .dienstmails-item__info {
   display: grid;
   gap: 0.15rem;
@@ -2702,16 +2783,124 @@ a {
 }
 
 @media (max-width: 767px) {
+  .newsletter-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .newsletter-tabs {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .newsletter-tabs__tab {
+    flex: 1 0 auto;
+    min-height: 44px;
+  }
+
+  .newsletter-create-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .newsletter-list .admin-table-scroll {
+    border: 0;
+    overflow: visible;
+  }
+
   .newsletter-list__table {
-    font-size: 0.8rem;
+    display: block;
+    width: 100%;
+  }
+
+  .newsletter-list__table thead {
+    display: none;
+  }
+
+  .newsletter-list__table tbody {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .newsletter-list__table tr {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.9rem;
+    border: 1px solid var(--rule);
+    background: var(--white);
+  }
+
+  .newsletter-list__table td {
+    display: block;
+    max-width: none;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    white-space: normal;
+    text-overflow: unset;
+  }
+
+  .newsletter-list__table tr:hover td {
+    background: transparent;
   }
 
   .newsletter-list__subject,
   .newsletter-list__audience {
-    display: none;
+    display: block;
+    color: var(--ink-muted);
+    font-size: 0.82rem;
+  }
+
+  .newsletter-list__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding-top: 0.55rem;
+    margin-top: 0.2rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .newsletter-list__actions .newsletter-action-link,
+  .newsletter-list__actions .newsletter-action-btn {
+    min-height: 40px;
+  }
+
+  .newsletter-editor-main {
+    min-height: 360px;
   }
 
   .newsletter-preview-frame {
-    min-height: 320px;
+    min-height: 280px;
+  }
+
+  .newsletter-results-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .newsletter-results-stat strong {
+    font-size: 1.55rem;
+  }
+
+  .dienstmails-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dienstmails-item .newsletter-action-link,
+  .dienstmails-item .admin-button {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .newsletter-modal {
+    max-height: min(90vh, 640px);
+    overflow-y: auto;
+  }
+
+  .newsletter-action-link,
+  .newsletter-action-btn {
+    min-height: 40px;
   }
 }

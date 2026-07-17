@@ -127,67 +127,69 @@ export default function NieuwsbrievenPage() {
         ) : results.length === 0 ? (
           <p className="newsletter-list__empty">Geen campagnes gevonden.</p>
         ) : (
-          <table className="newsletter-list__table">
-            <thead>
-              <tr>
-                <th>Naam</th>
-                <th>Onderwerp</th>
-                <th>Status</th>
-                <th>Bijgewerkt</th>
-                <th>Publiek</th>
-                <th>Acties</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((campaign) => (
-                <tr key={campaign._id}>
-                  <td>
-                    <Link href={`/admin/nieuwsbrieven/${campaign._id}`}>
-                      {campaign.internalName}
-                    </Link>
-                  </td>
-                  <td className="newsletter-list__subject">
-                    {campaign.subject || <em>Geen onderwerp</em>}
-                  </td>
-                  <td>
-                    <span
-                      className={`newsletter-status newsletter-status--${campaign.status}`}
-                    >
-                      {STATUS_LABELS[campaign.status] ?? campaign.status}
-                    </span>
-                  </td>
-                  <td className="newsletter-list__date">
-                    {formatDate(campaign.updatedAt)}
-                  </td>
-                  <td className="newsletter-list__audience">
-                    {campaign.audienceDescription}
-                  </td>
-                  <td className="newsletter-list__actions">
-                    <Link
-                      href={`/admin/nieuwsbrieven/${campaign._id}`}
-                      className="newsletter-action-link"
-                    >
-                      {campaign.status === "draft" ? "Bewerken" : "Bekijken"}
-                    </Link>
-                    <button
-                      className="newsletter-action-btn"
-                      onClick={() => handleDuplicate(campaign._id)}
-                    >
-                      Dupliceren
-                    </button>
-                    {campaign.status === "draft" && (
-                      <button
-                        className="newsletter-action-btn newsletter-action-btn--danger"
-                        onClick={() => handleDelete(campaign._id)}
-                      >
-                        Verwijderen
-                      </button>
-                    )}
-                  </td>
+          <div className="admin-table-scroll">
+            <table className="newsletter-list__table">
+              <thead>
+                <tr>
+                  <th>Naam</th>
+                  <th>Onderwerp</th>
+                  <th>Status</th>
+                  <th>Bijgewerkt</th>
+                  <th>Publiek</th>
+                  <th>Acties</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {results.map((campaign) => (
+                  <tr key={campaign._id}>
+                    <td>
+                      <Link href={`/admin/nieuwsbrieven/${campaign._id}`}>
+                        {campaign.internalName}
+                      </Link>
+                    </td>
+                    <td className="newsletter-list__subject">
+                      {campaign.subject || <em>Geen onderwerp</em>}
+                    </td>
+                    <td>
+                      <span
+                        className={`newsletter-status newsletter-status--${campaign.status}`}
+                      >
+                        {STATUS_LABELS[campaign.status] ?? campaign.status}
+                      </span>
+                    </td>
+                    <td className="newsletter-list__date">
+                      {formatDate(campaign.updatedAt)}
+                    </td>
+                    <td className="newsletter-list__audience">
+                      {campaign.audienceDescription}
+                    </td>
+                    <td className="newsletter-list__actions">
+                      <Link
+                        href={`/admin/nieuwsbrieven/${campaign._id}`}
+                        className="newsletter-action-link"
+                      >
+                        {campaign.status === "draft" ? "Bewerken" : "Bekijken"}
+                      </Link>
+                      <button
+                        className="newsletter-action-btn"
+                        onClick={() => handleDuplicate(campaign._id)}
+                      >
+                        Dupliceren
+                      </button>
+                      {campaign.status === "draft" && (
+                        <button
+                          className="newsletter-action-btn newsletter-action-btn--danger"
+                          onClick={() => handleDelete(campaign._id)}
+                        >
+                          Verwijderen
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {status === "CanLoadMore" && (

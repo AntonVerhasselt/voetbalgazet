@@ -445,10 +445,12 @@ function ChecklistItem({
       >
         {ok ? "✓" : "!"}
       </span>
-      <span className="newsletter-checklist__label">{label}</span>
-      {meta && (
-        <span className="newsletter-checklist__meta">{meta}</span>
-      )}
+      <div className="newsletter-checklist__label">
+        <span>{label}</span>
+        {meta ? (
+          <span className="newsletter-checklist__meta">{meta}</span>
+        ) : null}
+      </div>
     </div>
   );
 }
