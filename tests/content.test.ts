@@ -71,16 +71,12 @@ describe("Keystatic article pipeline", () => {
     );
   });
 
-  it("derives illustration copy from illustrationMode", () => {
+  it("derives illustration copy from free-text fields with defaults", () => {
     expect(
       getIllustrationCopy({
-        illustrationMode: "generic",
         category: "Clubnieuws",
-        kicker: "Zondag",
-        homeTeam: "",
-        awayTeam: "",
-        competitionLabel: "",
-        divisionKeys: [],
+        illustrationTitle: "",
+        illustrationSubtitle: "",
       }),
     ).toEqual({
       eyebrow: "Clubnieuws",
@@ -90,17 +86,13 @@ describe("Keystatic article pipeline", () => {
 
     expect(
       getIllustrationCopy({
-        illustrationMode: "match",
         category: "Wedstrijdverslagen",
-        kicker: "",
-        homeTeam: "KFC Duffel",
-        awayTeam: "KSV Aartselaar",
-        competitionLabel: "1ste provinciale",
-        divisionKeys: ["antwerpen-p1"],
+        illustrationTitle: "KFC Duffel\nP1",
+        illustrationSubtitle: "KSV Aartselaar",
       }),
     ).toEqual({
       eyebrow: "Wedstrijdverslagen",
-      title: "KFC Duffel",
+      title: "KFC Duffel\nP1",
       subtitle: "KSV Aartselaar",
     });
   });

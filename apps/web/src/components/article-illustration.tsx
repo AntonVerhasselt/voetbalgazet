@@ -1,3 +1,18 @@
+function IllustrationLines({ text }: { text: string }) {
+  const lines = text.split(/\r?\n/);
+
+  return (
+    <>
+      {lines.map((line, index) => (
+        <span key={index}>
+          {index > 0 ? <br /> : null}
+          {line}
+        </span>
+      ))}
+    </>
+  );
+}
+
 export function ArticleIllustration({
   compact = false,
   tone = "green",
@@ -20,9 +35,13 @@ export function ArticleIllustration({
       aria-label={alt}
     >
       <span className="article-illustration__eyebrow">{eyebrow}</span>
-      <span className="article-illustration__title">{title}</span>
+      <span className="article-illustration__title">
+        <IllustrationLines text={title} />
+      </span>
       <span className="article-illustration__rule" />
-      <span className="article-illustration__subtitle">{subtitle}</span>
+      <span className="article-illustration__subtitle">
+        <IllustrationLines text={subtitle} />
+      </span>
     </figure>
   );
 }
