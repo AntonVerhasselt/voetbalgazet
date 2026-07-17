@@ -1000,7 +1000,8 @@ export const enqueueRecipientBatch = internalMutation({
     }
     try {
       await assertMarketingSendEnabled(ctx);
-    } catch (error) {
+    } catch {
+      // Do not rethrow: Convex rolls back patches if the mutation throws.
       const now = Date.now();
       await ctx.db.patch(args.sendId, {
         status: "failed",
@@ -1010,7 +1011,7 @@ export const enqueueRecipientBatch = internalMutation({
       await ctx.db.patch(send.campaignId, {
         status: "failed",
       });
-      throw error;
+      return null;
     }
     const revision = await ctx.db.get(send.revisionId);
     const campaign = await ctx.db.get(send.campaignId);

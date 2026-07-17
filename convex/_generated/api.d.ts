@@ -38,6 +38,7 @@ import type * as resendClient from "../resendClient.js";
 import type * as retention from "../retention.js";
 import type * as subscribers from "../subscribers.js";
 import type * as taxonomy from "../taxonomy.js";
+import type * as testOps from "../testOps.js";
 
 import type {
   ApiFromModules,
@@ -76,6 +77,7 @@ declare const fullApi: ApiFromModules<{
   retention: typeof retention;
   subscribers: typeof subscribers;
   taxonomy: typeof taxonomy;
+  testOps: typeof testOps;
 }>;
 
 /**
