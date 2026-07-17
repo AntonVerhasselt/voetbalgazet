@@ -11,6 +11,7 @@
 import type * as admin from "../admin.js";
 import type * as agentAccess from "../agentAccess.js";
 import type * as auth from "../auth.js";
+import type * as crons from "../crons.js";
 import type * as emailLinks from "../emailLinks.js";
 import type * as http from "../http.js";
 import type * as lib_adminAuth from "../lib/adminAuth.js";
@@ -34,7 +35,9 @@ import type * as newsletterDelivery from "../newsletterDelivery.js";
 import type * as newsletterSend from "../newsletterSend.js";
 import type * as r2 from "../r2.js";
 import type * as resendClient from "../resendClient.js";
+import type * as retention from "../retention.js";
 import type * as subscribers from "../subscribers.js";
+import type * as taxonomy from "../taxonomy.js";
 
 import type {
   ApiFromModules,
@@ -46,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   agentAccess: typeof agentAccess;
   auth: typeof auth;
+  crons: typeof crons;
   emailLinks: typeof emailLinks;
   http: typeof http;
   "lib/adminAuth": typeof lib_adminAuth;
@@ -69,7 +73,9 @@ declare const fullApi: ApiFromModules<{
   newsletterSend: typeof newsletterSend;
   r2: typeof r2;
   resendClient: typeof resendClient;
+  retention: typeof retention;
   subscribers: typeof subscribers;
+  taxonomy: typeof taxonomy;
 }>;
 
 /**

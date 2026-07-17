@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { captureAdminEvent } from "@/lib/analytics";
 
 function CampaignSubNav({ campaignId }: { campaignId: string }) {
   const base = `/admin/nieuwsbrieven/${campaignId}`;
@@ -148,6 +149,10 @@ export default function ControlerenPage({
         clientRequestId,
         confirm: true,
       });
+      captureAdminEvent("newsletter_campaign_send_confirmed", {
+        campaign_id: campaignId,
+        expected_preview_count: expectedPreviewCount,
+      });
       setShowSendModal(false);
     } catch (e) {
       setSendNowError(e instanceof Error ? e.message : "Verzenden mislukt");
@@ -176,6 +181,10 @@ export default function ControlerenPage({
         clientRequestId,
         confirm: true,
         now,
+      });
+      captureAdminEvent("newsletter_campaign_scheduled", {
+        campaign_id: campaignId,
+        scheduled_for: scheduledFor,
       });
       setScheduleSuccess(true);
     } catch (e) {

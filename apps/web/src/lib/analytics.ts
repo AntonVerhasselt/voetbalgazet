@@ -32,6 +32,12 @@ type PublicEventName =
   | "subscription_succeeded"
   | "team_search_used";
 
+type AdminEventName =
+  | "newsletter_campaign_send_confirmed"
+  | "newsletter_campaign_scheduled"
+  | "newsletter_failed_recipients_recovered"
+  | "newsletter_kill_switch_toggled";
+
 let initialized = false;
 
 function initializePostHog(): boolean {
@@ -52,6 +58,8 @@ function initializePostHog(): boolean {
     capture_pageleave: false,
     disable_session_recording: true,
     person_profiles: "never",
+    // Request that PostHog not store IP when the project allows this option.
+    ip: false,
   });
   initialized = true;
   return true;
@@ -66,6 +74,20 @@ export function capturePublicEvent(
   }
   posthog.capture(event, {
     ...properties,
+    version: 1,
+  });
+}
+
+export function captureAdminEvent(
+  event: AdminEventName,
+  properties: SafeEventProperties = {},
+): void {
+  if (!initializePostHog()) {
+    return;
+  }
+  posthog.capture(event, {
+    ...properties,
+    surface: "admin",
     version: 1,
   });
 }

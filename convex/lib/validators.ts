@@ -136,6 +136,8 @@ export const auditActionValidator = v.union(
   v.literal("transactional_updated"),
   v.literal("transactional_published"),
   v.literal("suppression_cleared"),
+  v.literal("failed_recipients_recovered"),
+  v.literal("taxonomy_synced"),
 );
 
 export const campaignSummaryValidator = v.object({

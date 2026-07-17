@@ -1,10 +1,11 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { captureAdminEvent } from "@/lib/analytics";
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "Concept",
@@ -38,6 +39,8 @@ export default function ResultatenPage({
 }) {
   const { campaignId: campaignIdStr } = use(params);
   const campaignId = campaignIdStr as Id<"newsletterCampaigns">;
+  const [recoverMessage, setRecoverMessage] = useState<string | null>(null);
+  const [recovering, setRecovering] = useState(false);
 
   const campaignData = useQuery(api.newsletterCampaigns.getCampaign, {
     campaignId,
@@ -45,6 +48,13 @@ export default function ResultatenPage({
   const sendResults = useQuery(api.newsletterSend.getSendResults, {
     campaignId,
   });
+  const failedRecipients = useQuery(
+    api.newsletterSend.listFailedRecipients,
+    sendResults?.send
+      ? { sendId: sendResults.send._id, limit: 50 }
+      : "skip",
+  );
+  const recoverFailed = useMutation(api.newsletterSend.recoverFailedRecipients);
 
   if (!campaignData) {
     return (
@@ -67,6 +77,32 @@ export default function ResultatenPage({
 
   const campaign = campaignData.campaign;
   const send = sendResults?.send;
+
+  async function handleRecoverAll(): Promise<void> {
+    if (!send) {
+      return;
+    }
+    setRecovering(true);
+    setRecoverMessage(null);
+    try {
+      const result = await recoverFailed({ sendId: send._id });
+      captureAdminEvent("newsletter_failed_recipients_recovered", {
+        campaign_analytics_id: send.analyticsId,
+        requeued: result.requeued,
+      });
+      setRecoverMessage(
+        result.requeued > 0
+          ? `${result.requeued} mislukte ontvangers opnieuw in de wachtrij gezet.`
+          : "Geen herstelbare ontvangers gevonden.",
+      );
+    } catch (error) {
+      setRecoverMessage(
+        error instanceof Error ? error.message : "Herstel mislukt.",
+      );
+    } finally {
+      setRecovering(false);
+    }
+  }
 
   return (
     <>
@@ -145,27 +181,68 @@ export default function ResultatenPage({
             />
             <StatCard value={send.queuedCount} label="In wachtrij" />
             <StatCard value={send.deliveredCount} label="Afgeleverd" />
-            <StatCard value={send.openedCount} label="Geopend" />
-            <StatCard value={send.clickedCount} label="Geklikt" />
+            <StatCard value={send.openedCount} label="Geopend (indicatief)" />
+            <StatCard value={send.clickedCount} label="Geklikt (indicatief)" />
             <StatCard value={send.bouncedCount} label="Teruggestuurd" />
             <StatCard value={send.complainedCount} label="Klachten" />
             <StatCard value={send.failedCount} label="Mislukt" />
             <StatCard value={send.suppressedCount} label="Onderdrukt" />
           </div>
 
-          {["sent", "partially_failed"].includes(send.status) &&
-            send.queuedCount > 0 && (
-              <p
-                style={{
-                  fontSize: "0.82rem",
-                  color: "var(--ink-muted)",
-                  marginTop: "0.5rem",
+          <p
+            style={{
+              fontSize: "0.82rem",
+              color: "var(--ink-muted)",
+              marginTop: "0.5rem",
+            }}
+          >
+            Open- en klikcijfers zijn indicatief (afhankelijk van
+            mailclienttracking) en geen exacte lezersaantallen.
+          </p>
+
+          {send.failedCount > 0 && (
+            <section className="admin-panel" style={{ marginTop: "1.5rem" }}>
+              <h2>Mislukte ontvangers</h2>
+              <p style={{ color: "var(--ink-muted)", fontSize: "0.9rem" }}>
+                Gemaskeerde adressen. Herstel zet herstelbare rijen opnieuw in
+                de verzendwachtrij.
+              </p>
+              {failedRecipients === undefined && (
+                <p className="admin-notice">Laden…</p>
+              )}
+              {failedRecipients && failedRecipients.length === 0 && (
+                <p className="admin-notice">
+                  Geen mislukte rijen meer zichtbaar.
+                </p>
+              )}
+              {failedRecipients && failedRecipients.length > 0 && (
+                <ul className="admin-simple-list">
+                  {failedRecipients.map((row) => (
+                    <li key={row.recipientId}>
+                      <code>{row.maskedEmail}</code>
+                      {row.errorCode ? ` — ${row.errorCode}` : ""}
+                      {row.recoverable ? "" : " (niet herstelbaar)"}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button
+                type="button"
+                className="signup-form__primary"
+                disabled={recovering || (failedRecipients?.length ?? 0) === 0}
+                onClick={() => {
+                  void handleRecoverAll();
                 }}
               >
-                Openings- en klikstatistieken worden bijgewerkt naarmate
-                ontvangers de e-mail openen.
-              </p>
-            )}
+                {recovering ? "Herstellen…" : "Herstel mislukte ontvangers"}
+              </button>
+              {recoverMessage && (
+                <p className="admin-notice" style={{ marginTop: "0.75rem" }}>
+                  {recoverMessage}
+                </p>
+              )}
+            </section>
+          )}
         </>
       )}
     </>

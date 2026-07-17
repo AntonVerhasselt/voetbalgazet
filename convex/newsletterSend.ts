@@ -1239,3 +1239,136 @@ export const getSendResults = viewerQuery({
     };
   },
 });
+
+function maskEmailAddress(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) {
+    return "***";
+  }
+  return `${local.slice(0, 1)}***@${domain}`;
+}
+
+export const listFailedRecipients = viewerQuery({
+  args: {
+    sendId: v.id("newsletterSends"),
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      recipientId: v.id("newsletterRecipients"),
+      maskedEmail: v.string(),
+      errorCode: v.optional(v.string()),
+      failedAt: v.optional(v.number()),
+      recoverable: v.boolean(),
+    }),
+  ),
+  handler: async (ctx, args) => {
+    const limit = Math.min(Math.max(args.limit ?? 50, 1), 100);
+    const failed = await ctx.db
+      .query("newsletterRecipients")
+      .withIndex("by_send_and_status", (q) =>
+        q.eq("sendId", args.sendId).eq("status", "failed"),
+      )
+      .take(limit);
+    const rows = [];
+    for (const recipient of failed) {
+      const subscriber = await ctx.db.get(recipient.subscriberId);
+      rows.push({
+        recipientId: recipient._id,
+        maskedEmail: subscriber
+          ? maskEmailAddress(subscriber.normalizedEmail)
+          : "***",
+        errorCode: recipient.errorCode,
+        failedAt: recipient.failedAt,
+        recoverable: Boolean(subscriber?.newsletterSubscribed),
+      });
+    }
+    return rows;
+  },
+});
+
+export const recoverFailedRecipients = editorMutation({
+  args: {
+    sendId: v.id("newsletterSends"),
+    recipientIds: v.optional(v.array(v.id("newsletterRecipients"))),
+  },
+  returns: v.object({
+    requeued: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    await assertMarketingSendEnabled(ctx);
+    const send = await ctx.db.get(args.sendId);
+    if (!send) {
+      throw new Error("Verzending niet gevonden.");
+    }
+    if (!["sent", "partially_failed", "failed"].includes(send.status)) {
+      throw new Error("Herstel is alleen mogelijk na een afgeronde verzending.");
+    }
+
+    const failed = await ctx.db
+      .query("newsletterRecipients")
+      .withIndex("by_send_and_status", (q) =>
+        q.eq("sendId", args.sendId).eq("status", "failed"),
+      )
+      .take(200);
+    const selectedIds = args.recipientIds
+      ? new Set(args.recipientIds)
+      : null;
+    const selected = selectedIds
+      ? failed.filter((row) => selectedIds.has(row._id))
+      : failed;
+
+    let requeued = 0;
+    for (const recipient of selected) {
+      const subscriber = await ctx.db.get(recipient.subscriberId);
+      if (!subscriber?.newsletterSubscribed) {
+        continue;
+      }
+      if (
+        await hasActiveSuppression(ctx, {
+          subscriberId: subscriber._id,
+          normalizedEmail: subscriber.normalizedEmail,
+        })
+      ) {
+        continue;
+      }
+      await ctx.db.patch(recipient._id, {
+        status: "prepared",
+        errorCode: undefined,
+        failedAt: undefined,
+        resendEmailId: undefined,
+      });
+      requeued += 1;
+    }
+
+    if (requeued === 0) {
+      return { requeued: 0 };
+    }
+
+    await ctx.db.patch(args.sendId, {
+      status: "sending",
+      failedCount: Math.max(0, send.failedCount - requeued),
+      completedAt: undefined,
+      lastErrorCode: undefined,
+    });
+    await ctx.db.patch(send.campaignId, {
+      status: "sending",
+    });
+    await writeAudit(ctx, {
+      action: "failed_recipients_recovered",
+      actorUserId: ctx.adminUser._id,
+      campaignId: send.campaignId,
+      sendId: args.sendId,
+      metadata: JSON.stringify({ requeued }),
+    });
+    await ctx.scheduler.runAfter(
+      0,
+      internal.newsletterSend.enqueueRecipientBatch,
+      {
+        sendId: args.sendId,
+        cursor: null,
+      },
+    );
+    return { requeued };
+  },
+});

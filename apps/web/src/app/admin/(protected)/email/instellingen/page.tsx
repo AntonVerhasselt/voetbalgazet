@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
+import { captureAdminEvent } from "@/lib/analytics";
 
 export default function InstellingenPage() {
   const settings = useQuery(api.newsletterAdmin.getSenderSettings);
@@ -50,8 +51,12 @@ export default function InstellingenPage() {
     setKillSwitchSaving(true);
     setKillSwitchError(null);
     try {
+      const nextValue = settings.marketingKillSwitch === "on" ? "off" : "on";
       await setMarketingKillSwitch({
-        value: settings.marketingKillSwitch === "on" ? "off" : "on",
+        value: nextValue,
+      });
+      captureAdminEvent("newsletter_kill_switch_toggled", {
+        value: nextValue,
       });
     } catch (err) {
       setKillSwitchError(

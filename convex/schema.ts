@@ -277,7 +277,8 @@ export default defineSchema({
       "recipientId",
       "providerTimestamp",
     ])
-    .index("by_send_and_eventType", ["sendId", "eventType"]),
+    .index("by_send_and_eventType", ["sendId", "eventType"])
+    .index("by_receivedAt", ["receivedAt"]),
 
   emailSuppressions: defineTable({
     subscriberId: v.optional(v.id("subscribers")),
