@@ -8,35 +8,41 @@ type AdminNavProps = {
   isAdmin: boolean;
 };
 
-export function AdminNav({ canEditArticles, isAdmin }: AdminNavProps) {
+function NavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
+  const active =
+    href === "/admin"
+      ? pathname === "/admin"
+      : pathname === href || pathname.startsWith(`${href}/`);
+  return (
+    <Link href={href} aria-current={active ? "page" : undefined}>
+      {children}
+    </Link>
+  );
+}
+
+export function AdminNav({ canEditArticles, isAdmin }: AdminNavProps) {
   return (
     <nav className="admin-nav" aria-label="Redactienavigatie">
-      <Link href="/admin" aria-current={pathname === "/admin" ? "page" : undefined}>
-        Overzicht
-      </Link>
+      <NavLink href="/admin">Overzicht</NavLink>
       {canEditArticles ? (
-        <Link
-          href="/admin/artikels"
-          aria-current={
-            pathname.startsWith("/admin/artikels") ? "page" : undefined
-          }
-        >
-          Artikels
-        </Link>
+        <NavLink href="/admin/artikels">Artikels</NavLink>
       ) : (
         <span aria-disabled="true">Artikels</span>
       )}
-      <span className="admin-nav__phase" aria-disabled="true">
-        Nieuwsbrieven · fase 4
-      </span>
-      <span className="admin-nav__phase" aria-disabled="true">
-        Abonnees · fase 4
-      </span>
+      <NavLink href="/admin/nieuwsbrieven">Nieuwsbrieven</NavLink>
+      <NavLink href="/admin/abonnees">Abonnees</NavLink>
+      {canEditArticles ? (
+        <NavLink href="/admin/email/dienstmails">Dienstmails</NavLink>
+      ) : null}
       {isAdmin ? (
-        <span className="admin-nav__phase" aria-disabled="true">
-          Instellingen · fase 4
-        </span>
+        <NavLink href="/admin/email/instellingen">Instellingen</NavLink>
       ) : null}
     </nav>
   );

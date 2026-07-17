@@ -49,3 +49,122 @@ export const preferenceSnapshotValidator = v.object({
   teamKey: v.union(v.string(), v.null()),
   newsletterSubscribed: v.boolean(),
 });
+
+export const campaignStatusValidator = v.union(
+  v.literal("draft"),
+  v.literal("scheduled"),
+  v.literal("preparing"),
+  v.literal("sending"),
+  v.literal("sent"),
+  v.literal("partially_failed"),
+  v.literal("failed"),
+  v.literal("cancelled"),
+);
+
+export const revisionReasonValidator = v.union(
+  v.literal("autosave"),
+  v.literal("manual"),
+  v.literal("test"),
+  v.literal("send"),
+);
+
+export const sendStatusValidator = v.union(
+  v.literal("preparing"),
+  v.literal("sending"),
+  v.literal("sent"),
+  v.literal("partially_failed"),
+  v.literal("failed"),
+  v.literal("cancelled"),
+);
+
+export const recipientStatusValidator = v.union(
+  v.literal("prepared"),
+  v.literal("queued"),
+  v.literal("sent"),
+  v.literal("delivered"),
+  v.literal("bounced"),
+  v.literal("complained"),
+  v.literal("failed"),
+  v.literal("suppressed"),
+);
+
+export const suppressionTypeValidator = v.union(
+  v.literal("unsubscribe"),
+  v.literal("hard_bounce"),
+  v.literal("complaint"),
+  v.literal("manual"),
+);
+
+export const emailMediaStatusValidator = v.union(
+  v.literal("uploading"),
+  v.literal("ready"),
+  v.literal("rejected"),
+  v.literal("deleted"),
+);
+
+export const transactionalEmailTypeValidator = v.union(
+  v.literal("welcome"),
+  v.literal("magic_link"),
+  v.literal("verify_email"),
+  v.literal("unsubscribe_confirmed"),
+);
+
+export const transactionalDefinitionStatusValidator = v.union(
+  v.literal("draft"),
+  v.literal("active"),
+  v.literal("disabled"),
+);
+
+export const auditActionValidator = v.union(
+  v.literal("campaign_created"),
+  v.literal("campaign_updated"),
+  v.literal("campaign_duplicated"),
+  v.literal("campaign_deleted"),
+  v.literal("revision_saved"),
+  v.literal("audience_updated"),
+  v.literal("test_requested"),
+  v.literal("test_completed"),
+  v.literal("test_failed"),
+  v.literal("scheduled"),
+  v.literal("rescheduled"),
+  v.literal("schedule_cancelled"),
+  v.literal("send_confirmed"),
+  v.literal("schedule_overridden_send_now"),
+  v.literal("sender_updated"),
+  v.literal("transactional_updated"),
+  v.literal("transactional_published"),
+  v.literal("suppression_cleared"),
+);
+
+export const campaignSummaryValidator = v.object({
+  _id: v.id("newsletterCampaigns"),
+  internalName: v.string(),
+  subject: v.string(),
+  preheader: v.optional(v.string()),
+  status: campaignStatusValidator,
+  scheduledFor: v.optional(v.number()),
+  sentAt: v.optional(v.number()),
+  recipientCount: v.optional(v.number()),
+  updatedAt: v.number(),
+  updatedByEmail: v.optional(v.string()),
+  audienceDescription: v.string(),
+});
+
+export const audiencePreviewValidator = v.object({
+  eligibleBeforeFilters: v.number(),
+  eligibleAfterFilters: v.number(),
+  excludedUnsubscribe: v.number(),
+  excludedSuppression: v.number(),
+  excludedDivisionFilter: v.number(),
+  excludedTeamFilter: v.number(),
+  percentOfActive: v.number(),
+  calculatedAt: v.number(),
+  description: v.string(),
+  sample: v.array(
+    v.object({
+      maskedEmail: v.string(),
+      divisionLabels: v.array(v.string()),
+      teamLabel: v.union(v.string(), v.null()),
+    }),
+  ),
+});

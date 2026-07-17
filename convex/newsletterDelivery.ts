@@ -1,0 +1,155 @@
+import { v } from "convex/values";
+import { internalMutation } from "./_generated/server";
+import { addSuppression } from "./lib/suppressions";
+
+const RECIPIENT_RANK: Record<string, number> = {
+  prepared: 0,
+  queued: 1,
+  sent: 2,
+  delivered: 3,
+  opened: 3,
+  clicked: 3,
+  bounced: 4,
+  complained: 5,
+  failed: 4,
+  suppressed: 4,
+};
+
+function mapEventToStatus(
+  eventType: string,
+):
+  | "sent"
+  | "delivered"
+  | "bounced"
+  | "complained"
+  | "failed"
+  | "queued"
+  | null {
+  switch (eventType) {
+    case "email.sent":
+      return "sent";
+    case "email.delivered":
+      return "delivered";
+    case "email.bounced":
+      return "bounced";
+    case "email.complained":
+      return "complained";
+    case "email.failed":
+      return "failed";
+    case "email.delivery_delayed":
+      return "queued";
+    default:
+      return null;
+  }
+}
+
+export const applyProviderEvent = internalMutation({
+  args: {
+    resendEmailId: v.string(),
+    eventType: v.string(),
+    createdAt: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const recipient = await ctx.db
+      .query("newsletterRecipients")
+      .withIndex("by_resendEmailId", (q) =>
+        q.eq("resendEmailId", args.resendEmailId),
+      )
+      .unique();
+    if (!recipient) {
+      return null;
+    }
+
+    const providerEventId = `${args.resendEmailId}:${args.eventType}:${args.createdAt}`;
+    const existingEvent = await ctx.db
+      .query("newsletterDeliveryEvents")
+      .withIndex("by_providerEventId", (q) =>
+        q.eq("providerEventId", providerEventId),
+      )
+      .unique();
+    if (existingEvent) {
+      return null;
+    }
+
+    const providerTimestamp = Date.parse(args.createdAt) || Date.now();
+    await ctx.db.insert("newsletterDeliveryEvents", {
+      recipientId: recipient._id,
+      sendId: recipient.sendId,
+      providerEventId,
+      eventType: args.eventType,
+      providerTimestamp,
+      receivedAt: Date.now(),
+      schemaVersion: 1,
+    });
+
+    const nextStatus = mapEventToStatus(args.eventType);
+    if (nextStatus) {
+      const currentRank = RECIPIENT_RANK[recipient.status] ?? 0;
+      const nextRank = RECIPIENT_RANK[nextStatus] ?? 0;
+      if (nextRank >= currentRank) {
+        await ctx.db.patch(recipient._id, {
+          status: nextStatus,
+          lastEventAt: providerTimestamp,
+          deliveredAt:
+            nextStatus === "delivered" ? providerTimestamp : recipient.deliveredAt,
+          failedAt:
+            nextStatus === "failed" || nextStatus === "bounced"
+              ? providerTimestamp
+              : recipient.failedAt,
+        });
+      }
+    }
+
+    const send = await ctx.db.get(recipient.sendId);
+    if (send) {
+      const patch: {
+        deliveredCount?: number;
+        bouncedCount?: number;
+        complainedCount?: number;
+        failedCount?: number;
+        openedCount?: number;
+        clickedCount?: number;
+      } = {};
+      if (args.eventType === "email.delivered") {
+        patch.deliveredCount = send.deliveredCount + 1;
+      } else if (args.eventType === "email.bounced") {
+        patch.bouncedCount = send.bouncedCount + 1;
+      } else if (args.eventType === "email.complained") {
+        patch.complainedCount = send.complainedCount + 1;
+      } else if (args.eventType === "email.failed") {
+        patch.failedCount = send.failedCount + 1;
+      } else if (args.eventType === "email.opened") {
+        patch.openedCount = send.openedCount + 1;
+      } else if (args.eventType === "email.clicked") {
+        patch.clickedCount = send.clickedCount + 1;
+      }
+      if (Object.keys(patch).length > 0) {
+        await ctx.db.patch(send._id, patch);
+      }
+    }
+
+    if (
+      args.eventType === "email.bounced" ||
+      args.eventType === "email.complained"
+    ) {
+      const subscriber = await ctx.db.get(recipient.subscriberId);
+      if (subscriber) {
+        await addSuppression(ctx, {
+          subscriberId: subscriber._id,
+          normalizedEmail: subscriber.normalizedEmail,
+          type:
+            args.eventType === "email.bounced" ? "hard_bounce" : "complaint",
+          sourceId: args.resendEmailId,
+        });
+        if (args.eventType === "email.bounced") {
+          await ctx.db.patch(subscriber._id, {
+            emailDeliveryStatus: "bounced",
+          });
+        }
+      }
+    }
+
+    return null;
+  },
+});

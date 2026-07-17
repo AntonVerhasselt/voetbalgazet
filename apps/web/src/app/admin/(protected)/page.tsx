@@ -20,8 +20,8 @@ export default async function AdminOverviewPage({
         <p className="eyebrow">Overzicht</p>
         <h1>Redactieomgeving</h1>
         <p>
-          Schrijf en publiceer artikels via Keystatic. Git bewaart elke
-          wijziging; een geslaagde Vercel-build zet gepubliceerd werk live.
+          Schrijf artikels via Keystatic en verstuur de wekelijkse nieuwsbrief
+          vanuit dezelfde redactieshell.
         </p>
       </header>
 
@@ -48,16 +48,20 @@ export default async function AdminOverviewPage({
           )}
         </article>
         <article className="admin-task-card">
-          <p className="eyebrow">Fase 4</p>
+          <p className="eyebrow">Nieuwsbrief</p>
           <h2>Nieuwsbrieven</h2>
-          <p>De editor, doelgroepen en verzending volgen in de volgende fase.</p>
-          <span className="admin-task-card__disabled">Nog niet actief</span>
+          <p>Concepten bewerken, publiek kiezen, testen en verzenden.</p>
+          <Link className="admin-task-card__action" href="/admin/nieuwsbrieven">
+            Open nieuwsbrieven <span aria-hidden="true">→</span>
+          </Link>
         </article>
         <article className="admin-task-card">
-          <p className="eyebrow">Fase 4</p>
+          <p className="eyebrow">Publiek</p>
           <h2>Abonnees</h2>
-          <p>Subscriberbeheer blijft afgeschermd tot de nieuwsbriefadmin klaar is.</p>
-          <span className="admin-task-card__disabled">Nog niet actief</span>
+          <p>Overzicht van nieuwsbrief- en sitetoegang (gemaskeerd).</p>
+          <Link className="admin-task-card__action" href="/admin/abonnees">
+            Bekijk abonnees <span aria-hidden="true">→</span>
+          </Link>
         </article>
       </section>
     </>
