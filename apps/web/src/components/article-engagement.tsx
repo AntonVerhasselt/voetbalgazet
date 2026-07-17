@@ -12,10 +12,16 @@ function accessLevel(hasSession: boolean): "reader" | "none" {
 
 export function ArticleEngagement({
   articleId,
+  categoryKey,
+  divisionKey,
+  authorKey,
   leadLength,
   isGated,
 }: {
   articleId: string;
+  categoryKey: string;
+  divisionKey: string;
+  authorKey: string;
   leadLength: number;
   isGated: boolean;
 }) {
@@ -51,6 +57,9 @@ export function ArticleEngagement({
         reachedDepths.current.add(depth);
         capturePublicEvent("article_read_depth_reached", {
           article_id: articleId,
+          category_key: categoryKey,
+          division_key: divisionKey,
+          author_key: authorKey,
           depth,
           access_level: accessLevel(hasSession),
           is_gated: isGated,
@@ -69,7 +78,14 @@ export function ArticleEngagement({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [articleId, hasSession, isGated]);
+  }, [
+    articleId,
+    authorKey,
+    categoryKey,
+    divisionKey,
+    hasSession,
+    isGated,
+  ]);
 
   useEffect(() => {
     if (leadReached.current) {
@@ -90,6 +106,9 @@ export function ArticleEngagement({
         leadReached.current = true;
         capturePublicEvent("article_lead_reached", {
           article_id: articleId,
+          category_key: categoryKey,
+          division_key: divisionKey,
+          author_key: authorKey,
           lead_percent: 100,
           lead_length: leadLength,
           access_level: accessLevel(hasSession),
@@ -101,7 +120,14 @@ export function ArticleEngagement({
 
     observer.observe(lead);
     return () => observer.disconnect();
-  }, [articleId, hasSession, leadLength]);
+  }, [
+    articleId,
+    authorKey,
+    categoryKey,
+    divisionKey,
+    hasSession,
+    leadLength,
+  ]);
 
   return null;
 }
