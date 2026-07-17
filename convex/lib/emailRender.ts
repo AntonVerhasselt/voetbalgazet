@@ -56,43 +56,25 @@ const SAFE_STYLE_PROPS = new Set([
   "color",
   "background",
   "background-color",
-  "backgroundcolor",
   "font-size",
-  "fontsize",
   "font-weight",
-  "fontweight",
   "font-family",
-  "fontfamily",
   "font-style",
-  "fontstyle",
   "line-height",
-  "lineheight",
   "letter-spacing",
-  "letterspacing",
   "text-align",
-  "textalign",
   "text-decoration",
-  "textdecoration",
   "text-transform",
-  "texttransform",
   "padding",
   "padding-top",
   "padding-right",
   "padding-bottom",
   "padding-left",
-  "paddingtop",
-  "paddingright",
-  "paddingbottom",
-  "paddingleft",
   "margin",
   "margin-top",
   "margin-right",
   "margin-bottom",
   "margin-left",
-  "margintop",
-  "marginright",
-  "marginbottom",
-  "marginleft",
   "border",
   "border-top",
   "border-right",
@@ -102,18 +84,11 @@ const SAFE_STYLE_PROPS = new Set([
   "border-style",
   "border-color",
   "border-radius",
-  "borderwidth",
-  "borderstyle",
-  "bordercolor",
-  "borderradius",
   "width",
   "max-width",
-  "maxwidth",
   "height",
   "min-height",
-  "minheight",
   "vertical-align",
-  "verticalalign",
 ]);
 
 function escapeHtml(value: string): string {
@@ -150,7 +125,10 @@ function sanitizeInlineStyle(raw: unknown): string {
     if (colon <= 0) continue;
     const prop = trimmed.slice(0, colon).trim().toLowerCase();
     const value = trimmed.slice(colon + 1).trim();
-    if (!value || /expression|javascript:|url\s*\(\s*['"]?\s*data:/i.test(value)) {
+    if (
+      !value ||
+      /expression|javascript:|url\s*\(/i.test(value)
+    ) {
       continue;
     }
     if (!SAFE_STYLE_PROPS.has(prop)) {
@@ -285,11 +263,14 @@ function columnCountForType(type: string): number {
 function renderColumns(node: TipTapNode): string {
   const count = columnCountForType(node.type);
   const columns = node.content ?? [];
-  const widthPct = Math.floor(100 / Math.max(count, 1));
   const cellSpacing =
     typeof node.attrs?.cellspacing === "number"
       ? Math.min(Math.max(node.attrs.cellspacing, 0), 32)
       : 0;
+  // Keep percentage columns + optional gutters within ~100% width.
+  const gutterTotal = cellSpacing > 0 ? cellSpacing * Math.max(count - 1, 0) : 0;
+  const availablePct = gutterTotal > 0 ? Math.max(100 - Math.ceil((gutterTotal / 600) * 100), 50) : 100;
+  const widthPct = Math.floor(availablePct / Math.max(count, 1));
   const outerStyle = [
     sanitizeInlineStyle(node.attrs?.style),
     alignmentCss(node.attrs),
@@ -297,7 +278,13 @@ function renderColumns(node: TipTapNode): string {
     .filter(Boolean)
     .join(";");
 
-  const cells = Array.from({ length: count }, (_, index) => {
+  const cells: string[] = [];
+  for (let index = 0; index < count; index++) {
+    if (index > 0 && cellSpacing > 0) {
+      cells.push(
+        `<td width="${cellSpacing}" style="width:${cellSpacing}px;font-size:1px;line-height:1px;">&nbsp;</td>`,
+      );
+    }
     const col = columns[index];
     const colStyle = [
       `width:${widthPct}%`,
@@ -308,17 +295,15 @@ function renderColumns(node: TipTapNode): string {
       .filter(Boolean)
       .join(";");
     const inner = col ? renderBlockChildren(col.content) : "&nbsp;";
-    return `<td width="${widthPct}%" valign="top"${styleAttr([colStyle])}>${inner || "&nbsp;"}</td>`;
-  }).join(
-    cellSpacing > 0
-      ? `<td width="${cellSpacing}" style="width:${cellSpacing}px;font-size:1px;">&nbsp;</td>`
-      : "",
-  );
+    cells.push(
+      `<td width="${widthPct}%" valign="top"${styleAttr([colStyle])}>${inner || "&nbsp;"}</td>`,
+    );
+  }
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"${styleAttr([
     "margin:0 0 16px",
     outerStyle,
-  ])}><tr>${cells}</tr></table>`;
+  ])}><tr>${cells.join("")}</tr></table>`;
 }
 
 function renderNode(node: TipTapNode): string {
@@ -461,20 +446,18 @@ function renderNode(node: TipTapNode): string {
       }
       const width = node.attrs?.width;
       const height = node.attrs?.height;
+      const hasExplicitHeight =
+        typeof height === "number" ||
+        (typeof height === "string" && height !== "auto" && /^\d+$/.test(height));
       const widthAttr =
         typeof width === "number"
           ? ` width="${width}"`
           : typeof width === "string" && width !== "auto" && /^\d+$/.test(width)
             ? ` width="${width}"`
             : "";
-      const heightAttr =
-        typeof height === "number"
-          ? ` height="${height}"`
-          : typeof height === "string" &&
-              height !== "auto" &&
-              /^\d+$/.test(height)
-            ? ` height="${height}"`
-            : "";
+      const heightAttr = hasExplicitHeight
+        ? ` height="${typeof height === "number" ? height : height}"`
+        : "";
       const imgAlign = node.attrs?.alignment ?? node.attrs?.align;
       const margin =
         imgAlign === "left"
@@ -485,7 +468,7 @@ function renderNode(node: TipTapNode): string {
       const imgStyles = [
         "display:block",
         "max-width:100%",
-        "height:auto",
+        hasExplicitHeight ? undefined : "height:auto",
         margin,
         widthCss(node.attrs),
         inlineStyle,
