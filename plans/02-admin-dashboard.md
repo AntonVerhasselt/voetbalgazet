@@ -84,6 +84,10 @@ Deze beslissing vervangt het eerdere concept waarin Convex content snapshots naa
 
 Keystatic GitHub-auth is noodzakelijk voor repositorywrites. De custom newsletteradmin gebruikt Better Auth. De `/admin`-homepage toont alleen links waarvoor de gebruiker toegang heeft; Keystatic voert daarnaast zijn eigen GitHub-autorisatie uit. We vermijden een fragiele eigen wrapper rond de Keystatic API.
 
+### Cursor Cloud Agents
+
+Menselijke redactie blijft GitHub OAuth gebruiken. Cursor-agents krijgen een aparte agenttoegangspoort die een normale Better Auth-sessie uitgeeft zonder GitHub 2FA. Die sessie dekt de custom Convex-admin; hosted Keystatic GitHub-writes blijven daarbuiten. Details: [`agent-access/`](./agent-access/).
+
 ## Rollen
 
 | Rol | Nieuwsbriefcampagnes | Transactionele e-mail | Artikels |

@@ -9,10 +9,12 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as agentAccess from "../agentAccess.js";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as lib_adminAuth from "../lib/adminAuth.js";
 import type * as lib_adminRoles from "../lib/adminRoles.js";
+import type * as lib_agentAccessShared from "../lib/agentAccessShared.js";
 import type * as lib_email from "../lib/email.js";
 import type * as lib_preferenceCatalog from "../lib/preferenceCatalog.js";
 import type * as lib_rateLimit from "../lib/rateLimit.js";
@@ -28,10 +30,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  agentAccess: typeof agentAccess;
   auth: typeof auth;
   http: typeof http;
   "lib/adminAuth": typeof lib_adminAuth;
   "lib/adminRoles": typeof lib_adminRoles;
+  "lib/agentAccessShared": typeof lib_agentAccessShared;
   "lib/email": typeof lib_email;
   "lib/preferenceCatalog": typeof lib_preferenceCatalog;
   "lib/rateLimit": typeof lib_rateLimit;
