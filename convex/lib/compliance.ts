@@ -45,15 +45,45 @@ export function defaultCampaignName(now = new Date()): string {
 }
 
 export function emptyEditorDocumentJson(): string {
+  // TipTap forbids empty text nodes — use an empty paragraph without content.
   return JSON.stringify({
     type: "doc",
-    content: [
-      {
-        type: "paragraph",
-        content: [{ type: "text", text: "" }],
-      },
-    ],
+    content: [{ type: "paragraph" }],
   });
+}
+
+/** Strip empty TipTap text nodes that crash the editor. */
+export function sanitizeEditorDocumentJson(documentJson: string): string {
+  try {
+    const parsed = JSON.parse(documentJson) as {
+      type?: string;
+      content?: unknown[];
+    };
+    const walk = (node: unknown): unknown => {
+      if (!node || typeof node !== "object") {
+        return node;
+      }
+      const record = node as {
+        type?: string;
+        text?: string;
+        content?: unknown[];
+      };
+      if (record.type === "text" && (record.text ?? "") === "") {
+        return null;
+      }
+      if (Array.isArray(record.content)) {
+        const next = record.content
+          .map(walk)
+          .filter((child): child is unknown => child !== null);
+        return { ...record, content: next.length > 0 ? next : undefined };
+      }
+      return record;
+    };
+    const cleaned = walk(parsed);
+    return JSON.stringify(cleaned ?? { type: "doc", content: [{ type: "paragraph" }] });
+  } catch {
+    return emptyEditorDocumentJson();
+  }
 }
 
 export function campaignStatusLabel(

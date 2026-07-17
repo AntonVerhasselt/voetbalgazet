@@ -14,6 +14,7 @@ import { EmailEditor, type EmailEditorRef } from "@react-email/editor";
 import "@react-email/editor/themes/default.css";
 import { useUploadFile } from "@convex-dev/r2/react";
 import type { JSONContent } from "@tiptap/core";
+import { sanitizeEditorDocumentJson } from "@convex/lib/compliance";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -99,9 +100,11 @@ function CampaignEditorForm({
   const [preheader, setPreheader] = useState(campaign.preheader ?? "");
   const [initialContent] = useState<JSONContent | undefined>(() => {
     try {
-      return JSON.parse(campaign.documentJson) as JSONContent;
+      return JSON.parse(
+        sanitizeEditorDocumentJson(campaign.documentJson),
+      ) as JSONContent;
     } catch {
-      return undefined;
+      return { type: "doc", content: [{ type: "paragraph" }] };
     }
   });
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");

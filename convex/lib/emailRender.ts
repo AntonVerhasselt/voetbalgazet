@@ -4,6 +4,7 @@ import {
   MAX_DOCUMENT_JSON_BYTES,
   RENDERER_VERSION,
   THEME_VERSION,
+  sanitizeEditorDocumentJson,
 } from "./compliance";
 
 export type TipTapMark = {
@@ -225,7 +226,13 @@ export function parseEditorDocument(documentJson: string): TipTapNode {
   ) {
     throw new Error("Editor-document mist type 'doc'.");
   }
-  return parsed as TipTapNode;
+  const sanitized = JSON.parse(
+    sanitizeEditorDocumentJson(JSON.stringify(parsed)),
+  ) as TipTapNode;
+  if (sanitized.type !== "doc") {
+    throw new Error("Editor-document mist type 'doc'.");
+  }
+  return sanitized;
 }
 
 export function validateDocumentForSend(documentJson: string): TipTapNode {

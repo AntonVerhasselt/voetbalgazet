@@ -12,6 +12,7 @@ import { api } from "@convex/_generated/api";
 import { EmailEditor, type EmailEditorRef } from "@react-email/editor";
 import "@react-email/editor/themes/default.css";
 import type { JSONContent } from "@tiptap/core";
+import { sanitizeEditorDocumentJson } from "@convex/lib/compliance";
 
 const VALID_TYPES = [
   "welcome",
@@ -52,9 +53,11 @@ function DienstmailEditorForm({
   const editorRef = useRef<EmailEditorRef>(null);
   const [initialContent] = useState<JSONContent | undefined>(() => {
     try {
-      return JSON.parse(definition.documentJson) as JSONContent;
+      return JSON.parse(
+        sanitizeEditorDocumentJson(definition.documentJson),
+      ) as JSONContent;
     } catch {
-      return undefined;
+      return { type: "doc", content: [{ type: "paragraph" }] };
     }
   });
 
