@@ -1,6 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { KeyboardFocusGuard } from "@/components/keyboard-focus-guard";
 import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site-config";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Prefer layout resize with the soft keyboard where supported (Android Chrome).
+  // iOS still needs visualViewport CSS vars + scroll-into-view (KeyboardFocusGuard).
+  interactiveWidget: "resizes-content",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -42,6 +51,7 @@ export default function RootLayout({
   return (
     <html lang="nl-BE">
       <body>
+        <KeyboardFocusGuard />
         <a className="skip-link" href="#inhoud">
           Ga naar de inhoud
         </a>

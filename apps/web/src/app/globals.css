@@ -21,6 +21,12 @@
   --shell: 1180px;
   --article-measure: 68ch;
   --gutter: clamp(1rem, 4vw, 2rem);
+  /* Visual viewport (synced by KeyboardFocusGuard when the soft keyboard opens). */
+  --vv-top: 0px;
+  --vv-left: 0px;
+  --vv-width: 100%;
+  --vv-height: 100dvh;
+  --keyboard-inset: 0px;
 }
 
 @theme inline {
@@ -953,12 +959,17 @@ a {
 .gate-layer {
   position: fixed;
   z-index: 80;
-  inset: 0;
+  /* Bound to the visual viewport so the sheet sits above the soft keyboard. */
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-width, 100%);
+  height: var(--vv-height, 100%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding: 0.5rem;
   background: rgb(23 21 17 / 42%);
+  overflow: hidden;
 }
 
 .gate-layer__fade {
@@ -973,12 +984,16 @@ a {
   z-index: 1;
   width: min(100%, 760px);
   height: auto;
-  max-height: calc(100dvh - 1rem);
+  max-height: calc(var(--vv-height, 100dvh) - 1rem);
   padding-bottom: env(safe-area-inset-bottom);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--ink);
   background: var(--paper);
   box-shadow: 0 -1rem 3rem rgb(23 21 17 / 20%);
+  scroll-behavior: smooth;
 }
 
 .gate-sheet__inner {
@@ -2007,8 +2022,9 @@ a {
 
   .gate-sheet {
     height: auto;
-    max-height: min(92dvh, 860px);
-    overflow: hidden;
+    max-height: min(calc(var(--vv-height, 100dvh) - 1rem), 860px);
+    overflow-x: hidden;
+    overflow-y: auto;
     border-top: 1px solid var(--ink);
   }
 
@@ -2124,7 +2140,7 @@ a {
   }
 
   .gate-sheet {
-    max-height: calc(100dvh - 0.5rem);
+    max-height: calc(var(--vv-height, 100dvh) - 0.5rem);
   }
 
   .gate-sheet__inner {
@@ -2825,17 +2841,28 @@ a {
 .newsletter-modal-overlay {
   position: fixed;
   z-index: 80;
-  inset: 0;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-width, 100%);
+  height: var(--vv-height, 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   background: rgb(23 21 17 / 55%);
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .newsletter-modal {
   width: min(100%, 480px);
+  max-height: calc(var(--vv-height, 100dvh) - 2rem);
   padding: clamp(1.5rem, 5vw, 2.5rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--ink);
   background: var(--paper);
 }
@@ -3178,8 +3205,7 @@ a {
   }
 
   .newsletter-modal {
-    max-height: min(90vh, 640px);
-    overflow-y: auto;
+    max-height: min(calc(var(--vv-height, 100dvh) - 2rem), 640px);
   }
 
   .newsletter-action-link,
