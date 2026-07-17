@@ -183,16 +183,21 @@ a {
   min-height: 44px;
   align-items: center;
   padding-inline: 1rem;
-  border: 0;
   border-right: 1px solid var(--rule);
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
+}
+
+.site-nav__search-toggle {
+  border: 0;
+  border-right: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding-inline: 0.9rem;
 }
 
 .site-nav__inner > :first-child {
@@ -208,11 +213,6 @@ a {
   display: flex;
   align-items: stretch;
   border-right: 1px solid var(--rule);
-}
-
-.site-nav__search-toggle {
-  border-right: 0;
-  padding-inline: 0.9rem;
 }
 
 .site-nav__search-form {
