@@ -38,6 +38,19 @@ The Convex development command creates `.env.local` with the public Convex
 URLs. Copy those public values to `apps/web/.env.local` when the web workspace
 does not pick up the root environment automatically.
 
+### Cursor Cloud Agents
+
+Do **not** rely on `npx convex login` (GitHub OAuth) inside Cloud Agents — that
+session lives only on that VM and disappears on the next pod. Set a Cursor
+secret `CONVEX_DEPLOY_KEY` and run:
+
+```bash
+npm ci
+npm run bootstrap:convex
+```
+
+Details: [`docs/cloud-agent-auth.md`](./docs/cloud-agent-auth.md).
+
 ## Vercel production build
 
 Root Directory must be `apps/web` (with “Include files outside the root
