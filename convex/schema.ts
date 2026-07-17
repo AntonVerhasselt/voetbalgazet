@@ -59,4 +59,15 @@ export default defineSchema({
     source: consentSourceValidator,
     capturedAt: v.number(),
   }).index("by_subscriber", ["subscriberId"]),
+
+  agentAccessEvents: defineTable({
+    at: v.number(),
+    result: v.union(
+      v.literal("success"),
+      v.literal("failure"),
+      v.literal("disabled"),
+    ),
+    ipHash: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+  }).index("by_at", ["at"]),
 });

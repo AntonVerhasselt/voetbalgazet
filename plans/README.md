@@ -12,6 +12,7 @@ Planning documents for a Dutch-language news platform covering local football in
 | [01-news-site.md](./01-news-site.md) | Static public site, email gate, subscriber preferences |
 | [public-news-site/](./public-news-site/) | Refined public-site decisions, auth, SEO, UX/analytics, legal copy |
 | [02-admin-dashboard.md](./02-admin-dashboard.md) | Content- en nieuwsbriefadmin binnen dezelfde Next.js-app |
+| [agent-access/](./agent-access/) | Cursor Cloud Agent login door (Better Auth session zonder GitHub 2FA) |
 | [content-admin/](./content-admin/) | Keystatic, artikelmodel, publishing en mobile admin-UX |
 | [03-newsletter.md](./03-newsletter.md) | Resend React Email builder, sends, subscriber sync |
 | [newsletter-admin-dashboard/](./newsletter-admin-dashboard/) | Verfijnd nieuwsbrief-adminplan: visual editor, Convex-data, segmentatie, sending en operations |

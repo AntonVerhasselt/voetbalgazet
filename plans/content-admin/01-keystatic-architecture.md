@@ -119,6 +119,10 @@ We behandelen dit als bewuste dubbele grens:
 
 Een technische spike moet aantonen dat de Better Auth page gate de officiële GitHub OAuthcallback niet breekt. We forken of herschrijven de Keystatic route handler niet.
 
+### Cursor-agents
+
+Een agent Better Auth-sessie (zie [`../agent-access/`](../agent-access/)) mag de page gate voor `/keystatic` openen als de rol Admin/Journalist is, maar vervangt **niet** Keystatic GitHub App-auth voor hosted writes. Agents testen artikels via `storage.kind = "local"` + git op een feature branch; zie [`../agent-access/02-keystatic-boundary.md`](../agent-access/02-keystatic-boundary.md).
+
 ## Contentlocaties
 
 ```text
