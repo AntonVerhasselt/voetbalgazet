@@ -37,6 +37,10 @@ then authorizes repository writes. Viewer accounts are redirected to `/admin`.
 The official `/api/keystatic/*` handler remains responsible for Keystatic's
 OAuth callback and signature checks.
 
+In local development (no GitHub App slug), `/api/keystatic/*` additionally
+requires a Better Auth editor session so filesystem write endpoints stay
+private. Production refuses local storage mode entirely.
+
 ## Draft preview
 
 Set a server-only fine-grained GitHub token with read-only repository Contents

@@ -32,6 +32,8 @@ describe("signed Keystatic preview sessions", () => {
     expect(isAllowedPreviewBranch("content/../secrets")).toBe(false);
     expect(isAllowedPreviewBranch("cursor/phase-3-admin-mvp")).toBe(false);
     expect(isAllowedPreviewBranch("master")).toBe(true);
+    expect(isAllowedPreviewBranch("master-feature")).toBe(false);
+    expect(isAllowedPreviewBranch("content/derby")).toBe(true);
     expect(isAllowedPreviewTarget("https://example.com")).toBe(false);
     expect(isAllowedPreviewTarget("//example.com/nieuws/test")).toBe(false);
   });

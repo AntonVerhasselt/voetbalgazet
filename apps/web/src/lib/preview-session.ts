@@ -37,9 +37,12 @@ export function isAllowedPreviewBranch(branch: string): boolean {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  return prefixes.some(
-    (prefix) => branch === prefix || branch.startsWith(prefix),
-  );
+  return prefixes.some((prefix) => {
+    if (prefix.endsWith("/")) {
+      return branch.startsWith(prefix);
+    }
+    return branch === prefix;
+  });
 }
 
 export function isAllowedPreviewTarget(target: string): boolean {
