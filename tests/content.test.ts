@@ -110,12 +110,21 @@ describe("Keystatic article pipeline", () => {
       getAllArticles(),
       getPublishedArticles(),
     ]);
-    expect(all.some((article) => article.status === "draft")).toBe(true);
     expect(all.some((article) => article.status === "archived")).toBe(true);
     expect(published.length).toBeGreaterThan(1);
     expect(published.every((article) => article.status === "published")).toBe(
       true,
     );
+    expect(
+      published.every((article) => article.publishedAt !== null),
+    ).toBe(true);
+    expect(
+      all
+        .filter((article) => article.status !== "published")
+        .every(
+          (article) => !published.some((entry) => entry.slug === article.slug),
+        ),
+    ).toBe(true);
     expect(
       published.every(
         (article, index) =>
@@ -147,6 +156,16 @@ describe("Keystatic article pipeline", () => {
       sections.lead.filter((block) => block.type === "paragraph"),
     ).toHaveLength(gatedArticle!.leadParagraphCount);
     expect(sections.gated.length).toBeGreaterThan(0);
+  });
+
+  it("build validation rejects published articles without publishedAt", async () => {
+    const articles = await getAllArticles();
+    const published = articles.find((article) => article.status === "published");
+    expect(published).toBeDefined();
+    const broken = { ...published!, publishedAt: null };
+    expect(validateArticles([broken])).toContain(
+      `${broken.slug}: een gepubliceerd artikel mist publishedAt.`,
+    );
   });
 
   it("build validation rejects duplicate slugs", async () => {

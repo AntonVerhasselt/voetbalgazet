@@ -60,10 +60,23 @@ are uncached, `noindex`, omit PostHog events, and never query subscriber state.
 
 1. Keep new entries at `status: draft`.
 2. Use preview for 360 px, 390 px, gated, and full-content checks.
-3. Set `status: published` and `publishedAt`.
+3. Set `status: published` **and** fill `publishedAt` (Europe/Brussels wall
+   time). A published article without `publishedAt` fails the Vercel build.
 4. Save. Keystatic commits content and images to Git.
-5. Git triggers Vercel. Content validation must pass before the deployment is
-   promoted.
+5. Git triggers a full Vercel rebuild. Content validation must pass before the
+   deployment is promoted.
+
+### Why a full rebuild (not incremental)?
+
+Articles live in Git and public pages are prerendered at build time
+(`generateStaticParams` + `dynamicParams = false`). A new `.mdoc` file only
+exists in the deployment after that commit is built. On-demand revalidation
+alone cannot introduce files that were not present in the previous deploy.
+
+That full rebuild is intentional: it is also the content quality gate
+(validation, Markdoc, images). Builds are short enough for editorial cadence.
+Avoid runtime GitHub reads or ISR for public articles unless publish volume
+outgrows this model.
 
 Archived and draft entries remain in Git but are absent from public static
 params, the homepage, archive, sitemap, and RSS. Roll back content through a

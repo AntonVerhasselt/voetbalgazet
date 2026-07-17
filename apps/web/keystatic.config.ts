@@ -162,7 +162,7 @@ export default config({
         publishedAt: fields.datetime({
           label: "Publicatiedatum",
           description:
-            "Verplicht zodra de status Gepubliceerd is. Vul Europe/Brussels-lokale tijd in (CET/CEST); opslag gebeurt als UTC.",
+            "Verplicht bij Gepubliceerd — zonder dit veld faalt de sitebuild. Vul Europe/Brussels-lokale tijd in (CET/CEST); opslag gebeurt als UTC.",
         }),
         updatedAt: fields.datetime({
           label: "Laatst inhoudelijk bijgewerkt",
