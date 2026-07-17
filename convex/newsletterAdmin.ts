@@ -15,6 +15,11 @@ import {
   transactionalEmailTypeValidator,
 } from "./lib/validators";
 import { normalizeAndValidateEmail } from "./lib/email";
+import {
+  MARKETING_KILL_SWITCH_KEY,
+  marketingKillSwitchValueValidator,
+  readMarketingKillSwitch,
+} from "./lib/runtimeSettings";
 import { resend } from "./resendClient";
 
 function isSendingDomainVerified(fromAddress: string): boolean {
@@ -428,6 +433,7 @@ export const getSenderSettings = adminQuery({
     mediaCdnHost: v.string(),
     sendingDomain: v.string(),
     liveSendEnabled: v.boolean(),
+    marketingKillSwitch: marketingKillSwitchValueValidator,
   }),
   handler: async (ctx) => {
     const sender = await ctx.db
@@ -445,7 +451,43 @@ export const getSenderSettings = adminQuery({
       mediaCdnHost: COMPLIANCE.mediaCdnHost,
       sendingDomain: COMPLIANCE.sendingDomain,
       liveSendEnabled: process.env.NEWSLETTER_LIVE_SEND === "true",
+      marketingKillSwitch: await readMarketingKillSwitch(ctx),
     };
+  },
+});
+
+export const getMarketingKillSwitch = viewerQuery({
+  args: {},
+  returns: marketingKillSwitchValueValidator,
+  handler: async (ctx) => {
+    return await readMarketingKillSwitch(ctx);
+  },
+});
+
+export const setMarketingKillSwitch = adminMutation({
+  args: { value: marketingKillSwitchValueValidator },
+  returns: marketingKillSwitchValueValidator,
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const existing = await ctx.db
+      .query("appRuntimeSettings")
+      .withIndex("by_key", (q) => q.eq("key", MARKETING_KILL_SWITCH_KEY))
+      .unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        value: args.value,
+        updatedAt: now,
+        updatedBy: ctx.adminUser._id,
+      });
+    } else {
+      await ctx.db.insert("appRuntimeSettings", {
+        key: MARKETING_KILL_SWITCH_KEY,
+        value: args.value,
+        updatedAt: now,
+        updatedBy: ctx.adminUser._id,
+      });
+    }
+    return args.value;
   },
 });
 

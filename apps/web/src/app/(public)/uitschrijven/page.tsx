@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { verifyUnsubscribeToken } from "@/lib/email-link-token";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "@convex/_generated/api";
+import { isPlausibleEmailLinkToken } from "@/lib/email-link-token";
 
 export const metadata: Metadata = {
   title: "Nieuwsbrief uitschrijven",
@@ -13,11 +15,38 @@ type PageProps = {
   searchParams: Promise<{ token?: string; status?: string }>;
 };
 
+type TokenPreview = {
+  valid: boolean;
+  maskedEmail?: string;
+};
+
+function getConvexClient(): ConvexHttpClient {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    throw new Error("Uitschrijven is nog niet geconfigureerd.");
+  }
+  return new ConvexHttpClient(convexUrl);
+}
+
+async function resolveTokenPreview(token: string): Promise<TokenPreview> {
+  if (!isPlausibleEmailLinkToken(token)) {
+    return { valid: false };
+  }
+  try {
+    return await getConvexClient().query(api.emailLinks.resolveUnsubscribeToken, {
+      token,
+      now: Date.now(),
+    });
+  } catch {
+    return { valid: false };
+  }
+}
+
 export default async function UnsubscribePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const status = params.status;
   const token = params.token ?? "";
-  const payload = token ? verifyUnsubscribeToken(token) : null;
+  const preview = token ? await resolveTokenPreview(token) : { valid: false };
 
   if (status === "bevestigd") {
     return (
@@ -39,7 +68,7 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
     );
   }
 
-  if (status === "ongeldig" || (token && !payload)) {
+  if (status === "ongeldig" || (token && !preview.valid)) {
     return (
       <main className="shell legal-page">
         <h1>Nieuwsbrief-link niet geldig</h1>
@@ -67,7 +96,7 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
     );
   }
 
-  if (!payload) {
+  if (!preview.valid) {
     return (
       <main className="shell legal-page">
         <h1>Nieuwsbrief uitschrijven</h1>
@@ -91,7 +120,7 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
       <h1>Nieuwsbrief uitschrijven?</h1>
       <p>
         Bevestig dat je geen wekelijkse nieuwsbrief meer wilt ontvangen op{" "}
-        <strong>{payload.email}</strong>.
+        <strong>{preview.maskedEmail}</strong>.
       </p>
       <p>
         <strong>Let op:</strong> dit stopt alleen de nieuwsbrief. Je toegang tot

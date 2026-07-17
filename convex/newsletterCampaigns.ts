@@ -390,13 +390,24 @@ export const updateDraft = editorMutation({
     }
     const now = Date.now();
     const nextRevision = campaign.revisionNumber + 1;
+    const nextSubject =
+      args.subject !== undefined ? args.subject.trim() : campaign.subject;
+    const nextPreheader =
+      args.preheader !== undefined ? args.preheader.trim() : campaign.preheader;
+    const nextDocumentJson = args.documentJson ?? campaign.documentJson;
+    const testInvalidated =
+      nextSubject !== campaign.subject ||
+      (nextPreheader ?? "") !== (campaign.preheader ?? "") ||
+      nextDocumentJson !== campaign.documentJson;
     const patch: Partial<Doc<"newsletterCampaigns">> = {
       updatedAt: now,
       updatedBy: ctx.adminUser._id,
       revisionNumber: nextRevision,
-      lastSuccessfulTestRevisionId: undefined,
-      lastSuccessfulTestAt: undefined,
     };
+    if (testInvalidated) {
+      patch.lastSuccessfulTestRevisionId = undefined;
+      patch.lastSuccessfulTestAt = undefined;
+    }
     if (args.internalName !== undefined) {
       const name = args.internalName.trim();
       if (!name) {
@@ -405,20 +416,20 @@ export const updateDraft = editorMutation({
       patch.internalName = name;
     }
     if (args.subject !== undefined) {
-      patch.subject = args.subject.trim();
+      patch.subject = nextSubject;
     }
     if (args.preheader !== undefined) {
-      patch.preheader = args.preheader.trim();
+      patch.preheader = nextPreheader;
     }
     if (args.documentJson !== undefined) {
-      patch.documentJson = args.documentJson;
+      patch.documentJson = nextDocumentJson;
       const rendered = renderCampaignEmail({
-        documentJson: args.documentJson,
-        subject: args.subject?.trim() || campaign.subject || "Voorbeeld",
-        preheader: args.preheader ?? campaign.preheader,
+        documentJson: nextDocumentJson,
+        subject: nextSubject || "Voorbeeld",
+        preheader: nextPreheader,
         links: {
           unsubscribeUrl: `${siteBaseUrl()}/uitschrijven`,
-          preferencesUrl: `${siteBaseUrl()}${COMPLIANCE.preferencesPath}`,
+          preferencesUrl: `${siteBaseUrl()}/email/voorkeuren`,
           privacyUrl: `${siteBaseUrl()}${COMPLIANCE.privacyPath}`,
           siteUrl: siteBaseUrl(),
         },
@@ -465,7 +476,7 @@ export const saveRevision = editorMutation({
       preheader: campaign.preheader,
       links: {
         unsubscribeUrl: `${siteBaseUrl()}/uitschrijven`,
-        preferencesUrl: `${siteBaseUrl()}${COMPLIANCE.preferencesPath}`,
+        preferencesUrl: `${siteBaseUrl()}/email/voorkeuren`,
         privacyUrl: `${siteBaseUrl()}${COMPLIANCE.privacyPath}`,
         siteUrl: siteBaseUrl(),
       },

@@ -113,6 +113,7 @@ export default function ControlerenPage({
   const campaign = campaignData?.campaign;
   const canEdit = campaign?.canEdit ?? false;
   const isScheduled = campaign?.status === "scheduled";
+  const canSend = canEdit || isScheduled;
   const expectedPreviewCount = previewAudience?.eligibleAfterFilters ?? 0;
 
   // Checklist items
@@ -185,7 +186,9 @@ export default function ControlerenPage({
   }
 
   async function handleCancelSchedule() {
-    if (!confirm("Wil je de geplande verzending annuleren?")) return;
+    if (!confirm("Wil je de geplande verzending definitief annuleren?")) {
+      return;
+    }
     setCancelBusy(true);
     setCancelError(null);
     try {
@@ -320,7 +323,7 @@ export default function ControlerenPage({
       )}
 
       {/* Send now / schedule */}
-      {canEdit && (
+      {canSend && (
         <div className="newsletter-section">
           <h2>Versturen</h2>
 
@@ -356,33 +359,37 @@ export default function ControlerenPage({
             </button>
           </div>
 
-          <div
-            style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}
-          >
-            <input
-              type="datetime-local"
-              className="admin-field__input"
-              value={scheduleValue}
-              onChange={(e) => setScheduleValue(e.target.value)}
-              style={{ flex: "1 1 200px" }}
-            />
-            <button
-              className="admin-button"
-              style={{ width: "auto", minWidth: "160px" }}
-              onClick={handleSchedule}
-              disabled={
-                scheduleBusy || !hasSubject || !hasAudience || !hasTest
-              }
-            >
-              {scheduleBusy ? "Plannen…" : "Inplannen"}
-            </button>
-          </div>
-          {scheduleError && <p className="admin-error">{scheduleError}</p>}
-          {scheduleSuccess && (
-            <p className="admin-notice">
-              Nieuwsbrief ingepland. Je kunt de verzending nog annuleren via
-              deze pagina.
-            </p>
+          {canEdit && (
+            <>
+              <div
+                style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}
+              >
+                <input
+                  type="datetime-local"
+                  className="admin-field__input"
+                  value={scheduleValue}
+                  onChange={(e) => setScheduleValue(e.target.value)}
+                  style={{ flex: "1 1 200px" }}
+                />
+                <button
+                  className="admin-button"
+                  style={{ width: "auto", minWidth: "160px" }}
+                  onClick={handleSchedule}
+                  disabled={
+                    scheduleBusy || !hasSubject || !hasAudience || !hasTest
+                  }
+                >
+                  {scheduleBusy ? "Plannen…" : "Inplannen"}
+                </button>
+              </div>
+              {scheduleError && <p className="admin-error">{scheduleError}</p>}
+              {scheduleSuccess && (
+                <p className="admin-notice">
+                  Nieuwsbrief ingepland. Je kunt de verzending nog annuleren via
+                  deze pagina.
+                </p>
+              )}
+            </>
           )}
         </div>
       )}

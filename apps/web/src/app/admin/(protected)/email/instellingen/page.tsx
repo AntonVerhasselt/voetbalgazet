@@ -9,6 +9,9 @@ export default function InstellingenPage() {
   const updateSenderSettings = useMutation(
     api.newsletterAdmin.updateSenderSettings,
   );
+  const setMarketingKillSwitch = useMutation(
+    api.newsletterAdmin.setMarketingKillSwitch,
+  );
 
   const [fromNameOverride, setFromNameOverride] = useState<string | null>(null);
   const [fromAddressOverride, setFromAddressOverride] = useState<
@@ -18,6 +21,8 @@ export default function InstellingenPage() {
   const [saving, setSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [killSwitchSaving, setKillSwitchSaving] = useState(false);
+  const [killSwitchError, setKillSwitchError] = useState<string | null>(null);
 
   const fromName = fromNameOverride ?? settings?.fromName ?? "";
   const fromAddress = fromAddressOverride ?? settings?.fromAddress ?? "";
@@ -37,6 +42,23 @@ export default function InstellingenPage() {
       );
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleToggleKillSwitch() {
+    if (!settings) return;
+    setKillSwitchSaving(true);
+    setKillSwitchError(null);
+    try {
+      await setMarketingKillSwitch({
+        value: settings.marketingKillSwitch === "on" ? "off" : "on",
+      });
+    } catch (err) {
+      setKillSwitchError(
+        err instanceof Error ? err.message : "Noodstop aanpassen mislukt",
+      );
+    } finally {
+      setKillSwitchSaving(false);
     }
   }
 
@@ -114,6 +136,53 @@ export default function InstellingenPage() {
 
       {settings && (
         <div style={{ marginTop: "2rem" }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "1.2rem",
+              marginBottom: "0.75rem",
+            }}
+          >
+            Marketingnoodstop
+          </h2>
+          <div
+            className={
+              settings.marketingKillSwitch === "on"
+                ? "admin-error"
+                : "admin-notice"
+            }
+            style={{ marginBottom: "1rem" }}
+          >
+            {settings.marketingKillSwitch === "on"
+              ? "Marketingverzendingen zijn geblokkeerd."
+              : "Marketingverzendingen zijn toegestaan."}
+          </div>
+          {killSwitchError && <p className="admin-error">{killSwitchError}</p>}
+          <button
+            className="admin-button"
+            type="button"
+            onClick={handleToggleKillSwitch}
+            disabled={killSwitchSaving}
+            style={{
+              width: "auto",
+              marginBottom: "2rem",
+              background:
+                settings.marketingKillSwitch === "on"
+                  ? "transparent"
+                  : "var(--accent)",
+              color:
+                settings.marketingKillSwitch === "on"
+                  ? "var(--ink)"
+                  : "white",
+            }}
+          >
+            {killSwitchSaving
+              ? "Aanpassen…"
+              : settings.marketingKillSwitch === "on"
+                ? "Noodstop uitschakelen"
+                : "Noodstop inschakelen"}
+          </button>
+
           <h2
             style={{
               fontFamily: "var(--font-display)",
