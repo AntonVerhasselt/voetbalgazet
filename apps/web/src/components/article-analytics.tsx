@@ -5,13 +5,15 @@ import { capturePublicEvent } from "@/lib/analytics";
 
 export function ArticleAnalytics({
   articleId,
-  category,
-  division,
+  categoryKey,
+  divisionKey,
+  authorKey,
   isGated,
 }: {
   articleId: string;
-  category: string;
-  division: string;
+  categoryKey: string;
+  divisionKey: string;
+  authorKey: string;
   isGated: boolean;
 }) {
   const captured = useRef(false);
@@ -24,11 +26,14 @@ export function ArticleAnalytics({
     capturePublicEvent("article_viewed", {
       article_id: articleId,
       slug: articleId,
-      category,
-      division,
+      category: categoryKey,
+      category_key: categoryKey,
+      division: divisionKey,
+      division_key: divisionKey,
+      author_key: authorKey,
       is_gated: isGated,
     });
-  }, [articleId, category, division, isGated]);
+  }, [articleId, authorKey, categoryKey, divisionKey, isGated]);
 
   return null;
 }

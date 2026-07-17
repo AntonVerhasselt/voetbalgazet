@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { UnsubscribeAnalytics } from "@/components/unsubscribe-analytics";
 import { verifyUnsubscribeToken } from "@/lib/email-link-token";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
   if (status === "bevestigd") {
     return (
       <main className="shell legal-page">
+        <UnsubscribeAnalytics status={status} />
         <h1>Je bent uitgeschreven van de nieuwsbrief</h1>
         <p>
           Je ontvangt geen wekelijkse nieuwsbrief meer. Dit verandert niets aan

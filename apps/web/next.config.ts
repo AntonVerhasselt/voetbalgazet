@@ -5,6 +5,10 @@ const monorepoRoot = path.resolve(process.cwd(), "../..");
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: monorepoRoot,
+  // Browser source maps for PostHog error tracking. Upload privately in CI when
+  // POSTHOG_PERSONAL_API_KEY / POSTHOG_CLI_ENV_ID are configured — do not rely on
+  // public map hosting.
+  productionBrowserSourceMaps: true,
   turbopack: {
     root: monorepoRoot,
   },
