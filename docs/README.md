@@ -2,6 +2,20 @@
 
 Short operational notes for De Voetbalgazet.
 
+## Open manual todos
+
+1. [`phase-3-manual-checklist.md`](./phase-3-manual-checklist.md) — GitHub App,
+   hosted Keystatic smoke, roles, newsletter-only unsubscribe, legal ops
+2. **Vercel Preview Convex URLs** — set both Preview env vars to the intended
+   deployment (non-regional `.convex.site`):
+
+   ```text
+   NEXT_PUBLIC_CONVEX_URL=https://calculating-eel-615.convex.cloud
+   NEXT_PUBLIC_CONVEX_SITE_URL=https://calculating-eel-615.convex.site
+   ```
+
+   See [vercel-deploy.md](./vercel-deploy.md) and [admin-auth.md](./admin-auth.md).
+
 | Doc | Topic |
 |-----|--------|
 | [Admin auth (GitHub login)](./admin-auth.md) | How admin login works, Convex `.cloud` vs `.site`, local vs production URLs |

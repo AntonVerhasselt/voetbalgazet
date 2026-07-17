@@ -4,6 +4,24 @@ This is the operator checklist after the Phase 3 follow-ups PR. Code paths that
 are already implemented are marked **done in code**. Items below need a human
 in GitHub, Vercel, Convex, or legal ops.
 
+Also pinned at the top of the repo [`README.md`](../README.md) and
+[`docs/README.md`](./README.md).
+
+## Open todos (start here)
+
+- [ ] **This checklist** — work through §§1–9 below
+- [ ] **Vercel Preview Convex URLs** — Settings → Environment Variables →
+  Preview: set **both** (non-regional production hosts unless you intentionally
+  use a separate preview Convex deployment):
+
+  ```text
+  NEXT_PUBLIC_CONVEX_URL=https://calculating-eel-615.convex.cloud
+  NEXT_PUBLIC_CONVEX_SITE_URL=https://calculating-eel-615.convex.site
+  ```
+
+  Then redeploy a preview. Confirm `/api/auth/sign-in/social` on the preview
+  host returns GitHub OAuth JSON (not 502 with a bad `proxyTarget`).
+
 Canonical product rules (do not change):
 
 - **`siteAccess` and `newsletterSubscribed` are separate.**

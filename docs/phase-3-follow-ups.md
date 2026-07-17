@@ -7,6 +7,17 @@ agent admin + `/keystatic`).
 
 **Manual operator steps:** [`phase-3-manual-checklist.md`](./phase-3-manual-checklist.md).
 
+## Open manual todos (do these in dashboards)
+
+- [ ] Complete [`phase-3-manual-checklist.md`](./phase-3-manual-checklist.md)
+      (Keystatic GitHub App smoke, role checks, newsletter-only unsubscribe verify, legal ops)
+- [ ] **Vercel Preview Convex URLs** — ensure Preview has **both**:
+  `NEXT_PUBLIC_CONVEX_URL=https://calculating-eel-615.convex.cloud` and
+  `NEXT_PUBLIC_CONVEX_SITE_URL=https://calculating-eel-615.convex.site`
+  (non-regional `.site`; a Preview-only `.cloud` URL without matching `.site`
+  breaks auth on preview deployments). Align Production the same way.
+  See [`vercel-deploy.md`](./vercel-deploy.md).
+
 ## Production Keystatic (hosted editing)
 
 Local/Cursor agents use Keystatic **local** storage + git. Production editors
