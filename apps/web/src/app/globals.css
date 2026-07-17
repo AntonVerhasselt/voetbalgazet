@@ -447,17 +447,24 @@ a {
 }
 
 .article-illustration__title {
+  display: block;
+  align-self: stretch;
+  width: 100%;
   max-width: 100%;
   margin-top: auto;
   font-family: var(--font-display);
   font-size: clamp(3rem, 12vw, 7rem);
   font-style: italic;
   font-weight: 700;
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
   letter-spacing: -0.055em;
   line-height: 0.85;
+}
+
+.article-illustration__line {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .article-illustration__rule {
@@ -468,16 +475,16 @@ a {
 }
 
 .article-illustration__subtitle {
-  margin-left: auto;
+  display: block;
+  align-self: stretch;
+  width: 100%;
   max-width: 100%;
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 2vw, 1.15rem);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
   text-align: right;
+  line-height: 1.25;
 }
 
 .article-illustration--compact {
