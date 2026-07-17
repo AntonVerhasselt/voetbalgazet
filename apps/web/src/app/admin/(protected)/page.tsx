@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAdminSession } from "@/lib/admin-session";
-import { getContentStatus } from "@/lib/content";
+import { getContentStatusSafe } from "@/lib/content";
 
 export default async function AdminOverviewPage({
   searchParams,
@@ -8,7 +8,7 @@ export default async function AdminOverviewPage({
   searchParams: Promise<{ fout?: string }>;
 }) {
   const [status, session, query] = await Promise.all([
-    getContentStatus(),
+    getContentStatusSafe(),
     getAdminSession(),
     searchParams,
   ]);
@@ -36,8 +36,9 @@ export default async function AdminOverviewPage({
           <p className="eyebrow">Content</p>
           <h2>Artikels schrijven</h2>
           <p>
-            {status.drafts} concept{status.drafts === 1 ? "" : "en"} ·{" "}
-            {status.published} gepubliceerd · {status.archived} gearchiveerd
+            {status
+              ? `${status.drafts} concept${status.drafts === 1 ? "" : "en"} · ${status.published} gepubliceerd · ${status.archived} gearchiveerd`
+              : "Artikelstatus tijdelijk niet beschikbaar"}
           </p>
           {canEditArticles ? (
             <Link className="admin-task-card__action" href="/admin/artikels">

@@ -16,6 +16,7 @@ import {
 import {
   excerptArticle,
   getAllArticles,
+  getContentStatus,
   getPublishedArticles,
   splitArticle,
   validateArticles,
@@ -122,6 +123,18 @@ describe("Keystatic article pipeline", () => {
           published[index - 1]!.publishedAt >= article.publishedAt,
       ),
     ).toBe(true);
+  });
+
+  it("counts article statuses without full snapshot validation", async () => {
+    const [all, status] = await Promise.all([
+      getAllArticles(),
+      getContentStatus(),
+    ]);
+    expect(status).toEqual({
+      drafts: all.filter((article) => article.status === "draft").length,
+      published: all.filter((article) => article.status === "published").length,
+      archived: all.filter((article) => article.status === "archived").length,
+    });
   });
 
   it("keeps the configured Markdoc lead public and the rest gated", async () => {
