@@ -16,6 +16,7 @@ import type * as lib_adminAuth from "../lib/adminAuth.js";
 import type * as lib_adminRoles from "../lib/adminRoles.js";
 import type * as lib_agentAccessShared from "../lib/agentAccessShared.js";
 import type * as lib_email from "../lib/email.js";
+import type * as lib_emailLinkToken from "../lib/emailLinkToken.js";
 import type * as lib_preferenceCatalog from "../lib/preferenceCatalog.js";
 import type * as lib_rateLimit from "../lib/rateLimit.js";
 import type * as lib_subscriberPreferences from "../lib/subscriberPreferences.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   "lib/adminRoles": typeof lib_adminRoles;
   "lib/agentAccessShared": typeof lib_agentAccessShared;
   "lib/email": typeof lib_email;
+  "lib/emailLinkToken": typeof lib_emailLinkToken;
   "lib/preferenceCatalog": typeof lib_preferenceCatalog;
   "lib/rateLimit": typeof lib_rateLimit;
   "lib/subscriberPreferences": typeof lib_subscriberPreferences;
