@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PRIVACY_EMAIL, PUBLISHER_LINE } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Privacyverklaring",
@@ -14,7 +15,7 @@ export default function PrivacyPage() {
       <header>
         <p className="eyebrow">Jouw gegevens</p>
         <h1>Privacyverklaring van De Voetbalgazet</h1>
-        <p>Laatste update: 16 juli 2026</p>
+        <p>Laatste update: 17 juli 2026</p>
       </header>
 
       <section>
@@ -26,9 +27,10 @@ export default function PrivacyPage() {
           <br />
           KBO 1017.634.522 · btw BE 1017.634.522
           <br />
-          <a href="mailto:redactie@devoetbalgazet.be">
-            redactie@devoetbalgazet.be
-          </a>
+          Privacy &amp; support:{" "}
+          <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>
+          <br />
+          {PUBLISHER_LINE}
         </address>
       </section>
 
@@ -102,9 +104,7 @@ export default function PrivacyPage() {
         <p>
           Je kunt inzage, correctie, verwijdering, beperking, overdraagbaarheid
           of bezwaar vragen via{" "}
-          <a href="mailto:redactie@devoetbalgazet.be">
-            redactie@devoetbalgazet.be
-          </a>
+          <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>
           . We kunnen je vragen je identiteit veilig te bevestigen. Je kunt ook
           klacht indienen bij de Belgische{" "}
           <a href="https://www.gegevensbeschermingsautoriteit.be/">

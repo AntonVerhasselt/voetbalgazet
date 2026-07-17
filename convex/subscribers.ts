@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import type { MutationCtx } from "./_generated/server";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { normalizeAndValidateEmail } from "./lib/email";
 import {
   divisionOptions,
@@ -26,6 +26,7 @@ const completeSignupArgs = {
   website: v.optional(v.string()),
   divisionKeys: v.array(v.string()),
   teamKey: v.optional(v.string()),
+  clientIpHash: v.optional(v.string()),
 };
 
 type CompleteSignupArgs = {
@@ -33,6 +34,7 @@ type CompleteSignupArgs = {
   website?: string;
   divisionKeys: string[];
   teamKey?: string;
+  clientIpHash?: string;
 };
 
 type SignupSource = "article_gate" | "homepage_inline";
@@ -40,12 +42,18 @@ type SignupSource = "article_gate" | "homepage_inline";
 async function beginSubscriberSignup(
   ctx: MutationCtx,
   email: string,
+  clientIpHash?: string,
 ): Promise<{
   accepted: true;
   flow: "preferences" | "continue_reading";
 }> {
   const normalizedEmail = normalizeAndValidateEmail(email);
-  await consumeSignupRateLimit(ctx, normalizedEmail, Date.now());
+  await consumeSignupRateLimit(
+    ctx,
+    normalizedEmail,
+    Date.now(),
+    clientIpHash,
+  );
   const existingSubscriber = await ctx.db
     .query("subscribers")
     .withIndex("by_normalized_email", (query) =>
@@ -87,7 +95,12 @@ async function completeSubscriberSignup(
   }
 
   const normalizedEmail = normalizeAndValidateEmail(args.email);
-  await consumeSignupRateLimit(ctx, normalizedEmail, Date.now());
+  await consumeSignupRateLimit(
+    ctx,
+    normalizedEmail,
+    Date.now(),
+    args.clientIpHash,
+  );
   let subscriber = await ctx.db
     .query("subscribers")
     .withIndex("by_normalized_email", (query) =>
@@ -172,6 +185,7 @@ export const beginSignup = mutation({
   args: {
     email: v.string(),
     website: v.optional(v.string()),
+    clientIpHash: v.optional(v.string()),
   },
   returns: v.object({
     accepted: v.literal(true),
@@ -182,7 +196,11 @@ export const beginSignup = mutation({
       return { accepted: true, flow: "continue_reading" } as const;
     }
 
-    return await beginSubscriberSignup(ctx, args.email);
+    return await beginSubscriberSignup(
+      ctx,
+      args.email,
+      args.clientIpHash,
+    );
   },
 });
 
@@ -206,12 +224,18 @@ export const requestReturningAccess = mutation({
   args: {
     email: v.string(),
     website: v.optional(v.string()),
+    clientIpHash: v.optional(v.string()),
   },
   returns: v.object({ accepted: v.literal(true) }),
   handler: async (ctx, args) => {
     if (!args.website?.trim()) {
       const normalizedEmail = normalizeAndValidateEmail(args.email);
-      await consumeSignupRateLimit(ctx, normalizedEmail, Date.now());
+      await consumeSignupRateLimit(
+        ctx,
+        normalizedEmail,
+        Date.now(),
+        args.clientIpHash,
+      );
     }
     return acceptedResponse;
   },
@@ -257,13 +281,93 @@ export const startSignup = mutation({
   args: {
     email: v.string(),
     website: v.optional(v.string()),
+    clientIpHash: v.optional(v.string()),
   },
   returns: v.object({ accepted: v.literal(true) }),
   handler: async (ctx, args) => {
     if (args.website && args.website.trim().length > 0) {
       return acceptedResponse;
     }
-    await beginSubscriberSignup(ctx, args.email);
+    await beginSubscriberSignup(ctx, args.email, args.clientIpHash);
     return acceptedResponse;
+  },
+});
+
+export const confirmUnsubscribe = mutation({
+  args: {
+    email: v.string(),
+    source: v.union(
+      v.literal("email_unsubscribe"),
+      v.literal("one_click_unsubscribe"),
+    ),
+  },
+  returns: v.object({
+    unsubscribed: v.literal(true),
+    siteAccessPreserved: v.literal(true),
+  }),
+  handler: async (ctx, args) => {
+    const normalizedEmail = normalizeAndValidateEmail(args.email);
+    const subscriber = await ctx.db
+      .query("subscribers")
+      .withIndex("by_normalized_email", (query) =>
+        query.eq("normalizedEmail", normalizedEmail),
+      )
+      .unique();
+
+    // Always return success shape to avoid email enumeration.
+    if (!subscriber) {
+      return {
+        unsubscribed: true as const,
+        siteAccessPreserved: true as const,
+      };
+    }
+
+    if (!subscriber.newsletterSubscribed && subscriber.unsubscribedAt) {
+      return {
+        unsubscribed: true as const,
+        siteAccessPreserved: true as const,
+      };
+    }
+
+    const capturedAt = Date.now();
+    await ctx.db.patch("subscribers", subscriber._id, {
+      newsletterSubscribed: false,
+      unsubscribedAt: capturedAt,
+    });
+    await ctx.db.insert("subscriberConsentEvents", {
+      subscriberId: subscriber._id,
+      action: "unsubscribe",
+      consentVersion: subscriber.consentVersion ?? CURRENT_CONSENT_VERSION,
+      source: args.source,
+      capturedAt,
+    });
+
+    return {
+      unsubscribed: true as const,
+      siteAccessPreserved: true as const,
+    };
+  },
+});
+
+export const markEmailVerifiedFromAuth = internalMutation({
+  args: {
+    email: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const normalizedEmail = normalizeAndValidateEmail(args.email);
+    const subscriber = await ctx.db
+      .query("subscribers")
+      .withIndex("by_normalized_email", (query) =>
+        query.eq("normalizedEmail", normalizedEmail),
+      )
+      .unique();
+    if (!subscriber || subscriber.emailVerifiedAt) {
+      return null;
+    }
+    await ctx.db.patch("subscribers", subscriber._id, {
+      emailVerifiedAt: Date.now(),
+    });
+    return null;
   },
 });

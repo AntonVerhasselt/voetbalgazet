@@ -11,6 +11,7 @@ import type {
   IllustrationTone,
   PublishedArticle,
 } from "../content/articles";
+import { normalizeEditorDatetime } from "./editor-datetime";
 export { formatArticleDate } from "./article-format";
 export { CONSENT_VERSION, SITE_URL } from "./site-config";
 
@@ -70,10 +71,6 @@ function normalizeOptional(value: string | null): string {
   return value?.trim() ?? "";
 }
 
-function normalizeDatetime(value: string | null): string | null {
-  return value ? new Date(`${value}:00.000Z`).toISOString() : null;
-}
-
 function wordCount(node: MarkdocNode): number {
   let count = 0;
   for (const child of node.walk()) {
@@ -131,8 +128,8 @@ async function readSnapshot(branch?: string): Promise<ContentSnapshot> {
     return {
       slug,
       status: entry.status,
-      publishedAt: normalizeDatetime(entry.publishedAt),
-      updatedAt: normalizeDatetime(entry.updatedAt),
+      publishedAt: normalizeEditorDatetime(entry.publishedAt),
+      updatedAt: normalizeEditorDatetime(entry.updatedAt),
       authorKey: entry.author,
       author: authorLabels.get(entry.author) ?? entry.author,
       headline: entry.headline.trim(),
@@ -151,6 +148,7 @@ async function readSnapshot(branch?: string): Promise<ContentSnapshot> {
       heroAlt: normalizeOptional(entry.heroAlt),
       heroCredit: normalizeOptional(entry.heroCredit),
       illustrationTone: resolvedTone(entry.illustrationTone, slug),
+      illustrationMode: entry.illustrationMode,
       homeTeam: normalizeOptional(entry.homeTeam),
       awayTeam: normalizeOptional(entry.awayTeam),
       competitionLabel: normalizeOptional(entry.competitionLabel),

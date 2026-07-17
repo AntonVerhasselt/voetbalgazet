@@ -6,6 +6,7 @@ import { ArticleAnalytics } from "@/components/article-analytics";
 import { ArticleBlocks } from "@/components/article-blocks";
 import { ArticleIllustration } from "@/components/article-illustration";
 import { PreviewArticleGate } from "@/components/preview-article-gate";
+import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, splitArticle } from "@/lib/content";
 import {
   buildNewsArticleJsonLd,
@@ -21,6 +22,7 @@ export function ArticlePageContent({
 }) {
   const isPreview = previewGateMode !== undefined;
   const sections = splitArticle(article);
+  const illustration = getIllustrationCopy(article);
   const publishedAt = article.publishedAt;
   const jsonLd =
     article.status === "published" && publishedAt
@@ -86,14 +88,9 @@ export function ArticlePageContent({
             <>
               <ArticleIllustration
                 tone={article.illustrationTone}
-                eyebrow={article.category}
-                title={article.homeTeam || article.kicker || "Lokaal"}
-                subtitle={
-                  article.awayTeam ||
-                  article.competitionLabel ||
-                  article.divisionKeys[0]?.replaceAll("-", " ") ||
-                  "voetbal"
-                }
+                eyebrow={illustration.eyebrow}
+                title={illustration.title}
+                subtitle={illustration.subtitle}
                 alt={article.heroAlt}
               />
               <p className="article__caption">{article.heroAlt}</p>

@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useId, useMemo, useState, type FormEvent } from "react";
-import { ConvexHttpClient } from "convex/browser";
-import { api } from "@convex/_generated/api";
 import { teamOptions } from "@convex/lib/preferenceCatalog";
 import { DivisionSelector } from "@/components/division-selector";
 import { authClient } from "@/lib/auth-client";
@@ -24,12 +22,21 @@ type SignupFormProps = {
   variant?: "dark" | "paper";
 };
 
-function getConvexClient(): ConvexHttpClient {
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  if (!convexUrl) {
-    throw new Error("Inschrijven is nog niet geconfigureerd.");
+async function postSignup(body: Record<string, unknown>): Promise<unknown> {
+  const response = await fetch("/api/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = (await response.json()) as {
+    error?: string;
+    accepted?: true;
+    flow?: "preferences" | "continue_reading";
+  };
+  if (!response.ok) {
+    throw new Error(payload.error ?? "Dat lukte niet. Probeer opnieuw.");
   }
-  return new ConvexHttpClient(convexUrl);
+  return payload;
 }
 
 async function startReaderSession(
@@ -98,11 +105,11 @@ export function SignupForm({
     });
 
     try {
-      const client = getConvexClient();
-      const result = await client.mutation(api.subscribers.beginSignup, {
+      const result = (await postSignup({
+        action: "begin",
         email,
         website,
-      });
+      })) as { flow: "preferences" | "continue_reading" };
       if (result.flow === "preferences") {
         setStep("preferences");
         onStepChange?.("preferences");
@@ -111,7 +118,8 @@ export function SignupForm({
         return;
       }
 
-      await client.mutation(api.subscribers.requestReturningAccess, {
+      await postSignup({
+        action: "returning",
         email,
         website,
       });
@@ -196,12 +204,9 @@ export function SignupForm({
     });
 
     try {
-      const client = getConvexClient();
-      const completeSignup =
-        source === "article_gate"
-          ? api.subscribers.completeArticleSignup
-          : api.subscribers.completeHomepageSignup;
-      await client.mutation(completeSignup, {
+      await postSignup({
+        action: "complete",
+        source,
         email,
         website,
         divisionKeys: selectedDivisions,

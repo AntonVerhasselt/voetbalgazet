@@ -2,6 +2,7 @@ import type { Node as MarkdocNode } from "@markdoc/markdoc";
 
 export type ArticleStatus = "draft" | "published" | "archived";
 export type IllustrationTone = "green" | "red" | "gold";
+export type IllustrationMode = "generic" | "match" | "custom";
 
 export type Article = {
   slug: string;
@@ -26,6 +27,7 @@ export type Article = {
   heroAlt: string;
   heroCredit: string;
   illustrationTone: IllustrationTone;
+  illustrationMode: IllustrationMode;
   homeTeam: string;
   awayTeam: string;
   competitionLabel: string;

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArticlePageContent } from "@/components/article-page-content";
 import { getArticle, getPublishedArticles } from "@/lib/content";
 import { articleUrl } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE } from "@/lib/site-config";
 
 type ArticlePageProps = {
   params: Promise<{ slug: string }>;
@@ -28,6 +29,8 @@ export async function generateMetadata({
   ) {
     return {};
   }
+  const image =
+    article.socialImage ?? article.heroImage ?? DEFAULT_OG_IMAGE;
   return {
     title: article.seoTitle || article.headline,
     description: article.seoDescription || article.dek,
@@ -43,13 +46,13 @@ export async function generateMetadata({
       modifiedTime: article.updatedAt ?? article.publishedAt,
       authors: [article.author],
       section: article.category,
-      images: article.socialImage ?? article.heroImage ?? undefined,
+      images: [{ url: image }],
     },
     twitter: {
       card: "summary_large_image",
       title: article.seoTitle || article.headline,
       description: article.seoDescription || article.dek,
-      images: article.socialImage ?? article.heroImage ?? undefined,
+      images: [image],
     },
   };
 }

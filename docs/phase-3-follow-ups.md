@@ -11,7 +11,7 @@ Local/Cursor agents use Keystatic **local** storage + git. Production editors
 need GitHub mode.
 
 - [ ] Create/configure the Keystatic GitHub App (repo-scoped)
-- [ ] Set Vercel env: `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET`, `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`
+- [x] Set Vercel env: `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET`, `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` (Preview + Production)
 - [ ] Optional: `KEYSTATIC_GITHUB_READER_TOKEN` + `KEYSTATIC_PREVIEW_BRANCH_PREFIXES` for draft-branch preview
 - [ ] Smoke hosted `/keystatic` save → commit on the expected branch
 - [ ] Confirm viewers cannot write; Admin/Journalist can
@@ -20,24 +20,24 @@ See also: [`keystatic-admin.md`](./keystatic-admin.md).
 
 ## Content & taxonomy consistency
 
-- [ ] Guard against drift between Keystatic YAML taxonomies
+- [x] Guard against drift between Keystatic YAML taxonomies
   (`apps/web/content/settings/{divisions,teams}.yaml`) and the Convex
-  preference catalog (`convex/lib/preferenceCatalog.ts`) — add a test or
-  single source of truth
-- [ ] Wire or remove unused `illustrationMode` frontmatter (collected in
-  Keystatic, not used in `apps/web/src/lib/content.ts` rendering)
-- [ ] Decide datetime timezone policy for editors (values are normalized as UTC)
+  preference catalog (`convex/lib/preferenceCatalog.ts`) — Vitest parity test
+- [x] Wire `illustrationMode` through content loading + shared illustration copy helper
+- [x] Datetime timezone policy: editors enter **Europe/Brussels** wall time;
+  values are stored as UTC (`normalizeEditorDatetime`)
 
 ## Public site / reader launch gaps
 
 Inherited from Phase 2; still open for launch quality:
 
-- [ ] `/uitschrijven` (and RFC 8058 one-click where applicable)
-- [ ] Better Auth `onLinkAccount` + sync `subscribers.emailVerifiedAt` on magic-link verify
-- [ ] Stronger signup abuse controls (e.g. IP rate limit) beyond per-email limits
-- [ ] Open Graph / social images on home and article metadata
-- [ ] Publisher attribution, privacy support address, DPA/retention as in
-  `plans/public-news-site/06-launch-todos.md`
+- [x] `/uitschrijven` + POST `/api/email/uitschrijven` (UI confirm + RFC 8058 one-click)
+- [x] Better Auth `onLinkAccount` + sync `subscribers.emailVerifiedAt` on magic-link verify
+- [x] Stronger signup abuse controls: Next.js `/api/signup` IP rate limit + Convex IP bucket
+- [x] Open Graph / social images: default `opengraph-image` + article/home fallbacks
+- [x] Publisher attribution + privacy support address (`privacy@devoetbalgazet.be`)
+- [ ] Verwerkersovereenkomsten/DPA's afsluiten + internationale doorgiftegronden
+  (ops; copy already documents Convex/Vercel/Resend/PostHog EU)
 
 Soft-gate note: a technical visitor can still bypass the client gate (full body
 in HTML, or anonymous Better Auth). That matches the Phase 2 soft-gate
@@ -45,25 +45,22 @@ decision; do not treat it as a hard paywall.
 
 ## Preview & admin polish
 
-- [ ] Confirm GET `/preview/start` behaviour with caching/CDNs (mutates Draft
-  Mode + cookie; already gated by editor session + allowlists)
-- [ ] Homepage hero illustration copy should follow the featured article, not
-  hardcoded strings
-- [ ] Link [`keystatic-admin.md`](./keystatic-admin.md) from this docs index
-  (done when this file ships)
+- [x] Confirm GET `/preview/start` behaviour with caching/CDNs (`Cache-Control: private, no-store`, `X-Robots-Tag: noindex`, editor session + allowlists)
+- [x] Homepage hero illustration copy follows the featured article via `getIllustrationCopy`
+- [x] Link [`keystatic-admin.md`](./keystatic-admin.md) from this docs index
 - [ ] Finish remaining checks in `plans/content-admin/04-launch-todos.md`
-  (Open Design assets, a11y, GitHub App ops)
+  (Open Design assets, a11y, GitHub App ops smoke)
 
 ## Phase 4 placeholders
 
 Already shown as disabled in `/admin` — no Phase 3 work required:
 
-- Nieuwsbrieven editor / targeting / send
+- Nieuwsbrieven editor / targeting / send (will mint unsubscribe tokens via `createUnsubscribeToken`)
 - Abonneebeheer
 
-## Suggested order
+## Suggested remaining order
 
-1. Hosted Keystatic secrets + one real publish on production  
-2. Taxonomy single-source / drift test  
-3. Unsubscribe + verified-identity linking  
-4. SEO images and remaining launch-todo legal/ops items  
+1. Hosted Keystatic smoke publish on production (secrets already set)  
+2. Optional draft-branch reader token  
+3. DPA / processor paperwork  
+4. Open Design + mobile a11y launch checks  

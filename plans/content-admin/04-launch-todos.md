@@ -15,7 +15,7 @@
 - [ ] Local mode voor development
 - [ ] GitHub mode voor hosted admin
 - [ ] GitHub App maken en tot repository beperken
-- [ ] Keystatic secrets in Vercel instellen
+- [x] Keystatic secrets in Vercel instellen
 - [ ] `/keystatic` UI en `/api/keystatic/*` route
 - [ ] Better Auth Admin/Journalist-gate vóór `/keystatic` UI
 - [ ] Viewer krijgt 403/redirect voor `/keystatic` en `/preview/*`

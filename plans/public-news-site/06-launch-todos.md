@@ -10,10 +10,10 @@ Dit document bevat uitgestelde gegevens en checks die niet nodig zijn om de prod
 - [x] Btw-nummer: BE 1017.634.522
 - [x] Oprichting / actief sinds: 19 december 2024
 - [x] Algemeen contactadres: redactie@devoetbalgazet.be
-- [ ] Privacy-/supportadres
+- [x] Privacy-/supportadres
 - [x] Geen telefoonnummer gepubliceerd in KBO; niet opnemen zolang geen publiek nummer gekozen is
 - [x] Bestuurder: Anton Verhasselt
-- [ ] Verantwoordelijke uitgever / hoofdredactie en vereiste adresvermelding
+- [x] Verantwoordelijke uitgever / hoofdredactie en vereiste adresvermelding
 - [x] Definitieve publieke domeinnaam: devoetbalgazet.be
 
 Werk daarna alle placeholders in [`05-privacy-and-terms-copy.md`](./05-privacy-and-terms-copy.md) bij.
