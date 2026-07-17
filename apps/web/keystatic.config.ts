@@ -161,9 +161,13 @@ export default config({
         }),
         publishedAt: fields.datetime({
           label: "Publicatiedatum",
-          description: "Verplicht zodra de status Gepubliceerd is.",
+          description:
+            "Verplicht zodra de status Gepubliceerd is. Vul Europe/Brussels-lokale tijd in (CET/CEST); opslag gebeurt als UTC.",
         }),
-        updatedAt: fields.datetime({ label: "Laatst inhoudelijk bijgewerkt" }),
+        updatedAt: fields.datetime({
+          label: "Laatst inhoudelijk bijgewerkt",
+          description: "Europe/Brussels-lokale tijd (CET/CEST).",
+        }),
         author: fields.select({
           label: "Auteur",
           options: authorOptions,

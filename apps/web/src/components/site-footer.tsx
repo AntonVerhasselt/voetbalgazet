@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PUBLISHER_LINE } from "@/lib/site-config";
 
 export function SiteFooter() {
   return (
@@ -20,6 +21,8 @@ export function SiteFooter() {
         <p className="site-footer__legal">
           © 2026 De Voetbalgazet · YARU DAKEN BV · Van Duyststraat 60, 2100
           Antwerpen · KBO 1017.634.522 · btw BE 1017.634.522
+          <br />
+          {PUBLISHER_LINE}
         </p>
       </div>
     </footer>

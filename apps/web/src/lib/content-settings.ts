@@ -81,3 +81,83 @@ export function categorySelectOptions(): SettingsSelectOption[] {
       value: item.key as string,
     }));
 }
+
+type DivisionItem = {
+  key?: unknown;
+  label?: unknown;
+  provinceKey?: unknown;
+  level?: unknown;
+  active?: unknown;
+  sortOrder?: unknown;
+};
+
+type TeamItem = {
+  key?: unknown;
+  label?: unknown;
+  provinceKey?: unknown;
+  divisionKeys?: unknown;
+  active?: unknown;
+};
+
+export type DivisionSettingsItem = {
+  key: string;
+  label: string;
+  provinceKey: string;
+  level: number;
+  sortOrder: number;
+};
+
+export type TeamSettingsItem = {
+  key: string;
+  label: string;
+  provinceKey: string;
+  divisionKeys: readonly string[];
+};
+
+export function divisionSettingsItems(): DivisionSettingsItem[] {
+  return itemsFrom("divisions.yaml")
+    .map((item) => item as DivisionItem)
+    .filter(
+      (item) =>
+        typeof item.key === "string" &&
+        typeof item.label === "string" &&
+        typeof item.provinceKey === "string" &&
+        typeof item.level === "number" &&
+        item.active !== false,
+    )
+    .sort((left, right) => {
+      const leftOrder =
+        typeof left.sortOrder === "number" ? left.sortOrder : 0;
+      const rightOrder =
+        typeof right.sortOrder === "number" ? right.sortOrder : 0;
+      return leftOrder - rightOrder;
+    })
+    .map((item) => ({
+      key: item.key as string,
+      label: item.label as string,
+      provinceKey: item.provinceKey as string,
+      level: item.level as number,
+      sortOrder:
+        typeof item.sortOrder === "number" ? item.sortOrder : 0,
+    }));
+}
+
+export function teamSettingsItems(): TeamSettingsItem[] {
+  return itemsFrom("teams.yaml")
+    .map((item) => item as TeamItem)
+    .filter(
+      (item) =>
+        typeof item.key === "string" &&
+        typeof item.label === "string" &&
+        typeof item.provinceKey === "string" &&
+        Array.isArray(item.divisionKeys) &&
+        item.divisionKeys.every((key) => typeof key === "string") &&
+        item.active !== false,
+    )
+    .map((item) => ({
+      key: item.key as string,
+      label: item.label as string,
+      provinceKey: item.provinceKey as string,
+      divisionKeys: item.divisionKeys as string[],
+    }));
+}

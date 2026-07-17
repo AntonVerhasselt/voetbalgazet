@@ -2,6 +2,7 @@ import type { MutationCtx } from "../_generated/server";
 
 const SIGNUP_WINDOW_MS = 60 * 60 * 1000;
 const SIGNUP_MAX_ATTEMPTS = 12;
+const SIGNUP_IP_MAX_ATTEMPTS = 40;
 
 export function hashRateLimitValue(value: string): string {
   let hash = 0x811c9dc5;
@@ -12,12 +13,14 @@ export function hashRateLimitValue(value: string): string {
   return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
-export async function consumeSignupRateLimit(
+async function consumeRateLimitBucket(
   ctx: MutationCtx,
-  normalizedEmail: string,
+  key: string,
   now: number,
+  maxAttempts: number,
+  errorMessage: string,
 ): Promise<void> {
-  const keyHash = hashRateLimitValue(normalizedEmail);
+  const keyHash = hashRateLimitValue(key);
   const bucket = await ctx.db
     .query("signupRateLimits")
     .withIndex("by_key_hash", (query) => query.eq("keyHash", keyHash))
@@ -39,12 +42,34 @@ export async function consumeSignupRateLimit(
     return;
   }
 
-  if (bucket.count >= SIGNUP_MAX_ATTEMPTS) {
-    throw new Error(
-      "Te veel inschrijfpogingen. Wacht even en probeer later opnieuw.",
-    );
+  if (bucket.count >= maxAttempts) {
+    throw new Error(errorMessage);
   }
   await ctx.db.patch("signupRateLimits", bucket._id, {
     count: bucket.count + 1,
   });
+}
+
+export async function consumeSignupRateLimit(
+  ctx: MutationCtx,
+  normalizedEmail: string,
+  now: number,
+  clientIpHash?: string,
+): Promise<void> {
+  await consumeRateLimitBucket(
+    ctx,
+    `email:${normalizedEmail}`,
+    now,
+    SIGNUP_MAX_ATTEMPTS,
+    "Te veel inschrijfpogingen. Wacht even en probeer later opnieuw.",
+  );
+  if (clientIpHash) {
+    await consumeRateLimitBucket(
+      ctx,
+      `ip:${clientIpHash}`,
+      now,
+      SIGNUP_IP_MAX_ATTEMPTS,
+      "Te veel inschrijfpogingen vanaf dit netwerk. Wacht even en probeer later opnieuw.",
+    );
+  }
 }

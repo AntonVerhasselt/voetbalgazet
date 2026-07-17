@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://devoetbalgazet.be"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "De Voetbalgazet — Lokaal voetbal, echte verhalen",
     template: "%s | De Voetbalgazet",
@@ -22,6 +23,14 @@ export const metadata: Metadata = {
     title: "De Voetbalgazet — Lokaal voetbal, echte verhalen",
     description:
       "Verhalen, interviews en analyses uit het lokale voetbal in Vlaanderen.",
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "De Voetbalgazet — Lokaal voetbal, echte verhalen",
+    description:
+      "Verhalen, interviews en analyses uit het lokale voetbal in Vlaanderen.",
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

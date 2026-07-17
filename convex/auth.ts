@@ -2,7 +2,7 @@ import { createClient, type GenericCtx } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
 import { betterAuth, type BetterAuthOptions } from "better-auth/minimal";
 import { anonymous, magicLink } from "better-auth/plugins";
-import { components } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
 import authConfig from "./auth.config";
 import { AGENT_EMAIL } from "./lib/agentAccessShared";
@@ -155,6 +155,23 @@ function createAuthOptions(ctx: GenericCtx<DataModel>): BetterAuthOptions {
       }),
       anonymous({
         emailDomainName: "reader.devoetbalgazet.be",
+        onLinkAccount: async ({ newUser }) => {
+          const email = newUser.user.email?.trim();
+          if (!email || newUser.user.isAnonymous) {
+            return;
+          }
+          if (!("runMutation" in ctx)) {
+            return;
+          }
+          try {
+            await ctx.runMutation(
+              internal.subscribers.markEmailVerifiedFromAuth,
+              { email },
+            );
+          } catch (error) {
+            console.error("Failed to sync emailVerifiedAt on link", error);
+          }
+        },
       }),
       magicLink({
         expiresIn: 60 * 15,

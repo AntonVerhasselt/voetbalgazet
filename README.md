@@ -3,6 +3,32 @@
 Flemish local-football publication: public site (Phase 2) plus Keystatic
 article admin MVP (Phase 3).
 
+## Open manual todos (human)
+
+Do these outside this repo before considering Phase 3 ops complete:
+
+1. **Follow the operator checklist** — step-by-step GitHub App smoke, roles,
+   newsletter-only unsubscribe check, legal ops:  
+   [`docs/phase-3-manual-checklist.md`](./docs/phase-3-manual-checklist.md)
+2. **Fix Vercel Preview Convex URL env vars** — in Vercel → Settings →
+   Environment Variables, Preview currently needs a correct pair (not a lone
+   `.cloud` URL). Set **both** for the Preview environment to the deployment
+   preview builds should use (usually production `calculating-eel-615`):
+
+   ```text
+   NEXT_PUBLIC_CONVEX_URL=https://calculating-eel-615.convex.cloud
+   NEXT_PUBLIC_CONVEX_SITE_URL=https://calculating-eel-615.convex.site
+   ```
+
+   Use the **non-regional** `.convex.site` host (no `eu-west-1`). Missing or
+   mismatched Preview `SITE_URL` breaks `/api/auth/*` on preview deployments.
+   Production should keep the same pair (or rely on `convex deploy --cmd`
+   injection **plus** these vars for consistency). Details:
+   [`docs/vercel-deploy.md`](./docs/vercel-deploy.md),
+   [`docs/admin-auth.md`](./docs/admin-auth.md).
+
+Tracked again in [`docs/phase-3-follow-ups.md`](./docs/phase-3-follow-ups.md).
+
 ## Included
 
 - Next.js public site with static Markdoc articles, email gate, and preferences

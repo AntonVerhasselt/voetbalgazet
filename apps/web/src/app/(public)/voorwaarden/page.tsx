@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EDITORIAL_EMAIL, PUBLISHER_LINE } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Gebruiksvoorwaarden",
@@ -14,7 +15,7 @@ export default function TermsPage() {
       <header>
         <p className="eyebrow">Duidelijke afspraken</p>
         <h1>Gebruiksvoorwaarden van De Voetbalgazet</h1>
-        <p>Laatste update: 16 juli 2026</p>
+        <p>Laatste update: 17 juli 2026</p>
       </header>
 
       <section>
@@ -26,9 +27,9 @@ export default function TermsPage() {
           <br />
           KBO 1017.634.522 · btw BE 1017.634.522
           <br />
-          <a href="mailto:redactie@devoetbalgazet.be">
-            redactie@devoetbalgazet.be
-          </a>
+          <a href={`mailto:${EDITORIAL_EMAIL}`}>{EDITORIAL_EMAIL}</a>
+          <br />
+          {PUBLISHER_LINE}
         </address>
       </section>
 

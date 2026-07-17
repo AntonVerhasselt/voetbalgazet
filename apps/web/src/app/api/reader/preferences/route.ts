@@ -47,7 +47,27 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const body = parsePreferenceBody(await request.json());
+  const raw = await request.json();
+  if (
+    raw &&
+    typeof raw === "object" &&
+    (raw as { action?: string }).action === "resubscribe_newsletter"
+  ) {
+    try {
+      await fetchAuthMutation(api.subscribers.resubscribeToNewsletter, {});
+      return Response.json(
+        { subscribed: true },
+        { headers: { "Cache-Control": "no-store" } },
+      );
+    } catch {
+      return Response.json(
+        { error: "Opnieuw inschrijven voor de nieuwsbrief lukte niet." },
+        { status: 401, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+  }
+
+  const body = parsePreferenceBody(raw);
   if (!body) {
     return Response.json(
       { error: "Ongeldige voorkeuren." },

@@ -10,6 +10,8 @@ export const consentSourceValidator = v.union(
   v.literal("article_gate"),
   v.literal("homepage_inline"),
   v.literal("preferences_resubscribe"),
+  v.literal("email_unsubscribe"),
+  v.literal("one_click_unsubscribe"),
 );
 
 export const deliveryStatusValidator = v.union(

@@ -1,7 +1,39 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArticleIllustration } from "@/components/article-illustration";
 import { SignupForm } from "@/components/signup-form";
+import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, getPublishedArticles } from "@/lib/content";
+import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site-config";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const publishedArticles = await getPublishedArticles();
+  const featuredArticle =
+    publishedArticles.find((article) => article.featured) ??
+    publishedArticles[0];
+  if (!featuredArticle) {
+    return {};
+  }
+  const image =
+    featuredArticle.socialImage ??
+    featuredArticle.heroImage ??
+    DEFAULT_OG_IMAGE;
+  return {
+    openGraph: {
+      type: "website",
+      url: SITE_URL,
+      title: featuredArticle.seoTitle || featuredArticle.headline,
+      description: featuredArticle.seoDescription || featuredArticle.dek,
+      images: [{ url: image }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: featuredArticle.seoTitle || featuredArticle.headline,
+      description: featuredArticle.seoDescription || featuredArticle.dek,
+      images: [image],
+    },
+  };
+}
 
 export default async function Home() {
   const publishedArticles = await getPublishedArticles();
@@ -14,6 +46,7 @@ export default async function Home() {
   const secondaryArticles = publishedArticles
     .filter((article) => article.slug !== featuredArticle.slug)
     .slice(0, 3);
+  const illustration = getIllustrationCopy(featuredArticle);
 
   return (
     <main>
@@ -45,9 +78,9 @@ export default async function Home() {
           >
             <ArticleIllustration
               tone={featuredArticle.illustrationTone}
-              eyebrow={featuredArticle.category}
-              title="Zondag"
-              subtitle="langs de lijn"
+              eyebrow={illustration.eyebrow}
+              title={illustration.title}
+              subtitle={illustration.subtitle}
               alt={featuredArticle.heroAlt}
             />
           </Link>

@@ -15,7 +15,8 @@ export default function PreferencesPage() {
         <h1>Nieuwsbriefvoorkeuren</h1>
         <p>
           Deze keuzes bepalen alleen welke verhalen we in je nieuwsbrief
-          uitlichten. De publieke site blijft voor iedereen hetzelfde.
+          uitlichten. De publieke site blijft voor iedereen hetzelfde. Uitschrijven
+          uit de nieuwsbrief (via de maillink) trekt je artikels-toegang niet in.
         </p>
       </header>
       <PreferencesForm />

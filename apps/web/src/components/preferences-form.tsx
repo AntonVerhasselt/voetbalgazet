@@ -17,6 +17,7 @@ export function PreferencesForm() {
   const [requiresVerification, setRequiresVerification] = useState(false);
   const [divisions, setDivisions] = useState<string[]>([]);
   const [team, setTeam] = useState("");
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(true);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
@@ -34,6 +35,7 @@ export function PreferencesForm() {
         const data = (await response.json()) as Preferences;
         setDivisions(data.divisionKeys);
         setTeam(data.teamKey ?? "");
+        setNewsletterSubscribed(data.newsletterSubscribed);
         setLoading(false);
         capturePublicEvent("preferences_viewed", {
           division_count: data.divisionKeys.length,
@@ -117,6 +119,26 @@ export function PreferencesForm() {
     });
   }
 
+  async function resubscribeNewsletter(): Promise<void> {
+    setSaving(true);
+    setMessage("");
+    const response = await fetch("/api/reader/preferences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "resubscribe_newsletter" }),
+    });
+    setSaving(false);
+    if (!response.ok) {
+      setMessage("Opnieuw inschrijven voor de nieuwsbrief lukte niet.");
+      return;
+    }
+    setNewsletterSubscribed(true);
+    setMessage(
+      "Je bent opnieuw ingeschreven voor de wekelijkse nieuwsbrief. Je website-toegang was en blijft ongewijzigd.",
+    );
+    capturePublicEvent("newsletter_resubscribed", {});
+  }
+
   if (loading) {
     return <p role="status">Je veilige sessie controleren…</p>;
   }
@@ -148,6 +170,29 @@ export function PreferencesForm() {
 
   return (
     <form className="preferences-form" onSubmit={save}>
+      <section className="preferences-newsletter-status" aria-live="polite">
+        {newsletterSubscribed ? (
+          <p>
+            Nieuwsbrief: <strong>aan</strong>. Uitschrijven kan via de link in
+            elke nieuwsbrief — dat stopt alleen de mail, niet je artikels-toegang.
+          </p>
+        ) : (
+          <div>
+            <p>
+              Nieuwsbrief: <strong>uit</strong>. Je kunt nog steeds artikels
+              lezen op de site.
+            </p>
+            <button
+              type="button"
+              className="signup-form__primary"
+              disabled={saving}
+              onClick={() => void resubscribeNewsletter()}
+            >
+              Schrijf me opnieuw in voor de wekelijkse nieuwsbrief
+            </button>
+          </div>
+        )}
+      </section>
       <fieldset>
         <legend>Mijn reeksen</legend>
         <DivisionSelector selected={divisions} onToggle={toggleDivision} />

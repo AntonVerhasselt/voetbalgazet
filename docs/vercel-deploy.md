@@ -28,9 +28,20 @@ Notes:
 - `convex deploy --cmd` also injects canonical cloud + site URLs for the build;
   `write-convex-env` bakes them into the Next.js auth proxy.
 
-Preview / Development: only set Convex URLs if those environments should talk
-to a specific deployment. Local `convex dev` URLs often include `eu-west-1`;
-that is correct for **dev**, not for **prod**. See [Admin auth](./admin-auth.md).
+Preview / Development: set **both** Convex public URLs when preview deployments
+should talk to a specific backend (recommended for this project: same production
+deployment until you split preview data):
+
+```text
+NEXT_PUBLIC_CONVEX_URL=https://calculating-eel-615.convex.cloud
+NEXT_PUBLIC_CONVEX_SITE_URL=https://calculating-eel-615.convex.site
+```
+
+Do **not** leave Preview with only `NEXT_PUBLIC_CONVEX_URL` and no matching
+`NEXT_PUBLIC_CONVEX_SITE_URL` — `/api/auth/*` will 404/502. Do **not** use the
+regional `eu-west-1` site host for this production deployment. Local
+`convex dev` URLs often include `eu-west-1`; that is correct for **dev**, not
+for **prod**/preview-pointing-at-prod. See [Admin auth](./admin-auth.md).
 
 ## Domains (apex is canonical)
 
