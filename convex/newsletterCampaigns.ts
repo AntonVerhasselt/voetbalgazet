@@ -30,6 +30,11 @@ import { hasActiveSuppression } from "./lib/suppressions";
 
 type AnyCtx = QueryCtx | MutationCtx;
 
+function isSendingDomainVerified(fromAddress: string): boolean {
+  const domain = fromAddress.split("@")[1]?.toLowerCase();
+  return domain === COMPLIANCE.sendingDomain;
+}
+
 async function getDefaultSender(
   ctx: AnyCtx,
 ): Promise<Doc<"emailSenderProfiles">> {
@@ -59,7 +64,7 @@ async function ensureDefaultSender(
       fromAddress: COMPLIANCE.defaultFromAddress,
       replyTo: COMPLIANCE.replyTo,
       isDefault: true,
-      domainVerified: true,
+      domainVerified: isSendingDomainVerified(COMPLIANCE.defaultFromAddress),
       createdBy: userId,
       updatedBy: userId,
       createdAt: now,
@@ -252,6 +257,7 @@ export const getCampaign = viewerQuery({
         fromName: v.string(),
         fromAddress: v.string(),
         replyTo: v.string(),
+        domainVerified: v.boolean(),
       }),
     }),
     v.null(),
@@ -305,6 +311,7 @@ export const getCampaign = viewerQuery({
         fromName: sender.fromName,
         fromAddress: sender.fromAddress,
         replyTo: sender.replyTo,
+        domainVerified: sender.domainVerified,
       },
     };
   },
@@ -617,13 +624,36 @@ export const updateAudience = editorMutation({
     }
     const now = Date.now();
     const version = definition.version + 1;
+    const sameDivisions =
+      definition.divisionIds.length === args.divisionIds.length &&
+      definition.divisionIds.every((id) => args.divisionIds.includes(id));
+    const sameTeams =
+      definition.favoriteTeamIds.length === args.favoriteTeamIds.length &&
+      definition.favoriteTeamIds.every((id) =>
+        args.favoriteTeamIds.includes(id),
+      );
+    const filtersChanged = !sameDivisions || !sameTeams;
+
+    // Confirm sets the lock. Changing filters without confirm clears it.
+    // Plain save with unchanged filters preserves an existing confirmation.
+    const confirmationPatch = args.confirm
+      ? {
+          confirmedAt: now,
+          confirmedBy: ctx.adminUser._id,
+        }
+      : filtersChanged
+        ? {
+            confirmedAt: undefined,
+            confirmedBy: undefined,
+          }
+        : {};
+
     await ctx.db.patch(definition._id, {
       divisionIds: args.divisionIds,
       favoriteTeamIds: args.favoriteTeamIds,
       updatedAt: now,
       version,
-      confirmedAt: args.confirm ? now : undefined,
-      confirmedBy: args.confirm ? ctx.adminUser._id : undefined,
+      ...confirmationPatch,
     });
     await audit(ctx, {
       action: "audience_updated",
@@ -653,12 +683,21 @@ export const previewAudience = editorQuery({
       throw new Error("Audience-definitie ontbreekt.");
     }
 
-    const subscribed = await ctx.db
-      .query("subscribers")
-      .withIndex("by_newsletter_subscribed", (q) =>
-        q.eq("newsletterSubscribed", true),
-      )
-      .take(5000);
+    const subscribed: Doc<"subscribers">[] = [];
+    let cursor: string | null = null;
+    let isDone = false;
+    // Paginate the full subscribed set (same source as prepareRecipients).
+    while (!isDone) {
+      const page = await ctx.db
+        .query("subscribers")
+        .withIndex("by_newsletter_subscribed", (q) =>
+          q.eq("newsletterSubscribed", true),
+        )
+        .paginate({ numItems: 500, cursor });
+      subscribed.push(...page.page);
+      isDone = page.isDone;
+      cursor = page.isDone ? null : page.continueCursor;
+    }
 
     let excludedUnsubscribe = 0;
     let excludedSuppression = 0;

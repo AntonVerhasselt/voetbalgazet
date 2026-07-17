@@ -112,9 +112,7 @@ export default function ControlerenPage({
   const hasSubject = Boolean(campaign?.subject.trim());
   const hasAudience = Boolean(campaignData?.audience?.confirmedAt);
   const hasTest = Boolean(campaign?.lastSuccessfulTestAt);
-  const domainVerified = campaignData?.sender
-    ? true
-    : false; // sender always has domainVerified per our data model
+  const domainVerified = Boolean(campaignData?.sender?.domainVerified);
 
   async function handleTestSend() {
     setTestSending(true);

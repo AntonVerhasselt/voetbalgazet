@@ -383,7 +383,9 @@ export const cancelSchedule = editorMutation({
       );
     }
     await ctx.db.patch(args.campaignId, {
-      status: "cancelled",
+      // Return to draft so the campaign can be edited and rescheduled.
+      status: "draft",
+      scheduledFor: undefined,
       scheduleGeneration: (campaign.scheduleGeneration ?? 0) + 1,
       scheduledJobId: undefined,
     });
@@ -657,30 +659,34 @@ export const enqueueRecipientBatch = internalMutation({
       .take(50);
 
     if (batch.length === 0) {
-      const failedSample = await ctx.db
-        .query("newsletterRecipients")
-        .withIndex("by_send_and_status", (q) =>
-          q.eq("sendId", args.sendId).eq("status", "failed"),
-        )
-        .take(1);
       const current = await ctx.db.get(args.sendId);
       if (!current) {
         return null;
       }
+      // Nothing queued → failed (covers all-suppressed / all-failed).
+      // Some queued + some failed → partially_failed. Else → sent.
       const finalStatus =
-        failedSample.length > 0 && current.queuedCount === 0
+        current.queuedCount === 0
           ? "failed"
-          : failedSample.length > 0
+          : current.failedCount > 0
             ? "partially_failed"
             : "sent";
       const now = Date.now();
       await ctx.db.patch(args.sendId, {
         status: finalStatus,
         completedAt: now,
+        ...(finalStatus === "failed" && current.queuedCount === 0
+          ? {
+              lastErrorCode:
+                current.suppressedCount > 0 && current.failedCount === 0
+                  ? "ALL_SUPPRESSED"
+                  : current.lastErrorCode ?? "NOTHING_QUEUED",
+            }
+          : {}),
       });
       await ctx.db.patch(send.campaignId, {
         status: finalStatus,
-        sentAt: now,
+        ...(finalStatus !== "failed" ? { sentAt: now } : {}),
       });
       return null;
     }

@@ -17,6 +17,11 @@ import {
 import { normalizeAndValidateEmail } from "./lib/email";
 import { resend } from "./resendClient";
 
+function isSendingDomainVerified(fromAddress: string): boolean {
+  const domain = fromAddress.split("@")[1]?.toLowerCase();
+  return domain === COMPLIANCE.sendingDomain;
+}
+
 const TRANSACTIONAL_TYPES = [
   {
     type: "welcome" as const,
@@ -429,11 +434,14 @@ export const getSenderSettings = adminQuery({
       .query("emailSenderProfiles")
       .withIndex("by_default", (q) => q.eq("isDefault", true))
       .unique();
+    const fromAddress =
+      sender?.fromAddress ?? COMPLIANCE.defaultFromAddress;
     return {
       fromName: sender?.fromName ?? COMPLIANCE.defaultFromName,
-      fromAddress: sender?.fromAddress ?? COMPLIANCE.defaultFromAddress,
+      fromAddress,
       replyTo: sender?.replyTo ?? COMPLIANCE.replyTo,
-      domainVerified: sender?.domainVerified ?? true,
+      domainVerified:
+        sender?.domainVerified ?? isSendingDomainVerified(fromAddress),
       mediaCdnHost: COMPLIANCE.mediaCdnHost,
       sendingDomain: COMPLIANCE.sendingDomain,
       liveSendEnabled: process.env.NEWSLETTER_LIVE_SEND === "true",
@@ -450,6 +458,9 @@ export const updateSenderSettings = adminMutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const now = Date.now();
+    const fromAddress = normalizeAndValidateEmail(args.fromAddress);
+    const replyTo = normalizeAndValidateEmail(args.replyTo);
+    const domainVerified = isSendingDomainVerified(fromAddress);
     const existing = await ctx.db
       .query("emailSenderProfiles")
       .withIndex("by_default", (q) => q.eq("isDefault", true))
@@ -457,8 +468,9 @@ export const updateSenderSettings = adminMutation({
     if (existing) {
       await ctx.db.patch(existing._id, {
         fromName: args.fromName.trim(),
-        fromAddress: normalizeAndValidateEmail(args.fromAddress),
-        replyTo: normalizeAndValidateEmail(args.replyTo),
+        fromAddress,
+        replyTo,
+        domainVerified,
         updatedBy: ctx.adminUser._id,
         updatedAt: now,
       });
@@ -466,10 +478,10 @@ export const updateSenderSettings = adminMutation({
       await ctx.db.insert("emailSenderProfiles", {
         internalName: "Standaard",
         fromName: args.fromName.trim(),
-        fromAddress: normalizeAndValidateEmail(args.fromAddress),
-        replyTo: normalizeAndValidateEmail(args.replyTo),
+        fromAddress,
+        replyTo,
         isDefault: true,
-        domainVerified: true,
+        domainVerified,
         createdBy: ctx.adminUser._id,
         updatedBy: ctx.adminUser._id,
         createdAt: now,
