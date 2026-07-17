@@ -1,25 +1,19 @@
 # De Voetbalgazet
 
-Phase 3 admin MVP for a mobile-first Flemish local-football publication.
+Phase 1 foundation for a mobile-first Flemish local-football publication.
 
 ## Included
 
-- static homepage, archive, free/gated articles, sitemap, robots and excerpt RSS
-- mandatory mobile-first reader gate with shared homepage signup and preferences
-- 90-day Better Auth anonymous reader sessions and verified magic-link sessions
-- Convex subscriber consent, taxonomy preferences and indexed division projection
-- privacy-safe PostHog EU browser events plus privacy and terms pages
-- Better Auth reader/admin login through a same-origin Next.js route
+- Next.js 16 public site with a static homepage and sample article
+- provisional Open Design-inspired tokens and responsive editorial UI
+- Convex schema for subscribers, consent evidence, taxonomies, and admin users
+- privacy-safe, idempotent signup-start mutation
+- Better Auth admin login through a same-origin Next.js route
 - server-side admin role enforcement for `admin`, `journalist`, and `viewer`
-- paywall-aware NewsArticle JSON-LD, canonical and social metadata
-- Keystatic article editing with local development and hosted GitHub storage
-- Git-backed Markdoc articles, settings, taxonomy validation and image fields
-- editor-only, signed Next.js Draft Mode preview with mobile and gate controls
-- branded mobile-first admin landing and article-management handoff
-- strict TypeScript, Convex ESLint rules, and focused content/auth tests
+- strict TypeScript, Convex ESLint rules, and focused unit tests
 
-Campaign production, delivery webhooks and newsletter reporting belong to
-Phase 4.
+Reader sessions, the article gate, real division/team data, Keystatic, email
+delivery, and newsletter tooling belong to later phases.
 
 Operational docs (admin GitHub login, Vercel + Convex URLs): see [`docs/`](./docs/).
 
@@ -37,22 +31,25 @@ npm run dev:convex
 npm run dev:web
 ```
 
-For an isolated Cloud Agent backend with public reader auth:
-
-```bash
-npm run dev:convex:agent
-```
-
-Set `NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:3210` and
-`NEXT_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211` in
-`apps/web/.env.local`.
-
 Use `npx convex dev` for development. Do not use `npx convex deploy` except in
 an intentional production release workflow (or the Vercel build below).
 
 The Convex development command creates `.env.local` with the public Convex
 URLs. Copy those public values to `apps/web/.env.local` when the web workspace
 does not pick up the root environment automatically.
+
+### Cursor Cloud Agents
+
+Do **not** rely on `npx convex login` (GitHub OAuth) inside Cloud Agents — that
+session lives only on that VM and disappears on the next pod. Set a Cursor
+secret `CONVEX_DEPLOY_KEY` and run:
+
+```bash
+npm ci
+npm run bootstrap:convex
+```
+
+Details: [`docs/cloud-agent-auth.md`](./docs/cloud-agent-auth.md).
 
 ## Vercel production build
 
@@ -104,22 +101,12 @@ BETTER_AUTH_SECRET=<random secret>
 GITHUB_CLIENT_ID=<GitHub OAuth app client id>
 GITHUB_CLIENT_SECRET=<GitHub OAuth app secret>
 ADMIN_BOOTSTRAP_ROLE_MAP={"editor@example.be":"admin"}
-RESEND_API_KEY=<resend api key>
-EMAIL_FROM=De Voetbalgazet <redactie@devoetbalgazet.be>
 ```
 
 Only a GitHub account with a verified email present in
 `ADMIN_BOOTSTRAP_ROLE_MAP` can claim an application admin profile. Creating an
 auth session alone never grants access. Existing disabled profiles cannot
-self-reactivate. Admin allowlist addresses cannot use the public magic-link
-flow.
-
-Set `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST` in the web
-environment to enable cookieless browser analytics. Without both values,
-analytics remains disabled.
-
-For Keystatic GitHub App setup, preview credentials and the Git/Vercel
-publishing flow, see [`docs/keystatic-admin.md`](./docs/keystatic-admin.md).
+self-reactivate.
 
 ## Checks
 
