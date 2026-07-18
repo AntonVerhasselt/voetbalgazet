@@ -12,7 +12,7 @@ import {
   MailIcon,
   WhatsAppIcon,
   XIcon,
-} from "@/components/share-prototypes/share-icons";
+} from "@/components/share-icons";
 import { useShareActions } from "@/components/share-prototypes/use-share-actions";
 
 /**
@@ -44,8 +44,8 @@ export function ShareVariantWhatsAppHero({
       >
         <WhatsAppIcon className="share-v__icon" />
         <span className="share-v-hero__copy">
-          <strong>Stuur naar de WhatsApp-groep</strong>
-          <span>De snelste weg naar de kleedkamerchat</span>
+          <strong>Stuur naar de ploegchat</strong>
+          <span>Zodat jullie het in de kleedkamer kunnen nabespreken</span>
         </span>
       </a>
       <ul className="share-v-hero__others">

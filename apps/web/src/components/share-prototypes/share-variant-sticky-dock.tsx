@@ -15,7 +15,7 @@ import {
   MessengerIcon,
   WhatsAppIcon,
   XIcon,
-} from "@/components/share-prototypes/share-icons";
+} from "@/components/share-icons";
 import { useShareActions } from "@/components/share-prototypes/use-share-actions";
 
 /**

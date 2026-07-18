@@ -14,7 +14,7 @@ export function articleShareUrl(slug: string): string {
 }
 
 export function shareMessage(headline: string, url: string): string {
-  return `${headline}\n\n${url}`;
+  return `${headline}\n\n${url}\n\n— even doorsturen naar de ploegchat`;
 }
 
 export function whatsappShareHref(headline: string, url: string): string {

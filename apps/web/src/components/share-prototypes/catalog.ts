@@ -10,7 +10,7 @@ export const SHARE_PROTOTYPES = [
     number: 1,
     title: "WhatsApp Hero",
     summary:
-      "Één grote WhatsApp-CTA (“Stuur naar de groep”) met een stille icoonrij voor de rest.",
+      "Één grote WhatsApp-CTA (“Stuur naar de ploegchat”) met een stille icoonrij voor de rest.",
     Component: ShareVariantWhatsAppHero,
   },
   {

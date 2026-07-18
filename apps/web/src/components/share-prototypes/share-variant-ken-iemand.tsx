@@ -10,7 +10,7 @@ import {
   MailIcon,
   MessengerIcon,
   WhatsAppIcon,
-} from "@/components/share-prototypes/share-icons";
+} from "@/components/share-icons";
 import { useShareActions } from "@/components/share-prototypes/use-share-actions";
 
 /**
