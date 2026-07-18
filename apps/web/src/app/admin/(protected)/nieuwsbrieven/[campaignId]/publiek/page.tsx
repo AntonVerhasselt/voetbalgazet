@@ -197,6 +197,12 @@ export default function PubliekPage({
           )}
         </div>
       )}
+      {previewAudience?.isApproximate ? (
+        <p className="newsletter-audience-approximate">
+          Bereik is bij benadering (scanlimiet bereikt). De echte verzending
+          telt alle ontvangers volledig.
+        </p>
+      ) : null}
 
       {previewAudience && previewAudience.sample.length > 0 && (
         <div className="newsletter-section">

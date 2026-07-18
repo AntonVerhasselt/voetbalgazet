@@ -1,6 +1,8 @@
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 import type { MutationCtx } from "./_generated/server";
 import { internalMutation, mutation, query } from "./_generated/server";
+import { COMPLIANCE } from "./lib/compliance";
 import { normalizeAndValidateEmail } from "./lib/email";
 import {
   divisionOptions,
@@ -26,6 +28,14 @@ import {
 
 const acceptedResponse = { accepted: true } as const;
 const CURRENT_CONSENT_VERSION = "2026-07-16";
+
+function siteBaseUrl(): string {
+  return (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/$/u, "");
+}
+
+function preferencesPageUrl(): string {
+  return `${siteBaseUrl()}${COMPLIANCE.preferencesPath}`;
+}
 const completeSignupArgs = {
   email: v.string(),
   website: v.optional(v.string()),
@@ -278,6 +288,15 @@ export const updateMyPreferences = mutation({
         emailVerifiedAt: Date.now(),
       });
     }
+    await ctx.scheduler.runAfter(
+      0,
+      internal.newsletterAdmin.sendTransactionalEmail,
+      {
+        type: "preferences_changed",
+        toEmail: subscriber.normalizedEmail,
+        variables: { preferencesUrl: preferencesPageUrl() },
+      },
+    );
     return { saved: true } as const;
   },
 });
@@ -391,6 +410,16 @@ export const confirmUnsubscribe = mutation({
       sourceId: args.source,
       now: capturedAt,
     });
+
+    await ctx.scheduler.runAfter(
+      0,
+      internal.newsletterAdmin.sendTransactionalEmail,
+      {
+        type: "unsubscribe_confirmed",
+        toEmail: subscriber.normalizedEmail,
+        variables: { preferencesUrl: preferencesPageUrl() },
+      },
+    );
 
     return {
       unsubscribed: true as const,

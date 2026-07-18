@@ -26,7 +26,11 @@ import {
   campaignStatusValidator,
   campaignSummaryValidator,
 } from "./lib/validators";
+import { mergeCampaignStatusPages } from "./lib/campaignList";
 import { hasActiveSuppression } from "./lib/suppressions";
+
+/** Cap full-list preview scans so large lists do not time out the query. */
+const AUDIENCE_PREVIEW_SCAN_CAP = 2_000;
 
 type AnyCtx = QueryCtx | MutationCtx;
 
@@ -168,21 +172,29 @@ export const listCampaigns = viewerQuery({
         .order("desc")
         .paginate(args.paginationOpts);
     } else {
-      // Multi-status tabs: fetch a wider page and filter in memory.
-      const broad = await ctx.db
-        .query("newsletterCampaigns")
-        .order("desc")
-        .paginate({
-          ...args.paginationOpts,
-          numItems: Math.max(args.paginationOpts.numItems * 3, 30),
-        });
-      const filtered = broad.page.filter((campaign) =>
-        (statuses as readonly string[]).includes(campaign.status),
-      );
-      page = {
-        ...broad,
-        page: filtered.slice(0, args.paginationOpts.numItems),
-      };
+      const cursorUpdatedAt = args.paginationOpts.cursor
+        ? Number(args.paginationOpts.cursor)
+        : undefined;
+      if (
+        args.paginationOpts.cursor &&
+        !Number.isFinite(cursorUpdatedAt)
+      ) {
+        throw new Error("Ongeldige pagineringcursor.");
+      }
+      const perStatus: Doc<"newsletterCampaigns">[][] = [];
+      for (const status of statuses) {
+        const rows = await ctx.db
+          .query("newsletterCampaigns")
+          .withIndex("by_status_and_updatedAt", (q) =>
+            cursorUpdatedAt !== undefined
+              ? q.eq("status", status).lt("updatedAt", cursorUpdatedAt)
+              : q.eq("status", status),
+          )
+          .order("desc")
+          .take(args.paginationOpts.numItems);
+        perStatus.push(rows);
+      }
+      page = mergeCampaignStatusPages(perStatus, args.paginationOpts.numItems);
     }
 
     const summaries = [];
@@ -699,57 +711,126 @@ export const previewAudience = editorQuery({
     let isDone = false;
     let excludedUnsubscribe = 0;
     let excludedSuppression = 0;
-    let excludedDivisionFilter = 0;
+    const excludedDivisionFilter = 0;
     let excludedTeamFilter = 0;
     let eligibleCount = 0;
-    // Paginate the full subscribed set (same source as prepareRecipients).
-    // Keep only a small sample in memory — do not accumulate all eligible rows.
-    while (!isDone) {
-      const page = await ctx.db
-        .query("subscribers")
-        .withIndex("by_newsletter_subscribed", (q) =>
-          q.eq("newsletterSubscribed", true),
-        )
-        .paginate({ numItems: 500, cursor });
-      for (const subscriber of page.page) {
-        if (subscriber.unsubscribedAt !== undefined) {
-          excludedUnsubscribe += 1;
-          continue;
-        }
-        if (
-          await hasActiveSuppression(ctx, {
-            subscriberId: subscriber._id,
-            normalizedEmail: subscriber.normalizedEmail,
-          })
-        ) {
-          excludedSuppression += 1;
-          continue;
-        }
-        if (definition.divisionIds.length > 0) {
-          const matchesDivision = subscriber.divisionIds.some((id) =>
-            definition.divisionIds.includes(id),
-          );
-          if (!matchesDivision) {
-            excludedDivisionFilter += 1;
-            continue;
+    let scanned = 0;
+    let isApproximate = false;
+
+    // Prefer division projection when reeksfilters zijn gezet — smaller scan.
+    if (definition.divisionIds.length > 0) {
+      const seen = new Set<string>();
+      for (const divisionId of definition.divisionIds) {
+        let divisionCursor: string | null = null;
+        let divisionDone = false;
+        while (!divisionDone && scanned < AUDIENCE_PREVIEW_SCAN_CAP) {
+          const remaining = AUDIENCE_PREVIEW_SCAN_CAP - scanned;
+          const preferencePage = await ctx.db
+            .query("subscriberDivisionPreferences")
+            .withIndex("by_division_and_subscriber", (q) =>
+              q.eq("divisionId", divisionId),
+            )
+            .paginate({
+              numItems: Math.min(500, remaining),
+              cursor: divisionCursor,
+            });
+          for (const preference of preferencePage.page) {
+            scanned += 1;
+            if (seen.has(preference.subscriberId)) {
+              continue;
+            }
+            seen.add(preference.subscriberId);
+            const subscriber = await ctx.db.get(preference.subscriberId);
+            if (!subscriber || !subscriber.newsletterSubscribed) {
+              continue;
+            }
+            if (subscriber.unsubscribedAt !== undefined) {
+              excludedUnsubscribe += 1;
+              continue;
+            }
+            if (
+              await hasActiveSuppression(ctx, {
+                subscriberId: subscriber._id,
+                normalizedEmail: subscriber.normalizedEmail,
+              })
+            ) {
+              excludedSuppression += 1;
+              continue;
+            }
+            if (definition.favoriteTeamIds.length > 0) {
+              if (
+                !subscriber.favoriteTeamId ||
+                !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
+              ) {
+                excludedTeamFilter += 1;
+                continue;
+              }
+            }
+            eligibleCount += 1;
+            if (subscribedSampleSource.length < 20) {
+              subscribedSampleSource.push(subscriber);
+            }
+          }
+          divisionDone = preferencePage.isDone;
+          divisionCursor = preferencePage.isDone
+            ? null
+            : preferencePage.continueCursor;
+          if (!preferencePage.isDone && scanned >= AUDIENCE_PREVIEW_SCAN_CAP) {
+            isApproximate = true;
           }
         }
-        if (definition.favoriteTeamIds.length > 0) {
-          if (
-            !subscriber.favoriteTeamId ||
-            !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
-          ) {
-            excludedTeamFilter += 1;
-            continue;
-          }
-        }
-        eligibleCount += 1;
-        if (subscribedSampleSource.length < 20) {
-          subscribedSampleSource.push(subscriber);
+        if (scanned >= AUDIENCE_PREVIEW_SCAN_CAP) {
+          isApproximate = true;
+          break;
         }
       }
-      isDone = page.isDone;
-      cursor = page.isDone ? null : page.continueCursor;
+    } else {
+      while (!isDone && scanned < AUDIENCE_PREVIEW_SCAN_CAP) {
+        const remaining = AUDIENCE_PREVIEW_SCAN_CAP - scanned;
+        const page = await ctx.db
+          .query("subscribers")
+          .withIndex("by_newsletter_subscribed", (q) =>
+            q.eq("newsletterSubscribed", true),
+          )
+          .paginate({
+            numItems: Math.min(500, remaining),
+            cursor,
+          });
+        for (const subscriber of page.page) {
+          scanned += 1;
+          if (subscriber.unsubscribedAt !== undefined) {
+            excludedUnsubscribe += 1;
+            continue;
+          }
+          if (
+            await hasActiveSuppression(ctx, {
+              subscriberId: subscriber._id,
+              normalizedEmail: subscriber.normalizedEmail,
+            })
+          ) {
+            excludedSuppression += 1;
+            continue;
+          }
+          if (definition.favoriteTeamIds.length > 0) {
+            if (
+              !subscriber.favoriteTeamId ||
+              !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
+            ) {
+              excludedTeamFilter += 1;
+              continue;
+            }
+          }
+          eligibleCount += 1;
+          if (subscribedSampleSource.length < 20) {
+            subscribedSampleSource.push(subscriber);
+          }
+        }
+        isDone = page.isDone;
+        cursor = page.isDone ? null : page.continueCursor;
+        if (!page.isDone && scanned >= AUDIENCE_PREVIEW_SCAN_CAP) {
+          isApproximate = true;
+        }
+      }
     }
 
     const sample = [];
@@ -789,6 +870,7 @@ export const previewAudience = editorQuery({
       percentOfActive,
       calculatedAt: args.now,
       description: await audienceDescription(ctx, definition),
+      isApproximate,
       sample,
     };
   },
