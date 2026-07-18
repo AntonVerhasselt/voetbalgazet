@@ -17,6 +17,7 @@ import {
   type DivisionMeta,
   audienceRuleGroupValidator,
 } from "./lib/audienceRules";
+import { buildAudienceEngagementContext } from "./lib/audienceEngagement";
 import {
   COMPLIANCE,
   EDITOR_FORMAT,
@@ -114,6 +115,19 @@ async function audienceDescription(
   const ruleGroups = resolveRuleGroups(definition);
   const divisions = await ctx.db.query("divisions").take(500);
   const teams = await ctx.db.query("teams").take(500);
+  const campaigns = await ctx.db
+    .query("newsletterCampaigns")
+    .withIndex("by_status_and_updatedAt", (q) => q.eq("status", "sent"))
+    .order("desc")
+    .take(80);
+  const partial = await ctx.db
+    .query("newsletterCampaigns")
+    .withIndex("by_status_and_updatedAt", (q) =>
+      q.eq("status", "partially_failed"),
+    )
+    .order("desc")
+    .take(20);
+  const campaignDocs = [...campaigns, ...partial];
   return describeAudienceRules({
     ruleGroups,
     divisions: divisions.map((division) => ({
@@ -125,6 +139,10 @@ async function audienceDescription(
     teams: teams.map((team) => ({
       _id: team._id,
       label: team.label,
+    })),
+    campaigns: campaignDocs.map((campaign) => ({
+      _id: campaign._id,
+      label: campaign.internalName || campaign.subject || "Nieuwsbrief",
     })),
   });
 }
@@ -752,6 +770,7 @@ export const previewAudience = editorQuery({
     }
     const divisionMetaById = await loadDivisionMeta(ctx);
     const legacy = deriveLegacyFilters(ruleGroups);
+    const engagement = await buildAudienceEngagementContext(ctx, ruleGroups);
 
     const subscribedSampleSource: Doc<"subscribers">[] = [];
     let cursor: string | null = null;
@@ -783,10 +802,19 @@ export const previewAudience = editorQuery({
       }
       if (
         !subscriberMatchesRuleGroups(
-          subscriber,
+          {
+            _id: subscriber._id,
+            divisionIds: subscriber.divisionIds,
+            favoriteTeamId: subscriber.favoriteTeamId,
+            newsletterSubscribedAt: subscriber.newsletterSubscribedAt,
+            lastEmailDeliveredAt: subscriber.lastEmailDeliveredAt,
+            lastEmailOpenedAt: subscriber.lastEmailOpenedAt,
+            lastEmailClickedAt: subscriber.lastEmailClickedAt,
+          },
           ruleGroups,
           divisionMetaById,
           args.now,
+          engagement,
         )
       ) {
         // Keep legacy exclusion counters informative for simple filters.
@@ -906,12 +934,21 @@ export const previewAudience = editorQuery({
 
     const divisions = [...divisionMetaById.values()];
     const teams = await ctx.db.query("teams").take(500);
+    const sentCampaigns = await ctx.db
+      .query("newsletterCampaigns")
+      .withIndex("by_status_and_updatedAt", (q) => q.eq("status", "sent"))
+      .order("desc")
+      .take(80);
     const description = describeAudienceRules({
       ruleGroups,
       divisions,
       teams: teams.map((team) => ({
         _id: team._id,
         label: team.label,
+      })),
+      campaigns: sentCampaigns.map((campaign) => ({
+        _id: campaign._id,
+        label: campaign.internalName || campaign.subject || "Nieuwsbrief",
       })),
     });
 
@@ -961,10 +998,30 @@ export const listCatalog = viewerQuery({
         provinceKey: v.string(),
       }),
     ),
+    campaigns: v.array(
+      v.object({
+        _id: v.id("newsletterCampaigns"),
+        label: v.string(),
+        sentAt: v.union(v.number(), v.null()),
+      }),
+    ),
   }),
   handler: async (ctx) => {
-    const divisions = await ctx.db.query("divisions").take(200);
-    const teams = await ctx.db.query("teams").take(200);
+    const divisions = await ctx.db.query("divisions").take(500);
+    const teams = await ctx.db.query("teams").take(500);
+    const sent = await ctx.db
+      .query("newsletterCampaigns")
+      .withIndex("by_status_and_updatedAt", (q) => q.eq("status", "sent"))
+      .order("desc")
+      .take(80);
+    const partial = await ctx.db
+      .query("newsletterCampaigns")
+      .withIndex("by_status_and_updatedAt", (q) =>
+        q.eq("status", "partially_failed"),
+      )
+      .order("desc")
+      .take(20);
+    const campaigns = [...sent, ...partial];
     return {
       provinces: provinceOptions.map((province) => ({
         key: province.key,
@@ -991,6 +1048,11 @@ export const listCatalog = viewerQuery({
           label: t.label,
           provinceKey: t.provinceKey,
         })),
+      campaigns: campaigns.map((campaign) => ({
+        _id: campaign._id,
+        label: campaign.internalName || campaign.subject || "Nieuwsbrief",
+        sentAt: campaign.sentAt ?? null,
+      })),
     };
   },
 });

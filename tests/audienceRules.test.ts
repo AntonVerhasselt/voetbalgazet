@@ -260,6 +260,38 @@ describe("audienceRules", () => {
     expect(text).toContain(") of (");
   });
 
+  it("matches email_activity after/before using denormalized timestamps", () => {
+    const afterCondition = {
+      id: "c1",
+      field: "email_activity" as const,
+      operator: "opened" as const,
+      relative: "after" as const,
+      at: now - durationMs(7, "days"),
+    };
+    expect(
+      evaluateCondition(
+        afterCondition,
+        {
+          divisionIds: [],
+          lastEmailOpenedAt: now - durationMs(2, "days"),
+        },
+        divisionMeta,
+        now,
+      ),
+    ).toBe(true);
+    expect(
+      evaluateCondition(
+        afterCondition,
+        {
+          divisionIds: [],
+          lastEmailOpenedAt: now - durationMs(20, "days"),
+        },
+        divisionMeta,
+        now,
+      ),
+    ).toBe(false);
+  });
+
   it("rejects empty condition values on validate", () => {
     expect(() =>
       validateRuleGroups([

@@ -60,6 +60,10 @@ export default defineSchema({
     favoriteTeamId: v.optional(v.id("teams")),
     preferenceStatus: preferenceStatusValidator,
     emailDeliveryStatus: deliveryStatusValidator,
+    /** Denormalized last newsletter engagement for audience date filters. */
+    lastEmailDeliveredAt: v.optional(v.number()),
+    lastEmailOpenedAt: v.optional(v.number()),
+    lastEmailClickedAt: v.optional(v.number()),
   })
     .index("by_normalized_email", ["normalizedEmail"])
     .index("by_newsletter_subscribed", ["newsletterSubscribed"])

@@ -23,6 +23,10 @@ import {
   subscriberMatchesRuleGroups,
   type DivisionMeta,
 } from "./lib/audienceRules";
+import {
+  buildAudienceEngagementContext,
+  type AudienceEngagementContext,
+} from "./lib/audienceEngagement";
 import { assertMarketingSendEnabled } from "./lib/runtimeSettings";
 import { hasActiveSuppression } from "./lib/suppressions";
 import { resend } from "./resendClient";
@@ -161,12 +165,22 @@ function subscriberMatchesAudienceFilters(
   definition: Doc<"newsletterAudienceDefinitions">,
   divisionMetaById: Map<string, DivisionMeta>,
   now: number,
+  engagement: AudienceEngagementContext,
   options: { divisionAlreadyMatched?: boolean } = {},
 ): boolean {
   const ruleGroups = resolveRuleGroups(definition);
   if (ruleGroups.length === 0) {
     return true;
   }
+  const snapshot = {
+    _id: subscriber._id,
+    divisionIds: subscriber.divisionIds,
+    favoriteTeamId: subscriber.favoriteTeamId,
+    newsletterSubscribedAt: subscriber.newsletterSubscribedAt,
+    lastEmailDeliveredAt: subscriber.lastEmailDeliveredAt,
+    lastEmailOpenedAt: subscriber.lastEmailOpenedAt,
+    lastEmailClickedAt: subscriber.lastEmailClickedAt,
+  };
   // When candidates came from a division index on a simple legacy rule,
   // skip re-checking division-only conditions that are already satisfied.
   if (options.divisionAlreadyMatched) {
@@ -181,17 +195,19 @@ function subscriberMatchesAudienceFilters(
       return true;
     }
     return subscriberMatchesRuleGroups(
-      subscriber,
+      snapshot,
       withoutDivision.filter((group) => group.conditions.length > 0),
       divisionMetaById,
       now,
+      engagement,
     );
   }
   return subscriberMatchesRuleGroups(
-    subscriber,
+    snapshot,
     ruleGroups,
     divisionMetaById,
     now,
+    engagement,
   );
 }
 
@@ -730,6 +746,10 @@ export const listEligibleSubscriberPage = internalQuery({
         level: division.level,
       });
     }
+    const engagement = await buildAudienceEngagementContext(
+      ctx,
+      resolveRuleGroups(definition),
+    );
 
     if (definition.divisionIds.length > 0) {
       let divisionIndex =
@@ -765,6 +785,7 @@ export const listEligibleSubscriberPage = internalQuery({
               definition,
               divisionMetaById,
               now,
+              engagement,
               { divisionAlreadyMatched: true },
             )
           ) {
@@ -823,6 +844,7 @@ export const listEligibleSubscriberPage = internalQuery({
               definition,
               divisionMetaById,
               now,
+              engagement,
             )
           ) {
             subscriberIds.push(subscriber._id);
@@ -870,6 +892,7 @@ export const listEligibleSubscriberPage = internalQuery({
           definition,
           divisionMetaById,
           now,
+          engagement,
         )
       ) {
         subscriberIds.push(subscriber._id);

@@ -1,12 +1,24 @@
 import { v } from "convex/values";
 import type { Id } from "../_generated/dataModel";
 import { provinceOptions } from "./preferenceCatalog";
+import {
+  emptyEngagementContext,
+  subscriberMatchesCampaignEngagement,
+  subscriberMatchesEmailActivity,
+  type AudienceEngagementContext,
+} from "./audienceEngagement";
 
 /** Relative time units for "subscribed within" filters. */
 export const audienceTimeUnitValidator = v.union(
   v.literal("days"),
   v.literal("weeks"),
   v.literal("months"),
+);
+
+export const audienceEngagementOperatorValidator = v.union(
+  v.literal("received"),
+  v.literal("opened"),
+  v.literal("clicked"),
 );
 
 export const audienceConditionValidator = v.union(
@@ -46,6 +58,19 @@ export const audienceConditionValidator = v.union(
     operator: v.literal("in_the_last"),
     amount: v.number(),
     unit: audienceTimeUnitValidator,
+  }),
+  v.object({
+    id: v.string(),
+    field: v.literal("email_campaign"),
+    operator: audienceEngagementOperatorValidator,
+    campaignIds: v.array(v.id("newsletterCampaigns")),
+  }),
+  v.object({
+    id: v.string(),
+    field: v.literal("email_activity"),
+    operator: audienceEngagementOperatorValidator,
+    relative: v.union(v.literal("after"), v.literal("before")),
+    at: v.number(),
   }),
 );
 
@@ -91,6 +116,19 @@ export type AudienceCondition =
       operator: "in_the_last";
       amount: number;
       unit: "days" | "weeks" | "months";
+    }
+  | {
+      id: string;
+      field: "email_campaign";
+      operator: "received" | "opened" | "clicked";
+      campaignIds: Id<"newsletterCampaigns">[];
+    }
+  | {
+      id: string;
+      field: "email_activity";
+      operator: "received" | "opened" | "clicked";
+      relative: "after" | "before";
+      at: number;
     };
 
 export type AudienceRuleGroup = {
@@ -110,10 +148,19 @@ export type TeamMeta = {
   label: string;
 };
 
+export type CampaignMeta = {
+  _id: Id<"newsletterCampaigns">;
+  label: string;
+};
+
 export type AudienceSubscriberSnapshot = {
+  _id?: Id<"subscribers">;
   divisionIds: Id<"divisions">[];
   favoriteTeamId?: Id<"teams">;
   newsletterSubscribedAt?: number;
+  lastEmailDeliveredAt?: number;
+  lastEmailOpenedAt?: number;
+  lastEmailClickedAt?: number;
 };
 
 const PROVINCE_LABEL_BY_KEY: Map<string, string> = new Map(
@@ -244,6 +291,7 @@ export function evaluateCondition(
   subscriber: AudienceSubscriberSnapshot,
   divisionMetaById: Map<string, DivisionMeta>,
   now: number,
+  engagement: AudienceEngagementContext = emptyEngagementContext(),
 ): boolean {
   switch (condition.field) {
     case "division": {
@@ -297,6 +345,18 @@ export function evaluateCondition(
       }
       return subscribedAt >= now - durationMs(condition.amount, condition.unit);
     }
+    case "email_campaign": {
+      if (!subscriber._id) {
+        return false;
+      }
+      return subscriberMatchesCampaignEngagement(
+        subscriber._id,
+        condition,
+        engagement,
+      );
+    }
+    case "email_activity":
+      return subscriberMatchesEmailActivity(subscriber, condition);
     default:
       return false;
   }
@@ -312,6 +372,7 @@ export function subscriberMatchesRuleGroups(
   ruleGroups: AudienceRuleGroup[],
   divisionMetaById: Map<string, DivisionMeta>,
   now: number,
+  engagement: AudienceEngagementContext = emptyEngagementContext(),
 ): boolean {
   if (ruleGroups.length === 0) {
     return true;
@@ -321,7 +382,13 @@ export function subscriberMatchesRuleGroups(
       return false;
     }
     return group.conditions.every((condition) =>
-      evaluateCondition(condition, subscriber, divisionMetaById, now),
+      evaluateCondition(
+        condition,
+        subscriber,
+        divisionMetaById,
+        now,
+        engagement,
+      ),
     );
   });
 }
@@ -339,10 +406,17 @@ function joinDutchOr(labels: string[]): string {
   return `${labels.slice(0, -1).join(", ")} of ${labels.at(-1)}`;
 }
 
+const ENGAGEMENT_LABELS: Record<"received" | "opened" | "clicked", string> = {
+  received: "ontving",
+  opened: "opende",
+  clicked: "klikte in",
+};
+
 function describeCondition(
   condition: AudienceCondition,
   divisionMetaById: Map<string, DivisionMeta>,
   teamMetaById: Map<string, TeamMeta>,
+  campaignMetaById: Map<string, CampaignMeta>,
 ): string | null {
   switch (condition.field) {
     case "division": {
@@ -402,6 +476,21 @@ function describeCondition(
               : "maanden";
       return `ingeschreven in de laatste ${amount} ${unitLabel}`;
     }
+    case "email_campaign": {
+      const labels = condition.campaignIds
+        .map((id) => campaignMetaById.get(id)?.label)
+        .filter((label): label is string => Boolean(label));
+      if (labels.length === 0) {
+        return null;
+      }
+      return `${ENGAGEMENT_LABELS[condition.operator]} ${joinDutchOr(labels)}`;
+    }
+    case "email_activity": {
+      const verb = ENGAGEMENT_LABELS[condition.operator];
+      const when = condition.relative === "after" ? "na" : "vóór";
+      const dateLabel = new Date(condition.at).toLocaleDateString("nl-BE");
+      return `${verb} een mail ${when} ${dateLabel}`;
+    }
     default:
       return null;
   }
@@ -411,10 +500,16 @@ function describeGroup(
   group: AudienceRuleGroup,
   divisionMetaById: Map<string, DivisionMeta>,
   teamMetaById: Map<string, TeamMeta>,
+  campaignMetaById: Map<string, CampaignMeta>,
 ): string | null {
   const parts = group.conditions
     .map((condition) =>
-      describeCondition(condition, divisionMetaById, teamMetaById),
+      describeCondition(
+        condition,
+        divisionMetaById,
+        teamMetaById,
+        campaignMetaById,
+      ),
     )
     .filter((part): part is string => Boolean(part));
   if (parts.length === 0) {
@@ -427,6 +522,7 @@ export function describeAudienceRules(args: {
   ruleGroups: AudienceRuleGroup[];
   divisions: DivisionMeta[];
   teams: TeamMeta[];
+  campaigns?: CampaignMeta[];
 }): string {
   const divisionMetaById = new Map(
     args.divisions.map((division) => [division._id as string, division]),
@@ -434,11 +530,19 @@ export function describeAudienceRules(args: {
   const teamMetaById = new Map(
     args.teams.map((team) => [team._id as string, team]),
   );
+  const campaignMetaById = new Map(
+    (args.campaigns ?? []).map((campaign) => [
+      campaign._id as string,
+      campaign,
+    ]),
+  );
   if (args.ruleGroups.length === 0) {
     return "Alle actieve abonnees";
   }
   const groupTexts = args.ruleGroups
-    .map((group) => describeGroup(group, divisionMetaById, teamMetaById))
+    .map((group) =>
+      describeGroup(group, divisionMetaById, teamMetaById, campaignMetaById),
+    )
     .filter((text): text is string => Boolean(text));
   if (groupTexts.length === 0) {
     return "Alle actieve abonnees";
@@ -500,6 +604,16 @@ export function validateRuleGroups(ruleGroups: AudienceRuleGroup[]): void {
             throw new Error("Periode moet tussen 1 en 120 liggen.");
           }
           break;
+        case "email_campaign":
+          if (condition.campaignIds.length === 0) {
+            throw new Error("Selecteer minstens één nieuwsbrief.");
+          }
+          break;
+        case "email_activity":
+          if (!Number.isFinite(condition.at) || condition.at <= 0) {
+            throw new Error("Kies een geldige datum.");
+          }
+          break;
         default:
           throw new Error("Onbekende filter.");
       }
@@ -530,6 +644,23 @@ export function createDefaultCondition(
         amount: 30,
         unit: "days",
       };
+    case "email_campaign":
+      return {
+        id,
+        field,
+        operator: "opened",
+        campaignIds: [],
+      };
+    case "email_activity": {
+      const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      return {
+        id,
+        field,
+        operator: "opened",
+        relative: "after",
+        at: thirtyDaysAgo,
+      };
+    }
   }
 }
 
@@ -549,7 +680,7 @@ export const AUDIENCE_FIELD_OPTIONS = [
   {
     field: "division" as const,
     label: "Reeks",
-    help: "Abonnee volgt minstens één van de gekozen reeksen.",
+    help: "Zoek en selecteer reeksen. Abonnee volgt minstens één ervan.",
   },
   {
     field: "division_level" as const,
@@ -559,7 +690,7 @@ export const AUDIENCE_FIELD_OPTIONS = [
   {
     field: "favorite_team" as const,
     label: "Favoriete club",
-    help: "Favoriete club is één van de geselecteerde clubs.",
+    help: "Zoek en selecteer clubs. Favoriete club is één van de gekozen.",
   },
   {
     field: "has_favorite_team" as const,
@@ -570,5 +701,15 @@ export const AUDIENCE_FIELD_OPTIONS = [
     field: "subscribed_within" as const,
     label: "Ingeschreven sinds",
     help: "Alleen abonnees die recent (opnieuw) inschreven voor de nieuwsbrief.",
+  },
+  {
+    field: "email_campaign" as const,
+    label: "Mailgedrag (campagne)",
+    help: "Ontving, opende of klikte in één van de gekozen verzonden nieuwsbrieven.",
+  },
+  {
+    field: "email_activity" as const,
+    label: "Mailgedrag (periode)",
+    help: "Ontving, opende of klikte in eender welke mail vóór of na een datum.",
   },
 ] as const;

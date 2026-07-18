@@ -3423,6 +3423,118 @@ a {
   border-color: color-mix(in srgb, var(--accent) 45%, var(--rule));
 }
 
+.audience-combobox {
+  position: relative;
+  width: 100%;
+}
+
+.audience-combobox-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.45rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  cursor: text;
+}
+
+.audience-combobox-field.is-disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.audience-combobox-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  padding: 0.2rem 0.35rem 0.2rem 0.5rem;
+  background: color-mix(in srgb, var(--accent) 12%, var(--white));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--rule));
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.audience-combobox-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.audience-combobox-chip-remove:hover {
+  color: var(--ink);
+}
+
+.audience-combobox-input {
+  flex: 1 1 8rem;
+  min-width: 6rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  padding: 0.25rem 0.15rem;
+}
+
+.audience-combobox-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  max-height: 16rem;
+  overflow: auto;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.audience-combobox-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.audience-combobox-option.is-highlighted,
+.audience-combobox-option:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--white));
+}
+
+.audience-combobox-hint,
+.audience-combobox-empty {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.audience-combobox-empty {
+  padding: 0.65rem 0.75rem;
+}
+
 /* Subscribers table */
 .newsletter-subscribers {
   margin-top: 1rem;

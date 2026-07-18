@@ -8,6 +8,7 @@ import {
   type AudienceCondition,
   type AudienceRuleGroup,
 } from "@convex/lib/audienceRules";
+import { SearchableMultiSelect } from "@/components/searchable-multi-select";
 
 export type AudienceCatalog = {
   provinces: Array<{ key: string; label: string }>;
@@ -22,6 +23,11 @@ export type AudienceCatalog = {
     _id: Id<"teams">;
     label: string;
     provinceKey: string;
+  }>;
+  campaigns: Array<{
+    _id: Id<"newsletterCampaigns">;
+    label: string;
+    sentAt: number | null;
   }>;
 };
 
@@ -72,6 +78,19 @@ function MultiSelectChips<T extends string>({
       })}
     </div>
   );
+}
+
+function toDateInputValue(timestamp: number): string {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function fromDateInputValue(value: string): number {
+  const parsed = Date.parse(`${value}T00:00:00`);
+  return Number.isFinite(parsed) ? parsed : Date.now();
 }
 
 function ConditionEditor({
@@ -147,23 +166,22 @@ function ConditionEditor({
       )}
 
       {condition.field === "division" && (
-        <MultiSelectChips
+        <SearchableMultiSelect
           disabled={disabled}
+          aria-label="Zoek reeksen"
+          placeholder="Zoek reeks…"
           selected={condition.divisionIds as string[]}
           options={catalog.divisions.map((division) => ({
             value: division._id as string,
             label: division.label,
+            hint: division.provinceKey,
           }))}
-          onToggle={(id) => {
-            const typedId = id as Id<"divisions">;
-            const current = condition.divisionIds;
+          onChange={(next) =>
             onChange({
               ...condition,
-              divisionIds: current.includes(typedId)
-                ? current.filter((item) => item !== typedId)
-                : [...current, typedId],
-            });
-          }}
+              divisionIds: next as Id<"divisions">[],
+            })
+          }
         />
       )}
 
@@ -189,23 +207,23 @@ function ConditionEditor({
       )}
 
       {condition.field === "favorite_team" && (
-        <MultiSelectChips
+        <SearchableMultiSelect
           disabled={disabled}
+          aria-label="Zoek clubs"
+          placeholder="Zoek club…"
+          emptyMessage="Geen clubs gevonden"
           selected={condition.teamIds as string[]}
           options={catalog.teams.map((team) => ({
             value: team._id as string,
             label: team.label,
+            hint: team.provinceKey,
           }))}
-          onToggle={(id) => {
-            const typedId = id as Id<"teams">;
-            const current = condition.teamIds;
+          onChange={(next) =>
             onChange({
               ...condition,
-              teamIds: current.includes(typedId)
-                ? current.filter((item) => item !== typedId)
-                : [...current, typedId],
-            });
-          }}
+              teamIds: next as Id<"teams">[],
+            })
+          }
         />
       )}
 
@@ -263,6 +281,110 @@ function ConditionEditor({
           </select>
         </div>
       )}
+
+      {condition.field === "email_campaign" && (
+        <>
+          <div className="audience-rule-inline">
+            <select
+              className="audience-rule-select"
+              value={condition.operator}
+              disabled={disabled}
+              aria-label="Mailactie"
+              onChange={(event) =>
+                onChange({
+                  ...condition,
+                  operator: event.target.value as
+                    | "received"
+                    | "opened"
+                    | "clicked",
+                })
+              }
+            >
+              <option value="received">Ontving</option>
+              <option value="opened">Opende</option>
+              <option value="clicked">Klikte in</option>
+            </select>
+            <span className="audience-rule-inline-label">campagne(s)</span>
+          </div>
+          <SearchableMultiSelect
+            disabled={disabled}
+            aria-label="Zoek verzonden nieuwsbrieven"
+            placeholder="Zoek verzonden nieuwsbrief…"
+            emptyMessage={
+              catalog.campaigns.length === 0
+                ? "Nog geen verzonden nieuwsbrieven"
+                : "Geen resultaten"
+            }
+            selected={condition.campaignIds as string[]}
+            options={catalog.campaigns.map((campaign) => ({
+              value: campaign._id as string,
+              label: campaign.label,
+              hint: campaign.sentAt
+                ? new Date(campaign.sentAt).toLocaleDateString("nl-BE")
+                : undefined,
+            }))}
+            onChange={(next) =>
+              onChange({
+                ...condition,
+                campaignIds: next as Id<"newsletterCampaigns">[],
+              })
+            }
+          />
+        </>
+      )}
+
+      {condition.field === "email_activity" && (
+        <div className="audience-rule-inline">
+          <select
+            className="audience-rule-select"
+            value={condition.operator}
+            disabled={disabled}
+            aria-label="Mailactie"
+            onChange={(event) =>
+              onChange({
+                ...condition,
+                operator: event.target.value as
+                  | "received"
+                  | "opened"
+                  | "clicked",
+              })
+            }
+          >
+            <option value="received">Ontving</option>
+            <option value="opened">Opende</option>
+            <option value="clicked">Klikte in</option>
+          </select>
+          <span className="audience-rule-inline-label">een mail</span>
+          <select
+            className="audience-rule-select"
+            value={condition.relative}
+            disabled={disabled}
+            aria-label="Relatief"
+            onChange={(event) =>
+              onChange({
+                ...condition,
+                relative: event.target.value as "after" | "before",
+              })
+            }
+          >
+            <option value="after">na</option>
+            <option value="before">vóór</option>
+          </select>
+          <input
+            className="audience-rule-select"
+            type="date"
+            disabled={disabled}
+            value={toDateInputValue(condition.at)}
+            aria-label="Datum"
+            onChange={(event) =>
+              onChange({
+                ...condition,
+                at: fromDateInputValue(event.target.value),
+              })
+            }
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -306,7 +428,8 @@ export function AudienceRuleBuilder({
         <p>
           Groepen worden met <strong>OF</strong> gecombineerd. Voorwaarden
           binnen een groep met <strong>EN</strong>. Leeg = alle actieve
-          abonnees.
+          abonnees. Reeksen en clubs zoek je via de combobox (zoals e-mailadressen
+          in Gmail).
         </p>
       </div>
 
