@@ -1,7 +1,7 @@
 # Open todos — De Voetbalgazet
 
-Single checklist for remaining work. Product/architecture plans are complete and
-removed; items below are manual ops, launch checks, and known non-code gaps.
+Remaining **manual ops**, **launch checks**, and a few **known gaps**.
+Implementation for planned features is done; do not treat this as a build backlog.
 
 Canonical rules (do not change):
 
@@ -14,123 +14,103 @@ Canonical rules (do not change):
 ## 1. Vercel / Convex preview
 
 - [ ] **Vercel Preview Convex URLs** — Settings → Environment Variables →
-  Preview: set **both** (non-regional production hosts unless you intentionally
-  use a separate preview Convex deployment):
+  Preview: set **both** (non-regional hosts unless you use a separate preview
+  Convex deployment):
 
   ```text
   NEXT_PUBLIC_CONVEX_URL=https://calculating-eel-615.convex.cloud
   NEXT_PUBLIC_CONVEX_SITE_URL=https://calculating-eel-615.convex.site
   ```
 
-  Redeploy a preview. Confirm `/api/auth/sign-in/social` on the preview host
-  returns GitHub OAuth JSON (not 502 with a bad `proxyTarget`).
+  Redeploy a preview. Confirm `/api/auth/sign-in/social` returns GitHub OAuth
+  JSON (not 502 with a bad `proxyTarget`).
 
-  See [`docs/vercel-deploy.md`](./docs/vercel-deploy.md) and
-  [`docs/admin-auth.md`](./docs/admin-auth.md).
+  See [`docs/vercel-deploy.md`](./docs/vercel-deploy.md).
 
 ---
 
 ## 2. Hosted Keystatic (production editing)
 
-Prerequisites (confirm once): production apex `https://devoetbalgazet.be`,
-Vercel root `apps/web`, Convex production deploy key, Better Auth secrets,
-Keystatic env vars already set for Preview + Production
-(`KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`,
-`KEYSTATIC_SECRET`, `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`).
+Code path (`/keystatic`, GitHub mode, preview sessions, role gate) is shipped.
+Secrets for Preview + Production are already set. Still needed:
 
-### GitHub App
+### GitHub App + smoke
 
 - [ ] Create/configure the Keystatic GitHub App (repo-scoped to
   `AntonVerhasselt/voetbalgazet`)
 - [ ] Homepage `https://devoetbalgazet.be`; callback
   `https://devoetbalgazet.be/api/keystatic/github/oauth/callback`
 - [ ] Permissions: Contents R/W; Metadata read; optionally PRs R/W
-- [ ] Confirm Vercel secrets match Client ID / secret / app slug; redeploy after changes
+- [ ] Confirm Vercel secrets match Client ID / secret / app slug; redeploy
+- [ ] Smoke: Admin/Journalist save draft → Git commit; publish → live on site;
+  draft off sitemap/RSS
+- [ ] Smoke: Viewer cannot open `/keystatic`
 
 Details: [`docs/keystatic-admin.md`](./docs/keystatic-admin.md).
-
-### Smoke publish
-
-- [ ] Sign in as Admin/Journalist → `/keystatic` → GitHub App authorize
-- [ ] Save a draft → commit appears on expected branch
-- [ ] Publish → Vercel build → article live on `/nieuws/<slug>`; draft off sitemap/RSS
-- [ ] Viewer cannot open `/keystatic` (redirect/403); Admin/Journalist can
 
 ### Optional draft-branch preview
 
 - [ ] `KEYSTATIC_GITHUB_READER_TOKEN` + `KEYSTATIC_PREVIEW_BRANCH_PREFIXES`
-- [ ] Preview from Keystatic is `noindex`, uncached, editor-session gated
+- [ ] Confirm preview is `noindex`, uncached, editor-session gated
 
-### Content admin polish
+### Manual polish
 
-- [ ] Mobile a11y smoke on `/admin` and `/keystatic` (320–390 px, 44 px targets, keyboard)
-- [ ] Keystatic list/edit + virtual keyboard / sticky controls on small screens
+- [ ] Mobile a11y smoke on `/admin` and `/keystatic` (320–390 px, 44 px targets,
+  keyboard, virtual keyboard)
 - [ ] Publish confirm usable on mobile; status not color-only
 - [ ] Mobile Core Web Vitals on published articles
 
 ---
 
-## 3. Public site — auth, email, SEO
+## 3. Public site — production smoke
 
-### Auth / signup (production)
+Code paths exist; these need a human on production (or a real preview):
 
-- [ ] New email via gate → preferences → subscribe; magic-link arrives (Resend)
+### Auth / email
+
+- [ ] New email via gate → preferences → subscribe; magic-link arrives
 - [ ] Click link → verified session; `/voorkeuren` works
 - [ ] Returning email continues without preference overwrite
 - [ ] Rapid signup attempts get rate-limited
-
-### Newsletter unsubscribe (product check)
-
-- [ ] Mint production unsubscribe token (`createUnsubscribeToken` /
-  `BETTER_AUTH_SECRET` matching production Convex)
-- [ ] `/uitschrijven?token=` → nieuwsbrief-only copy; confirm →
-  `newsletterSubscribed === false`, `siteAccess` still true
-- [ ] Gated article still readable; `/voorkeuren` shows resubscribe CTA
-
-### E-mail and access
-
+- [ ] Newsletter unsubscribe smoke: mint token → `/uitschrijven` →
+  `newsletterSubscribed === false`, `siteAccess` still true; resubscribe CTA
+- [ ] Bounce- en complaintflow end-to-end (live Resend webhook)
 - [ ] Welkomst-/verificationmail juridisch en redactioneel nalezen
-- [ ] Newsletter bootstrap-token op 30 dagen configureren
-- [ ] Bounce- en complaintflow testen
-- [ ] Rate limiting en generieke e-mailresponses testen
 
-### SEO / social / quality
+### SEO / quality
 
 - [ ] OG share check (homepage + article with/without hero)
-- [ ] Mobile-first flows op 320, 360, 390 en 768 px
-- [ ] Gate/keyboard/safe-area op echte iOS- en Androidtoestellen
-- [ ] Homepage, artikel en archieffilters zonder hover/desktop-only acties
-- [ ] Rich Results Test voor gated en vrije artikels
-- [ ] Search Console en eventuele Google News-publicatie
-- [ ] Sitemap, robots en excerpt-RSS valideren
+- [ ] Mobile-first flows op 320, 360, 390 en 768 px (incl. echte iOS/Android)
+- [ ] Gate/keyboard/safe-area; geen hover-only acties op homepage/artikel/archief
+- [ ] Rich Results Test; Search Console (+ optioneel Google News)
+- [ ] Sitemap (`/sitemap.xml`), robots, excerpt-RSS (`/feed.xml`) valideren
 - [ ] Accessibility- en keyboardtest van gate en voorkeuren
-- [ ] Core Web Vitals en gate-layoutshift testen
+- [ ] Core Web Vitals en gate-layoutshift
 
-### Content / taxonomy
+### Content policy
 
 - [ ] Officiële Voetbal Vlaanderen-bron en toegestane gebruikswijze bepalen
-- [ ] Club- en reekstaxonomie importeren (YAML + Convex catalog blijven in sync via tests)
-- [ ] Bevestigen: geen standen, wedstrijdwidgets of clubpagina's uit VV-data in publieke MVP
-- [ ] Definitieve categorie-ID's/slugs vastleggen
+- [ ] Officiële club-/reekstaxonomie importeren wanneer licentie duidelijk is
+  (huidige YAML + Convex catalog is MVP; parity via tests)
 - [ ] Redactioneel beleid voor `isGated: false` vastleggen
 
 ---
 
 ## 4. Legal / privacy / ops
 
+Copy and publisher line are in code (`privacy@`, `PUBLISHER_LINE`, KBO). Still:
+
 - [ ] Mailbox/alias voor `privacy@devoetbalgazet.be` bevestigen (of
   `PRIVACY_EMAIL` in `apps/web/src/lib/site-config.ts` wijzigen)
-- [ ] Privacy-/supportcontact en voorwaarden-URL's definitief bevestigen
-- [ ] Verantwoordelijke uitgever vermelden waar juridisch vereist
 - [ ] Definitieve juridische entiteiten, regio's en subverwerkers van Convex,
   Vercel, Resend, PostHog en R2 controleren
 - [ ] Verwerkersovereenkomsten/DPA's afsluiten
 - [ ] Internationale doorgiftegronden documenteren
-- [ ] Retentie technisch instellen: security/errorlogs 90 dagen, analytics 24
-  maanden, support 24 maanden
+- [ ] Vendor-retentie instellen: security/errorlogs ~90d, analytics ~24m,
+  support ~24m (app retention cron already cleans newsletter delivery/audits)
 - [ ] Supportprocedure voor inzage, correctie en volledige verwijdering testen
-- [ ] Consentcopy en consentversie exact gelijk maken aan live formulier
-- [ ] Cookiegedrag: niet-noodzakelijke tracking pas na geldige keuze
+- [ ] Consentcopy gelijk aan live formulier nalezen (version `2026-07-16`
+  already matches in code)
 - [ ] Belgische juridische review van gecombineerde siteAccess + initiële
   nieuwsbriefinschrijving (aanbevolen; geen technische blocker)
 
@@ -138,117 +118,74 @@ Details: [`docs/keystatic-admin.md`](./docs/keystatic-admin.md).
 
 ## 5. Newsletter admin — launch
 
-Provider setup (Resend, R2, PostHog, DNS) is done. Remaining before full live list:
+Provider setup (Resend, R2, PostHog, DNS/DMARC/DKIM) is done. Campaign footer,
+List-Unsubscribe headers, indicative open/click labels, 5 MB image allowlist,
+kill switch, live-send guard, Brussels scheduling, audience projection, Admin
+recovery, and retention cleanup are implemented.
 
-### Footer / legal
+### Still to configure / verify
 
-- [ ] Vaste campagnefooter (`Uitschrijven` / `Voorkeuren aanpassen`) juridisch/copy nalezen
-- [ ] Footer/legal placeholders volledig verwijderd vóór production sends
-
-### Deliverability
-
-- [ ] DMARC instellen en rapportage opvolgen
-- [ ] Open- en clicktracking activeren
-- [ ] Opens in admin als indicatief labelen
-- [ ] `List-Unsubscribe` en RFC 8058 `List-Unsubscribe-Post` testen
+- [ ] Vaste campagnefooter juridisch/copy nalezen vóór live sends
+- [ ] Open-/clicktracking in Resend dashboard bevestigen/activeren
+- [ ] `List-Unsubscribe` one-click in echte inboxclients testen
 - [ ] Gmail, Outlook en Apple Mail inbox-/spamtests
-
-### R2 / e-mailbeelden
-
-- [ ] CORS beperken tot development, staging en production admin origins
-- [ ] Cacheheaders voor e-mailbeelden controleren
-- [ ] JPEG, PNG, WebP en GIF testen; limiet 5 MB afdwingen
-- [ ] Animated-GIF size/clientwaarschuwing
-- [ ] Verifiëren dat sent-email assets niet door cleanup worden verwijderd
-
-### Roles / alerts
-
-- [ ] Eerste Admin-, Journalist- en (indien nodig) Vieweraccounts bepalen
-- [ ] Alleen Admin kan transactionele e-mails wijzigen/testen/publiceren/uitschakelen/terugrollen
-- [ ] Interne testmailadressen configureren
-- [ ] Failure alerts naar Admins + initiërende Journalist; dedupe als initiator Admin is
-
-### Transactionele templates (per type)
-
-Types: Welcome, Magic link, Verify email, Preferences changed, Unsubscribe
-confirmed (indien gewenst), Admin send alert.
-
-- [ ] Allowed/required systeemvariabelen vastleggen
-- [ ] Visuele inhoud in admin; preview met dummydata
-- [ ] Succesvolle testmail; eerste actieve versie als Admin publiceren
-- [ ] Triggerflow end-to-end zonder echte tokens in logs/UI
-
-### Privacy / retentie (newsletter)
-
-- [ ] Privacyverklaring actualiseren voor open-, click- en deliverystatus
-- [ ] Open tracking / providerlinktracking juridisch bevestigen
-- [ ] Campagnecontent als redactioneel archief documenteren (geen auto-expiry)
-- [ ] Recipientmapping / campagneaggregaten / audit events: 24 maanden
-- [ ] Deliveryevents 90d; Resend finalized 30d; abandoned 90d; testmailhistoriek 90d
-- [ ] Ongebruikte draftrevisies/assets na 90d + referentiecheck opruimen
-- [ ] R2-assets in verzonden e-mail bewaren zolang campagne-archief blijft
-- [ ] Suppressions bewaren zolang nodig; subscriber deletion/pseudonymization E2E
-
-### Audience / sending / recovery
-
-- [ ] `subscriberDivisionPreferences` projectie + dry-run vóór writes
-- [ ] OR-binnen / AND-tussen filters; clubfilter zonder favoriet; unverified single-opt-in eligible
-- [ ] Default “Alle actieve abonnees” vereist expliciete confirm
-- [ ] Scheduled snapshot gebruikt actuele recipients; countverschil in audit, stopt send niet
+- [ ] R2 CORS beperken tot admin origins; cacheheaders voor e-mailbeelden
+- [ ] Animated-GIF clientwaarschuwing (server limiet 5 MB bestaat; geen UI-warning)
+- [ ] Eerste Admin-/Journalist-/(optioneel) Vieweraccounts + interne testadressen
+- [ ] Transactionele templates: in prod preview → testmail → als Admin publiceren;
+  E2E triggers zonder tokens in logs/UI
+- [ ] Admin disable/rollback voor gepubliceerde dienstmailrevisies
+  (edit/test/publish bestaat; disable/rollback UI ontbreekt)
+- [ ] Privacyverklaring actualiseren voor open-/click-/deliverystatus
+- [ ] Open tracking juridisch/privacytechnisch bevestigen
+- [ ] Retention/DSR: suppressions + subscriber deletion/pseudonymization E2E
+- [ ] Preference-projection dry-run vóór eventuele rebuild-writes
 - [ ] Loadtest ≥ 100.000 subscribers; Convex/Resend quota check
-- [ ] Production environment guard; marketing kill switch; dubbelklik/idempotency
-- [ ] Resend outage/retry; schedule in `Europe/Brussels` + DST; cancel / send-now
-- [ ] Manual recovery alleen Admin; alleen bij definitieve app-level failure
-- [ ] Bounce/complaint/unsubscribe nooit retryen; onzekere status blokkeert recovery;
-  suppression opnieuw checken vóór recovery
+- [ ] Production: `NEWSLETTER_LIVE_SEND`, kill switch, schedule/cancel/send-now,
+  recovery smoke op echte env
 
-### Pilot
+### Pilot (gate for full list)
 
-- [ ] Newsletteradmin op 320/360/390/768 px; editor + virtueel keyboard
-- [ ] E-mail preview 320/375 px + echte inboxclients; footerlinks ≥ 44 px
-- [ ] HTML-grootte / Gmail clipping
+- [ ] Newsletteradmin + editor op 320–768 px; preview in echte inboxclients
+- [ ] HTML-grootte / Gmail clipping; footerlinks ≥ 44 px
 - [ ] Interne production-smoketest; kleine echte pilot
-- [ ] Delivery/bounce/complaint/open/click controleren
-- [ ] Uitschrijf- en voorkeurenlinks uit echte inbox
+- [ ] Delivery/bounce/complaint/open/click + uitschrijf-/voorkeurenlinks controleren
 - [ ] Alerts en runbooks; daarna pas volledige actieve lijst
 
-Ops notes: [`docs/phase-4-newsletter.md`](./docs/phase-4-newsletter.md).
+Ops: [`docs/phase-4-newsletter.md`](./docs/phase-4-newsletter.md).
 Keep `NEWSLETTER_LIVE_SEND=false` on agent deployments when not testing.
 
 ---
 
 ## 6. Agent access (ops)
 
-Code path is shipped. Remaining environment checks:
+Code path is shipped and documented (`docs/admin-auth.md`, `apps/web/AGENTS.md`).
+Env checks:
 
-- [ ] Real Convex dev deployment available to agents (not anonymous-only) for admin sessions
-- [ ] `AGENT_ACCESS_SECRET` als Cursor Runtime Secret; Next.js leest hem bij `npm run dev:web`
+- [ ] Real Convex dev deployment available to agents (not anonymous-only)
+- [ ] `AGENT_ACCESS_SECRET` als Cursor Runtime Secret; Next leest hem bij
+  `npm run dev:web`
 - [ ] Smoke: `/admin/agent-inloggen` → `/admin` as admin
 - [ ] Leave `AGENT_ACCESS_SECRET` unset on production Vercel
-- [ ] Document that agent session alone does not complete hosted GitHub Keystatic saves
-
-See [`docs/admin-auth.md`](./docs/admin-auth.md) and [`docs/cloud-agent-auth.md`](./docs/cloud-agent-auth.md).
 
 ---
 
-## 7. Known non-code / later gaps
+## 7. Known later gaps
 
 - [ ] Pagefind (or similar) full-text archive search beyond MVP surface
 - [ ] Full DSR export/erase tooling (privacy copy points to support process)
-- [ ] Provider batching / workpool at 100k scale (paging improved; Resend batch API incremental)
-- [ ] Dual renderer perfect visual parity (shared `@devoetbalgazet/emails`; TipTap editor still compatible)
+- [ ] Provider batching / workpool at 100k scale
+- [ ] Dual renderer perfect visual parity (shared `@devoetbalgazet/emails`)
 
 ---
 
 ## Definition of done (Phase 3 ops)
 
-Treat Phase 3 ops as done when:
-
 - [ ] Hosted `/keystatic` save creates a Git commit on production
 - [ ] Published article goes live via Vercel; draft stays off public indexes
 - [ ] Viewer cannot edit; Admin/Journalist can
 - [ ] Newsletter unsubscribe path preserves `siteAccess` (tested once)
-- [ ] Privacy/publisher copy matches real contact channels
+- [ ] Privacy mailbox matches published contact
 - [ ] DPA paperwork tracked (even if not all signed yet)
 
-Phase 4 (full live list) stays gated on §5 pilot items.
+Phase 4 full live list stays gated on §5 pilot items.
