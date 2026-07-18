@@ -19,8 +19,9 @@ type Props = {
 };
 
 /**
- * Gmail-style multi-select: selected values as chips in the input,
- * type to search, pick from a dropdown. Scales to 100+ options.
+ * Multi-select combobox matching segment-builder UX:
+ * chips in the field, type-to-search, checkbox list that stays open,
+ * select-all, chevron toggle. Styled for De Voetbalgazet admin.
  */
 export function SearchableMultiSelect({
   options,
@@ -43,19 +44,23 @@ export function SearchableMultiSelect({
 
   const normalizedQuery = query.trim().toLowerCase();
   const filtered = options.filter((option) => {
-    if (selectedSet.has(option.value)) {
-      return false;
-    }
     if (!normalizedQuery) {
       return true;
     }
     const haystack = `${option.label} ${option.hint ?? ""}`.toLowerCase();
     return haystack.includes(normalizedQuery);
   });
+  const visible = filtered.slice(0, 80);
+  const selectedInVisible = visible.filter((option) =>
+    selectedSet.has(option.value),
+  ).length;
+  const allVisibleSelected =
+    visible.length > 0 && selectedInVisible === visible.length;
 
   // Keep highlight in range without an effect (avoids cascading renders).
-  const safeHighlight =
-    filtered.length === 0 ? 0 : Math.min(highlight, filtered.length - 1);
+  // highlight 0 = select-all row when menu has options.
+  const maxHighlight = visible.length; // 0..visible.length inclusive
+  const safeHighlight = Math.min(highlight, maxHighlight);
 
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
@@ -67,18 +72,36 @@ export function SearchableMultiSelect({
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, []);
 
-  function addValue(value: string) {
+  function toggleValue(value: string) {
     if (selectedSet.has(value)) {
-      return;
+      onChange(selected.filter((item) => item !== value));
+    } else {
+      onChange([...selected, value]);
     }
-    onChange([...selected, value]);
-    setQuery("");
     setOpen(true);
     inputRef.current?.focus();
   }
 
   function removeValue(value: string) {
     onChange(selected.filter((item) => item !== value));
+    inputRef.current?.focus();
+  }
+
+  function toggleSelectAllVisible() {
+    if (visible.length === 0) {
+      return;
+    }
+    if (allVisibleSelected) {
+      const visibleValues = new Set(visible.map((option) => option.value));
+      onChange(selected.filter((value) => !visibleValues.has(value)));
+    } else {
+      const next = new Set(selected);
+      for (const option of visible) {
+        next.add(option.value);
+      }
+      onChange([...next]);
+    }
+    setOpen(true);
     inputRef.current?.focus();
   }
 
@@ -98,9 +121,8 @@ export function SearchableMultiSelect({
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setHighlight((index) =>
-        filtered.length === 0 ? 0 : Math.min(index + 1, filtered.length - 1),
-      );
+      setOpen(true);
+      setHighlight((index) => Math.min(index + 1, maxHighlight));
       return;
     }
     if (event.key === "ArrowUp") {
@@ -108,11 +130,23 @@ export function SearchableMultiSelect({
       setHighlight((index) => Math.max(index - 1, 0));
       return;
     }
-    if (event.key === "Enter") {
+    if (event.key === "Enter" || event.key === " ") {
+      if (!open) {
+        setOpen(true);
+        return;
+      }
+      // Space while typing should insert a space, not toggle.
+      if (event.key === " " && query.length > 0) {
+        return;
+      }
       event.preventDefault();
-      const option = filtered[safeHighlight];
+      if (safeHighlight === 0) {
+        toggleSelectAllVisible();
+        return;
+      }
+      const option = visible[safeHighlight - 1];
       if (option) {
-        addValue(option.value);
+        toggleValue(option.value);
       }
     }
   }
@@ -120,7 +154,9 @@ export function SearchableMultiSelect({
   return (
     <div className="audience-combobox" ref={rootRef}>
       <div
-        className={`audience-combobox-field${disabled ? " is-disabled" : ""}`}
+        className={`audience-combobox-field${open ? " is-open" : ""}${
+          disabled ? " is-disabled" : ""
+        }`}
         onClick={() => {
           if (!disabled) {
             setOpen(true);
@@ -128,71 +164,146 @@ export function SearchableMultiSelect({
           }
         }}
       >
-        {selected.map((value) => {
-          const option = labelByValue.get(value);
-          return (
-            <span key={value} className="audience-combobox-chip">
-              <span>{option?.label ?? value}</span>
-              {!disabled && (
-                <button
-                  type="button"
-                  className="audience-combobox-chip-remove"
-                  aria-label={`Verwijder ${option?.label ?? value}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    removeValue(value);
-                  }}
-                >
-                  ×
-                </button>
-              )}
-            </span>
-          );
-        })}
-        <input
-          ref={inputRef}
-          className="audience-combobox-input"
-          type="text"
-          value={query}
+        <div className="audience-combobox-values">
+          {selected.map((value) => {
+            const option = labelByValue.get(value);
+            return (
+              <span key={value} className="audience-combobox-chip">
+                <span className="audience-combobox-chip-label">
+                  {option?.label ?? value}
+                </span>
+                {!disabled && (
+                  <button
+                    type="button"
+                    className="audience-combobox-chip-remove"
+                    aria-label={`Verwijder ${option?.label ?? value}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      removeValue(value);
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </span>
+            );
+          })}
+          <input
+            ref={inputRef}
+            className="audience-combobox-input"
+            type="text"
+            value={query}
+            disabled={disabled}
+            placeholder={selected.length === 0 ? placeholder : ""}
+            aria-label={ariaLabel}
+            aria-expanded={open}
+            aria-controls={listId}
+            aria-autocomplete="list"
+            role="combobox"
+            autoComplete="off"
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setHighlight(0);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onKeyDown={onKeyDown}
+          />
+        </div>
+        <button
+          type="button"
+          className="audience-combobox-chevron"
+          tabIndex={-1}
           disabled={disabled}
-          placeholder={selected.length === 0 ? placeholder : ""}
-          aria-label={ariaLabel}
-          aria-expanded={open}
-          aria-controls={listId}
-          aria-autocomplete="list"
-          role="combobox"
-          autoComplete="off"
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setHighlight(0);
-            setOpen(true);
+          aria-label={open ? "Sluit lijst" : "Open lijst"}
+          onClick={(event) => {
+            event.stopPropagation();
+            if (disabled) {
+              return;
+            }
+            setOpen((wasOpen) => !wasOpen);
+            if (!open) {
+              inputRef.current?.focus();
+            }
           }}
-          onFocus={() => setOpen(true)}
-          onKeyDown={onKeyDown}
-        />
+        >
+          <span aria-hidden="true">{open ? "▴" : "▾"}</span>
+        </button>
       </div>
+
       {open && !disabled && (
-        <ul id={listId} className="audience-combobox-menu" role="listbox">
-          {filtered.length === 0 ? (
+        <ul
+          id={listId}
+          className="audience-combobox-menu"
+          role="listbox"
+          aria-multiselectable="true"
+        >
+          {visible.length === 0 ? (
             <li className="audience-combobox-empty">{emptyMessage}</li>
           ) : (
-            filtered.slice(0, 80).map((option, index) => (
-              <li key={option.value} role="option" aria-selected={index === safeHighlight}>
+            <>
+              <li role="option" aria-selected={allVisibleSelected}>
                 <button
                   type="button"
-                  className={`audience-combobox-option${
-                    index === safeHighlight ? " is-highlighted" : ""
+                  className={`audience-combobox-option audience-combobox-select-all${
+                    safeHighlight === 0 ? " is-highlighted" : ""
                   }`}
-                  onMouseEnter={() => setHighlight(index)}
-                  onClick={() => addValue(option.value)}
+                  onMouseEnter={() => setHighlight(0)}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    toggleSelectAllVisible();
+                  }}
                 >
-                  <span>{option.label}</span>
-                  {option.hint ? (
-                    <span className="audience-combobox-hint">{option.hint}</span>
-                  ) : null}
+                  <span
+                    className={`audience-combobox-check${
+                      allVisibleSelected ? " is-checked" : ""
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span>
+                    Selecteer alles ({selectedInVisible}/{visible.length})
+                  </span>
                 </button>
               </li>
-            ))
+              {visible.map((option, index) => {
+                const checked = selectedSet.has(option.value);
+                const rowIndex = index + 1;
+                return (
+                  <li
+                    key={option.value}
+                    role="option"
+                    aria-selected={checked}
+                  >
+                    <button
+                      type="button"
+                      className={`audience-combobox-option${
+                        rowIndex === safeHighlight ? " is-highlighted" : ""
+                      }${checked ? " is-checked" : ""}`}
+                      onMouseEnter={() => setHighlight(rowIndex)}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        toggleValue(option.value);
+                      }}
+                    >
+                      <span
+                        className={`audience-combobox-check${
+                          checked ? " is-checked" : ""
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span className="audience-combobox-option-text">
+                        <span>{option.label}</span>
+                        {option.hint ? (
+                          <span className="audience-combobox-hint">
+                            {option.hint}
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </>
           )}
         </ul>
       )}
