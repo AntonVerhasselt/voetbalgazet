@@ -1,7 +1,11 @@
 import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
+import {
+  describeAudienceRules,
+  resolveRuleGroups,
+  type DivisionMeta,
+} from "./audienceRules";
 import { COMPLIANCE } from "./compliance";
-import { describeAudience } from "./emailRender";
 
 type AnyCtx = QueryCtx | MutationCtx;
 
@@ -53,25 +57,59 @@ export async function ensureDefaultSender(
   }
 }
 
+export async function loadDivisionMeta(
+  ctx: AnyCtx,
+): Promise<Map<string, DivisionMeta>> {
+  const divisions = await ctx.db.query("divisions").take(500);
+  const map = new Map<string, DivisionMeta>();
+  for (const division of divisions) {
+    map.set(division._id, {
+      _id: division._id,
+      label: division.label,
+      provinceKey: division.provinceKey,
+      level: division.level,
+    });
+  }
+  return map;
+}
+
 export async function audienceDescription(
   ctx: AnyCtx,
   definition: Doc<"newsletterAudienceDefinitions">,
 ): Promise<string> {
-  const divisionLabels: string[] = [];
-  for (const divisionId of definition.divisionIds) {
-    const division = await ctx.db.get(divisionId);
-    if (division) {
-      divisionLabels.push(division.label);
-    }
-  }
-  const teamLabels: string[] = [];
-  for (const teamId of definition.favoriteTeamIds) {
-    const team = await ctx.db.get(teamId);
-    if (team) {
-      teamLabels.push(team.label);
-    }
-  }
-  return describeAudience({ divisionLabels, teamLabels });
+  const ruleGroups = resolveRuleGroups(definition);
+  const divisions = await ctx.db.query("divisions").take(500);
+  const teams = await ctx.db.query("teams").take(500);
+  const campaigns = await ctx.db
+    .query("newsletterCampaigns")
+    .withIndex("by_status_and_updatedAt", (q) => q.eq("status", "sent"))
+    .order("desc")
+    .take(80);
+  const partial = await ctx.db
+    .query("newsletterCampaigns")
+    .withIndex("by_status_and_updatedAt", (q) =>
+      q.eq("status", "partially_failed"),
+    )
+    .order("desc")
+    .take(20);
+  const campaignDocs = [...campaigns, ...partial];
+  return describeAudienceRules({
+    ruleGroups,
+    divisions: divisions.map((division) => ({
+      _id: division._id,
+      label: division.label,
+      provinceKey: division.provinceKey,
+      level: division.level,
+    })),
+    teams: teams.map((team) => ({
+      _id: team._id,
+      label: team.label,
+    })),
+    campaigns: campaignDocs.map((campaign) => ({
+      _id: campaign._id,
+      label: campaign.internalName || campaign.subject || "Nieuwsbrief",
+    })),
+  });
 }
 
 export async function audit(

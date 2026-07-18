@@ -1,5 +1,11 @@
 import type { Doc } from "../_generated/dataModel";
 import type { QueryCtx } from "../_generated/server";
+import {
+  resolveRuleGroups,
+  subscriberMatchesRuleGroups,
+  type DivisionMeta,
+} from "./audienceRules";
+import type { AudienceEngagementContext } from "./audienceEngagement";
 import { hasActiveSuppression } from "./suppressions";
 
 export type EligibilityCursor =
@@ -79,23 +85,50 @@ export async function subscriberCanReceiveNewsletter(
 export function subscriberMatchesAudienceFilters(
   subscriber: Doc<"subscribers">,
   definition: Doc<"newsletterAudienceDefinitions">,
+  divisionMetaById: Map<string, DivisionMeta>,
+  now: number,
+  engagement: AudienceEngagementContext,
   options: { divisionAlreadyMatched?: boolean } = {},
 ): boolean {
-  if (!options.divisionAlreadyMatched && definition.divisionIds.length > 0) {
-    const matches = subscriber.divisionIds.some((id) =>
-      definition.divisionIds.includes(id),
+  const ruleGroups = resolveRuleGroups(definition);
+  if (ruleGroups.length === 0) {
+    return true;
+  }
+  const snapshot = {
+    _id: subscriber._id,
+    divisionIds: subscriber.divisionIds,
+    favoriteTeamId: subscriber.favoriteTeamId,
+    newsletterSubscribedAt: subscriber.newsletterSubscribedAt,
+    lastEmailDeliveredAt: subscriber.lastEmailDeliveredAt,
+    lastEmailOpenedAt: subscriber.lastEmailOpenedAt,
+    lastEmailClickedAt: subscriber.lastEmailClickedAt,
+  };
+  // When candidates came from a division index on a simple legacy rule,
+  // skip re-checking division-only conditions that are already satisfied.
+  if (options.divisionAlreadyMatched) {
+    const withoutDivision = ruleGroups.map((group) => ({
+      ...group,
+      conditions: group.conditions.filter(
+        (condition) => condition.field !== "division",
+      ),
+    }));
+    // If every group only had division conditions, membership already matches.
+    if (withoutDivision.every((group) => group.conditions.length === 0)) {
+      return true;
+    }
+    return subscriberMatchesRuleGroups(
+      snapshot,
+      withoutDivision.filter((group) => group.conditions.length > 0),
+      divisionMetaById,
+      now,
+      engagement,
     );
-    if (!matches) {
-      return false;
-    }
   }
-  if (definition.favoriteTeamIds.length > 0) {
-    if (
-      !subscriber.favoriteTeamId ||
-      !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
-    ) {
-      return false;
-    }
-  }
-  return true;
+  return subscriberMatchesRuleGroups(
+    snapshot,
+    ruleGroups,
+    divisionMetaById,
+    now,
+    engagement,
+  );
 }
