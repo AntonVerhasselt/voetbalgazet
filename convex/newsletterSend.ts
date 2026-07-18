@@ -18,6 +18,11 @@ import {
 import { mintEmailLinkToken } from "./lib/emailLinkTokensDb";
 import { extractEmailMediaR2Keys } from "./lib/emailMedia";
 import { renderCampaignEmail } from "./lib/emailRender";
+import {
+  resolveRuleGroups,
+  subscriberMatchesRuleGroups,
+  type DivisionMeta,
+} from "./lib/audienceRules";
 import { assertMarketingSendEnabled } from "./lib/runtimeSettings";
 import { hasActiveSuppression } from "./lib/suppressions";
 import { resend } from "./resendClient";
@@ -154,25 +159,40 @@ async function subscriberCanReceiveNewsletter(
 function subscriberMatchesAudienceFilters(
   subscriber: Doc<"subscribers">,
   definition: Doc<"newsletterAudienceDefinitions">,
+  divisionMetaById: Map<string, DivisionMeta>,
+  now: number,
   options: { divisionAlreadyMatched?: boolean } = {},
 ): boolean {
-  if (!options.divisionAlreadyMatched && definition.divisionIds.length > 0) {
-    const matches = subscriber.divisionIds.some((id) =>
-      definition.divisionIds.includes(id),
+  const ruleGroups = resolveRuleGroups(definition);
+  if (ruleGroups.length === 0) {
+    return true;
+  }
+  // When candidates came from a division index on a simple legacy rule,
+  // skip re-checking division-only conditions that are already satisfied.
+  if (options.divisionAlreadyMatched) {
+    const withoutDivision = ruleGroups.map((group) => ({
+      ...group,
+      conditions: group.conditions.filter(
+        (condition) => condition.field !== "division",
+      ),
+    }));
+    // If every group only had division conditions, membership already matches.
+    if (withoutDivision.every((group) => group.conditions.length === 0)) {
+      return true;
+    }
+    return subscriberMatchesRuleGroups(
+      subscriber,
+      withoutDivision.filter((group) => group.conditions.length > 0),
+      divisionMetaById,
+      now,
     );
-    if (!matches) {
-      return false;
-    }
   }
-  if (definition.favoriteTeamIds.length > 0) {
-    if (
-      !subscriber.favoriteTeamId ||
-      !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
-    ) {
-      return false;
-    }
-  }
-  return true;
+  return subscriberMatchesRuleGroups(
+    subscriber,
+    ruleGroups,
+    divisionMetaById,
+    now,
+  );
 }
 
 function escapeRegExp(value: string): string {
@@ -681,6 +701,7 @@ export const executeScheduledSend = internalMutation({
 export const listEligibleSubscriberPage = internalQuery({
   args: {
     audienceDefinitionId: v.id("newsletterAudienceDefinitions"),
+    now: v.number(),
     paginationOpts: v.object({
       numItems: v.number(),
       cursor: v.union(v.string(), v.null()),
@@ -698,6 +719,17 @@ export const listEligibleSubscriberPage = internalQuery({
     }
     const decodedCursor = decodeEligibilityCursor(args.paginationOpts.cursor);
     const subscriberIds: Id<"subscribers">[] = [];
+    const now = args.now;
+    const divisions = await ctx.db.query("divisions").take(500);
+    const divisionMetaById = new Map<string, DivisionMeta>();
+    for (const division of divisions) {
+      divisionMetaById.set(division._id, {
+        _id: division._id,
+        label: division.label,
+        provinceKey: division.provinceKey,
+        level: division.level,
+      });
+    }
 
     if (definition.divisionIds.length > 0) {
       let divisionIndex =
@@ -728,9 +760,13 @@ export const listEligibleSubscriberPage = internalQuery({
           if (
             subscriber &&
             (await subscriberCanReceiveNewsletter(ctx, subscriber)) &&
-            subscriberMatchesAudienceFilters(subscriber, definition, {
-              divisionAlreadyMatched: true,
-            })
+            subscriberMatchesAudienceFilters(
+              subscriber,
+              definition,
+              divisionMetaById,
+              now,
+              { divisionAlreadyMatched: true },
+            )
           ) {
             subscriberIds.push(subscriber._id);
           }
@@ -782,7 +818,12 @@ export const listEligibleSubscriberPage = internalQuery({
         for (const subscriber of teamPage.page) {
           if (
             (await subscriberCanReceiveNewsletter(ctx, subscriber)) &&
-            subscriberMatchesAudienceFilters(subscriber, definition)
+            subscriberMatchesAudienceFilters(
+              subscriber,
+              definition,
+              divisionMetaById,
+              now,
+            )
           ) {
             subscriberIds.push(subscriber._id);
           }
@@ -824,7 +865,12 @@ export const listEligibleSubscriberPage = internalQuery({
     for (const subscriber of subscribedPage.page) {
       if (
         (await subscriberCanReceiveNewsletter(ctx, subscriber)) &&
-        subscriberMatchesAudienceFilters(subscriber, definition)
+        subscriberMatchesAudienceFilters(
+          subscriber,
+          definition,
+          divisionMetaById,
+          now,
+        )
       ) {
         subscriberIds.push(subscriber._id);
       }
@@ -903,10 +949,12 @@ export const prepareRecipients = internalMutation({
     if (!send || send.status !== "preparing") {
       return null;
     }
+    const now = Date.now();
     const page = await ctx.runQuery(
       internal.newsletterSend.listEligibleSubscriberPage,
       {
         audienceDefinitionId: send.audienceDefinitionId,
+        now,
         paginationOpts: {
           numItems: PREPARE_BATCH,
           cursor: args.cursor,
@@ -914,7 +962,6 @@ export const prepareRecipients = internalMutation({
       },
     );
 
-    const now = Date.now();
     for (const subscriberId of page.subscriberIds) {
       const idempotencyKey = `newsletter:${args.sendId}:${subscriberId}`;
       const existing = await ctx.db

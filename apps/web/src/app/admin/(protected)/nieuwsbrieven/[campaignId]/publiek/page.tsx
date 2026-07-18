@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import type { AudienceRuleGroup } from "@convex/lib/audienceRules";
+import { AudienceRuleBuilder } from "@/components/audience-rule-builder";
 
 function CampaignSubNav({
   campaignId,
@@ -37,43 +39,30 @@ export default function PubliekPage({
   });
   const catalog = useQuery(api.newsletterCampaigns.listCatalog);
   const [now] = useState(() => Date.now());
-  const previewAudience = useQuery(
-    api.newsletterCampaigns.previewAudience,
-    campaignData ? { campaignId, now } : "skip",
+  const [ruleOverride, setRuleOverride] = useState<AudienceRuleGroup[] | null>(
+    null,
   );
-  const updateAudience = useMutation(api.newsletterCampaigns.updateAudience);
-
-  const [divisionOverride, setDivisionOverride] = useState<
-    Id<"divisions">[] | null
-  >(null);
-  const [teamOverride, setTeamOverride] = useState<Id<"teams">[] | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const selectedDivisions =
-    divisionOverride ?? (campaignData?.audience?.divisionIds ?? []);
-  const selectedTeams =
-    teamOverride ?? (campaignData?.audience?.favoriteTeamIds ?? []);
+  const previewAudience = useQuery(
+    api.newsletterCampaigns.previewAudience,
+    campaignData
+      ? {
+          campaignId,
+          now,
+          ruleGroups: ruleOverride ?? undefined,
+        }
+      : "skip",
+  );
+  const updateAudience = useMutation(api.newsletterCampaigns.updateAudience);
+
+  const selectedRules =
+    ruleOverride ?? (campaignData?.audience?.ruleGroups ?? []);
 
   const canEdit = campaignData?.campaign?.canEdit ?? false;
-
-  function toggleDivision(id: Id<"divisions">) {
-    setDivisionOverride(
-      selectedDivisions.includes(id)
-        ? selectedDivisions.filter((d) => d !== id)
-        : [...selectedDivisions, id],
-    );
-  }
-
-  function toggleTeam(id: Id<"teams">) {
-    setTeamOverride(
-      selectedTeams.includes(id)
-        ? selectedTeams.filter((t) => t !== id)
-        : [...selectedTeams, id],
-    );
-  }
 
   async function handleSave(confirm = false) {
     setError(null);
@@ -83,8 +72,7 @@ export default function PubliekPage({
     try {
       await updateAudience({
         campaignId,
-        divisionIds: selectedDivisions,
-        favoriteTeamIds: selectedTeams,
+        ruleGroups: selectedRules,
         confirm,
       });
       setSuccessMsg(
@@ -133,7 +121,7 @@ export default function PubliekPage({
           </Link>
         </p>
         <h1>Publiek</h1>
-        <p>Kies wie deze nieuwsbrief ontvangt.</p>
+        <p>Bouw regels om te bepalen wie deze nieuwsbrief ontvangt.</p>
       </header>
 
       <CampaignSubNav campaignId={campaignIdStr} />
@@ -148,7 +136,6 @@ export default function PubliekPage({
       {error && <p className="admin-error">{error}</p>}
       {successMsg && <p className="admin-notice">{successMsg}</p>}
 
-      {/* Audience preview stats */}
       {previewAudience && (
         <div className="newsletter-audience-stats">
           <div className="newsletter-audience-stat">
@@ -197,6 +184,9 @@ export default function PubliekPage({
           )}
         </div>
       )}
+      {previewAudience?.description ? (
+        <p className="audience-rule-description">{previewAudience.description}</p>
+      ) : null}
       {previewAudience?.isApproximate ? (
         <p className="newsletter-audience-approximate">
           Bereik is bij benadering (scanlimiet bereikt). De echte verzending
@@ -208,81 +198,35 @@ export default function PubliekPage({
         <div className="newsletter-section">
           <h2>Voorbeeldontvangers</h2>
           <ul style={{ fontSize: "0.82rem", color: "var(--ink-muted)" }}>
-            {previewAudience.sample.slice(0, 10).map((s: { maskedEmail: string; divisionLabels: string[]; teamLabel: string | null }, i: number) => (
-              <li key={i}>
-                {s.maskedEmail}
-                {s.divisionLabels.length > 0 &&
-                  ` — ${s.divisionLabels.join(", ")}`}
-                {s.teamLabel && ` (${s.teamLabel})`}
-              </li>
-            ))}
+            {previewAudience.sample.slice(0, 10).map(
+              (
+                s: {
+                  maskedEmail: string;
+                  divisionLabels: string[];
+                  teamLabel: string | null;
+                },
+                i: number,
+              ) => (
+                <li key={i}>
+                  {s.maskedEmail}
+                  {s.divisionLabels.length > 0 &&
+                    ` — ${s.divisionLabels.join(", ")}`}
+                  {s.teamLabel && ` (${s.teamLabel})`}
+                </li>
+              ),
+            )}
           </ul>
         </div>
       )}
 
-      {/* Division filters */}
       {catalog && (
         <div className="newsletter-section">
-          <h2>Afdelingen filteren</h2>
-          <p style={{ fontSize: "0.85rem", color: "var(--ink-muted)" }}>
-            Leeg = alle actieve abonnees. Aangevinkt = alleen abonnees met
-            minstens één geselecteerde afdeling.
-          </p>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "0.4rem",
-              marginTop: "0.75rem",
-            }}
-          >
-            {catalog.divisions.map((division: { _id: Id<"divisions">; label: string; provinceKey: string }) => (
-              <label
-                key={division._id}
-                className="preference-chip"
-                style={{ cursor: canEdit ? "pointer" : "default" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedDivisions.includes(division._id)}
-                  disabled={!canEdit}
-                  onChange={() => toggleDivision(division._id)}
-                />
-                <span>{division.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Team filters */}
-      {catalog && catalog.teams.length > 0 && (
-        <div className="newsletter-section">
-          <h2>Teams filteren</h2>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "0.4rem",
-              marginTop: "0.75rem",
-            }}
-          >
-            {catalog.teams.map((team: { _id: Id<"teams">; label: string; provinceKey: string }) => (
-              <label
-                key={team._id}
-                className="preference-chip"
-                style={{ cursor: canEdit ? "pointer" : "default" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedTeams.includes(team._id)}
-                  disabled={!canEdit}
-                  onChange={() => toggleTeam(team._id)}
-                />
-                <span>{team.label}</span>
-              </label>
-            ))}
-          </div>
+          <AudienceRuleBuilder
+            catalog={catalog}
+            ruleGroups={selectedRules}
+            disabled={!canEdit}
+            onChange={setRuleOverride}
+          />
         </div>
       )}
 
