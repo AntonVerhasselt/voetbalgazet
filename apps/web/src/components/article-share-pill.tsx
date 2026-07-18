@@ -23,7 +23,11 @@ import {
   xShareHref,
 } from "@/lib/share";
 
-export function ArticleShare({
+/**
+ * Compact share strip for placement right after the article hero.
+ * WhatsApp “Ploegchat” pill + quiet secondary icons.
+ */
+export function ArticleSharePill({
   articleId,
   headline,
 }: {
@@ -42,7 +46,6 @@ export function ArticleShare({
       setEnabled(isFeatureEnabled(FEATURE_FLAGS.articleShareActions) !== false);
     };
     client.onFeatureFlags(sync);
-    // Feature flags may already be loaded.
     queueMicrotask(sync);
   }, []);
 
@@ -56,7 +59,7 @@ export function ArticleShare({
     capturePublicEvent("article_share_clicked", {
       article_id: articleId,
       channel,
-      placement: "footer",
+      placement: "top",
     });
   }
 
@@ -72,22 +75,21 @@ export function ArticleShare({
   }
 
   return (
-    <section className="article-share" aria-label="Deel dit verhaal">
-      <p className="article-share__label">Deel met je ploeg</p>
+    <section
+      className="article-share-pill"
+      aria-label="Deel dit verhaal"
+    >
       <a
-        className="article-share__whatsapp"
+        className="article-share-pill__whatsapp"
         href={whatsappShareHref(headline, url)}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => track("whatsapp")}
       >
-        <WhatsAppIcon className="article-share__whatsapp-icon" />
-        <span className="article-share__whatsapp-copy">
-          <strong>Stuur naar de ploegchat</strong>
-          <span>Zodat jullie het in de kleedkamer kunnen nabespreken</span>
-        </span>
+        <WhatsAppIcon />
+        <span>Ploegchat</span>
       </a>
-      <ul className="article-share__others">
+      <ul className="article-share-pill__others">
         <li>
           <a
             href={facebookShareHref(url)}
@@ -130,9 +132,9 @@ export function ArticleShare({
         </li>
       </ul>
       {copied ? (
-        <p className="article-share__status" aria-live="polite">
+        <span className="article-share-pill__status" aria-live="polite">
           Link gekopieerd
-        </p>
+        </span>
       ) : null}
     </section>
   );

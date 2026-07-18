@@ -7,6 +7,7 @@ import { ArticleBlocks } from "@/components/article-blocks";
 import { ArticleEngagement } from "@/components/article-engagement";
 import { ArticleIllustration } from "@/components/article-illustration";
 import { ArticleShare } from "@/components/article-share";
+import { ArticleSharePill } from "@/components/article-share-pill";
 import { PreviewArticleGate } from "@/components/preview-article-gate";
 import { getIllustrationCopy } from "@/lib/article-illustration";
 import { formatArticleDate, splitArticle } from "@/lib/content";
@@ -110,6 +111,15 @@ export function ArticlePageContent({
             </>
           )}
         </div>
+
+        {!isPreview ? (
+          <div className="shell shell--article article__share-top">
+            <ArticleSharePill
+              articleId={article.slug}
+              headline={article.headline}
+            />
+          </div>
+        ) : null}
 
         <div className="shell shell--article article__body" data-article-body>
           {!isPreview ? (
