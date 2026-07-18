@@ -4127,7 +4127,7 @@ a {
   width: 44px;
   height: 44px;
   border: 1px solid var(--ink);
-  background: transparent;
+  background: var(--white);
   color: var(--ink);
   cursor: pointer;
   text-decoration: none;
