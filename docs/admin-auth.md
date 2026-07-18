@@ -141,7 +141,7 @@ Unset / short secret → **404**. Wrong secret → **401**.
 
 An agent session unlocks the custom Convex admin. Hosted Keystatic GitHub
 writes still need Keystatic’s GitHub App login; agents should use Keystatic
-local mode + git on a feature branch. See `plans/agent-access/`.
+local mode + git on a feature branch. See [`TODO.md`](../TODO.md) §6.
 
 Direct Convex check (bypasses Next.js):
 

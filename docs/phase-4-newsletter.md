@@ -4,7 +4,7 @@ Editorial newsletter admin for De Voetbalgazet: free-form React Email editor,
 audience filters, test/live/scheduled sends via the Resend Convex component,
 and delivery webhooks with suppressions.
 
-Detailed product plan: [`plans/newsletter-admin-dashboard/`](../plans/newsletter-admin-dashboard/).
+Launch checks: [`TODO.md`](../TODO.md) §5.
 
 ## What’s included
 
