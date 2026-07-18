@@ -37,7 +37,10 @@ Updated after fixing third-review Warnings on `cursor/fix-review-findings-f684` 
 | Vercel Preview Convex URL pair | Manual Vercel env |
 | Full DSR export/erase tooling | Privacy copy: support process; no bulk export in MVP |
 | Provider batching / workpool at 100k | Improved paging; full Resend batch API still incremental |
-| Dual renderer perfect visual parity | Contract documented; shared `emails/` package not fully extracted |
+| Dual renderer perfect visual parity | Shared `@devoetbalgazet/emails` package extracted; browser editor still TipTap-compatible |
+| Newsletter module size | `newsletterSend` / campaigns split into pipeline + lib helpers |
+| CI / coverage | GitHub Actions CI + Vitest coverage thresholds on pure helpers |
+| Admin/preview early auth | Next.js 16 `apps/web/src/proxy.ts` (replaces deprecated middleware) |
 | Launch todo checkbox hygiene | Some plan checkboxes lag shipped code |
 
 ## Manual ops

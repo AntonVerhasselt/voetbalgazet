@@ -15,7 +15,7 @@ import {
 } from "@/components/newsletter-email-editor";
 import { useUploadFile } from "@convex-dev/r2/react";
 import type { JSONContent } from "@tiptap/core";
-import { sanitizeEditorDocumentJson } from "@convex/lib/compliance";
+import { sanitizeEditorDocumentJson } from "@devoetbalgazet/emails";
 
 const VALID_TYPES = [
   "welcome",
