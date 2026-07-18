@@ -3927,3 +3927,611 @@ a {
     min-height: 40px;
   }
 }
+
+/* ==========================================================================
+   Share prototypes (exploration only — /share-prototypes)
+   ========================================================================== */
+
+.share-proto {
+  padding-block: clamp(2rem, 6vw, 4rem) 6rem;
+}
+
+.share-proto__header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0.35rem 0 0.75rem;
+}
+
+.share-proto__header .dek {
+  max-width: 42rem;
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.share-proto__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.share-proto__nav-link {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.share-proto__nav-link:hover,
+.share-proto__nav-link.is-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.share-proto__note {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
+
+.share-proto__list {
+  list-style: none;
+  margin: 2rem auto 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.share-proto__list a {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--rule);
+  text-decoration: none;
+}
+
+.share-proto__list li:last-child a {
+  border-bottom: 1px solid var(--rule);
+}
+
+.share-proto__list strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.share-proto__list em {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--ink-muted);
+  font-style: normal;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.share-proto__list-num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  padding-top: 0.35rem;
+}
+
+.share-proto__stage {
+  margin-top: 2.5rem;
+}
+
+.share-proto__article {
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background:
+    linear-gradient(180deg, transparent, rgba(232, 222, 206, 0.35) 40%, transparent);
+}
+
+.share-proto__meta,
+.share-proto__cta {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.share-proto__cta {
+  margin-top: 1.25rem;
+}
+
+.share-v {
+  margin: 1.25rem 0;
+}
+
+.share-v__eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.share-v__icon {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.share-v__status {
+  margin: 0.5rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+}
+
+/* --- Variant 1: WhatsApp Hero --- */
+.share-v-hero__whatsapp {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  min-height: 64px;
+  padding: 0.9rem 1.1rem;
+  background: #128c7e;
+  color: #fffdf8;
+  text-decoration: none;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.share-v-hero__whatsapp:hover {
+  background: #0e7266;
+  transform: translateY(-1px);
+}
+
+.share-v-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.share-v-hero__copy strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.share-v-hero__copy span {
+  font-size: 0.82rem;
+  opacity: 0.9;
+}
+
+.share-v-hero__others {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0;
+}
+
+.share-v-hero__others a,
+.share-v-hero__others button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.share-v-hero__others a:hover,
+.share-v-hero__others button:hover {
+  background: var(--paper-deep);
+}
+
+/* --- Variant 2: Kleedkamer Pass --- */
+.share-pass {
+  display: grid;
+  grid-template-columns: 1.4fr 0.85fr;
+  border: 1.5px solid var(--ink);
+  background: var(--white);
+  overflow: hidden;
+}
+
+.share-pass__main {
+  position: relative;
+  padding: 1.25rem 1.35rem 1.4rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(159, 47, 36, 0.08), transparent 45%),
+    var(--white);
+}
+
+.share-pass__main::after {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  right: -1px;
+  border-right: 2px dashed var(--rule);
+}
+
+.share-pass__series {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.share-pass__title {
+  margin: 0.4rem 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.share-pass__dek {
+  margin: 0 0 1rem;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+  max-width: 22rem;
+}
+
+.share-pass__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  background: #128c7e;
+  color: #fffdf8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.share-pass__whatsapp:hover {
+  background: #0e7266;
+}
+
+.share-pass__stub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border-left: 0;
+}
+
+.share-pass__stub a,
+.share-pass__stub button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 72px;
+  padding: 0.65rem;
+  background: var(--paper-deep);
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-pass__stub a:hover,
+.share-pass__stub button:hover {
+  background: var(--paper);
+}
+
+@media (max-width: 640px) {
+  .share-pass {
+    grid-template-columns: 1fr;
+  }
+
+  .share-pass__main::after {
+    top: auto;
+    right: 0.6rem;
+    left: 0.6rem;
+    bottom: -1px;
+    border-right: 0;
+    border-bottom: 2px dashed var(--rule);
+  }
+}
+
+/* --- Variant 3: Sticky Dock --- */
+.share-dock-preview__hint {
+  margin: 0 0 1rem;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.share-dock {
+  position: relative;
+  margin-top: 1rem;
+  border: 1px solid var(--ink);
+  background: var(--white);
+  box-shadow: 0 12px 28px rgba(23, 21, 17, 0.08);
+}
+
+.share-dock__tray {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.share-dock__tray a,
+.share-dock__tray button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 64px;
+  padding: 0.55rem 0.25rem;
+  background: var(--paper);
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-dock__bar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--ink);
+  color: var(--white);
+}
+
+.share-dock__more {
+  justify-self: start;
+  min-height: 40px;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(255, 253, 248, 0.35);
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.share-dock__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 48px;
+  padding: 0.55rem 1.15rem;
+  background: #25d366;
+  color: #102018;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.share-dock__spacer {
+  display: block;
+}
+
+@media (max-width: 520px) {
+  .share-dock__tray {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* --- Variant 4: Ken Iemand --- */
+.share-prompt {
+  padding: 1.35rem 1.25rem 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(36, 63, 44, 0.08), transparent 55%),
+    var(--paper-deep);
+  border-left: 3px solid var(--illustration-green);
+}
+
+.share-prompt__question {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.share-prompt__hint {
+  margin: 0.45rem 0 1rem;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+}
+
+.share-prompt__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.share-prompt__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--ink);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-prompt__chip--whatsapp {
+  border-color: #128c7e;
+  background: #128c7e;
+  color: #fffdf8;
+  font-weight: 600;
+  padding-inline: 1.1rem;
+}
+
+.share-prompt__chip:hover {
+  background: var(--paper);
+}
+
+.share-prompt__chip--whatsapp:hover {
+  background: #0e7266;
+}
+
+/* --- Variant 5: Gazet Sheet --- */
+.share-sheet__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  background: none;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.share-sheet__trigger:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.share-sheet {
+  position: relative;
+  z-index: 5;
+  margin-top: 1rem;
+}
+
+.share-sheet__scrim {
+  display: none;
+}
+
+.share-sheet__panel {
+  border: 1px solid var(--ink);
+  background: var(--white);
+  padding: 0.75rem 1rem 1.15rem;
+  box-shadow: 0 16px 40px rgba(23, 21, 17, 0.1);
+}
+
+.share-sheet__handle {
+  width: 2.5rem;
+  height: 3px;
+  margin: 0.15rem auto 0.75rem;
+  background: var(--rule);
+}
+
+.share-sheet__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.share-sheet__header h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.share-sheet__close {
+  border: 0;
+  background: none;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.share-sheet__whatsapp {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 64px;
+  margin-bottom: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: #128c7e;
+  color: #fffdf8;
+  text-decoration: none;
+}
+
+.share-sheet__whatsapp span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.share-sheet__whatsapp strong {
+  font-size: 1.05rem;
+}
+
+.share-sheet__whatsapp em {
+  font-style: normal;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.share-sheet__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.share-sheet__grid a,
+.share-sheet__grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 64px;
+  padding: 0.55rem 0.25rem;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-sheet__grid a:hover,
+.share-sheet__grid button:hover {
+  border-color: var(--ink);
+  background: var(--white);
+}
+
+@media (max-width: 520px) {
+  .share-sheet__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
