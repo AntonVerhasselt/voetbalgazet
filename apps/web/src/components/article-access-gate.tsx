@@ -119,7 +119,7 @@ export function ArticleAccessGate({
   }, [unlocked]);
 
   function keepFocusInside(event: KeyboardEvent<HTMLDivElement>): void {
-    // Mandatory sheet: Escape must not dismiss (plans/public-news-site UX).
+    // Mandatory sheet: Escape must not dismiss (soft-gate UX).
     if (event.key === "Escape") {
       event.preventDefault();
       return;

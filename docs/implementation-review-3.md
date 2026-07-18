@@ -193,7 +193,7 @@ Second-review regressions also still fixed:
 | Provider batching / workpool at 100k | Improved paging; Resend batch API still incremental |
 | Dual renderer perfect visual parity | Contract in `emails/README.md`; shared package not fully extracted |
 
-> Open Design asset-copy todos were removed from launch checklists (17 Jul 2026); live tokens live in `plans/ui-ux/`.
+> Open Design asset-copy todos were removed from launch checklists (17 Jul 2026); live tokens live in `apps/web/src/app/globals.css`.
 
 ---
 

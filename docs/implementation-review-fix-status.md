@@ -41,7 +41,7 @@ Updated after fixing third-review Warnings on `cursor/fix-review-findings-f684` 
 | Newsletter module size | `newsletterSend` / campaigns split into pipeline + lib helpers |
 | CI / coverage | GitHub Actions CI + Vitest coverage thresholds on pure helpers |
 | Admin/preview early auth | Next.js 16 `apps/web/src/proxy.ts` (replaces deprecated middleware) |
-| Launch todo checkbox hygiene | Some plan checkboxes lag shipped code |
+| Remaining launch / ops todos | Consolidated in [`TODO.md`](../TODO.md) |
 
 ## Manual ops
 
