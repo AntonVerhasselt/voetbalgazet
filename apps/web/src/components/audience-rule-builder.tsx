@@ -45,41 +45,6 @@ function fieldLabel(field: AudienceCondition["field"]): string {
   );
 }
 
-function MultiSelectChips<T extends string>({
-  options,
-  selected,
-  onToggle,
-  disabled,
-}: {
-  options: Array<{ value: T; label: string }>;
-  selected: T[];
-  onToggle: (value: T) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <div className="audience-rule-chips">
-      {options.map((option) => {
-        const checked = selected.includes(option.value);
-        return (
-          <label
-            key={option.value}
-            className={`preference-chip${checked ? " is-selected" : ""}`}
-            style={{ cursor: disabled ? "default" : "pointer" }}
-          >
-            <input
-              type="checkbox"
-              checked={checked}
-              disabled={disabled}
-              onChange={() => onToggle(option.value)}
-            />
-            <span>{option.label}</span>
-          </label>
-        );
-      })}
-    </div>
-  );
-}
-
 function toDateInputValue(timestamp: number): string {
   const date = new Date(timestamp);
   const year = date.getFullYear();
@@ -146,22 +111,21 @@ function ConditionEditor({
       {help ? <p className="audience-rule-help">{help}</p> : null}
 
       {condition.field === "province" && (
-        <MultiSelectChips
+        <SearchableMultiSelect
           disabled={disabled}
+          aria-label="Zoek provincies"
+          placeholder="Zoek provincie…"
           selected={condition.provinceKeys}
           options={catalog.provinces.map((province) => ({
             value: province.key,
             label: province.label,
           }))}
-          onToggle={(key) => {
-            const current = condition.provinceKeys;
+          onChange={(next) =>
             onChange({
               ...condition,
-              provinceKeys: current.includes(key)
-                ? current.filter((item) => item !== key)
-                : [...current, key],
-            });
-          }}
+              provinceKeys: next,
+            })
+          }
         />
       )}
 
@@ -186,23 +150,21 @@ function ConditionEditor({
       )}
 
       {condition.field === "division_level" && (
-        <MultiSelectChips
+        <SearchableMultiSelect
           disabled={disabled}
+          aria-label="Zoek niveaus"
+          placeholder="Zoek niveau…"
           selected={condition.levels.map(String)}
           options={catalog.levels.map((level) => ({
             value: String(level.level),
             label: level.label,
           }))}
-          onToggle={(value) => {
-            const level = Number(value);
-            const current = condition.levels;
+          onChange={(next) =>
             onChange({
               ...condition,
-              levels: current.includes(level)
-                ? current.filter((item) => item !== level)
-                : [...current, level],
-            });
-          }}
+              levels: next.map(Number),
+            })
+          }
         />
       )}
 
