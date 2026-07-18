@@ -17,6 +17,10 @@ export default function SharePrototypesIndexPage() {
           WhatsApp eerst, daarna Facebook, X, Messenger, e-mail en kopieerlink.
           Kies een variant om hem in artikelcontext te zien.
         </p>
+        <p className="share-proto__note">
+          Compacte top-varianten (na de hero):{" "}
+          <Link href="/share-prototypes/top">5 ideeën →</Link>
+        </p>
       </header>
       <ol className="share-proto__list shell">
         {SHARE_PROTOTYPES.map((prototype) => (
