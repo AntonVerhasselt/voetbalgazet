@@ -110,6 +110,46 @@ export const applyProviderEvent = internalMutation({
       }
     }
 
+    // Keep subscriber-level last-engagement timestamps for audience date filters.
+    if (
+      args.eventType === "email.delivered" ||
+      args.eventType === "email.opened" ||
+      args.eventType === "email.clicked"
+    ) {
+      const subscriber = await ctx.db.get(recipient.subscriberId);
+      if (subscriber) {
+        const engagementPatch: {
+          lastEmailDeliveredAt?: number;
+          lastEmailOpenedAt?: number;
+          lastEmailClickedAt?: number;
+        } = {};
+        if (
+          args.eventType === "email.delivered" &&
+          (subscriber.lastEmailDeliveredAt === undefined ||
+            providerTimestamp >= subscriber.lastEmailDeliveredAt)
+        ) {
+          engagementPatch.lastEmailDeliveredAt = providerTimestamp;
+        }
+        if (
+          args.eventType === "email.opened" &&
+          (subscriber.lastEmailOpenedAt === undefined ||
+            providerTimestamp >= subscriber.lastEmailOpenedAt)
+        ) {
+          engagementPatch.lastEmailOpenedAt = providerTimestamp;
+        }
+        if (
+          args.eventType === "email.clicked" &&
+          (subscriber.lastEmailClickedAt === undefined ||
+            providerTimestamp >= subscriber.lastEmailClickedAt)
+        ) {
+          engagementPatch.lastEmailClickedAt = providerTimestamp;
+        }
+        if (Object.keys(engagementPatch).length > 0) {
+          await ctx.db.patch(subscriber._id, engagementPatch);
+        }
+      }
+    }
+
     const send = await ctx.db.get(recipient.sendId);
     if (send) {
       const patch: {

@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { audienceRuleGroupValidator } from "./lib/audienceRules";
 import {
   adminRoleValidator,
   campaignStatusValidator,
@@ -59,6 +60,10 @@ export default defineSchema({
     favoriteTeamId: v.optional(v.id("teams")),
     preferenceStatus: preferenceStatusValidator,
     emailDeliveryStatus: deliveryStatusValidator,
+    /** Denormalized last newsletter engagement for audience date filters. */
+    lastEmailDeliveredAt: v.optional(v.number()),
+    lastEmailOpenedAt: v.optional(v.number()),
+    lastEmailClickedAt: v.optional(v.number()),
   })
     .index("by_normalized_email", ["normalizedEmail"])
     .index("by_newsletter_subscribed", ["newsletterSubscribed"])
@@ -201,9 +206,15 @@ export default defineSchema({
   newsletterAudienceDefinitions: defineTable({
     campaignId: v.id("newsletterCampaigns"),
     newsletterSubscribedOnly: v.literal(true),
+    /** Legacy flat filters — kept in sync for simple division/team rules. */
     divisionIds: v.array(v.id("divisions")),
     favoriteTeamIds: v.array(v.id("teams")),
     combineDimensionsWith: v.literal("and"),
+    /**
+     * Rule engine: OR of groups, AND within each group.
+     * Empty array = all eligible subscribers. Undefined = derive from legacy.
+     */
+    ruleGroups: v.optional(v.array(audienceRuleGroupValidator)),
     excludeUnverified: v.boolean(),
     confirmedAt: v.optional(v.number()),
     confirmedBy: v.optional(v.id("users")),

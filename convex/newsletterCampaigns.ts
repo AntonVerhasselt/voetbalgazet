@@ -9,6 +9,16 @@ import {
   viewerQuery,
 } from "./lib/adminAuth";
 import {
+  describeAudienceRules,
+  deriveLegacyFilters,
+  resolveRuleGroups,
+  subscriberMatchesRuleGroups,
+  validateRuleGroups,
+  type DivisionMeta,
+  audienceRuleGroupValidator,
+} from "./lib/audienceRules";
+import { buildAudienceEngagementContext } from "./lib/audienceEngagement";
+import {
   COMPLIANCE,
   EDITOR_FORMAT,
   EDITOR_FORMAT_VERSION,
@@ -16,7 +26,6 @@ import {
   emptyEditorDocumentJson,
 } from "./lib/compliance";
 import {
-  describeAudience,
   parseEditorDocument,
   renderCampaignEmail,
   validateDocumentForSend,
@@ -28,6 +37,7 @@ import {
 } from "./lib/validators";
 import { mergeCampaignStatusPages } from "./lib/campaignList";
 import { hasActiveSuppression } from "./lib/suppressions";
+import { provinceOptions } from "./lib/preferenceCatalog";
 
 /** Cap full-list preview scans so large lists do not time out the query. */
 const AUDIENCE_PREVIEW_SCAN_CAP = 2_000;
@@ -82,25 +92,59 @@ async function ensureDefaultSender(
   }
 }
 
+async function loadDivisionMeta(
+  ctx: AnyCtx,
+): Promise<Map<string, DivisionMeta>> {
+  const divisions = await ctx.db.query("divisions").take(500);
+  const map = new Map<string, DivisionMeta>();
+  for (const division of divisions) {
+    map.set(division._id, {
+      _id: division._id,
+      label: division.label,
+      provinceKey: division.provinceKey,
+      level: division.level,
+    });
+  }
+  return map;
+}
+
 async function audienceDescription(
   ctx: AnyCtx,
   definition: Doc<"newsletterAudienceDefinitions">,
 ): Promise<string> {
-  const divisionLabels: string[] = [];
-  for (const divisionId of definition.divisionIds) {
-    const division = await ctx.db.get(divisionId);
-    if (division) {
-      divisionLabels.push(division.label);
-    }
-  }
-  const teamLabels: string[] = [];
-  for (const teamId of definition.favoriteTeamIds) {
-    const team = await ctx.db.get(teamId);
-    if (team) {
-      teamLabels.push(team.label);
-    }
-  }
-  return describeAudience({ divisionLabels, teamLabels });
+  const ruleGroups = resolveRuleGroups(definition);
+  const divisions = await ctx.db.query("divisions").take(500);
+  const teams = await ctx.db.query("teams").take(500);
+  const campaigns = await ctx.db
+    .query("newsletterCampaigns")
+    .withIndex("by_status_and_updatedAt", (q) => q.eq("status", "sent"))
+    .order("desc")
+    .take(80);
+  const partial = await ctx.db
+    .query("newsletterCampaigns")
+    .withIndex("by_status_and_updatedAt", (q) =>
+      q.eq("status", "partially_failed"),
+    )
+    .order("desc")
+    .take(20);
+  const campaignDocs = [...campaigns, ...partial];
+  return describeAudienceRules({
+    ruleGroups,
+    divisions: divisions.map((division) => ({
+      _id: division._id,
+      label: division.label,
+      provinceKey: division.provinceKey,
+      level: division.level,
+    })),
+    teams: teams.map((team) => ({
+      _id: team._id,
+      label: team.label,
+    })),
+    campaigns: campaignDocs.map((campaign) => ({
+      _id: campaign._id,
+      label: campaign.internalName || campaign.subject || "Nieuwsbrief",
+    })),
+  });
 }
 
 async function audit(
@@ -259,6 +303,7 @@ export const getCampaign = viewerQuery({
           _id: v.id("newsletterAudienceDefinitions"),
           divisionIds: v.array(v.id("divisions")),
           favoriteTeamIds: v.array(v.id("teams")),
+          ruleGroups: v.array(audienceRuleGroupValidator),
           confirmedAt: v.optional(v.number()),
           version: v.number(),
           description: v.string(),
@@ -291,6 +336,7 @@ export const getCampaign = viewerQuery({
           _id: definition._id,
           divisionIds: definition.divisionIds,
           favoriteTeamIds: definition.favoriteTeamIds,
+          ruleGroups: resolveRuleGroups(definition),
           confirmedAt: definition.confirmedAt,
           version: definition.version,
           description: await audienceDescription(ctx, definition),
@@ -354,6 +400,7 @@ export const createCampaign = editorMutation({
       newsletterSubscribedOnly: true,
       divisionIds: [],
       favoriteTeamIds: [],
+      ruleGroups: [],
       combineDimensionsWith: "and",
       excludeUnverified: false,
       createdBy: ctx.adminUser._id,
@@ -563,11 +610,16 @@ export const duplicateCampaign = editorMutation({
     const sourceAudience = source.audienceDefinitionId
       ? await ctx.db.get(source.audienceDefinitionId)
       : null;
+    const sourceRuleGroups = sourceAudience
+      ? resolveRuleGroups(sourceAudience)
+      : [];
+    const legacy = deriveLegacyFilters(sourceRuleGroups);
     const audienceId = await ctx.db.insert("newsletterAudienceDefinitions", {
       campaignId,
       newsletterSubscribedOnly: true,
-      divisionIds: sourceAudience?.divisionIds ?? [],
-      favoriteTeamIds: sourceAudience?.favoriteTeamIds ?? [],
+      divisionIds: legacy.divisionIds,
+      favoriteTeamIds: legacy.favoriteTeamIds,
+      ruleGroups: sourceRuleGroups,
       combineDimensionsWith: "and",
       excludeUnverified: false,
       createdBy: ctx.adminUser._id,
@@ -622,8 +674,7 @@ export const deleteDraft = editorMutation({
 export const updateAudience = editorMutation({
   args: {
     campaignId: v.id("newsletterCampaigns"),
-    divisionIds: v.array(v.id("divisions")),
-    favoriteTeamIds: v.array(v.id("teams")),
+    ruleGroups: v.array(audienceRuleGroupValidator),
     confirm: v.boolean(),
   },
   returns: v.object({
@@ -645,17 +696,13 @@ export const updateAudience = editorMutation({
     if (!definition) {
       throw new Error("Audience-definitie ontbreekt.");
     }
+    validateRuleGroups(args.ruleGroups);
+    const legacy = deriveLegacyFilters(args.ruleGroups);
     const now = Date.now();
     const version = definition.version + 1;
-    const sameDivisions =
-      definition.divisionIds.length === args.divisionIds.length &&
-      definition.divisionIds.every((id) => args.divisionIds.includes(id));
-    const sameTeams =
-      definition.favoriteTeamIds.length === args.favoriteTeamIds.length &&
-      definition.favoriteTeamIds.every((id) =>
-        args.favoriteTeamIds.includes(id),
-      );
-    const filtersChanged = !sameDivisions || !sameTeams;
+    const previousGroups = resolveRuleGroups(definition);
+    const filtersChanged =
+      JSON.stringify(previousGroups) !== JSON.stringify(args.ruleGroups);
 
     // Confirm sets the lock. Changing filters without confirm clears it.
     // Plain save with unchanged filters preserves an existing confirmation.
@@ -672,8 +719,9 @@ export const updateAudience = editorMutation({
         : {};
 
     await ctx.db.patch(definition._id, {
-      divisionIds: args.divisionIds,
-      favoriteTeamIds: args.favoriteTeamIds,
+      ruleGroups: args.ruleGroups,
+      divisionIds: legacy.divisionIds,
+      favoriteTeamIds: legacy.favoriteTeamIds,
       updatedAt: now,
       version,
       ...confirmationPatch,
@@ -694,6 +742,8 @@ export const previewAudience = editorQuery({
   args: {
     campaignId: v.id("newsletterCampaigns"),
     now: v.number(),
+    /** Optional draft rules for live preview before save. */
+    ruleGroups: v.optional(v.array(audienceRuleGroupValidator)),
   },
   returns: audiencePreviewValidator,
   handler: async (ctx, args) => {
@@ -706,21 +756,94 @@ export const previewAudience = editorQuery({
       throw new Error("Audience-definitie ontbreekt.");
     }
 
+    const ruleGroups =
+      args.ruleGroups !== undefined
+        ? args.ruleGroups
+        : resolveRuleGroups(definition);
+    if (args.ruleGroups !== undefined) {
+      // Soft-validate: empty value lists just match nobody in evaluate.
+      try {
+        validateRuleGroups(args.ruleGroups);
+      } catch {
+        // Incomplete draft rules — still preview with current evaluate semantics.
+      }
+    }
+    const divisionMetaById = await loadDivisionMeta(ctx);
+    const legacy = deriveLegacyFilters(ruleGroups);
+    const engagement = await buildAudienceEngagementContext(ctx, ruleGroups);
+
     const subscribedSampleSource: Doc<"subscribers">[] = [];
     let cursor: string | null = null;
     let isDone = false;
     let excludedUnsubscribe = 0;
     let excludedSuppression = 0;
-    const excludedDivisionFilter = 0;
+    let excludedDivisionFilter = 0;
     let excludedTeamFilter = 0;
     let eligibleCount = 0;
     let scanned = 0;
     let isApproximate = false;
 
-    // Prefer division projection when reeksfilters zijn gezet — smaller scan.
-    if (definition.divisionIds.length > 0) {
+    const considerSubscriber = async (subscriber: Doc<"subscribers">) => {
+      if (!subscriber.newsletterSubscribed) {
+        return;
+      }
+      if (subscriber.unsubscribedAt !== undefined) {
+        excludedUnsubscribe += 1;
+        return;
+      }
+      if (
+        await hasActiveSuppression(ctx, {
+          subscriberId: subscriber._id,
+          normalizedEmail: subscriber.normalizedEmail,
+        })
+      ) {
+        excludedSuppression += 1;
+        return;
+      }
+      if (
+        !subscriberMatchesRuleGroups(
+          {
+            _id: subscriber._id,
+            divisionIds: subscriber.divisionIds,
+            favoriteTeamId: subscriber.favoriteTeamId,
+            newsletterSubscribedAt: subscriber.newsletterSubscribedAt,
+            lastEmailDeliveredAt: subscriber.lastEmailDeliveredAt,
+            lastEmailOpenedAt: subscriber.lastEmailOpenedAt,
+            lastEmailClickedAt: subscriber.lastEmailClickedAt,
+          },
+          ruleGroups,
+          divisionMetaById,
+          args.now,
+          engagement,
+        )
+      ) {
+        // Keep legacy exclusion counters informative for simple filters.
+        if (legacy.divisionIds.length > 0) {
+          const divisionMatch = subscriber.divisionIds.some((id) =>
+            legacy.divisionIds.includes(id),
+          );
+          if (!divisionMatch) {
+            excludedDivisionFilter += 1;
+            return;
+          }
+        }
+        if (legacy.favoriteTeamIds.length > 0) {
+          excludedTeamFilter += 1;
+          return;
+        }
+        excludedDivisionFilter += 1;
+        return;
+      }
+      eligibleCount += 1;
+      if (subscribedSampleSource.length < 20) {
+        subscribedSampleSource.push(subscriber);
+      }
+    };
+
+    // Prefer division projection when a simple reeksfilter is the only path.
+    if (legacy.divisionIds.length > 0 && ruleGroups.length === 1) {
       const seen = new Set<string>();
-      for (const divisionId of definition.divisionIds) {
+      for (const divisionId of legacy.divisionIds) {
         let divisionCursor: string | null = null;
         let divisionDone = false;
         while (!divisionDone && scanned < AUDIENCE_PREVIEW_SCAN_CAP) {
@@ -741,34 +864,8 @@ export const previewAudience = editorQuery({
             }
             seen.add(preference.subscriberId);
             const subscriber = await ctx.db.get(preference.subscriberId);
-            if (!subscriber || !subscriber.newsletterSubscribed) {
-              continue;
-            }
-            if (subscriber.unsubscribedAt !== undefined) {
-              excludedUnsubscribe += 1;
-              continue;
-            }
-            if (
-              await hasActiveSuppression(ctx, {
-                subscriberId: subscriber._id,
-                normalizedEmail: subscriber.normalizedEmail,
-              })
-            ) {
-              excludedSuppression += 1;
-              continue;
-            }
-            if (definition.favoriteTeamIds.length > 0) {
-              if (
-                !subscriber.favoriteTeamId ||
-                !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
-              ) {
-                excludedTeamFilter += 1;
-                continue;
-              }
-            }
-            eligibleCount += 1;
-            if (subscribedSampleSource.length < 20) {
-              subscribedSampleSource.push(subscriber);
+            if (subscriber) {
+              await considerSubscriber(subscriber);
             }
           }
           divisionDone = preferencePage.isDone;
@@ -798,32 +895,7 @@ export const previewAudience = editorQuery({
           });
         for (const subscriber of page.page) {
           scanned += 1;
-          if (subscriber.unsubscribedAt !== undefined) {
-            excludedUnsubscribe += 1;
-            continue;
-          }
-          if (
-            await hasActiveSuppression(ctx, {
-              subscriberId: subscriber._id,
-              normalizedEmail: subscriber.normalizedEmail,
-            })
-          ) {
-            excludedSuppression += 1;
-            continue;
-          }
-          if (definition.favoriteTeamIds.length > 0) {
-            if (
-              !subscriber.favoriteTeamId ||
-              !definition.favoriteTeamIds.includes(subscriber.favoriteTeamId)
-            ) {
-              excludedTeamFilter += 1;
-              continue;
-            }
-          }
-          eligibleCount += 1;
-          if (subscribedSampleSource.length < 20) {
-            subscribedSampleSource.push(subscriber);
-          }
+          await considerSubscriber(subscriber);
         }
         isDone = page.isDone;
         cursor = page.isDone ? null : page.continueCursor;
@@ -837,9 +909,9 @@ export const previewAudience = editorQuery({
     for (const subscriber of subscribedSampleSource) {
       const divisionLabels: string[] = [];
       for (const divisionId of subscriber.divisionIds) {
-        const division = await ctx.db.get(divisionId);
-        if (division) {
-          divisionLabels.push(division.label);
+        const meta = divisionMetaById.get(divisionId);
+        if (meta) {
+          divisionLabels.push(meta.label);
         }
       }
       const team = subscriber.favoriteTeamId
@@ -860,6 +932,26 @@ export const previewAudience = editorQuery({
         ? 0
         : Math.round((eligibleCount / eligibleBeforeFilters) * 1000) / 10;
 
+    const divisions = [...divisionMetaById.values()];
+    const teams = await ctx.db.query("teams").take(500);
+    const sentCampaigns = await ctx.db
+      .query("newsletterCampaigns")
+      .withIndex("by_status_and_updatedAt", (q) => q.eq("status", "sent"))
+      .order("desc")
+      .take(80);
+    const description = describeAudienceRules({
+      ruleGroups,
+      divisions,
+      teams: teams.map((team) => ({
+        _id: team._id,
+        label: team.label,
+      })),
+      campaigns: sentCampaigns.map((campaign) => ({
+        _id: campaign._id,
+        label: campaign.internalName || campaign.subject || "Nieuwsbrief",
+      })),
+    });
+
     return {
       eligibleBeforeFilters,
       eligibleAfterFilters: eligibleCount,
@@ -869,7 +961,7 @@ export const previewAudience = editorQuery({
       excludedTeamFilter,
       percentOfActive,
       calculatedAt: args.now,
-      description: await audienceDescription(ctx, definition),
+      description,
       isApproximate,
       sample,
     };
@@ -879,11 +971,24 @@ export const previewAudience = editorQuery({
 export const listCatalog = viewerQuery({
   args: {},
   returns: v.object({
+    provinces: v.array(
+      v.object({
+        key: v.string(),
+        label: v.string(),
+      }),
+    ),
+    levels: v.array(
+      v.object({
+        level: v.number(),
+        label: v.string(),
+      }),
+    ),
     divisions: v.array(
       v.object({
         _id: v.id("divisions"),
         label: v.string(),
         provinceKey: v.string(),
+        level: v.number(),
       }),
     ),
     teams: v.array(
@@ -893,11 +998,40 @@ export const listCatalog = viewerQuery({
         provinceKey: v.string(),
       }),
     ),
+    campaigns: v.array(
+      v.object({
+        _id: v.id("newsletterCampaigns"),
+        label: v.string(),
+        sentAt: v.union(v.number(), v.null()),
+      }),
+    ),
   }),
   handler: async (ctx) => {
-    const divisions = await ctx.db.query("divisions").take(200);
-    const teams = await ctx.db.query("teams").take(200);
+    const divisions = await ctx.db.query("divisions").take(500);
+    const teams = await ctx.db.query("teams").take(500);
+    const sent = await ctx.db
+      .query("newsletterCampaigns")
+      .withIndex("by_status_and_updatedAt", (q) => q.eq("status", "sent"))
+      .order("desc")
+      .take(80);
+    const partial = await ctx.db
+      .query("newsletterCampaigns")
+      .withIndex("by_status_and_updatedAt", (q) =>
+        q.eq("status", "partially_failed"),
+      )
+      .order("desc")
+      .take(20);
+    const campaigns = [...sent, ...partial];
     return {
+      provinces: provinceOptions.map((province) => ({
+        key: province.key,
+        label: province.label,
+      })),
+      levels: [
+        { level: 1, label: "1ste provinciale" },
+        { level: 2, label: "2de provinciale" },
+        { level: 3, label: "3de provinciale" },
+      ],
       divisions: divisions
         .filter((d) => d.active)
         .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -905,6 +1039,7 @@ export const listCatalog = viewerQuery({
           _id: d._id,
           label: d.label,
           provinceKey: d.provinceKey,
+          level: d.level,
         })),
       teams: teams
         .filter((t) => t.active)
@@ -913,6 +1048,11 @@ export const listCatalog = viewerQuery({
           label: t.label,
           provinceKey: t.provinceKey,
         })),
+      campaigns: campaigns.map((campaign) => ({
+        _id: campaign._id,
+        label: campaign.internalName || campaign.subject || "Nieuwsbrief",
+        sentAt: campaign.sentAt ?? null,
+      })),
     };
   },
 });
