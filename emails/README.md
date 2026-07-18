@@ -1,17 +1,24 @@
-# Email renderer contract
+# `@devoetbalgazet/emails`
 
-Newsletter and transactional email rendering has two runtimes:
+Shared TipTap → HTML/plaintext renderer and compliance footer contract used by:
 
-- Convex sends mail from `convex/lib/emailRender.ts`. This renderer is plain
-  TypeScript because Convex cannot rely on the browser editor runtime or React
-  Email editor internals when preparing sends.
-- The browser admin editor uses `@react-email/editor` in
-  `apps/web/src/components/newsletter-email-editor/NewsletterEmailEditor.tsx`
-  so editors get the visual drafting experience.
+- **Convex sends** — `convex/lib/emailRender.ts` and `convex/lib/compliance.ts`
+  re-export this package (plain TypeScript; no React Email editor runtime).
+- **Browser admin editor** — `@react-email/editor` drafts TipTap JSON that this
+  renderer must accept before content is sendable.
 
-Both renderers consume the same sanitized TipTap JSON document shape. Any editor
-extension that changes saved JSON must also be supported by the Convex renderer
-before it can be used for sendable content.
+## Contract
+
+Both runtimes consume the same sanitized TipTap JSON document shape. Any editor
+extension that changes saved JSON must also be supported here before it can be
+used for sendable content.
+
+```ts
+import {
+  renderCampaignEmail,
+  sanitizeEditorDocumentJson,
+} from "@devoetbalgazet/emails";
+```
 
 Parity and safety coverage lives in `tests/emailRender.test.ts`. Add or update
 those tests whenever a new block, mark, or sanitizer behavior is introduced.

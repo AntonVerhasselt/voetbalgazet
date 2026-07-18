@@ -21,7 +21,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@convex/*": ["../../convex/*"]
+      "@convex/*": ["../../convex/*"],
+      "@devoetbalgazet/emails": ["../../emails/src/index.ts"]
     }
   },
   "include": [

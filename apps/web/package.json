@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@convex-dev/better-auth": "^0.12.5",
+    "@devoetbalgazet/emails": "*",
     "@keystatic/core": "^0.5.51",
     "@keystatic/next": "^5.0.4",
     "@markdoc/markdoc": "^0.5.8",

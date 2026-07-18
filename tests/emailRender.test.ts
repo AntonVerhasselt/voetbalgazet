@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
   describeAudience,
+  emptyEditorDocumentJson,
   maskEmail,
   parseEditorDocument,
   renderCampaignEmail,
   validateDocumentForSend,
+} from "@devoetbalgazet/emails";
+// Convex re-exports must stay wired to the shared package.
+import {
+  parseEditorDocument as parseViaConvexReexport,
+  renderCampaignEmail as renderViaConvexReexport,
 } from "../convex/lib/emailRender";
-import { emptyEditorDocumentJson } from "../convex/lib/compliance";
+import { emptyEditorDocumentJson as emptyViaConvexReexport } from "../convex/lib/compliance";
 
 describe("emailRender", () => {
   it("rejects oversized or invalid documents", () => {
@@ -241,5 +247,40 @@ describe("emailRender", () => {
     expect(rendered.html).toContain("utm_source=newsletter");
     expect(rendered.html).toContain("utm_medium=email");
     expect(rendered.html).toContain("/nieuws/derby-reportage?");
+  });
+
+  it("exposes the same API through convex/lib re-exports", () => {
+    expect(emptyViaConvexReexport()).toBe(emptyEditorDocumentJson());
+    const documentJson = JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Parity" }],
+        },
+      ],
+    });
+    expect(parseViaConvexReexport(documentJson)).toEqual(
+      parseEditorDocument(documentJson),
+    );
+    const links = {
+      unsubscribeUrl: "https://example.com/uitschrijven",
+      preferencesUrl: "https://example.com/voorkeuren",
+      privacyUrl: "https://example.com/privacy",
+      siteUrl: "https://example.com",
+    };
+    expect(
+      renderViaConvexReexport({
+        documentJson,
+        subject: "Parity",
+        links,
+      }).html,
+    ).toBe(
+      renderCampaignEmail({
+        documentJson,
+        subject: "Parity",
+        links,
+      }).html,
+    );
   });
 });

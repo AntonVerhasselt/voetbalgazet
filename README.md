@@ -37,7 +37,11 @@ Tracked again in [`docs/phase-3-follow-ups.md`](./docs/phase-3-follow-ups.md).
 - Keystatic artikeladmin (`/keystatic`) with Git-backed Markdoc + YAML settings
 - Signed draft preview (`/preview/*`) with gate/ungated mobile checks
 - Branded mobile-first `/admin` shell linking to Artikels
-- strict TypeScript, Convex ESLint rules, and focused unit tests
+- strict TypeScript, Convex ESLint rules, focused unit tests with coverage
+  gates (`vitest.config.ts`), and GitHub Actions CI (`.github/workflows/ci.yml`)
+- shared `@devoetbalgazet/emails` package for the TipTap → HTML renderer used by
+  Convex sends and the browser editor contract
+- Next.js 16 `src/proxy.ts` early gates for `/admin`, `/keystatic`, and `/preview`
 
 Newsletter admin (campaigns, editor, Resend sends): see
 [`docs/phase-4-newsletter.md`](./docs/phase-4-newsletter.md).
