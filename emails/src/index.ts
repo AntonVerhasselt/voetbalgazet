@@ -13,6 +13,8 @@ export {
   sanitizeEditorDocumentJson,
 } from "./compliance";
 
+export { richDemoNewsletterDocumentJson } from "./demoDocument";
+
 export type {
   ComplianceLinks,
   RenderedEmail,

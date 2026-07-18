@@ -22,3 +22,13 @@ import {
 
 Parity and safety coverage lives in `tests/emailRender.test.ts`. Add or update
 those tests whenever a new block, mark, or sanitizer behavior is introduced.
+
+## Resend delivery path
+
+Resend’s Node SDK accepts a `react` prop on
+[`emails.send`](https://resend.com/docs/api-reference/emails/send-email) /
+[`emails.batch.send`](https://resend.com/docs/api-reference/emails/send-batch-emails).
+This project sends through `@convex-dev/resend`, which takes **pre-rendered
+`html` + `text` only**. Keep styling bulletproof in this renderer (table-based
+buttons, safe href resolution for editor placeholders like `href="#"`) rather
+than relying on a React Email runtime inside Convex.

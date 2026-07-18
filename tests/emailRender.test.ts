@@ -188,6 +188,7 @@ describe("emailRender", () => {
     expect(rendered.html).toContain("Rechts");
     expect(rendered.html).toContain('href="https://example.com/meer"');
     expect(rendered.html).toContain("Lees meer");
+    expect(rendered.html).toContain("background:#1A1510");
     expect(rendered.html).toContain("const x = 1;");
     expect(rendered.html).toContain("height:32px");
     expect(rendered.html).toContain("Kolom A");
@@ -196,7 +197,69 @@ describe("emailRender", () => {
     expect(rendered.html).toContain('alt="Foto"');
     expect(rendered.text).toContain("Links");
     expect(rendered.text).toContain("Lees meer: https://example.com/meer");
-    expect(rendered.rendererVersion).toBe("2");
+    expect(rendered.rendererVersion).toBe("3");
+  });
+
+  it("keeps bulletproof button chrome for editor placeholder href=#", () => {
+    const documentJson = JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "button",
+          attrs: { href: "#", alignment: "center" },
+          content: [{ type: "text", text: "Button" }],
+        },
+      ],
+    });
+    const rendered = renderCampaignEmail({
+      documentJson,
+      subject: "CTA test",
+      links: {
+        unsubscribeUrl: "https://devoetbalgazet.be/uitschrijven",
+        preferencesUrl: "https://devoetbalgazet.be/voorkeuren",
+        privacyUrl: "https://devoetbalgazet.be/privacy",
+        siteUrl: "https://devoetbalgazet.be",
+      },
+    });
+    expect(rendered.html).toContain('href="https://devoetbalgazet.be"');
+    expect(rendered.html).toContain("background:#1A1510");
+    expect(rendered.html).toContain("Button");
+    expect(rendered.html).not.toMatch(
+      /<p[^>]*color:#6B5E52[^>]*>Button<\/p>/,
+    );
+    expect(rendered.html).toContain('role="presentation"');
+    expect(rendered.text).toContain("Button: https://devoetbalgazet.be");
+  });
+
+  it("renders accent variant buttons and relative article paths", () => {
+    const documentJson = JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "button",
+          attrs: {
+            href: "/nieuws/zondagen-langs-de-lijn",
+            alignment: "left",
+            variant: "accent",
+          },
+          content: [{ type: "text", text: "Lees het verhaal" }],
+        },
+      ],
+    });
+    const rendered = renderCampaignEmail({
+      documentJson,
+      subject: "Accent CTA",
+      links: {
+        unsubscribeUrl: "https://devoetbalgazet.be/uitschrijven",
+        preferencesUrl: "https://devoetbalgazet.be/voorkeuren",
+        privacyUrl: "https://devoetbalgazet.be/privacy",
+        siteUrl: "https://devoetbalgazet.be",
+      },
+    });
+    expect(rendered.html).toContain(
+      'href="https://devoetbalgazet.be/nieuws/zondagen-langs-de-lijn"',
+    );
+    expect(rendered.html).toContain("background:#9F2F24");
   });
 
   it("masks emails and describes audiences", () => {

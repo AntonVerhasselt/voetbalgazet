@@ -41,6 +41,7 @@ import type * as lib_validators from "../lib/validators.js";
 import type * as newsletterAdmin from "../newsletterAdmin.js";
 import type * as newsletterCampaigns from "../newsletterCampaigns.js";
 import type * as newsletterDelivery from "../newsletterDelivery.js";
+import type * as newsletterDemo from "../newsletterDemo.js";
 import type * as newsletterSend from "../newsletterSend.js";
 import type * as newsletterSendPipeline from "../newsletterSendPipeline.js";
 import type * as r2 from "../r2.js";
@@ -90,6 +91,7 @@ declare const fullApi: ApiFromModules<{
   newsletterAdmin: typeof newsletterAdmin;
   newsletterCampaigns: typeof newsletterCampaigns;
   newsletterDelivery: typeof newsletterDelivery;
+  newsletterDemo: typeof newsletterDemo;
   newsletterSend: typeof newsletterSend;
   newsletterSendPipeline: typeof newsletterSendPipeline;
   r2: typeof r2;

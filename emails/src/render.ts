@@ -44,6 +44,8 @@ const COLORS = {
   border: "#D4C8B8",
   buttonBg: "#1A1510",
   buttonFg: "#F5F0E8",
+  accent: "#9F2F24",
+  accentFg: "#FFFDF8",
   codeBg: "#F5F0E8",
 } as const;
 
@@ -52,6 +54,24 @@ const FONT_BODY =
 const FONT_DISPLAY = "Georgia,'Times New Roman',serif";
 const FONT_MONO =
   "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace";
+
+type RenderContext = {
+  siteUrl: string;
+};
+
+let renderContext: RenderContext = {
+  siteUrl: "https://devoetbalgazet.be",
+};
+
+function withRenderContext<T>(ctx: RenderContext, fn: () => T): T {
+  const previous = renderContext;
+  renderContext = ctx;
+  try {
+    return fn();
+  } finally {
+    renderContext = previous;
+  }
+}
 
 /** CSS properties safe to pass through from editor inline styles. */
 const SAFE_STYLE_PROPS = new Set([
@@ -112,6 +132,45 @@ function isSafeHttpUrl(value: unknown): value is string {
   } catch {
     return false;
   }
+}
+
+/**
+ * Resolve editor button/link hrefs for outbound mail.
+ * React Email editor defaults new buttons to `href: "#"`, which must still
+ * render as a real CTA (never collapse to plain muted text).
+ */
+function resolveHref(value: unknown, siteUrl = renderContext.siteUrl): string {
+  const baseRaw = siteUrl.replace(/\/$/u, "");
+  const base =
+    !baseRaw || baseRaw === "#" || baseRaw === "/"
+      ? "https://devoetbalgazet.be"
+      : baseRaw;
+  if (typeof value !== "string") {
+    return base;
+  }
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === "#" || trimmed === "/") {
+    return base;
+  }
+  if (trimmed.startsWith("/")) {
+    return `${base}${trimmed}`;
+  }
+  if (isSafeHttpUrl(trimmed)) {
+    return trimmed;
+  }
+  return base;
+}
+
+function readStyleColor(
+  style: string,
+  prop: "background" | "background-color" | "color",
+): string | undefined {
+  const match = new RegExp(
+    `(?:^|;)\\s*${prop}\\s*:\\s*([^;]+)`,
+    "iu",
+  ).exec(style);
+  const value = match?.[1]?.trim();
+  return value || undefined;
 }
 
 /** Parse and whitelist inline CSS from editor attrs.style. */
@@ -308,6 +367,86 @@ function renderColumns(node: TipTapNode): string {
   ])}><tr>${cells.join("")}</tr></table>`;
 }
 
+/**
+ * Bulletproof email CTA — table + padded anchor (Outlook/Gmail safe).
+ * Inspired by `@react-email/button`: always paint a real button, never demote
+ * placeholder `href="#"` to plain muted text.
+ */
+function renderEmailButton(node: TipTapNode, inlineStyle: string): string {
+  const href = resolveHref(node.attrs?.href ?? node.attrs?.url);
+  const labelHtml =
+    typeof node.attrs?.label === "string"
+      ? escapeHtml(node.attrs.label)
+      : renderInline(node.content) || "Meer lezen";
+  const labelPlain = labelHtml.replace(/<[^>]+>/gu, "").trim() || "Meer lezen";
+
+  const btnAlign = node.attrs?.alignment ?? node.attrs?.align ?? "left";
+  const align =
+    btnAlign === "center"
+      ? "center"
+      : btnAlign === "right"
+        ? "right"
+        : "left";
+
+  const variant =
+    typeof node.attrs?.variant === "string"
+      ? node.attrs.variant
+      : typeof node.attrs?.appearance === "string"
+        ? node.attrs.appearance
+        : "primary";
+  const defaultBg =
+    variant === "accent" || variant === "secondary"
+      ? COLORS.accent
+      : COLORS.buttonBg;
+  const defaultFg =
+    variant === "accent" || variant === "secondary"
+      ? COLORS.accentFg
+      : COLORS.buttonFg;
+
+  const bg =
+    readStyleColor(inlineStyle, "background-color") ??
+    readStyleColor(inlineStyle, "background") ??
+    defaultBg;
+  const fg = readStyleColor(inlineStyle, "color") ?? defaultFg;
+
+  // Keep padding/font from editor theme when present; otherwise brand defaults.
+  const paddingMatch = /(?:^|;)\s*padding\s*:\s*([^;]+)/iu.exec(inlineStyle);
+  const padding = paddingMatch?.[1]?.trim() || "14px 22px";
+  const fontSizeMatch = /(?:^|;)\s*font-size\s*:\s*([^;]+)/iu.exec(inlineStyle);
+  const fontSize = fontSizeMatch?.[1]?.trim() || "15px";
+  const fontWeightMatch = /(?:^|;)\s*font-weight\s*:\s*([^;]+)/iu.exec(
+    inlineStyle,
+  );
+  const fontWeight = fontWeightMatch?.[1]?.trim() || "600";
+
+  const anchorStyle = [
+    "display:inline-block",
+    `background:${bg}`,
+    `color:${fg}`,
+    "text-decoration:none",
+    `padding:${padding}`,
+    `font-family:${FONT_BODY}`,
+    `font-size:${fontSize}`,
+    `font-weight:${fontWeight}`,
+    "line-height:120%",
+    "border-radius:0",
+    `border:1px solid ${bg}`,
+    "mso-padding-alt:0",
+  ].join(";");
+
+  // MSO-friendly padded link (same idea as @react-email/button).
+  const msoOpen = `<!--[if mso]><i style="mso-font-width:100%;mso-text-raise:18pt" hidden>&#8202;&#8202;</i><![endif]-->`;
+  const msoClose = `<!--[if mso]><i style="mso-font-width:100%" hidden>&#8202;&#8202;&#8203;</i><![endif]-->`;
+
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="${align}" style="margin:0 0 20px;border-collapse:separate;">
+  <tr>
+    <td align="center" bgcolor="${escapeHtml(bg)}" style="background:${escapeHtml(bg)};border-radius:0;">
+      <a href="${escapeHtml(href)}" target="_blank" style="${escapeHtml(anchorStyle)}">${msoOpen}<span style="display:inline-block;line-height:120%;max-width:100%;">${labelHtml || escapeHtml(labelPlain)}</span>${msoClose}</a>
+    </td>
+  </tr>
+</table>`;
+}
+
 function renderNode(node: TipTapNode): string {
   const inlineStyle = sanitizeInlineStyle(node.attrs?.style);
   const align = alignmentCss(node.attrs);
@@ -484,33 +623,7 @@ function renderNode(node: TipTapNode): string {
     }
 
     case "button": {
-      const href = node.attrs?.href ?? node.attrs?.url;
-      const label =
-        typeof node.attrs?.label === "string"
-          ? escapeHtml(node.attrs.label)
-          : renderInline(node.content) || "Meer lezen";
-      const btnAlign = node.attrs?.alignment ?? node.attrs?.align ?? "left";
-      const alignStyle =
-        btnAlign === "center"
-          ? "text-align:center"
-          : btnAlign === "right"
-            ? "text-align:right"
-            : "text-align:left";
-      const btnStyles = [
-        "display:inline-block",
-        `background:${COLORS.buttonBg}`,
-        `color:${COLORS.buttonFg}`,
-        "text-decoration:none",
-        "padding:12px 18px",
-        `font-family:${FONT_BODY}`,
-        "font-size:15px",
-        "font-weight:600",
-        inlineStyle,
-      ];
-      if (!isSafeHttpUrl(href)) {
-        return `<p${styleAttr(["margin:0 0 16px", `color:${COLORS.muted}`, alignStyle])}>${label.replace(/<[^>]+>/g, "")}</p>`;
-      }
-      return `<p${styleAttr(["margin:0 0 20px", alignStyle])}><a href="${escapeHtml(String(href))}"${styleAttr(btnStyles)}>${label}</a></p>`;
+      return renderEmailButton(node, inlineStyle);
     }
 
     case "spacer": {
@@ -619,12 +732,12 @@ function nodeToText(node: TipTapNode): string {
     case "divider":
       return "---\n\n";
     case "button": {
-      const href = node.attrs?.href ?? node.attrs?.url;
+      const href = resolveHref(node.attrs?.href ?? node.attrs?.url);
       const label =
         typeof node.attrs?.label === "string"
           ? node.attrs.label
           : (node.content ?? []).map(nodeToText).join("") || "Meer lezen";
-      return isSafeHttpUrl(href) ? `${label}: ${href}\n\n` : `${label}\n\n`;
+      return `${label}: ${href}\n\n`;
     }
     case "image": {
       const alt =
@@ -777,15 +890,16 @@ export function renderCampaignEmail(args: {
   includeFooter?: boolean;
   campaignAnalyticsId?: string;
 }): RenderedEmail {
-  const doc = parseEditorDocument(args.documentJson);
-  const bodyHtml = renderNode(doc);
-  const includeFooter = args.includeFooter !== false;
-  const footerHtml = includeFooter ? renderComplianceFooter(args.links) : "";
-  const preheader = args.preheader
-    ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(args.preheader)}</div>`
-    : "";
+  return withRenderContext({ siteUrl: args.links.siteUrl }, () => {
+    const doc = parseEditorDocument(args.documentJson);
+    const bodyHtml = renderNode(doc);
+    const includeFooter = args.includeFooter !== false;
+    const footerHtml = includeFooter ? renderComplianceFooter(args.links) : "";
+    const preheader = args.preheader
+      ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(args.preheader)}</div>`
+      : "";
 
-  let html = `<!DOCTYPE html>
+    let html = `<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
@@ -814,29 +928,30 @@ export function renderCampaignEmail(args: {
 </body>
 </html>`;
 
-  const textBody = nodeToText(doc).trim();
-  let text = includeFooter
-    ? `${textBody}\n\n${renderComplianceFooterText(args.links)}`
-    : textBody;
+    const textBody = nodeToText(doc).trim();
+    let text = includeFooter
+      ? `${textBody}\n\n${renderComplianceFooterText(args.links)}`
+      : textBody;
 
-  if (args.campaignAnalyticsId) {
-    html = withCampaignAnalyticsLinks(html, {
-      siteUrl: args.links.siteUrl,
-      campaignAnalyticsId: args.campaignAnalyticsId,
-    });
-    text = withCampaignAnalyticsLinks(text, {
-      siteUrl: args.links.siteUrl,
-      campaignAnalyticsId: args.campaignAnalyticsId,
-    });
-  }
+    if (args.campaignAnalyticsId) {
+      html = withCampaignAnalyticsLinks(html, {
+        siteUrl: args.links.siteUrl,
+        campaignAnalyticsId: args.campaignAnalyticsId,
+      });
+      text = withCampaignAnalyticsLinks(text, {
+        siteUrl: args.links.siteUrl,
+        campaignAnalyticsId: args.campaignAnalyticsId,
+      });
+    }
 
-  return {
-    html,
-    text,
-    rendererVersion: RENDERER_VERSION,
-    themeVersion: THEME_VERSION,
-    footerVersion: includeFooter ? COMPLIANCE_FOOTER_VERSION : "none",
-  };
+    return {
+      html,
+      text,
+      rendererVersion: RENDERER_VERSION,
+      themeVersion: THEME_VERSION,
+      footerVersion: includeFooter ? COMPLIANCE_FOOTER_VERSION : "none",
+    };
+  });
 }
 
 export function renderTransactionalEmail(args: {
@@ -854,10 +969,10 @@ export function renderTransactionalEmail(args: {
     subject: args.subject,
     preheader: args.preheader,
     links: {
-      unsubscribeUrl: "#",
-      preferencesUrl: "#",
-      privacyUrl: "#",
-      siteUrl: "#",
+      unsubscribeUrl: "https://devoetbalgazet.be/uitschrijven",
+      preferencesUrl: "https://devoetbalgazet.be/voorkeuren",
+      privacyUrl: "https://devoetbalgazet.be/privacy",
+      siteUrl: "https://devoetbalgazet.be",
     },
     includeFooter: false,
   });
