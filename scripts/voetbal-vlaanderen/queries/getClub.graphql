@@ -1,0 +1,10 @@
+
+  query getClub($clubId: ID!, $language: Language!) {
+    club(clubId: $clubId, language: $language) {
+      id
+      name
+      registrationNumber
+      logo
+      typLigue
+    }
+  }

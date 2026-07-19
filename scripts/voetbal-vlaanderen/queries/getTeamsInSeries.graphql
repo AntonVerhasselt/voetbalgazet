@@ -1,0 +1,10 @@
+
+  query getTeamsInSeries($seriesId: ID!, $language: Language!) {
+    teamsInSeries(seriesId: $seriesId, language: $language) {
+      clubId
+      clubName
+      id
+      logo
+      complement
+    }
+  }

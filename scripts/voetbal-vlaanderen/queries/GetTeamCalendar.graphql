@@ -1,0 +1,42 @@
+
+  query GetTeamCalendar ($teamId: ID!, $language: Language!, $sortByDate: SortDirection) {
+    teamCalendar(teamId: $teamId, language: $language, sortByDate: $sortByDate) {
+      id
+      startTime
+      channel
+      homeTeam {
+        id
+        name
+        clubId
+        logo
+      }
+      awayTeam {
+        id
+        name
+        clubId
+        logo
+      }
+      outcome {
+        status
+        homeTeamGoals
+        homeTeamPenaltiesScored
+        awayTeamGoals
+        awayTeamPenaltiesScored
+        subscript
+      }
+      series {
+        id
+        name
+      }
+      officials {
+        lastName
+        firstName
+        status
+        personAssigned
+      }
+      showScore
+      state
+      startDateTimeInThePassed
+      ageGroup
+    }
+  }

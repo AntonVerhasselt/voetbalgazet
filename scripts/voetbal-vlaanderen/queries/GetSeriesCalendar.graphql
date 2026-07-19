@@ -1,0 +1,41 @@
+
+  query GetSeriesCalendar($seriesId: ID!, $endDate: String!, $startDate: String!, $language: Language!) {
+    seriesCalendar(seriesId: $seriesId, startDate: $startDate, endDate: $endDate, language: $language) {
+      id
+      state
+      startTime
+      channel
+      homeTeam {
+        id
+        name
+        clubId
+        logo
+      }
+      awayTeam {
+        id
+        name
+        clubId
+        logo
+      }
+      outcome {
+        status
+        homeTeamGoals
+        homeTeamPenaltiesScored
+        awayTeamGoals
+        awayTeamPenaltiesScored
+        subscript
+      }
+      series {
+        id
+        name
+      }
+      officials {
+        lastName
+        firstName
+        status
+        personAssigned
+      }
+      showScore
+      startDateTimeInThePassed
+    }
+  }

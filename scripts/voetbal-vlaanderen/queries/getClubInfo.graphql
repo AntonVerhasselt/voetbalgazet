@@ -1,0 +1,50 @@
+
+  query getClubInfo($clubId: ID!, $language: Language!) {
+    clubInfo(clubId: $clubId) {
+      id
+      name
+      address {
+        streetName
+        postalCode
+        localityName
+      }
+      vatNumber
+      officialLanguage(language: $language)
+      website
+      registrationNumber
+      nbrstars {
+        stars
+        libelle
+      }
+      discipline
+      sportLevel {
+        level
+        type
+      }
+      venue {
+        name
+        streetName
+        streetNumber
+        postalCode
+        localityName
+        postBoxNumber
+      }
+      kits(clubId: $clubId, language: $language) {
+        kitNumber
+        garments {
+          type
+          order
+          primaryColour(language: $language)
+          secondaryColour(language: $language)
+        }
+      }
+      contacts(clubId: $clubId, language: $language) {
+        firstName
+        lastName
+        functionName(language: $language)
+        mail
+        phone
+        fax
+      }
+    }
+  }

@@ -1,0 +1,51 @@
+query GetMatchDetail($matchId: ID!, $language: Language!) {
+  matchDetail(matchId: $matchId, language: $language) {
+    id
+    title
+    startTime
+    channel
+    series { id name }
+    eventType
+    state
+    location {
+      id name city postalCode address pitchCode synthetic
+    }
+    officials {
+      lastName firstName function status personAssigned
+    }
+    events {
+      minute
+      home { lastName firstName teamId kind minute }
+      away { lastName firstName teamId kind minute }
+    }
+    shootout {
+      lastName firstName isScored homeScore awayScore isHome
+    }
+    homeTeam {
+      id name registrationNumber clubId logo
+    }
+    awayTeam {
+      id name registrationNumber clubId logo
+    }
+    outcome {
+      homeTeamGoals homeTeamPenaltiesScored
+      awayTeamGoals awayTeamPenaltiesScored
+      subscript isFinished hasPenalties hasSubscript
+    }
+    showScore
+    startDateTimeInThePassed
+    ageGroup
+    lineup {
+      home { id lastName firstName shirtNumber badges events { type minute } }
+      away { id lastName firstName shirtNumber badges events { type minute } }
+    }
+    substitutes {
+      home { id lastName firstName shirtNumber badges events { type minute } }
+      away { id lastName firstName shirtNumber badges events { type minute } }
+    }
+    staffLineup {
+      home { memberId lastName firstName function minuteRed minuteYellow minuteYellowRed }
+      away { memberId lastName firstName function minuteRed minuteYellow minuteYellowRed }
+    }
+  }
+}
