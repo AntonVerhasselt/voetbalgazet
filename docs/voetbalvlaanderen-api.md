@@ -113,11 +113,22 @@ Captured Apollo hashes (optional) live in `scripts/voetbal-vlaanderen/ops.json`.
 ## Caveats
 
 - **Scores**: friendlies / `showScore: false` often have `homeTeamGoals: null` even when `state: finished`. Competitive fixtures with `showScore: true` return goals (verified on `FRN_874` previous games).
-- **Rankings**: `null` until the competition publishes a table (`showRanking` on series detail).
+- **Rankings**: `null` until the competition publishes a table (`showRanking` on series detail). Types include `generalRanking` and `firstPeriodRanking`…`seventhPeriodRanking` (Belgian periodes — not gameweeks).
 - **`GetSeriesCalendarSmall(getUpcomingGames: false)`** can be `null` for some series; use **`GetSeriesCalendar` with dates** for reliability.
-- **Rate limits**: none observed in exploration; still throttle bulk syncs and cache.
+- **Calendar ≠ match detail**: you can request `lineup`/`events` on `seriesCalendar`, but resolvers return `null` and error. Always use `GetMatchDetail` for lineups/events.
+- **Aliasing**: one HTTP request can include calendars for many series (35 verified).
+- **Full season window**: `GetSeriesCalendar` accepts ~1 year ranges (210–240 matches observed) with no pagination.
+- **Squads**: `GetTeamMembers` works for some teams (e.g. pro first team) and returns empty for many others.
+- **Rate limits**: none observed (50 sequential match details OK); still throttle bulk syncs.
+- **Introspection**: disabled on the endpoint.
 - **ToS**: public unauthenticated API used by the website; for production-scale ingestion, confirm with Voetbal Vlaanderen / RBFA if needed.
 - **CDN hostname**: DevTools may show an Akamai edge host (`datalake-prod2018-i04.be`); the stable API host in requests is **`datalake-prod2018.rbfa.be`**.
+
+## Full DB copy + live updates
+
+For duplicating ~35 series into **Neon** and keeping scores/lineups/rankings fresh via **Vercel Functions**, see:
+
+→ [`voetbalvlaanderen-sync-architecture.md`](./voetbalvlaanderen-sync-architecture.md)
 
 ## How this was discovered
 
