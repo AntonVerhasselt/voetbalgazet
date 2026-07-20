@@ -275,13 +275,83 @@ Use **Neon serverless driver** (`@neondatabase/serverless`) from Vercel.
 
 ---
 
-## Anti-patterns
+## Vercel feasibility (duration, crons, “background”)
+
+### Short answer
+
+**Yes — feasible on Vercel Pro + Neon**, if you **chunk work** and do **not** rely on `waitUntil`/`after()` as a fake long-running worker.
+
+Hobby is a poor fit for live updates (cron only once/day).
+
+### Measured workloads vs limits
+
+| Workload | Observed / estimated | Vercel budget |
+|---|---|---|
+| Poll 35 series (aliased, ~2 weeks) | ~0.5–1s GraphQL | Trivial |
+| Seed calendars 35 series **full season** | ~3s, **~2.7 MB**, ~7900 matches | Fine under default **300s** |
+| Club/team enrich (~350 clubs) @ 10 concurrent | ~tens of seconds | Fine |
+| Match-detail backfill 500 finishes @ 10 conc. | ~18s | Fine |
+| Match-detail backfill **~8400** (full season all series) @ 10 conc. | ~**5 min** | Fits **300s default only if nothing else runs** — **chunk it** |
+| Weekend burst (~35×8 finishes) | ~tens of seconds | Fine |
+
+Fluid Compute duration (Node, current docs):
+
+| Plan | Default | Max | Extended (beta) |
+|---|---|---|---|
+| Hobby | 300s | 300s | — |
+| Pro / Enterprise | 300s | **800s** | **1800s** (function-level `maxDuration`) |
+
+Cron: same duration as the function it invokes. Pro can run every minute; **Hobby max once/day**.
+
+### What “background functions” actually mean here
+
+| Mechanism | Extends past `maxDuration`? | Durable if crash? | Use for |
+|---|---|---|---|
+| `waitUntil` / Next.js `after()` | **No** — same invocation timeout | **No** | Tiny post-response side effects |
+| Longer `maxDuration` (800 / 1800) | Yes, up to that cap | No (one shot) | Single chunk of seed/drain |
+| Cron + `sync_jobs` table drain | Yes (many short runs) | **Yes** if job row first | **Recommended default** |
+| Vercel Workflows / Queues / Inngest / QStash | Designed for long/multi-step | Yes | Optional if job graph grows |
+
+So: do **not** start a seed in `after()` and hope it runs for 30 minutes. Persist jobs in Neon, return 200, drain in cron (or Workflow steps).
+
+### Real hurdles
+
+1. **Plan: need Pro** for `*/10 * * * *` (or similar) polling. Hobby cannot do live score refresh.
+2. **Do not monolith the seed** — especially mid-season match-detail backfill. Split: calendars → clubs → members → detail batches of N matches per invocation.
+3. **`waitUntil`/`after` are not a queue** — same timeout; lost on crash. Always write intent to `sync_jobs` first.
+4. **Cron overlap** — if a drain runs longer than the interval, Vercel can start another. Use a DB/Redis lock or `SKIP LOCKED` job claim.
+5. **Response size** — full-season 35-series calendar ~2.7 MB (OK). Keep poll windows narrow for cron; use full season only on seed.
+6. **Neon connections** — use **pooled** URL + global `pg` Pool + `attachDatabasePool` from `@vercel/functions` under Fluid. Avoid opening a new client per query without pooling.
+7. **Region** — put the function near RBFA (EU) and Neon EU (e.g. `fra1`) to cut I/O wait; Active CPU pauses during fetch/DB wait under Fluid billing.
+8. **RBFA risk** — no rate limit seen in tests; still cap concurrency (5–10) and backoff. They could throttle later.
+9. **Secure Compute / Static IPs** — if you ever need egress allowlisting, extended 30‑min duration may not apply (beta caveat); prefer chunked jobs anyway.
+10. **Data gaps aren’t a Vercel issue** — empty `teamMembers`, missing goal events, null rankings until season start remain API limitations.
+
+### Recommended Vercel shape (safe)
+
+```text
+Pro project, Fluid on, region fra1 (or similar EU)
+
+Cron every 10 min  → /api/cron/poll-calendars   maxDuration=60
+                     (1 GraphQL alias call + upsert + enqueue jobs)
+
+Cron every 1 min   → /api/cron/drain-jobs        maxDuration=300
+                     (claim ≤50 jobs with SKIP LOCKED; process; exit)
+
+Admin/manual       → /api/admin/seed-series      enqueues phases only
+```
+
+Optional later: Vercel Workflows or Inngest if you want retries/visibility without building a job table — not required for v1.
+
+### Anti-patterns
 
 - Scraping voetbalvlaanderen.be HTML / controlling a browser for sync
 - Calling `GetMatchDetail` for every planned match every poll
 - Expecting calendar queries to return lineups
 - Storing only “current ranking” if you care about speeldag history
 - Running this sync inside Convex (use Vercel + Neon as decided)
+- One Vercel function that backfills thousands of match details without chunking
+- Using `after()`/`waitUntil` as the only “background worker” for seed/sync
 
 ---
 
