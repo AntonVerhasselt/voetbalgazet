@@ -126,9 +126,8 @@ Captured Apollo hashes (optional) live in `scripts/voetbal-vlaanderen/ops.json`.
 
 ## Full DB copy + live updates
 
-For duplicating ~35 series into **Neon** and keeping scores/lineups/rankings fresh via **Vercel Functions**, see:
-
-→ [`voetbalvlaanderen-sync-architecture.md`](./voetbalvlaanderen-sync-architecture.md)
+- Architecture / GraphQL limits: [`voetbalvlaanderen-sync-architecture.md`](./voetbalvlaanderen-sync-architecture.md)
+- **Step-by-step Neon schema, local seed, GitHub Actions schedule:** [`voetbalvlaanderen-neon-sync-guide.md`](./voetbalvlaanderen-neon-sync-guide.md)
 
 ## How this was discovered
 

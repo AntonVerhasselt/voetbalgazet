@@ -4,7 +4,11 @@ How to **copy** and **continuously update** football data for a fixed list of
 ~35 series, using the public RBFA GraphQL API, **Vercel Functions**, and
 **Neon Postgres** (not Convex).
 
-Companion: [`voetbalvlaanderen-api.md`](./voetbalvlaanderen-api.md)  
+Companions:
+
+- [`voetbalvlaanderen-api.md`](./voetbalvlaanderen-api.md) — GraphQL endpoint & operations
+- [`voetbalvlaanderen-neon-sync-guide.md`](./voetbalvlaanderen-neon-sync-guide.md) — **Neon schema, local seed, GitHub Actions schedule (step-by-step)**
+
 Client experiments: `scripts/voetbal-vlaanderen/`
 
 ---
