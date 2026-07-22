@@ -18,13 +18,18 @@ const r = await query("select 1 as ok");
 
 Neon owns football identity via `series.id` (e.g. `CHP_130005`).
 **Product / UI keys stay readable** (`antwerpen-p1`, …) — never show Neon ids
-to users. Mapping lives in `convex/lib/neonSeriesMap.ts`.
+to users. Mapping is generated from Neon into
+`convex/lib/generated/neonTaxonomyData.ts` (via
+`scripts/import-neon-taxonomy.ts`) and consumed by `convex/lib/neonSeriesMap.ts`.
+
+Signup / preference catalog = **provincial competitions only** (cups / beker
+series are mapped for research SQL but excluded from the subscriber selector).
 
 | series.id (SQL only) | name | Public key (UI / catalog) |
 |----------------------|------|---------------------------|
 | `CHP_130005` | 1 Provinciaal Antw | `antwerpen-p1` |
 | `CHP_136335` | 2 Provinciaal Antw A | `antwerpen-p2a` |
-| `CHP_134688` | BvA Heren Groep 1 P1/P2 | `antwerpen-bva-g1` |
+| `CHP_134688` | BvA Heren Groep 1 P1/P2 | `bva-heren-groep-1-p1-p2` (cup — research only) |
 
 Filter SQL with Neon `series.id`, not the public key:
 
@@ -147,7 +152,8 @@ limit 100;
 
 ## Data caveats (as of introspection)
 
-- Seed is **Antwerp-focused** (3 series). More provinces arrive as sync expands.
+- Full provincial seed is available (all five provinces, P1–P4 groups).
+- Cup / beker series exist alongside provincials — exclude them from signup.
 - Many matches are **planned** future fixtures; finished-match + event coverage may be sparse early season.
 - Prefer queries that degrade gracefully (empty result → no invented facts).
 
