@@ -2,11 +2,12 @@
 
 ## Design principles
 
-1. **One spine document per article journey** — an `editorialArticles` row (name TBD) lives from idea → published. Phases are fields + related child tables, not separate disconnected entities.
+1. **One spine document per article journey** — a `pipelineArticles` row lives from idea → published. Phases are fields + related child tables, not separate disconnected entities.
 2. **Ideas are the first materialization of that spine** — when the research agent returns 5 ideas, we insert 5 article rows in `idea_review` (plus a research-run parent for batching/locking).
 3. **External football identities stay external** — players/staff/clubs from Neon are referenced by stable Neon/RBFA IDs, not copied wholesale into Convex. Store the minimum denormalized labels needed for UI and the next agent.
 4. **Human decisions are immutable events** — approvals, rejections, interviewee toggles append audit events; current state is denormalized for queries.
-5. **Series scoping everywhere** — every list query is indexed by `divisionKey` (reeks).
+5. **Series scoping everywhere** — every list query is indexed by Neon-aligned division/series id.
+6. **Neon is the football source of truth** — placeholder Convex/YAML division & team keys are temporary and will be replaced/adapted to match Neon identifiers and labels.
 
 ## Pipeline phases
 
@@ -31,14 +32,14 @@ failed               → terminal agent failure (with retry possible on parent r
 ### Phase machine (idea stage only)
 
 ```text
-[Generate] → researchRuns.status = running
+[Generate] → pipelineResearchRuns.status = running
            → (no article rows yet, or optional placeholders)
 
-[Eve success] → insert 5 editorialArticles (phase = idea_review)
-              → researchRuns.status = succeeded
+[Eve success] → insert 5 pipelineArticles (phase = idea_review)
+              → pipelineResearchRuns.status = succeeded
 
 [Approve idea] → phase = awaiting_contacts
-               → freeze selectedIntervieweeIds
+               → freeze selectedIntervieweeKeys (may be empty — interviews optional)
                → write approval event
 
 [Reject idea]  → phase = rejected
@@ -49,13 +50,13 @@ While a research run is `running` for a series, UI disables “Genereer 5 ideeë
 
 ## Recommended Convex tables
 
-### 1. `researchRuns`
+### 1. `pipelineResearchRuns`
 
 Tracks each “generate 5 ideas” job.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `divisionKey` | `string` | Catalog key, e.g. `antwerpen-p1` |
+| `divisionKey` | `string` | Neon-aligned series/division id (after taxonomy migration) |
 | `status` | `"queued" \| "running" \| "succeeded" \| "failed" \| "cancelled"` | |
 | `triggeredBy` | `Id<"users">` | |
 | `requestedCount` | `number` | Always 5 for now |
@@ -63,7 +64,7 @@ Tracks each “generate 5 ideas” job.
 | `startedAt` / `finishedAt` | `number` | |
 | `errorMessage` | `optional string` | Safe, user-visible |
 | `clientRequestId` | `string` | Idempotency from UI |
-| `ideaIds` | `optional Id<"editorialArticles">[]` | Filled on success |
+| `ideaIds` | `optional Id<"pipelineArticles">[]` | Filled on success |
 
 Indexes:
 
@@ -71,15 +72,15 @@ Indexes:
 - `by_clientRequestId` (`clientRequestId`)
 - `by_startedAt` (`startedAt`)
 
-### 2. `editorialArticles` (pipeline spine)
+### 2. `pipelineArticles` (pipeline spine)
 
 One row per idea/article journey.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `divisionKey` | `string` | Series scope |
+| `divisionKey` | `string` | Neon-aligned series scope |
 | `phase` | union of phases above | Current phase |
-| `researchRunId` | `Id<"researchRuns">` | Origin batch |
+| `researchRunId` | `Id<"pipelineResearchRuns">` | Origin batch |
 | `ideaTitle` | `string` | Working title of the idea |
 | `titleProposals` | `string[3]` | Exactly 3 |
 | `selectedTitle` | `optional string` | Chosen later (or on approve) |
@@ -136,13 +137,13 @@ Facts must be grounded. Prefer storing evidence snippets (numbers, dates, oppone
 
 Editor can only toggle `selectedIntervieweeKeys ⊆ interviewees[].key`. Cannot invent new contacts.
 
-### 3. `editorialEvents` (audit log)
+### 3. `pipelineEvents` (audit log)
 
 Append-only human + system events.
 
 | Field | Type |
 |-------|------|
-| `articleId` | `Id<"editorialArticles">` |
+| `articleId` | `Id<"pipelineArticles">` |
 | `type` | `"created" \| "approved" \| "rejected" \| "interviewees_updated" \| "phase_changed" \| "agent_note" \| …` |
 | `actorUserId` | optional |
 | `researchRunId` | optional |
@@ -153,7 +154,7 @@ Index: `by_article_and_createdAt`.
 
 ### 4. Future tables (schema stubs / reserved names)
 
-Do **not** fully implement now, but design `editorialArticles` so these attach cleanly:
+Do **not** fully implement now, but design `pipelineArticles` so these attach cleanly:
 
 | Table | Purpose |
 |-------|---------|
@@ -165,7 +166,7 @@ Do **not** fully implement now, but design `editorialArticles` so these attach c
 | `factChecks` | Final check reports |
 | `publishJobs` | Bridge into Keystatic / Git publish |
 
-Each should reference `editorialArticles._id` and optionally `neonClubId` / `neonPersonId`.
+Each should reference `pipelineArticles._id` and optionally `neonClubId` / `neonPersonId`.
 
 ## Why not store ideas separately from articles?
 
@@ -179,19 +180,18 @@ Alternative: `ideas` table → convert to `articles` on approve.
 
 If rejected ideas clutter the board, filter default view to non-rejected, and keep a “Afgewezen” bin.
 
-## Series (= division) model
+## Series (= division) model — Neon first
 
-Reuse existing catalog:
+**Decision:** Neon is the real football database. Current Convex/YAML divisions/teams (`antwerpen-p1`, …) are placeholders and must be **adapted to Neon’s identifiers and labels**.
 
-- Keystatic/YAML: `apps/web/content/settings/divisions.yaml`
-- Convex: `divisions.externalKey` / preference catalog `divisionOptions`
+Plan:
 
-AI Journalist workspace stores/filters by **`divisionKey` string** (catalog key), not necessarily `Id<"divisions">`, because:
+1. Inspect Neon schema for competitions/divisions/clubs/teams.
+2. Choose the canonical series id string used in Convex + Pipeline UI (prefer Neon’s natural key/slug if stable; otherwise Neon numeric id stringified).
+3. Update `divisions` / `teams` sync (and subscriber preference catalog) to those keys — coordinated migration, not a silent rename.
+4. Pipeline filters exclusively by that Neon-aligned `divisionKey`.
 
-- Neon football DB will use its own division identifiers; mapping layer will translate.
-- Catalog keys are already stable in the app (`antwerpen-p1`, …).
-
-Add a mapping doc later: `divisionKey` ↔ Neon competition/division id. Until Neon schema is inspected, treat mapping as an open question.
+Subscriber preferences that still use placeholder keys need a migration strategy (map old → new, or reset). Track explicitly in Phase B.
 
 ## Relationship to published site articles
 
@@ -203,7 +203,7 @@ AI pipeline articles are **not** automatically site articles. Bridge options (la
 2. Writer stores draft in Convex → human copies/publishes via Keystatic.
 3. Hybrid: Convex draft with “Export to Keystatic” action.
 
-Phase 1 only needs a future `publishSlug` / `keystaticPath` optional field reserved on `editorialArticles`.
+Phase 1 only needs a future `publishSlug` / `keystaticPath` optional field reserved on `pipelineArticles`.
 
 ## Neon identity contract (minimum)
 
@@ -235,7 +235,7 @@ Archive access mechanism TBD (HTTP API vs Neon `articles` table vs Git content).
 - `titleProposals.length === 3`
 - `interviewees.length <= 3`
 - `selectedIntervieweeKeys` every key exists in `interviewees`
-- On approve: `selectedIntervieweeKeys.length >= 1` (confirm in open questions — maybe 0 allowed?)
+- On approve: `selectedIntervieweeKeys.length >= 0` (**0 allowed** — interview optional)
 - `supportingFacts.length >= 1` (recommend ≥ 2)
 - `phase` transitions validated server-side (whitelist map)
 - Research run: only one `running` per `divisionKey` (or per division+trigger concurrency policy)
@@ -250,12 +250,12 @@ Archive access mechanism TBD (HTTP API vs Neon `articles` table vs Git content).
 ## ER sketch
 
 ```text
-researchRuns 1───* editorialArticles
-editorialArticles 1───* editorialEvents
-editorialArticles 1───* interviewees (embedded array, Phase 1)
-editorialArticles 1───* contactLeads (future table)
-editorialArticles 1───* interviews (future)
-editorialArticles 1───* articleDrafts (future)
+pipelineResearchRuns 1───* pipelineArticles
+pipelineArticles 1───* pipelineEvents
+pipelineArticles 1───* interviewees (embedded array, Phase 1)
+pipelineArticles 1───* contactLeads (future table)
+pipelineArticles 1───* interviews (future)
+pipelineArticles 1───* articleDrafts (future)
 ```
 
 Embedded interviewee array is enough for max 3. Promote to table only if we need cross-article person queries later.
