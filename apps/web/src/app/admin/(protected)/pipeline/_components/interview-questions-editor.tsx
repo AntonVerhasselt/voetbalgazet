@@ -451,7 +451,14 @@ export function InterviewQuestionsEditor({
                     title="Sleep om te herschikken"
                     disabled={disabled || saving}
                   >
-                    <span aria-hidden="true">⋮⋮</span>
+                    <span className="pipeline-q-row__grip" aria-hidden="true">
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                    </span>
                   </button>
 
                   <span className="pipeline-q-row__index" aria-hidden="true">
