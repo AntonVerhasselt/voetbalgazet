@@ -1,102 +1,86 @@
 # AI Journalist — Master Implementation Plan
 
-This is the umbrella plan for De Voetbalgazet’s automated AI journalist system. Sibling docs go deep on each subsystem; this file is the single map of decisions, phases, and dependencies.
+Umbrella plan for De Voetbalgazet’s automated AI journalist. Sibling docs own deep detail; this file is the map.
 
-## Goal (Phase 1 scope)
+## Goal (Phase 1 / idea agent)
 
-Ship the **Research & Proposal (idea) agent** end-to-end:
+1. Admin opens **Pipeline** (`/admin/pipeline`).
+2. Selects a **reeks** (Neon-aligned series id).
+3. Clicks **Genereer 5 ideeën** → exactly 5 ideas for **that** reeks.
+4. Reviews ideas (approve/reject; toggle interviewees; **0 OK**).
+5. Approved ideas → `awaiting_contacts` for later agents.
 
-1. Admin opens the **Pipeline** workspace (`/admin/pipeline`).
-2. Selects a **reeks** (series / division) as the primary filter — keys come from **Neon**, not placeholders.
-3. Triggers generation of **5 article ideas**.
-4. Reviews each idea (approve / reject, toggle interviewees; **0 interviewees allowed**).
-5. Approved ideas advance to later pipeline phases (contacts → interview → writer).
+Out of scope now: WhatsApp, realtime interview, writer graph, auto-publish.
 
-Out of scope for Phase 1 implementation (designed for, not built yet): WhatsApp Agent, OpenAI Realtime interview, Writer Graph, public publication of AI drafts.
-
-## Locked decisions (latest)
+## Locked decisions (all)
 
 | Topic | Decision |
 |-------|----------|
-| Neon | Source of truth for football data & naming; Convex taxonomy will be adapted to Neon |
+| Football data | **Neon** source of truth; Convex taxonomy adapted to Neon |
+| Archive | **Eve tools + Convex `articleArchive`**; sitemap optional secondary — [`07`](./07-article-archive-tools.md) |
+| Contacts | First-class `contacts` + join table — [`08`](./08-contacts-data-model.md) |
 | Approve w/ 0 interviewees | Allowed |
-| Models | **Vercel AI Gateway** (supports cheap/open models); not OpenRouter for MVP |
-| Agent location | `apps/agents/research-idea-agent/` → **own Vercel project**, still in monorepo |
-| Admin naming | Nav **Pipeline**, routes `/admin/pipeline/*` |
-| Archive (MVP) | Convex context pack + seeded Markdoc `archive-index.json` in sandbox (not Neon yet) |
-| Phase A generate | Stub inserts **fixture ideas** until Eve is wired |
+| Titles | Keep all 3 proposals; final title later |
+| Rejected UI | Stay in DB; filtered out of default lists |
+| Agent language | **Dutch everything** (instructions, tools, skills, output content) |
+| Generate scope | Selected reeks only; batch of 5 |
+| Concurrency (Q10) | **One running job per reeks**; other reeksen may run in parallel |
+| Models | AI Gateway **`zai/glm-5.2`** (open-weight) |
+| Agent home | `apps/agents/research-idea-agent` → own Vercel project |
+| Waiter | Convex action **or** Next/Fluid OK |
+| Naming | Pipeline / `/admin/pipeline/*` |
+| Phase A | **Fixture ideas** yes |
+| Youth interviewees | Allowed |
+| Duplicates | Person = `neonPersonId`; story angle = archive tools |
+| Schedule | Manual now; cron later |
+| Regenerate | Full batch of 5 only |
 
-Full log + remaining questions: [`06-open-questions.md`](./06-open-questions.md).
-
-## Current codebase baseline (researched)
-
-| Area | Today | Implication |
-|------|-------|-------------|
-| Public articles | Keystatic Markdoc in Git only (`apps/web/content/articles`) | Pipeline is a **new Convex domain**. Archive for the agent = Git-derived index + Convex context (see archive plan). |
-| Taxonomy | Placeholder YAML/Convex `antwerpen-p1` etc. | **Replace/adapt** to Neon division/club identifiers after schema inspect. |
-| Admin | Artikels, Nieuwsbrieven, Abonnees | Add **Pipeline** nav + `/admin/pipeline`. |
-| Auth | `admin` \| `journalist` \| `viewer` | Generate/approve = editor roles. |
-| Convex | No actions yet | Need `"use node"` actions (or Next waiter) for Eve HTTP. |
-| Agents | None | Add `apps/agents/research-idea-agent`. |
-
-## Recommended system shape
+## System shape
 
 ```text
-Admin UI (apps/web)  /admin/pipeline
-      │  Convex mutations/queries
-      ▼
-Convex (pipeline state, research runs, approvals)
-      │  start research run
-      ▼
-Convex action / Next Fluid waiter
-      │  POST /eve/v1/session + outputSchema
-      ▼
-Eve research-idea-agent  (apps/agents/research-idea-agent → own Vercel project)
-      │  sandbox: TypeScript + pg + schema docs + archive-index.json
-      ▼
-Neon (read-only football DB)
+Admin UI  /admin/pipeline  (apps/web)
       │
       ▼
-IdeaBatch[5] → Convex → human review → phase advance
+Convex  pipeline* + contacts + articleArchive
+      │  startResearchRun (per-reeks lock)
+      ▼
+Waiter (Convex action or Next/Fluid)
+      │  POST Eve session + outputSchema
+      ▼
+Eve  apps/agents/research-idea-agent   [model: zai/glm-5.2]
+      ├─ sandbox: TypeScript + pg → Neon (read-only)
+      └─ tools: zoek_gepubliceerde_artikelen, … → Convex articleArchive
+      │
+      ▼
+IdeaBatch[5] → upsert contacts → pipelineArticles + joins → UI review
 ```
-
-**Hard rule:** Convex owns durable editorial state. Eve owns ephemeral research compute.
 
 ## Document index
 
 | File | Contents |
 |------|----------|
-| [`00-overview.md`](./00-overview.md) | This file |
-| [`01-architecture-and-data-model.md`](./01-architecture-and-data-model.md) | Phases, Convex schema, Neon-first identity |
-| [`02-research-agent-eve.md`](./02-research-agent-eve.md) | Eve package, sandbox, archive, models |
+| [`00-overview.md`](./00-overview.md) | This map |
+| [`01-architecture-and-data-model.md`](./01-architecture-and-data-model.md) | Pipeline tables, phases |
+| [`02-research-agent-eve.md`](./02-research-agent-eve.md) | Eve agent, Dutch, sandbox, model |
 | [`03-admin-ux-pipeline.md`](./03-admin-ux-pipeline.md) | Pipeline UX |
-| [`04-convex-orchestration.md`](./04-convex-orchestration.md) | Research runs ↔ Eve |
+| [`04-convex-orchestration.md`](./04-convex-orchestration.md) | Runs, locks, waiter |
 | [`05-implementation-phases.md`](./05-implementation-phases.md) | Build order |
-| [`06-open-questions.md`](./06-open-questions.md) | Decisions + remaining questions |
+| [`06-open-questions.md`](./06-open-questions.md) | Decision log |
+| [`07-article-archive-tools.md`](./07-article-archive-tools.md) | Archive tools design |
+| [`08-contacts-data-model.md`](./08-contacts-data-model.md) | Contacts + joins |
+| [`09-dutch-agent-conventions.md`](./09-dutch-agent-conventions.md) | Language rules |
+| [`10-fixture-ideas-and-phase-a.md`](./10-fixture-ideas-and-phase-a.md) | Fixture generate stub |
 
-## Implementation phases (summary)
+## Neon status
 
-1. **A — Foundation** — schema, Pipeline UI, fixture generate stub  
-2. **B — Neon** — connectivity, schema docs, **taxonomy realignment to Neon**  
-3. **C — Eve agent** — `apps/agents/research-idea-agent` skeleton  
-4. **D — Bridge** — real generate via Eve  
-5. **E — Review UX polish**  
-6. **F — Hardening**  
-7. **G+** — later agents  
+Docs + connectivity smoke happen in the **next** Cloud Agent session (secret will be available). This session still lacked `NEON_DATABASE_URL` injection.
 
-## Neon connectivity status
+## Success criteria (idea-agent MVP)
 
-**Still not testable in this Cloud Agent session.** Env has no `NEON_DATABASE_URL`; Cursor secret list still only `AGENT_ACCESS_SECRET`, `CONVEX_DEPLOY_KEY`.
-
-Add `NEON_DATABASE_URL` as a **Cursor Cloud Agent secret** (not only Vercel) and start a **new** agent run so it injects. Then we smoke-test read-only access.
-
-## Success criteria for “Phase 1 done”
-
-- [ ] Admin opens Pipeline, picks a Neon-aligned reeks.
-- [ ] “Genereer 5 ideeën” locks while a run is active for that reeks.
-- [ ] Exactly 5 structured ideas land (or clear failure, no partial insert).
-- [ ] Review: fields, approve/reject, interviewee toggles (0 OK).
-- [ ] Approve → `awaiting_contacts` (even with zero interviewees).
-- [ ] Rejected retained for audit.
-- [ ] Neon read-only; no invented stats (prompt + eval).
-- [ ] Agent in isolated sandbox with restricted egress.
+- [ ] Pipeline UI with reeks selector + phase strip  
+- [ ] Generate 5 for selected reeks; button disabled while that reeks has active run  
+- [ ] Real Eve path: Dutch structured ideas + archive tool use + Neon-grounded facts  
+- [ ] Contacts upserted with club/team ids+names; toggles; approve with 0 OK  
+- [ ] Rejected hidden in UI, retained in DB  
+- [ ] All 3 titles kept on approve  
+- [ ] Neon read-only; no invented stats  

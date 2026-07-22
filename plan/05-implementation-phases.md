@@ -1,139 +1,85 @@
-# Implementation Phases
-
-Ordered build plan. Each phase has clear exit criteria.
+# Implementation Phases (detailed)
 
 ---
 
-## Phase A — Pipeline foundation (Convex + UI + fixtures)
+## Phase A — Pipeline foundation + fixtures
 
-**Deliverables**
+**Yes, do fixtures (`Q15`).**
 
-- Validators for phases, facts, interviewees  
-- Tables: `pipelineResearchRuns`, `pipelineArticles`, `pipelineEvents`  
-- Queries/mutations: list by division+phase, get article, active run, approve/reject/toggle  
-- Stub `startResearchRun` → inserts **5 fixture ideas** (no Eve)  
-- Admin nav **Pipeline** + `/admin/pipeline` shell  
-- Series selector + phase strip + Ideeën list/detail  
+Deliverables:
 
-**Exit criteria**
+- Schema: `pipelineResearchRuns`, `pipelineArticles`, `pipelineEvents`, `contacts`, `pipelineArticleContacts`  
+- Validators + phase guards  
+- Queries excluding rejected by default  
+- Mutations: start (fixture path), approve, reject, toggle contact selected  
+- UI: `/admin/pipeline`, reeks selector, phase strip, ideeen list/detail  
+- Fixture generator: 5 Dutch-ish sample ideas + sample contacts  
 
-- Pick reeks → generate → 5 fixtures appear; button disabled while “running”  
-- Approve (including 0 interviewees) / reject / toggles work  
+Exit:
 
-**Depends on:** none  
-**Risk:** low  
+- Generate → 5 fixtures; button locks per reeks  
+- Approve with 0 contacts; reject hides from list  
+- All 3 titles visible after approve  
 
----
-
-## Phase B — Neon connectivity + taxonomy realignment
-
-**Deliverables**
-
-- Prove read-only Neon from Cloud Agent (needs Cursor secret) or documented Vercel smoke  
-- Introspect schema; write docs under `apps/agents/research-idea-agent/agent/sandbox/workspace/docs/`  
-- Define Neon-aligned series/club keys  
-- Plan + dry-run migration to adapt Convex `divisions`/`teams` (and preference catalog) from placeholders → Neon  
-- Confirm write attempts fail on Neon role  
-
-**Exit criteria**
-
-- Schema docs usable by the LLM  
-- Connectivity proven  
-- Taxonomy migration plan reviewed (execute only after your confirmation per dry-run rules)  
-
-**Blocker:** `NEON_DATABASE_URL` not yet injected into this agent session — add Cursor Cloud secret + new run.  
-
-**Depends on:** Neon access  
-**Risk:** medium–high (subscriber preference key migration)  
+See [`10-fixture-ideas-and-phase-a.md`](./10-fixture-ideas-and-phase-a.md).
 
 ---
 
-## Phase C — Eve research-idea-agent skeleton
+## Phase B — Neon docs + taxonomy plan
 
-**Deliverables**
+Next Cloud Agent session (Neon secret available):
+
+- Connectivity smoke (read-only)  
+- Introspect schema → write `database-schema.md`, relationships, common queries  
+- Propose Neon-aligned `divisionKey` scheme  
+- Dry-run taxonomy migration script (no execute without confirmation)  
+
+---
+
+## Phase C — `articleArchive` + sync
+
+- Table + Markdoc→Convex sync script (`--dry-run` first)  
+- Indexes / query helpers  
+
+---
+
+## Phase D — Eve agent skeleton
 
 - Scaffold `apps/agents/research-idea-agent`  
-- Instructions, skills, sandbox bootstrap (`pg`, `tsx`)  
-- `archive-index.json` generator from Markdoc  
-- IdeaBatch schema + eval stubs  
-- AI Gateway model string (cheap/mid)  
-- Own Vercel project linked; README  
-
-**Exit criteria**
-
-- Manual `eve dev` / deployed session returns valid 5-idea JSON for one real series  
-- Read-only Neon enforced  
-
-**Depends on:** Phase B docs + Neon URL  
-**Risk:** medium  
+- Dutch instructions/skills  
+- Sandbox + Neon  
+- Model `zai/glm-5.2`  
+- Archive tools calling Convex  
+- Manual Eve session produces valid IdeaBatch  
 
 ---
 
-## Phase D — Orchestration bridge
+## Phase E — Orchestration bridge
 
-**Deliverables**
-
-- Secure Eve invoke from Convex (or Next waiter)  
-- Replace fixture stub with real Eve for generate  
-- All-or-nothing insert; button lock; errors in UI  
-
-**Exit criteria**
-
-- One admin click → 5 real reviewable ideas for selected reeks  
-
-**Depends on:** A + C  
-**Risk:** high (timeouts, auth, streams)  
+- Replace fixture path with Eve waiter  
+- Per-reeks lock; all-or-nothing ingest + contact upsert  
+- Error UX  
 
 ---
 
-## Phase E — Idea review UX polish
+## Phase F — Review polish + hardening
 
-**Deliverables**
-
-- Detail polish, reject reasons, phase counts, empty/error states  
-- Optional PostHog events  
-- Resolve remaining UX open questions (`Q6`, `Q7`)  
-
-**Exit criteria**
-
-- Full triage in Pipeline without leaving the workspace  
-
-**Depends on:** D  
-**Risk:** low  
-
----
-
-## Phase F — Hardening & ops
-
-**Deliverables**
-
-- Evals, retention, cost/timeout docs, concurrency caps, security pass  
-
-**Exit criteria**
-
-- Preview smoke checklist done; failure modes documented in agent README  
-
-**Depends on:** E  
-**Risk:** medium  
+- Empty/error states, rejected bin optional  
+- Evals (shape, Dutch, archive tool called)  
+- Network policy, secrets audit, timeouts  
 
 ---
 
 ## Phase G+ — Later agents
 
-Contacts/WhatsApp → interview → writer → publish. Separate plan updates when started.
+WhatsApp contacts → interview → writer → publish.
 
 ---
 
-## PR train (suggested)
+## Suggested PRs
 
-1. Phase A — schema + Pipeline UI + fixtures  
-2. Phase B — Neon docs + taxonomy dry-run  
-3. Phase C — Eve agent  
-4. Phase D — bridge  
-5. Phase E/F — polish + hardening  
-
----
-
-## Definition of Done (idea-agent MVP)
-
-See [`00-overview.md`](./00-overview.md) success criteria.
+1. Phase A  
+2. Phase B (+ C if small)  
+3. Phase D agent  
+4. Phase E bridge  
+5. Phase F  

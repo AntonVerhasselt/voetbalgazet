@@ -1,118 +1,75 @@
 # Admin UX — Pipeline
 
-## Placement in admin
+## Placement
 
-Add a primary nav item:
+- Nav label: **Pipeline** (short: **Pipe**)  
+- Root: `/admin/pipeline`  
+- Roles: `admin` + `journalist` write; `viewer` read-only / no generate  
 
-- Label: **Pipeline** (short: **Pipe**)
-- Route root: `/admin/pipeline`
-- Roles: `admin` + `journalist` can generate/approve; `viewer` read-only or hidden generate/approve
-
-Preserve existing admin shell patterns (`admin-shell`, `admin-nav`, Dutch copy).
-
-## Information architecture
+## Routes
 
 ```text
-/admin/pipeline
-  └─ series selector (reeks) — sticky top bar
-  └─ phase tabs / pipeline strip
-  └─ list for active phase
-  └─ detail page for one article/idea
-
-/admin/pipeline/ideeen            → phase idea_review (default)
-/admin/pipeline/contacten         → awaiting_contacts (stub)
-/admin/pipeline/interviews        → interview_* (stub)
-/admin/pipeline/drafts            → drafting / draft_review (stub)
-/admin/pipeline/[articleId]       → detail + actions
+/admin/pipeline                  → redirect to /ideeen
+/admin/pipeline/ideeen           → idea_review list (default; rejects filtered out)
+/admin/pipeline/contacten        → stub
+/admin/pipeline/interviews       → stub
+/admin/pipeline/drafts           → stub
+/admin/pipeline/[articleId]      → detail
 ```
 
-Deep-link: `?reeks=<neon-aligned-division-key>`.
+Query: `?reeks=<divisionKey>`.
 
-## 1) Series selector (top, important, compact)
+Optional later: `/admin/pipeline/ideeen?toon=afgewezen` for rejected bin (not MVP chrome).
 
-**Job:** Choose which division’s pipeline you are looking at.
+## Series selector
 
-Requirements:
+Compact top bar: **Reeks** + select (Neon-aligned catalog). Persist URL + localStorage. Badge = count in `idea_review` for selection.
 
-- Always visible at top of Pipeline workspace (below admin header, above phase strip).
-- Compact single row: label “Reeks” + searchable / grouped select.
-- Options come from **Neon-aligned** Convex `divisions` catalog (after Phase B migration; placeholders OK only until then).
-- Persist last selection in `localStorage` + URL.
-- Changing reeks reloads counts/lists; does not cancel an in-flight run for the previous reeks.
-- Badge: count in `idea_review` for selected reeks.
+## Phase strip
 
-Visual: one control, one purpose; match existing admin density (not a marketing hero).
+`Ideeën · Contacten · Interviews · Drafts · Klaar` with counts for selected reeks. Rejected not a primary tab.
 
-## 2) Pipeline / phase visibility
+## Ideeën view
 
-Horizontal phase strip with counts for the selected series:
+### Generate
 
-```text
-Ideeën (12) · Contacten (3) · Interviews (1) · Drafts (0) · Klaar (0)
-```
+**Genereer 5 ideeën**
 
-- Active phase emphasized.
-- Rejected/failed via secondary filter (default TBD — `Q7`).
-- Phase 1: only **Ideeën** fully interactive; others stubbed.
-
-## 3) Idea phase view
-
-### Header actions
-
-Primary: **Genereer 5 ideeën**
-
-| State | Button |
-|-------|--------|
-| Idle | Enabled |
-| `pipelineResearchRuns` queued/running for this reeks | Disabled + “Bezig met research…” |
-| Failed | Enabled; show last error + retry |
-
-### Phase A stub (fixture ideas)
-
-Until Eve is wired (Phase D), generate inserts **5 fixture ideas**: schema-valid fake objects (Dutch-ish sample titles/facts) so UI (list, detail, approve, reject, toggles) can be built and tested. Clearly marked in UI as fixtures if useful (`researchRun` flag `source: "fixture"`).
+- Disabled when this reeks has `queued|running` research run  
+- Spinner copy: **Bezig met research…**  
+- Phase A: creates **fixture** ideas (`source: "fixture"`) — see [`10-fixture-ideas-and-phase-a.md`](./10-fixture-ideas-and-phase-a.md)  
+- Phase D+: real Eve  
 
 ### List
 
-Per idea: idea title, title-proposal hint, interviewee selected/total, created time, status.
+Only `phase === "idea_review"`. Columns: ideetitel, 3-titel hint, contacten geselecteerd/totaal, tijd.
 
 ### Detail
 
 1. Ideetitel  
-2. 3 artikelitels (title pick on approve TBD — `Q6`)  
+2. **Drie titelvoorstellen** (all shown; no forced pick on approve — `Q6`)  
 3. Waarom interessant  
 4. Ondersteunende feiten  
-5. Te interviewen (0–3) — toggle enable/disable only; **cannot add** people  
-6. **Goedkeuren** (0 interviewees allowed) / **Afwijzen** (optional reason)
+5. Interviewkandidaten (0–3) — toggle selected; cannot add  
+6. Actions: **Goedkeuren** (0 contacts OK) / **Afwijzen** (optional reason)  
 
-Generate lock does not block reviewing existing ideas.
+After reject → row leaves default list (still in DB).
 
-## 4) Empty & error states
+## Empty / errors
 
-- Empty: short copy + generate CTA.  
-- Failure: Dutch message, retry.  
-- **All-or-nothing** batches — never insert 3/5.
+Dutch copy. All-or-nothing batches. Retry after failure.
 
-## 5) Realtime UX
+## Realtime
 
-Convex `useQuery` / `useMutation`. Client `clientRequestId` for idempotent generate.
+Convex queries/mutations. `clientRequestId` on generate.
 
-## 6) Mobile
+## Copy cheat-sheet
 
-Full-width series selector; horizontally scrollable phase strip; detail as full page on small screens; ≥44px actions.
-
-## 7) Copy (Dutch)
-
-- Nav: Pipeline  
-- Generate: Genereer 5 ideeën  
-- Approve: Idee goedkeuren  
-- Reject: Idee afwijzen  
-- Interviewees: Voorstel om te interviewen  
-- Toggle off: Niet interviewen  
-- Phases: Ideeën / Contacten / Interviews / Drafts / Publicatie  
-
-## 8) Non-goals (Phase 1 UX)
-
-- Full kanban drag-and-drop  
-- Manual idea creation  
-- Multi-reeks single screen  
-- Exposing raw Eve logs to all editors (admin link to Agent Runs later)
+| EN concept | NL UI |
+|------------|-------|
+| Pipeline | Pipeline |
+| Generate 5 ideas | Genereer 5 ideeën |
+| Approve | Idee goedkeuren |
+| Reject | Idee afwijzen |
+| Don’t interview | Niet interviewen |
+| Ideas / Contacts / … | Ideeën / Contacten / Interviews / Drafts / Publicatie |

@@ -1,135 +1,76 @@
 # Open Questions & Decisions Log
 
-Status of decisions for the AI journalist plan. Answered items are locked unless you reopen them.
+Complete decision log for the AI journalist / Pipeline plans.
 
 ---
 
-## Decided
+## Fully decided
 
-### Q1 — Neon access for Cloud Agents → **You added the URL**
-**Status:** Still **not injected into this Cloud Agent session**.  
-`CLOUD_AGENT_ALL_SECRET_NAMES` currently lists only `AGENT_ACCESS_SECRET` and `CONVEX_DEPLOY_KEY`. `NEON_DATABASE_URL` is unset in process env.
-
-Likely causes:
-1. Secret was added on **Vercel** but not as a **Cursor Cloud Agent** secret for this environment.
-2. Secret was added to Cursor after this run started (new secrets usually need a **new agent run**).
-3. Different name than `NEON_DATABASE_URL`.
-
-**Action for you:** In Cursor → Cloud Agents → this environment’s secrets, add `NEON_DATABASE_URL` (read-only Neon URL), then start a new agent turn/run so we can smoke-test.
-
-### Q3 — Division / football keys → **Neon is source of truth**
-Placeholder Convex/YAML division & team keys (`antwerpen-p1`, etc.) are temporary. We will **adapt Convex taxonomy to match Neon** once schema is inspected. Neon owns football naming and IDs; the app catalog follows.
-
-### Q4 — Article archive → **Recommendation locked (see below)**
-Articles today live only in Git (Markdoc). See “Archive recommendation” in this file and [`02-research-agent-eve.md`](./02-research-agent-eve.md).
-
-### Q5 — Approve with 0 interviewees → **Allowed**
-Editor may approve an idea with zero selected interviewees. Interview is optional at idea stage.
-
-### Q11 — Model routing → **AI Gateway (default), cheaper models OK**
-Yes: AI Gateway exposes many open/cheaper models at provider list price (no markup). Keep Eve on AI Gateway; pick a cost-efficient model id. Details in “AI Gateway & cheaper models” below.
-
-### Q12 — Eve deployment → **Monorepo + own Vercel project**
-Path: `apps/agents/research-idea-agent/` (Eve project root), linked to its **own Vercel project**. Not embedded inside `apps/web`.
-
-### Q14 — Naming → **Chosen by plan**
-| Surface | Name |
-|---------|------|
-| Admin nav | Pipeline |
-| Routes | `/admin/pipeline`, `/admin/pipeline/ideeen`, `/admin/pipeline/[articleId]` |
-| Eve package | `apps/agents/research-idea-agent` |
-| Convex module prefix | `pipeline*` / tables `pipelineArticles`, `pipelineResearchRuns`, … |
-
-### Q15 — Fixture ideas → **Explained; OK for Phase A**
-**Fixture ideas** = fake but schema-valid idea objects inserted by a stub generate path so we can build/test the admin UI (list, detail, approve, reject, toggles) **before** Eve + Neon are wired. Not production content. Phase A uses fixtures; Phase D replaces the stub with real Eve results.
+| ID | Decision |
+|----|----------|
+| **Q1** | Neon URL will be available next Cloud Agent session → create schema docs then |
+| **Q2** | Next session: introspect Neon + author curated docs in the agent workspace |
+| **Q3** | Neon is football source of truth; adapt Convex taxonomy to Neon keys |
+| **Q4** | **Archive via Eve tools + Convex `articleArchive` index** (not static JSON dump). Optional sitemap tool as secondary. See [`07-article-archive-tools.md`](./07-article-archive-tools.md) |
+| **Q5** | Approve with **0 interviewees** allowed |
+| **Q6** | Keep **all 3 title proposals**; real title chosen after interviews/writing |
+| **Q7** | Keep rejected in DB; **filter out of default UI** |
+| **Q8** | **Everything from the agent in Dutch**: instructions, tool descriptions, skills, output fields’ content |
+| **Q9** | Generate **5 ideas for the currently selected reeks only** |
+| **Q11** | Vercel AI Gateway; open-weight model **`zai/glm-5.2`** (see below) |
+| **Q12** | `apps/agents/research-idea-agent` + own Vercel project |
+| **Q13** | OK to use Next/Fluid waiter (not only Convex actions) |
+| **Q14** | Nav **Pipeline**, routes `/admin/pipeline/*` |
+| **Q15** | **Yes** — Phase A uses fixture ideas |
+| **Q16** | Store contacts properly with Neon club/team ids+names, types, notes field (unused in UI yet). See [`08-contacts-data-model.md`](./08-contacts-data-model.md) |
+| **Q17** | All players OK to interview (including youth) |
+| **Q18** | Neon ids dedupe **people**; archive tools dedupe **story angles** |
+| **Q19** | Model: **`zai/glm-5.2`** (changeable later) |
+| **Q20** | Manual generate only for now; schedules later |
+| **Q21** | Full batch of 5 only (no partial regenerate) |
 
 ---
 
-## Archive recommendation (answered Q4)
+## Q10 explained (concurrency)
 
-### Options researched
+**What it meant:** When an editor clicks “Genereer 5 ideeën”, we start a research job. Should the system allow:
 
-| Option | How it works | Pros | Cons |
-|--------|--------------|------|------|
-| **A. Prompt context from Convex** | On each research run, Convex packs recent published headlines + pipeline idea titles for that series into the Eve message | Simple; no new store; works with Git Markdoc via a sync or build-time index | Weak “search”; limited history unless we sync aggressively |
-| **B. Seed archive index into sandbox** | Generate `archive-index.json` (slug, title, dek, division keys, date) from Markdoc; seed into Eve `sandbox/workspace/` | Agent can `grep`/filter locally; good for MVP size (~dozens of articles) | Must regenerate when articles change; full-text of bodies optional/heavy |
-| **C. Sync published articles into Neon** | Football DB gains an `articles` (or archive) table | Agent searches archive with SQL like stats; one DB | Cross-project migration; articles aren’t in Neon today; couples CMS to data platform |
-| **D. Dedicated archive API** | HTTP search over Git/CMS | Clean boundary | Extra service to build/operate for little gain now |
+- **A) Per-reeks lock:** At most one running job for *Antwerpen P1*, but Limburg P2 can run at the same time.  
+- **B) Global lock:** Only one research job anywhere in the whole app.
 
-### Recommendation
-
-**MVP (Phase C–D): A + B**
-
-1. **Convex packs** into the Eve task message:
-   - last N pipeline idea titles for the series (pending/approved/rejected)
-   - last N **published** site article titles/slugs/deks for that series
-2. **Build a small archive index** from `apps/web/content/articles/*.mdoc` (titles, slugs, division keys, dates, dek) and seed it into the research agent sandbox as `docs/archive-index.json` (and optionally short excerpts).
-
-**Later (optional):** When the Football Data Platform wants a durable archive, sync published articles into Neon (option C) and teach the agent to SQL-search them. Not required for idea-agent MVP.
-
-**Do not** clone the whole Git monorepo into every sandbox only for archive access.
+**Recommendation (locked unless you object):** **A — per-reeks lock.**  
+Rationale: different series are independent; parallel runs cost more but unblock other editors/reeks. UI disables the button only for the **selected** reeks that already has a `queued|running` run.
 
 ---
 
-## AI Gateway & cheaper models (answered Q11)
+## Q4 archive — revised answer
 
-**Yes — you can use cheaper / open models via AI Gateway.**
+You rejected the “dump JSON in the sandbox” approach. Agreed.
 
-- Eve model strings like `"alibaba/qwen3.7-plus"` or `"nvidia/nemotron-3-ultra-550b-a55b"` route through AI Gateway.
-- Pricing is **provider list price, zero markup** ([AI Gateway pricing](https://vercel.com/docs/ai-gateway/pricing)).
-- Catalog includes low-cost text models (examples from the public model browser: Qwen, Nemotron, GLM, MiniMax, some free-tier models). Exact ids/prices change — pick from [vercel.com/ai-gateway/models](https://vercel.com/ai-gateway/models).
-- Free tier has a subset of models + lower rate limits; paid credits unlock the full catalog.
-
-**OpenRouter is not required** for “cheaper models.” Use OpenRouter only if you need a model/provider Gateway doesn’t offer, or existing OpenRouter billing.
-
-**MVP default:** AI Gateway + a mid/cheap model suitable for tool-using research (validate with one eval run). Upgrade model if idea quality is weak.
+**Chosen design:** searchable **Convex `articleArchive`** + Dutch Eve tools (`zoek_gepubliceerde_artikelen`, …). Sitemap/`curl` is an optional secondary freshness check, not the primary search. Full detail in [`07-article-archive-tools.md`](./07-article-archive-tools.md).
 
 ---
 
-## Still open — please answer
+## Q19 — model picked
 
-### Q2 — Neon schema docs source
-Curated markdown in-repo (refreshed by script) vs live `information_schema` discovery every session?  
-**Lean recommendation:** curated docs + script refresh; allow live introspect as fallback.
+**`zai/glm-5.2`** via AI Gateway.
 
-### Q6 — Title selection on approve
-Must editor pick 1 of 3 titles on approve, or keep all 3 until writing?
+- MIT **open-weight** model aimed at long-horizon coding / agentic work  
+- Large context (good for multi-step sandbox research)  
+- Tool calling + structured output supported on Gateway  
+- Roughly ~$0.90 / $2.84 per 1M input/output tokens (verify live catalog)  
+- Cheaper sibling later if needed: `zai/glm-5.2-fast`
 
-### Q7 — Rejected ideas visibility
-Default list = only `idea_review`, rejected behind a filter? Or show rejected inline?
-
-### Q8 — Language
-Confirm idea copy (titles, why interesting, facts prose) is **Dutch (Flemish)**?
-
-### Q9 — Series scope of generate
-Confirm: generate only for the **currently selected reeks** (no multi-reeks batch in MVP)?
-
-### Q10 — Concurrent runs
-One running job **per reeks** (parallel across reeksen OK), or global single-flight?
-
-### Q13 — Long-run waiter
-If Eve research exceeds Convex action limits, OK to wait in a Next/Fluid route that writes back to Convex?
-
-### Q16 — People data
-OK to store Neon player/staff names + club labels in Convex for admin pipeline?
-
-### Q17 — Minors / youth
-Any rule to avoid suggesting youth/minors as interviewees?
-
-### Q18 — Duplicate threshold
-How hard should “too similar to past article” be? (e.g. same player+angle within 30 days)
-
-### Q19 — Quality vs cost
-Prefer cheaper/faster for MVP iteration, or stronger/slower from day one?
-
-### Q20 — Auto-schedule
-Manual trigger only for now, or daily/weekly soon after MVP?
-
-### Q21 — Partial regenerate
-Only full batches of 5, or later “regenerate replacements” for weak ideas?
+Change anytime in `agent/agent.ts`.
 
 ---
 
-## How to answer
+## Nothing blocking left
 
-Reply with e.g. `Q6: pick on approve`, `Q8: yes Dutch`, `Q10: per reeks`. I’ll update the plans again and proceed to implementation when you’re ready.
+All product/architecture questions for Phase A–D planning are answered. Remaining work is implementation + Neon introspection next session.
+
+Optional fine-tuning later (not blocking):
+
+- Exact “story angle duplicate” day window (soft 60d in instructions for now)  
+- Whether `articleArchive.bodyText` is always synced or on-demand  
+- Global concurrency cap for cost control (e.g. max 3 Eve sessions app-wide)
