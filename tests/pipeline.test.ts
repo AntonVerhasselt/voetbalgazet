@@ -114,6 +114,10 @@ describe("neon series map", () => {
   it("maps readable public keys to Neon series ids", () => {
     expect(resolveSeriesRef("antwerpen-p1")?.neonSeriesId).toBe("CHP_130005");
     expect(resolveSeriesRef("CHP_136335")?.publicKey).toBe("antwerpen-p2a");
+    expect(neonSeriesIdForDivision("bva-heren-groep-1-p1-p2")).toBe(
+      "CHP_134688",
+    );
+    // Legacy signup key still resolves for dual-read
     expect(neonSeriesIdForDivision("antwerpen-bva-g1")).toBe("CHP_134688");
   });
 
@@ -121,26 +125,33 @@ describe("neon series map", () => {
     expect(toPublicDivisionKey("antwerpen-p1")).toBe("antwerpen-p1");
     expect(toPublicDivisionKey("CHP_130005")).toBe("antwerpen-p1");
     expect(toPublicDivisionKey("limburg-p1")).toBe("limburg-p1");
+    expect(toPublicDivisionKey("antwerpen-bva-g1")).toBe(
+      "bva-heren-groep-1-p1-p2",
+    );
   });
 
   it("lists Neon→public remaps for recovery / dual-read", () => {
-    expect(neonIdToPublicKeyRemaps()).toEqual([
-      {
-        from: "CHP_130005",
-        to: "antwerpen-p1",
-        neonSeriesName: "1 Provinciaal Antw",
-      },
-      {
-        from: "CHP_136335",
-        to: "antwerpen-p2a",
-        neonSeriesName: "2 Provinciaal Antw A",
-      },
-      {
-        from: "CHP_134688",
-        to: "antwerpen-bva-g1",
-        neonSeriesName: "BvA Heren Groep 1 P1/P2",
-      },
-    ]);
+    const remaps = neonIdToPublicKeyRemaps();
+    expect(remaps.length).toBeGreaterThan(60);
+    expect(remaps).toEqual(
+      expect.arrayContaining([
+        {
+          from: "CHP_130005",
+          to: "antwerpen-p1",
+          neonSeriesName: "1 Provinciaal Antw",
+        },
+        {
+          from: "CHP_136335",
+          to: "antwerpen-p2a",
+          neonSeriesName: "2 Provinciaal Antw A",
+        },
+        {
+          from: "CHP_134688",
+          to: "bva-heren-groep-1-p1-p2",
+          neonSeriesName: "BvA Heren Groep 1 P1/P2",
+        },
+      ]),
+    );
   });
 });
 
@@ -152,16 +163,19 @@ describe("preference catalog readable keys", () => {
     }
   });
 
-  it("includes readable BvA key and Antwerp sample teams", () => {
+  it("includes provincial Neon divisions and Antwerp sample teams", () => {
+    expect(divisionOptions.some((d) => d.key === "antwerpen-p1")).toBe(true);
+    expect(divisionOptions.some((d) => d.key === "antwerpen-p4g")).toBe(true);
+    // Cups are mapped for research but not offered in the signup catalog
     expect(divisionOptions.some((d) => d.key === "antwerpen-bva-g1")).toBe(
-      true,
+      false,
     );
     expect(
       teamOptions.find((t) => t.key === "kfc-duffel")?.divisionKeys,
     ).toEqual(["antwerpen-p1"]);
     expect(
       teamOptions.find((t) => t.key === "tor-deurne-pirates")?.divisionKeys,
-    ).toEqual(["antwerpen-p2a"]);
+    ).toEqual(["antwerpen-p1"]);
   });
 });
 

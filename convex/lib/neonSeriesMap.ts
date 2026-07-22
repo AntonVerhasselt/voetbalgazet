@@ -6,7 +6,11 @@
  *   `divisions.externalKey`, pipeline `divisionKey`) are ALWAYS readable
  *   kebab-case (e.g. `antwerpen-p1`). Never expose Neon ids to users.
  * - Neon `series.id` (e.g. `CHP_130005`) is for SQL / agent research only.
+ *
+ * Source: `generated/neonTaxonomyData.ts` (from Neon import).
  */
+
+import { generatedNeonSeries } from "./generated/neonTaxonomyData";
 
 export type NeonSeriesRef = {
   neonSeriesId: string;
@@ -15,30 +19,20 @@ export type NeonSeriesRef = {
   publicKey: string;
 };
 
+export const KNOWN_NEON_SERIES: readonly NeonSeriesRef[] =
+  generatedNeonSeries.map((series) => ({
+    neonSeriesId: series.neonSeriesId,
+    neonSeriesName: series.neonSeriesName,
+    publicKey: series.publicKey,
+  }));
+
 /**
- * Known Neon series ↔ public keys (Antwerp seed as of 2026-07-22).
- *
- * TODO(taxonomy): Anton will provide Neon series.id for ALL remaining reeksen.
- * When that list arrives, extend this map only — do NOT replace public keys
- * with CHP_* ids. See plan/06-open-questions.md.
+ * Historical signup/pipeline keys that were renamed when cups left the
+ * preference catalog. Still resolve for dual-read / remaps.
  */
-export const KNOWN_NEON_SERIES: readonly NeonSeriesRef[] = [
-  {
-    neonSeriesId: "CHP_130005",
-    neonSeriesName: "1 Provinciaal Antw",
-    publicKey: "antwerpen-p1",
-  },
-  {
-    neonSeriesId: "CHP_136335",
-    neonSeriesName: "2 Provinciaal Antw A",
-    publicKey: "antwerpen-p2a",
-  },
-  {
-    neonSeriesId: "CHP_134688",
-    neonSeriesName: "BvA Heren Groep 1 P1/P2",
-    publicKey: "antwerpen-bva-g1",
-  },
-] as const;
+const LEGACY_PUBLIC_KEY_ALIASES: Readonly<Record<string, string>> = {
+  "antwerpen-bva-g1": "bva-heren-groep-1-p1-p2",
+};
 
 const byPublicKey = new Map(
   KNOWN_NEON_SERIES.map((s) => [s.publicKey, s] as const),
@@ -47,7 +41,8 @@ const byPublicKey = new Map(
 const byNeonId = new Map(KNOWN_NEON_SERIES.map((s) => [s.neonSeriesId, s]));
 
 export function resolveSeriesRef(divisionKey: string): NeonSeriesRef | null {
-  return byPublicKey.get(divisionKey) ?? byNeonId.get(divisionKey) ?? null;
+  const aliased = LEGACY_PUBLIC_KEY_ALIASES[divisionKey] ?? divisionKey;
+  return byPublicKey.get(aliased) ?? byNeonId.get(divisionKey) ?? null;
 }
 
 export function neonSeriesIdForDivision(divisionKey: string): string | null {

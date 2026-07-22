@@ -1,32 +1,64 @@
 items:
-  - { key: antwerpen-p1, label: 1ste provinciale Antwerpen, provinceKey: antwerpen, level: 1, active: true, sortOrder: 0 }
-  - { key: antwerpen-p2a, label: 2de provinciale A Antwerpen, provinceKey: antwerpen, level: 2, active: true, sortOrder: 1 }
-  - { key: antwerpen-p2b, label: 2de provinciale B Antwerpen, provinceKey: antwerpen, level: 2, active: true, sortOrder: 2 }
-  - { key: antwerpen-p3a, label: 3de provinciale A Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 3 }
-  - { key: antwerpen-p3b, label: 3de provinciale B Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 4 }
-  - { key: antwerpen-p3c, label: 3de provinciale C Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 5 }
-  - { key: antwerpen-bva-g1, label: BvA Heren Groep 1 P1/P2, provinceKey: antwerpen, level: 1, active: true, sortOrder: 6 }
-  - { key: limburg-p1, label: 1ste provinciale Limburg, provinceKey: limburg, level: 1, active: true, sortOrder: 100 }
-  - { key: limburg-p2a, label: 2de provinciale A Limburg, provinceKey: limburg, level: 2, active: true, sortOrder: 101 }
-  - { key: limburg-p2b, label: 2de provinciale B Limburg, provinceKey: limburg, level: 2, active: true, sortOrder: 102 }
-  - { key: limburg-p3a, label: 3de provinciale A Limburg, provinceKey: limburg, level: 3, active: true, sortOrder: 103 }
-  - { key: limburg-p3b, label: 3de provinciale B Limburg, provinceKey: limburg, level: 3, active: true, sortOrder: 104 }
-  - { key: limburg-p3c, label: 3de provinciale C Limburg, provinceKey: limburg, level: 3, active: true, sortOrder: 105 }
-  - { key: oost-vlaanderen-p1, label: 1ste provinciale Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 1, active: true, sortOrder: 200 }
-  - { key: oost-vlaanderen-p2a, label: 2de provinciale A Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 2, active: true, sortOrder: 201 }
-  - { key: oost-vlaanderen-p2b, label: 2de provinciale B Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 2, active: true, sortOrder: 202 }
-  - { key: oost-vlaanderen-p3a, label: 3de provinciale A Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 203 }
-  - { key: oost-vlaanderen-p3b, label: 3de provinciale B Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 204 }
-  - { key: oost-vlaanderen-p3c, label: 3de provinciale C Oost-Vlaanderen, provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 205 }
-  - { key: vlaams-brabant-p1, label: 1ste provinciale Vlaams-Brabant, provinceKey: vlaams-brabant, level: 1, active: true, sortOrder: 300 }
-  - { key: vlaams-brabant-p2a, label: 2de provinciale A Vlaams-Brabant, provinceKey: vlaams-brabant, level: 2, active: true, sortOrder: 301 }
-  - { key: vlaams-brabant-p2b, label: 2de provinciale B Vlaams-Brabant, provinceKey: vlaams-brabant, level: 2, active: true, sortOrder: 302 }
-  - { key: vlaams-brabant-p3a, label: 3de provinciale A Vlaams-Brabant, provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 303 }
-  - { key: vlaams-brabant-p3b, label: 3de provinciale B Vlaams-Brabant, provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 304 }
-  - { key: vlaams-brabant-p3c, label: 3de provinciale C Vlaams-Brabant, provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 305 }
-  - { key: west-vlaanderen-p1, label: 1ste provinciale West-Vlaanderen, provinceKey: west-vlaanderen, level: 1, active: true, sortOrder: 400 }
-  - { key: west-vlaanderen-p2a, label: 2de provinciale A West-Vlaanderen, provinceKey: west-vlaanderen, level: 2, active: true, sortOrder: 401 }
-  - { key: west-vlaanderen-p2b, label: 2de provinciale B West-Vlaanderen, provinceKey: west-vlaanderen, level: 2, active: true, sortOrder: 402 }
-  - { key: west-vlaanderen-p3a, label: 3de provinciale A West-Vlaanderen, provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 403 }
-  - { key: west-vlaanderen-p3b, label: 3de provinciale B West-Vlaanderen, provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 404 }
-  - { key: west-vlaanderen-p3c, label: 3de provinciale C West-Vlaanderen, provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 405 }
+  - { key: antwerpen-p1, label: "1ste provinciale Antwerpen", provinceKey: antwerpen, level: 1, active: true, sortOrder: 10 }
+  - { key: antwerpen-p2a, label: "2de provinciale A Antwerpen", provinceKey: antwerpen, level: 2, active: true, sortOrder: 21 }
+  - { key: antwerpen-p2b, label: "2de provinciale B Antwerpen", provinceKey: antwerpen, level: 2, active: true, sortOrder: 22 }
+  - { key: antwerpen-p3a, label: "3de provinciale A Antwerpen", provinceKey: antwerpen, level: 3, active: true, sortOrder: 31 }
+  - { key: antwerpen-p3b, label: "3de provinciale B Antwerpen", provinceKey: antwerpen, level: 3, active: true, sortOrder: 32 }
+  - { key: antwerpen-p3c, label: "3de provinciale C Antwerpen", provinceKey: antwerpen, level: 3, active: true, sortOrder: 33 }
+  - { key: antwerpen-p4a, label: "4de provinciale A Antwerpen", provinceKey: antwerpen, level: 4, active: true, sortOrder: 41 }
+  - { key: antwerpen-p4b, label: "4de provinciale B Antwerpen", provinceKey: antwerpen, level: 4, active: true, sortOrder: 42 }
+  - { key: antwerpen-p4c, label: "4de provinciale C Antwerpen", provinceKey: antwerpen, level: 4, active: true, sortOrder: 43 }
+  - { key: antwerpen-p4d, label: "4de provinciale D Antwerpen", provinceKey: antwerpen, level: 4, active: true, sortOrder: 44 }
+  - { key: antwerpen-p4e, label: "4de provinciale E Antwerpen", provinceKey: antwerpen, level: 4, active: true, sortOrder: 45 }
+  - { key: antwerpen-p4f, label: "4de provinciale F Antwerpen", provinceKey: antwerpen, level: 4, active: true, sortOrder: 46 }
+  - { key: antwerpen-p4g, label: "4de provinciale G Antwerpen", provinceKey: antwerpen, level: 4, active: true, sortOrder: 47 }
+  - { key: limburg-p1, label: "1ste provinciale Limburg", provinceKey: limburg, level: 1, active: true, sortOrder: 110 }
+  - { key: limburg-p2a, label: "2de provinciale A Limburg", provinceKey: limburg, level: 2, active: true, sortOrder: 121 }
+  - { key: limburg-p2b, label: "2de provinciale B Limburg", provinceKey: limburg, level: 2, active: true, sortOrder: 122 }
+  - { key: limburg-p3a, label: "3de provinciale A Limburg", provinceKey: limburg, level: 3, active: true, sortOrder: 131 }
+  - { key: limburg-p3b, label: "3de provinciale B Limburg", provinceKey: limburg, level: 3, active: true, sortOrder: 132 }
+  - { key: limburg-p3c, label: "3de provinciale C Limburg", provinceKey: limburg, level: 3, active: true, sortOrder: 133 }
+  - { key: limburg-p4a, label: "4de provinciale A Limburg", provinceKey: limburg, level: 4, active: true, sortOrder: 141 }
+  - { key: limburg-p4b, label: "4de provinciale B Limburg", provinceKey: limburg, level: 4, active: true, sortOrder: 142 }
+  - { key: limburg-p4c, label: "4de provinciale C Limburg", provinceKey: limburg, level: 4, active: true, sortOrder: 143 }
+  - { key: limburg-p4d, label: "4de provinciale D Limburg", provinceKey: limburg, level: 4, active: true, sortOrder: 144 }
+  - { key: limburg-p4e, label: "4de provinciale E Limburg", provinceKey: limburg, level: 4, active: true, sortOrder: 145 }
+  - { key: oost-vlaanderen-p1, label: "1ste provinciale Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 1, active: true, sortOrder: 210 }
+  - { key: oost-vlaanderen-p2a, label: "2de provinciale A Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 2, active: true, sortOrder: 221 }
+  - { key: oost-vlaanderen-p2b, label: "2de provinciale B Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 2, active: true, sortOrder: 222 }
+  - { key: oost-vlaanderen-p2c, label: "2de provinciale C Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 2, active: true, sortOrder: 223 }
+  - { key: oost-vlaanderen-p3a, label: "3de provinciale A Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 231 }
+  - { key: oost-vlaanderen-p3b, label: "3de provinciale B Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 232 }
+  - { key: oost-vlaanderen-p3c, label: "3de provinciale C Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 233 }
+  - { key: oost-vlaanderen-p3d, label: "3de provinciale D Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 234 }
+  - { key: oost-vlaanderen-p3e, label: "3de provinciale E Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 3, active: true, sortOrder: 235 }
+  - { key: oost-vlaanderen-p4a, label: "4de provinciale A Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 4, active: true, sortOrder: 241 }
+  - { key: oost-vlaanderen-p4b, label: "4de provinciale B Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 4, active: true, sortOrder: 242 }
+  - { key: oost-vlaanderen-p4c, label: "4de provinciale C Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 4, active: true, sortOrder: 243 }
+  - { key: oost-vlaanderen-p4d, label: "4de provinciale D Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 4, active: true, sortOrder: 244 }
+  - { key: oost-vlaanderen-p4e, label: "4de provinciale E Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 4, active: true, sortOrder: 245 }
+  - { key: oost-vlaanderen-p4f, label: "4de provinciale F Oost-Vlaanderen", provinceKey: oost-vlaanderen, level: 4, active: true, sortOrder: 246 }
+  - { key: vlaams-brabant-p1, label: "1ste provinciale Vlaams-Brabant", provinceKey: vlaams-brabant, level: 1, active: true, sortOrder: 310 }
+  - { key: vlaams-brabant-p2a, label: "2de provinciale A Vlaams-Brabant", provinceKey: vlaams-brabant, level: 2, active: true, sortOrder: 321 }
+  - { key: vlaams-brabant-p2b, label: "2de provinciale B Vlaams-Brabant", provinceKey: vlaams-brabant, level: 2, active: true, sortOrder: 322 }
+  - { key: vlaams-brabant-p3a, label: "3de provinciale A Vlaams-Brabant", provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 331 }
+  - { key: vlaams-brabant-p3b, label: "3de provinciale B Vlaams-Brabant", provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 332 }
+  - { key: vlaams-brabant-p3c, label: "3de provinciale C Vlaams-Brabant", provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 333 }
+  - { key: vlaams-brabant-p3d, label: "3de provinciale D Vlaams-Brabant", provinceKey: vlaams-brabant, level: 3, active: true, sortOrder: 334 }
+  - { key: vlaams-brabant-p4a, label: "4de provinciale A Vlaams-Brabant", provinceKey: vlaams-brabant, level: 4, active: true, sortOrder: 341 }
+  - { key: vlaams-brabant-p4b, label: "4de provinciale B Vlaams-Brabant", provinceKey: vlaams-brabant, level: 4, active: true, sortOrder: 342 }
+  - { key: vlaams-brabant-p4c, label: "4de provinciale C Vlaams-Brabant", provinceKey: vlaams-brabant, level: 4, active: true, sortOrder: 343 }
+  - { key: vlaams-brabant-p4d, label: "4de provinciale D Vlaams-Brabant", provinceKey: vlaams-brabant, level: 4, active: true, sortOrder: 344 }
+  - { key: vlaams-brabant-p4e, label: "4de provinciale E Vlaams-Brabant", provinceKey: vlaams-brabant, level: 4, active: true, sortOrder: 345 }
+  - { key: vlaams-brabant-p4f, label: "4de provinciale F Vlaams-Brabant", provinceKey: vlaams-brabant, level: 4, active: true, sortOrder: 346 }
+  - { key: west-vlaanderen-p1, label: "1ste provinciale West-Vlaanderen", provinceKey: west-vlaanderen, level: 1, active: true, sortOrder: 410 }
+  - { key: west-vlaanderen-p2a, label: "2de provinciale A West-Vlaanderen", provinceKey: west-vlaanderen, level: 2, active: true, sortOrder: 421 }
+  - { key: west-vlaanderen-p2b, label: "2de provinciale B West-Vlaanderen", provinceKey: west-vlaanderen, level: 2, active: true, sortOrder: 422 }
+  - { key: west-vlaanderen-p3a, label: "3de provinciale A West-Vlaanderen", provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 431 }
+  - { key: west-vlaanderen-p3b, label: "3de provinciale B West-Vlaanderen", provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 432 }
+  - { key: west-vlaanderen-p3c, label: "3de provinciale C West-Vlaanderen", provinceKey: west-vlaanderen, level: 3, active: true, sortOrder: 433 }
+  - { key: west-vlaanderen-p4a, label: "4de provinciale A West-Vlaanderen", provinceKey: west-vlaanderen, level: 4, active: true, sortOrder: 441 }
+  - { key: west-vlaanderen-p4b, label: "4de provinciale B West-Vlaanderen", provinceKey: west-vlaanderen, level: 4, active: true, sortOrder: 442 }
+  - { key: west-vlaanderen-p4c, label: "4de provinciale C West-Vlaanderen", provinceKey: west-vlaanderen, level: 4, active: true, sortOrder: 443 }
+  - { key: west-vlaanderen-p4d, label: "4de provinciale D West-Vlaanderen", provinceKey: west-vlaanderen, level: 4, active: true, sortOrder: 444 }
+  - { key: west-vlaanderen-p4e, label: "4de provinciale E West-Vlaanderen", provinceKey: west-vlaanderen, level: 4, active: true, sortOrder: 445 }
