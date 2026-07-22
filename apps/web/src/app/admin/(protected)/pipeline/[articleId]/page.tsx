@@ -187,7 +187,7 @@ export default function PipelineIdeaDetailPage() {
                 </div>
                 <button
                   type="button"
-                  className="newsletter-action-btn"
+                  className="newsletter-action-btn pipeline-contact__toggle"
                   disabled={
                     !canEdit ||
                     !inIdeaReview ||
@@ -233,7 +233,7 @@ export default function PipelineIdeaDetailPage() {
             />
             <button
               type="button"
-              className="newsletter-action-btn newsletter-action-btn--danger"
+              className="newsletter-action-btn newsletter-action-btn--danger pipeline-reject__btn"
               onClick={handleReject}
               disabled={busy !== null}
             >

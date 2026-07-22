@@ -7,15 +7,36 @@ import { pipelineApi } from "@/lib/pipeline-api";
 import { usePipelineDivision } from "./pipeline-division-context";
 
 const PHASES = [
-  { key: "ideeen", label: "Ideeën", href: "/admin/pipeline/ideeen" },
-  { key: "contacten", label: "Contacten", href: "/admin/pipeline/contacten" },
+  {
+    key: "ideeen",
+    label: "Ideeën",
+    shortLabel: "Ideeën",
+    href: "/admin/pipeline/ideeen",
+  },
+  {
+    key: "contacten",
+    label: "Contacten",
+    shortLabel: "Contact",
+    href: "/admin/pipeline/contacten",
+  },
   {
     key: "interviews",
     label: "Interviews",
+    shortLabel: "Interview",
     href: "/admin/pipeline/interviews",
   },
-  { key: "drafts", label: "Drafts", href: "/admin/pipeline/drafts" },
-  { key: "publicatie", label: "Publicatie", href: null },
+  {
+    key: "drafts",
+    label: "Drafts",
+    shortLabel: "Drafts",
+    href: "/admin/pipeline/drafts",
+  },
+  {
+    key: "publicatie",
+    label: "Publicatie",
+    shortLabel: "Publicatie",
+    href: null,
+  },
 ] as const;
 
 type PhaseKey = (typeof PHASES)[number]["key"];
@@ -59,15 +80,27 @@ export function PhaseStrip() {
           ? "newsletter-tabs__tab newsletter-tabs__tab--active"
           : "newsletter-tabs__tab";
 
+        const label = (
+          <>
+            <span className="pipeline-phase-strip__label-full">
+              {phase.label}
+            </span>
+            <span className="pipeline-phase-strip__label-short" aria-hidden="true">
+              {phase.shortLabel}
+            </span>
+            <span className="pipeline-phase-strip__count">{countLabel}</span>
+          </>
+        );
+
         if (!phase.href) {
           return (
             <span
               key={phase.key}
               className={`${className} pipeline-phase-strip__static`}
               aria-disabled="true"
+              title={phase.label}
             >
-              {phase.label}
-              <span className="pipeline-phase-strip__count">{countLabel}</span>
+              {label}
             </span>
           );
         }
@@ -78,9 +111,9 @@ export function PhaseStrip() {
             href={withReeksQuery(phase.href)}
             className={className}
             aria-current={active ? "page" : undefined}
+            title={phase.label}
           >
-            {phase.label}
-            <span className="pipeline-phase-strip__count">{countLabel}</span>
+            {label}
           </Link>
         );
       })}

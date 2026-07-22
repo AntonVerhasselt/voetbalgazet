@@ -2930,6 +2930,10 @@ a {
   text-decoration: none;
 }
 
+.pipeline-phase-strip__label-short {
+  display: none;
+}
+
 .pipeline-phase-strip__static {
   cursor: default;
   opacity: 0.85;
@@ -2959,9 +2963,18 @@ a {
 }
 
 .pipeline-generate-btn {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
   width: auto;
   min-height: 40px;
   padding: 0.45rem 1rem;
+}
+
+.pipeline-generate-btn .pipeline-busy__spinner {
+  border-color: color-mix(in srgb, currentColor 35%, transparent);
+  border-top-color: currentColor;
 }
 
 .pipeline-busy {
@@ -2977,9 +2990,10 @@ a {
   width: 0.9rem;
   height: 0.9rem;
   border: 2px solid var(--rule);
-  border-top-color: var(--ink);
+  border-top-color: currentColor;
   border-radius: 50%;
   animation: pipeline-spin 0.7s linear infinite;
+  flex: 0 0 auto;
 }
 
 @keyframes pipeline-spin {
@@ -3153,6 +3167,10 @@ a {
   margin: 0.35rem 0 0;
 }
 
+.pipeline-contact__toggle {
+  min-height: 40px;
+}
+
 .pipeline-detail__actions {
   display: grid;
   gap: 1.25rem;
@@ -3183,7 +3201,8 @@ a {
   resize: vertical;
 }
 
-.pipeline-reject .newsletter-action-btn {
+.pipeline-reject .newsletter-action-btn,
+.pipeline-reject__btn {
   width: fit-content;
   min-height: 40px;
 }
@@ -3207,13 +3226,65 @@ a {
 }
 
 @media (max-width: 767px) {
-  .pipeline-reeks__select {
-    min-width: 0;
-    width: 100%;
+  .pipeline-toolbar {
+    gap: 0.75rem;
+    margin-top: 1.15rem;
+  }
+
+  .pipeline-reeks {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
   }
 
   .pipeline-reeks__control {
+    display: flex;
     width: 100%;
+  }
+
+  .pipeline-reeks__select {
+    min-width: 0;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 44px;
+    font-size: 1rem; /* avoid iOS zoom */
+  }
+
+  .pipeline-reeks__badge {
+    flex: 0 0 auto;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  .pipeline-phase-strip.newsletter-tabs {
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .pipeline-phase-strip .newsletter-tabs__tab {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0.45rem 0.7rem;
+    white-space: nowrap;
+    font-size: 0.78rem;
+  }
+
+  .pipeline-phase-strip__label-full {
+    display: none;
+  }
+
+  .pipeline-phase-strip__label-short {
+    display: inline;
+  }
+
+  .pipeline-ideeen-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 0.85rem;
   }
 
   .pipeline-generate-btn {
@@ -3221,8 +3292,138 @@ a {
     min-height: 44px;
   }
 
+  .pipeline-list.admin-table-scroll {
+    border: 0;
+    overflow: visible;
+  }
+
+  .pipeline-list__table {
+    display: block;
+    width: 100%;
+  }
+
+  .pipeline-list__table thead {
+    display: none;
+  }
+
+  .pipeline-list__table tbody {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .pipeline-list__table tr {
+    display: grid;
+    gap: 0.55rem;
+    padding: 0.95rem;
+    border: 1px solid var(--rule);
+    background: var(--white);
+  }
+
+  .pipeline-list__table td {
+    display: grid;
+    gap: 0.2rem;
+    max-width: none;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    white-space: normal;
+    text-overflow: unset;
+  }
+
+  .pipeline-list__table td[data-label]::before {
+    content: attr(data-label);
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .pipeline-list__table tr:hover td {
+    background: transparent;
+  }
+
+  .pipeline-list__hint {
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.45;
+  }
+
+  .pipeline-list__link {
+    display: inline-block;
+    padding: 0.1rem 0;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .pipeline-list__contacts,
+  .pipeline-list__time {
+    white-space: normal;
+    font-size: 0.82rem;
+  }
+
+  /* Compact meta row: contacts + time side by side */
+  .pipeline-list__table tr {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pipeline-list__table td[data-label="Ideetitel"],
+  .pipeline-list__table td[data-label="Titelvoorstellen"] {
+    grid-column: 1 / -1;
+  }
+
+  .pipeline-detail {
+    padding-bottom: 0.5rem;
+  }
+
+  .pipeline-detail__title {
+    font-size: clamp(1.35rem, 7vw, 1.85rem);
+  }
+
+  .pipeline-detail__titles {
+    padding-left: 1.1rem;
+  }
+
   .pipeline-contact {
     flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .pipeline-contact__toggle {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .pipeline-detail__actions {
+    gap: 1rem;
+    margin-top: 1.35rem;
+  }
+
+  .pipeline-reject {
+    max-width: none;
+  }
+
+  .pipeline-reject__input {
+    min-height: 4.5rem;
+    font-size: 1rem;
+  }
+
+  .pipeline-reject .newsletter-action-btn,
+  .pipeline-reject__btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .pipeline-stub h2 {
+    font-size: 1.4rem;
+  }
+
+  .pipeline-body {
+    padding-bottom: 0.75rem;
   }
 }
 

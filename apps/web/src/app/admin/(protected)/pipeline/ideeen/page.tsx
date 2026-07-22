@@ -75,6 +75,7 @@ export default function PipelineIdeeenPage() {
           className="admin-button pipeline-generate-btn"
           onClick={handleGenerate}
           disabled={!canEdit || !divisionKey || researchBusy || starting}
+          aria-busy={researchBusy || starting}
           title={
             !canEdit
               ? "Alleen lezen"
@@ -83,16 +84,15 @@ export default function PipelineIdeeenPage() {
                 : undefined
           }
         >
-          {researchBusy || starting
-            ? "Bezig met research…"
-            : "Genereer 5 ideeën"}
+          {researchBusy || starting ? (
+            <>
+              <span className="pipeline-busy__spinner" aria-hidden="true" />
+              Bezig met research…
+            </>
+          ) : (
+            "Genereer 5 ideeën"
+          )}
         </button>
-        {researchBusy && (
-          <span className="pipeline-busy" role="status">
-            <span className="pipeline-busy__spinner" aria-hidden="true" />
-            Bezig met research…
-          </span>
-        )}
       </div>
 
       {error && <p className="admin-error">{error}</p>}
@@ -120,7 +120,7 @@ export default function PipelineIdeeenPage() {
           starten.
         </p>
       ) : (
-        <div className="admin-table-scroll">
+        <div className="admin-table-scroll pipeline-list">
           <table className="pipeline-list__table">
             <thead>
               <tr>
@@ -133,7 +133,7 @@ export default function PipelineIdeeenPage() {
             <tbody>
               {ideas.map((idea) => (
                 <tr key={idea._id}>
-                  <td>
+                  <td data-label="Ideetitel">
                     <Link
                       href={withReeksQuery(
                         `/admin/pipeline/${idea._id}`,
@@ -143,13 +143,22 @@ export default function PipelineIdeeenPage() {
                       {idea.ideaTitle}
                     </Link>
                   </td>
-                  <td className="pipeline-list__hint">
+                  <td
+                    className="pipeline-list__hint"
+                    data-label="Titelvoorstellen"
+                  >
                     {titleHint(idea.titleProposals)}
                   </td>
-                  <td className="pipeline-list__contacts">
+                  <td
+                    className="pipeline-list__contacts"
+                    data-label="Contacten"
+                  >
                     {idea.contactsSelected}/{idea.contactsTotal}
                   </td>
-                  <td className="pipeline-list__time">
+                  <td
+                    className="pipeline-list__time"
+                    data-label="Tijd"
+                  >
                     {formatTime(idea.updatedAt || idea.createdAt)}
                   </td>
                 </tr>
