@@ -12,5 +12,6 @@
 | [08-contacts-data-model.md](./08-contacts-data-model.md) | Contacts + Neon linkage |
 | [09-dutch-agent-conventions.md](./09-dutch-agent-conventions.md) | English code / Dutch agent I/O |
 | [10-fixture-ideas-and-phase-a.md](./10-fixture-ideas-and-phase-a.md) | Fixture generate stub |
+| [11-pipeline-data-structure-explained.md](./11-pipeline-data-structure-explained.md) | End-to-end data model explainer (Neon, contacts, phases, Anton todos) |
 
 Article-archive search is **out of scope** for this phase. Planning questions are decided. Next: Phase A implementation; Neon docs in the following session.
