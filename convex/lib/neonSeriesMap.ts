@@ -11,7 +11,12 @@ export type NeonSeriesRef = {
   placeholderKey: string | null;
 };
 
-/** Known Neon series as of 2026-07-22 introspection (Antwerp seed). */
+/** Known Neon series as of 2026-07-22 introspection (Antwerp seed only).
+ *
+ * TODO(taxonomy): Anton will provide Neon series.id for ALL remaining reeksen.
+ * When that list arrives, remap every placeholder in one pass (catalog, YAML,
+ * articles, Convex divisions.externalKey) — see plan/06-open-questions.md.
+ */
 export const KNOWN_NEON_SERIES: readonly NeonSeriesRef[] = [
   {
     neonSeriesId: "CHP_130005",

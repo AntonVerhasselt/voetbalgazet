@@ -55,3 +55,25 @@ Only the generate trigger for the **busy division** is disabled. Other divisions
 ## Q19 — model
 
 **`zai/glm-5.2`** via AI Gateway (MIT open-weight, agentic/coding-oriented). Changeable in `agent/agent.ts`.
+
+---
+
+## Follow-up todos
+
+### TODO — Full Neon taxonomy remap (blocked on series ids)
+
+**Owner input needed:** Anton provides the Neon `series.id` values for **all** remaining reeksen (today only Antwerp seed is mapped: `CHP_130005`, `CHP_136335`, `CHP_134688`).
+
+**When those ids arrive, do in one coordinated pass:**
+
+1. Extend `KNOWN_NEON_SERIES` / `legacyPlaceholderRemaps` in `convex/lib/neonSeriesMap.ts`
+2. Remap every remaining placeholder (`limburg-*`, `oost-vlaanderen-*`, `vlaams-brabant-*`, `west-vlaanderen-*`, leftover `antwerpen-p*`) → Neon `CHP_*` in:
+   - `preferenceCatalog.ts`
+   - `divisions.yaml` / `teams.yaml`
+   - article frontmatter `divisionKeys`
+   - Convex `divisions.externalKey` (in-place via `taxonomy:remapDivisionKeysToNeonInternal`)
+   - pipeline string keys / contacts
+3. Run `scripts/neon-taxonomy-migrate.mjs` dry-run → confirm → execute + taxonomy sync
+4. Drop dual-read aliases once nothing still uses placeholders
+
+Until then: keep unmapped YAML keys as placeholders; pipeline accepts both forms via `neonSeriesMap`.
