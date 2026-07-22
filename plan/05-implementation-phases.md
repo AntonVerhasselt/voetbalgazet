@@ -69,6 +69,7 @@ Next Cloud Agent session (Neon secret available):
 
 - WhatsApp / interview / writer / publish  
 - **Optional later:** published-article archive search for story-angle dedupe  
+- **TODO — full Neon taxonomy:** wait for Anton to supply Neon `series.id` for every reeks, then remap all remaining placeholders in one coordinated migrate (see [`06-open-questions.md`](./06-open-questions.md) follow-up)  
 
 ---
 
