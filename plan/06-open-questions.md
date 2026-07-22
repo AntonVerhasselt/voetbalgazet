@@ -60,20 +60,15 @@ Only the generate trigger for the **busy division** is disabled. Other divisions
 
 ## Follow-up todos
 
-### TODO — Full Neon taxonomy remap (blocked on series ids)
+### TODO — Map all Neon series ids (blocked on Anton)
 
 **Owner input needed:** Anton provides the Neon `series.id` values for **all** remaining reeksen (today only Antwerp seed is mapped: `CHP_130005`, `CHP_136335`, `CHP_134688`).
 
-**When those ids arrive, do in one coordinated pass:**
+**When those ids arrive, update the mapping only — public keys stay readable:**
 
-1. Extend `KNOWN_NEON_SERIES` / `legacyPlaceholderRemaps` in `convex/lib/neonSeriesMap.ts`
-2. Remap every remaining placeholder (`limburg-*`, `oost-vlaanderen-*`, `vlaams-brabant-*`, `west-vlaanderen-*`, leftover `antwerpen-p*`) → Neon `CHP_*` in:
-   - `preferenceCatalog.ts`
-   - `divisions.yaml` / `teams.yaml`
-   - article frontmatter `divisionKeys`
-   - Convex `divisions.externalKey` (in-place via `taxonomy:remapDivisionKeysToNeonInternal`)
-   - pipeline string keys / contacts
-3. Run `scripts/neon-taxonomy-migrate.mjs` dry-run → confirm → execute + taxonomy sync
-4. Drop dual-read aliases once nothing still uses placeholders
+1. Extend `KNOWN_NEON_SERIES` in `convex/lib/neonSeriesMap.ts` (`publicKey` ↔ `neonSeriesId`)
+2. Add any missing **readable** catalog/YAML keys if a Neon series has no public key yet (never use `CHP_*` as `externalKey` / signup key / pipeline UI key)
+3. Dry-run → confirm → sync taxonomy labels if needed
+4. Agent SQL / Eve prompts keep using `neonSeriesIdForDivision(publicKey)`
 
-Until then: keep unmapped YAML keys as placeholders; pipeline accepts both forms via `neonSeriesMap`.
+Until then: unmapped reeksen keep readable placeholders without a Neon id.

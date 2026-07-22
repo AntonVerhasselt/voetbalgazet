@@ -1,19 +1,19 @@
 items:
   - key: kfc-duffel
     label: KFC Duffel
-    divisionKeys: [CHP_130005]
+    divisionKeys: [antwerpen-p1]
     provinceKey: antwerpen
     active: true
     aliases: []
   - key: ksv-aartselaar
     label: KSV Aartselaar
-    divisionKeys: [CHP_130005]
+    divisionKeys: [antwerpen-p1]
     provinceKey: antwerpen
     active: true
     aliases: []
   - key: tor-deurne-pirates
     label: TOR Deurne Pirates
-    divisionKeys: [CHP_136335]
+    divisionKeys: [antwerpen-p2a]
     provinceKey: antwerpen
     active: true
     aliases: []

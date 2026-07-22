@@ -121,22 +121,6 @@ const settingsItemFields = {
   active: fields.checkbox({ label: "Actief", defaultValue: true }),
 };
 
-/** Division keys: legacy kebab-case or Neon series.id (e.g. CHP_130005). */
-const divisionKeyField = fields.text({
-  label: "Stabiele key",
-  description:
-    "Legacy kebab-case (antwerpen-p2b) of Neon series.id (CHP_130005).",
-  validation: {
-    isRequired: true,
-    pattern: {
-      regex: /^(?:[a-z0-9]+(?:-[a-z0-9]+)*|CHP_\d+)$/u,
-      message:
-        "Gebruik kebab-case (antwerpen-p1) of Neon series.id (CHP_130005).",
-    },
-  },
-});
-
-
 export default config({
   storage: storageKind === "github"
     ? {
@@ -390,9 +374,7 @@ export default config({
       schema: {
         items: fields.array(
           fields.object({
-            key: divisionKeyField,
-            label: settingsItemFields.label,
-            active: settingsItemFields.active,
+            ...settingsItemFields,
             provinceKey: fields.text({
               label: "Provinciekey",
               validation: { isRequired: true },
@@ -418,22 +400,10 @@ export default config({
         items: fields.array(
           fields.object({
             ...settingsItemFields,
-            divisionKeys: fields.array(
-              fields.text({
-                label: "Reekskey",
-                validation: {
-                  pattern: {
-                    regex: /^(?:[a-z0-9]+(?:-[a-z0-9]+)*|CHP_\d+)$/u,
-                    message:
-                      "Gebruik kebab-case of Neon series.id (CHP_130005).",
-                  },
-                },
-              }),
-              {
-                label: "Actuele reeksen",
-                itemLabel: (props) => props.value,
-              },
-            ),
+            divisionKeys: fields.array(fields.text({ label: "Reekskey" }), {
+              label: "Actuele reeksen",
+              itemLabel: (props) => props.value,
+            }),
             provinceKey: fields.text({
               label: "Provinciekey",
               validation: { isRequired: true },

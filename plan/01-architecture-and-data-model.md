@@ -117,12 +117,14 @@ Audit: `created | approved | rejected | interviewees_updated | phase_changed | �
 
 ## Taxonomy migration (Neon-first)
 
-Placeholder YAML keys (`antwerpen-p1`, …) are temporary.
+Readable public keys (`antwerpen-p1`, …) stay the product identity for signup,
+YAML, and pipeline UI. Neon `series.id` (`CHP_*`) is mapped in
+`neonSeriesMap` for SQL / research only — never shown as the user-facing key.
 
 1. Introspect Neon competitions/divisions/clubs/teams.  
-2. Choose canonical string id for Pipeline + Convex `divisions.externalKey`.  
-3. Dry-run migrate subscribers’ division prefs.  
-4. Update Keystatic settings / public signup catalog in a coordinated change.
+2. Map each public key → Neon `series.id` in `neonSeriesMap` (when ids are known).  
+3. Keep Convex `divisions.externalKey` readable; sync labels from catalog.  
+4. Update Keystatic settings / public signup catalog in a coordinated change when adding new readable keys.
 
 ## Relationship to Keystatic site articles
 

@@ -15,11 +15,11 @@ describe("subscriber preference validation", () => {
   it("deduplicates valid division keys", () => {
     expect(
       validatePreferenceKeys(
-        ["CHP_130005", "CHP_130005"],
+        ["antwerpen-p1", "antwerpen-p1"],
         "kfc-duffel",
       ),
     ).toEqual({
-      divisionKeys: ["CHP_130005"],
+      divisionKeys: ["antwerpen-p1"],
       teamKey: "kfc-duffel",
     });
   });
@@ -43,11 +43,11 @@ describe("subscriber preference validation", () => {
     }
   });
 
-  it("uses Neon series ids for Antwerp series that exist in Neon", () => {
-    expect(divisionOptions.some((d) => d.key === "CHP_130005")).toBe(true);
-    expect(divisionOptions.some((d) => d.key === "CHP_136335")).toBe(true);
-    expect(divisionOptions.some((d) => d.key === "CHP_134688")).toBe(true);
-    expect(divisionOptions.some((d) => d.key === "antwerpen-p1")).toBe(false);
-    expect(divisionOptions.some((d) => d.key === "antwerpen-p2a")).toBe(false);
+  it("keeps user-facing division keys readable (never Neon CHP_ ids)", () => {
+    expect(divisionOptions.some((d) => d.key === "antwerpen-p1")).toBe(true);
+    expect(divisionOptions.some((d) => d.key === "antwerpen-bva-g1")).toBe(
+      true,
+    );
+    expect(divisionOptions.some((d) => d.key.startsWith("CHP_"))).toBe(false);
   });
 });

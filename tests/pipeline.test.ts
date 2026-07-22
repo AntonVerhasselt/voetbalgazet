@@ -4,42 +4,43 @@ import { buildFixtureIdeaBatch } from "../convex/lib/pipelineFixtures";
 import { assertPhaseTransition } from "../convex/lib/pipelinePhases";
 import { resolvePipelineResearchMode } from "../convex/lib/pipelineMode";
 import {
-  canonicalizeDivisionKey,
-  legacyPlaceholderRemaps,
+  neonIdToPublicKeyRemaps,
+  neonSeriesIdForDivision,
   resolveSeriesRef,
+  toPublicDivisionKey,
 } from "../convex/lib/neonSeriesMap";
 import { buildResearchTaskMessage } from "../convex/lib/pipelineTaskPrompt";
 import { divisionOptions, teamOptions } from "../convex/lib/preferenceCatalog";
 
 describe("pipeline IdeaBatch validation", () => {
   it("accepts fixture batch", () => {
-    const batch = validateIdeaBatch(buildFixtureIdeaBatch("CHP_130005"));
+    const batch = validateIdeaBatch(buildFixtureIdeaBatch("antwerpen-p1"));
     expect(batch.ideas).toHaveLength(5);
     expect(batch.ideas[0]?.titleProposals).toHaveLength(3);
   });
 
   it("rejects wrong idea count", () => {
-    const bad = buildFixtureIdeaBatch("CHP_130005");
+    const bad = buildFixtureIdeaBatch("antwerpen-p1");
     bad.ideas = bad.ideas.slice(0, 4);
     expect(() => validateIdeaBatch(bad)).toThrow(/5 ideeën/);
   });
 
   it("rejects more than 3 interviewees", () => {
-    const bad = buildFixtureIdeaBatch("CHP_130005");
+    const bad = buildFixtureIdeaBatch("antwerpen-p1");
     const person = bad.ideas[0]!.interviewees[0]!;
     bad.ideas[0]!.interviewees = [person, person, person, person];
     expect(() => validateIdeaBatch(bad)).toThrow(/max 3/);
   });
 
   it("rejects duplicate interviewees in one idea", () => {
-    const bad = buildFixtureIdeaBatch("CHP_130005");
+    const bad = buildFixtureIdeaBatch("antwerpen-p1");
     const person = bad.ideas[0]!.interviewees[0]!;
     bad.ideas[0]!.interviewees = [person, { ...person }];
     expect(() => validateIdeaBatch(bad)).toThrow(/dubbele interviewkandidaat/);
   });
 
   it("rejects fewer than 3 title proposals", () => {
-    const bad = buildFixtureIdeaBatch("CHP_130005");
+    const bad = buildFixtureIdeaBatch("antwerpen-p1");
     bad.ideas[0]!.titleProposals = ["Alleen één titel"];
     expect(() => validateIdeaBatch(bad)).toThrow();
   });
@@ -61,60 +62,68 @@ describe("pipeline phase transitions", () => {
 });
 
 describe("neon series map", () => {
-  it("maps placeholder to Neon series", () => {
+  it("maps readable public keys to Neon series ids", () => {
     expect(resolveSeriesRef("antwerpen-p1")?.neonSeriesId).toBe("CHP_130005");
-    expect(resolveSeriesRef("CHP_136335")?.placeholderKey).toBe("antwerpen-p2a");
+    expect(resolveSeriesRef("CHP_136335")?.publicKey).toBe("antwerpen-p2a");
+    expect(neonSeriesIdForDivision("antwerpen-bva-g1")).toBe("CHP_134688");
   });
 
-  it("canonicalizes placeholders and leaves unknown keys", () => {
-    expect(canonicalizeDivisionKey("antwerpen-p1")).toBe("CHP_130005");
-    expect(canonicalizeDivisionKey("CHP_130005")).toBe("CHP_130005");
-    expect(canonicalizeDivisionKey("limburg-p1")).toBe("limburg-p1");
+  it("normalizes Neon ids back to readable public keys", () => {
+    expect(toPublicDivisionKey("antwerpen-p1")).toBe("antwerpen-p1");
+    expect(toPublicDivisionKey("CHP_130005")).toBe("antwerpen-p1");
+    expect(toPublicDivisionKey("limburg-p1")).toBe("limburg-p1");
   });
 
-  it("lists legacy remaps for migration", () => {
-    expect(legacyPlaceholderRemaps()).toEqual([
+  it("lists Neon→public remaps for recovery / dual-read", () => {
+    expect(neonIdToPublicKeyRemaps()).toEqual([
       {
-        from: "antwerpen-p1",
-        to: "CHP_130005",
+        from: "CHP_130005",
+        to: "antwerpen-p1",
         neonSeriesName: "1 Provinciaal Antw",
       },
       {
-        from: "antwerpen-p2a",
-        to: "CHP_136335",
+        from: "CHP_136335",
+        to: "antwerpen-p2a",
         neonSeriesName: "2 Provinciaal Antw A",
+      },
+      {
+        from: "CHP_134688",
+        to: "antwerpen-bva-g1",
+        neonSeriesName: "BvA Heren Groep 1 P1/P2",
       },
     ]);
   });
 });
 
-describe("preference catalog neon keys", () => {
-  it("exposes Neon ids for mapped Antwerp series and BvA", () => {
-    const keys = new Set(divisionOptions.map((d) => d.key));
-    expect(keys.has("CHP_130005")).toBe(true);
-    expect(keys.has("CHP_136335")).toBe(true);
-    expect(keys.has("CHP_134688")).toBe(true);
-    expect(keys.has("antwerpen-p1")).toBe(false);
+describe("preference catalog readable keys", () => {
+  it("never exposes Neon CHP_ ids as catalog keys", () => {
+    for (const division of divisionOptions) {
+      expect(division.key).not.toMatch(/^CHP_/);
+      expect(division.key).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+    }
   });
 
-  it("points Antwerp sample teams at Neon division ids", () => {
+  it("includes readable BvA key and Antwerp sample teams", () => {
+    expect(divisionOptions.some((d) => d.key === "antwerpen-bva-g1")).toBe(
+      true,
+    );
     expect(
       teamOptions.find((t) => t.key === "kfc-duffel")?.divisionKeys,
-    ).toEqual(["CHP_130005"]);
+    ).toEqual(["antwerpen-p1"]);
     expect(
       teamOptions.find((t) => t.key === "tor-deurne-pirates")?.divisionKeys,
-    ).toEqual(["CHP_136335"]);
+    ).toEqual(["antwerpen-p2a"]);
   });
 });
 
 describe("research task prompt", () => {
-  it("includes Neon series id for SQL filters", () => {
+  it("includes Neon series id for SQL while keyed by public key", () => {
     const prompt = buildResearchTaskMessage({
-      divisionKey: "CHP_130005",
+      divisionKey: "antwerpen-p1",
       divisionLabel: "1ste provinciale Antwerpen",
     });
+    expect(prompt).toContain("antwerpen-p1");
     expect(prompt).toContain("CHP_130005");
-    expect(prompt).toContain("5");
     expect(prompt).toMatch(/Nederlands/);
   });
 });

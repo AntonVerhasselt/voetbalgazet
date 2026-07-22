@@ -16,19 +16,17 @@ const r = await query("select 1 as ok");
 
 ## Canonical series / divisionKey
 
-Neon owns series identity via `series.id` (e.g. `CHP_130005`).
+Neon owns football identity via `series.id` (e.g. `CHP_130005`).
+**Product / UI keys stay readable** (`antwerpen-p1`, …) — never show Neon ids
+to users. Mapping lives in `convex/lib/neonSeriesMap.ts`.
 
-| series.id | name | Placeholder YAML key (temporary) |
-|-----------|------|----------------------------------|
+| series.id (SQL only) | name | Public key (UI / catalog) |
+|----------------------|------|---------------------------|
 | `CHP_130005` | 1 Provinciaal Antw | `antwerpen-p1` |
 | `CHP_136335` | 2 Provinciaal Antw A | `antwerpen-p2a` |
-| `CHP_134688` | BvA Heren Groep 1 P1/P2 | _(none — Neon-only)_ |
+| `CHP_134688` | BvA Heren Groep 1 P1/P2 | `antwerpen-bva-g1` |
 
-**Target:** Pipeline `divisionKey` / catalog `externalKey` = Neon `series.id`
-for series that exist in Neon. Legacy placeholders (`antwerpen-p1`, …) remain
-aliases via `convex/lib/neonSeriesMap.ts` for dual-read.
-
-Discover series:
+Filter SQL with Neon `series.id`, not the public key:
 
 ```sql
 select id, name, age_group, channel from series order by name;

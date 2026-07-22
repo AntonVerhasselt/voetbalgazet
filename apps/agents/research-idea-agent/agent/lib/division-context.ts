@@ -1,5 +1,6 @@
 /**
- * Editorial context for known placeholder + Neon series keys.
+ * Division context for the research agent.
+ * Public keys are readable kebab-case; Neon series.id is for SQL only.
  */
 
 export type DivisionContext = {
@@ -36,14 +37,21 @@ const KNOWN: Record<
     level: 2,
     neonSeriesId: "CHP_136335",
   },
+  "antwerpen-bva-g1": {
+    label: "BvA Heren Groep 1 P1/P2",
+    provinceKey: "antwerpen",
+    level: 1,
+    neonSeriesId: "CHP_134688",
+  },
+  // Accidental Neon-id lookups still resolve to the same context.
   CHP_130005: {
-    label: "1 Provinciaal Antw",
+    label: "1ste provinciale Antwerpen",
     provinceKey: "antwerpen",
     level: 1,
     neonSeriesId: "CHP_130005",
   },
   CHP_136335: {
-    label: "2 Provinciaal Antw A",
+    label: "2de provinciale A Antwerpen",
     provinceKey: "antwerpen",
     level: 2,
     neonSeriesId: "CHP_136335",
@@ -51,7 +59,7 @@ const KNOWN: Record<
   CHP_134688: {
     label: "BvA Heren Groep 1 P1/P2",
     provinceKey: "antwerpen",
-    level: null,
+    level: 1,
     neonSeriesId: "CHP_134688",
   },
 };

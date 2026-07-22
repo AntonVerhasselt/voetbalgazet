@@ -1,5 +1,3 @@
-import { KNOWN_NEON_SERIES } from "./neonSeriesMap";
-
 export type DivisionOption = {
   key: string;
   label: string;
@@ -22,14 +20,6 @@ export type ProvinceOption = {
   label: string;
   shortLabel: string;
 };
-
-/** Placeholder key → Neon series.id for series that already exist in Neon. */
-const NEON_DIVISION_KEY_BY_PLACEHOLDER: ReadonlyMap<string, string> = new Map(
-  KNOWN_NEON_SERIES.filter((series) => series.placeholderKey).map((series) => [
-    series.placeholderKey!,
-    series.neonSeriesId,
-  ]),
-);
 
 export const provinceOptions = [
   {
@@ -100,25 +90,24 @@ const divisionSeries = [
 
 const generatedDivisionOptions = provinceOptions.flatMap(
   (province, provinceIndex) =>
-    divisionSeries.map((division, divisionIndex) => {
-      const placeholderKey = `${province.key}-${division.keySuffix}`;
-      return {
-        key:
-          NEON_DIVISION_KEY_BY_PLACEHOLDER.get(placeholderKey) ?? placeholderKey,
-        label: `${division.label} ${province.label}`,
-        shortLabel: division.shortLabel,
-        provinceKey: province.key,
-        provinceLabel: province.label,
-        level: division.level,
-        sortOrder: provinceIndex * 100 + divisionIndex,
-      };
-    }),
+    divisionSeries.map((division, divisionIndex) => ({
+      key: `${province.key}-${division.keySuffix}`,
+      label: `${division.label} ${province.label}`,
+      shortLabel: division.shortLabel,
+      provinceKey: province.key,
+      provinceLabel: province.label,
+      level: division.level,
+      sortOrder: provinceIndex * 100 + divisionIndex,
+    })),
 );
 
-/** Neon-only series without a legacy placeholder (added after Antwerp seed). */
-const extraNeonDivisionOptions = [
+/**
+ * Extra readable keys for Neon series that are not part of the standard
+ * p1/p2/p3 grid. Neon ids stay in neonSeriesMap only.
+ */
+const extraDivisionOptions = [
   {
-    key: "CHP_134688",
+    key: "antwerpen-bva-g1",
     label: "BvA Heren Groep 1 P1/P2",
     shortLabel: "BvA",
     provinceKey: "antwerpen",
@@ -130,7 +119,7 @@ const extraNeonDivisionOptions = [
 
 export const divisionOptions = [
   ...generatedDivisionOptions,
-  ...extraNeonDivisionOptions,
+  ...extraDivisionOptions,
 ] satisfies readonly DivisionOption[];
 
 export const teamOptions = [
@@ -138,19 +127,19 @@ export const teamOptions = [
     key: "kfc-duffel",
     label: "KFC Duffel",
     provinceKey: "antwerpen",
-    divisionKeys: ["CHP_130005"],
+    divisionKeys: ["antwerpen-p1"],
   },
   {
     key: "ksv-aartselaar",
     label: "KSV Aartselaar",
     provinceKey: "antwerpen",
-    divisionKeys: ["CHP_130005"],
+    divisionKeys: ["antwerpen-p1"],
   },
   {
     key: "tor-deurne-pirates",
     label: "TOR Deurne Pirates",
     provinceKey: "antwerpen",
-    divisionKeys: ["CHP_136335"],
+    divisionKeys: ["antwerpen-p2a"],
   },
   {
     key: "fc-landen",

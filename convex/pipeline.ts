@@ -7,9 +7,9 @@ import { editorMutation, viewerQuery } from "./lib/adminAuth";
 import { divisionOptions } from "./lib/preferenceCatalog";
 import {
   KNOWN_NEON_SERIES,
-  canonicalizeDivisionKey,
   labelForDivisionKey,
   resolveSeriesRef,
+  toPublicDivisionKey,
 } from "./lib/neonSeriesMap";
 import { ingestIdeaBatch } from "./lib/pipelineIngest";
 import { buildFixtureIdeaBatch } from "./lib/pipelineFixtures";
@@ -28,7 +28,7 @@ async function findActiveRun(
   ctx: QueryCtx | MutationCtx,
   divisionKey: string,
 ): Promise<Doc<"pipelineResearchRuns"> | null> {
-  const canonical = canonicalizeDivisionKey(divisionKey);
+  const canonical = toPublicDivisionKey(divisionKey);
   for (const status of ["queued", "running"] as const) {
     const run = await ctx.db
       .query("pipelineResearchRuns")
@@ -45,7 +45,7 @@ async function divisionIsBusy(
   ctx: QueryCtx | MutationCtx,
   divisionKey: string,
 ): Promise<boolean> {
-  const canonical = canonicalizeDivisionKey(divisionKey);
+  const canonical = toPublicDivisionKey(divisionKey);
   if (await isDivisionResearchBusy(ctx, canonical)) return true;
   return (await findActiveRun(ctx, canonical)) !== null;
 }
@@ -62,7 +62,6 @@ export const listDivisionsForPipeline = viewerQuery({
     }),
   ),
   handler: async (ctx) => {
-    const placeholderKeys = new Set(divisionOptions.map((d) => d.key));
     const rows: Array<{
       key: string;
       label: string;
@@ -89,33 +88,27 @@ export const listDivisionsForPipeline = viewerQuery({
       });
     }
 
-    // Neon-only series without a catalog entry (placeholder or neon id).
+    // Neon-mapped series already covered by catalog public keys.
     const listedKeys = new Set(rows.map((row) => row.key));
     for (const series of KNOWN_NEON_SERIES) {
-      if (listedKeys.has(series.neonSeriesId)) {
-        continue;
-      }
-      if (
-        series.placeholderKey &&
-        placeholderKeys.has(series.placeholderKey)
-      ) {
+      if (listedKeys.has(series.publicKey)) {
         continue;
       }
       const ideas = await ctx.db
         .query("pipelineArticles")
         .withIndex("by_division_and_phase", (q) =>
-          q.eq("divisionKey", series.neonSeriesId).eq("phase", "idea_review"),
+          q.eq("divisionKey", series.publicKey).eq("phase", "idea_review"),
         )
         .collect();
-      const busy = await divisionIsBusy(ctx, series.neonSeriesId);
+      const busy = await divisionIsBusy(ctx, series.publicKey);
       rows.push({
-        key: series.neonSeriesId,
+        key: series.publicKey,
         label: series.neonSeriesName,
         ideaReviewCount: ideas.length,
         researchBusy: busy,
         neonSeriesId: series.neonSeriesId,
       });
-      listedKeys.add(series.neonSeriesId);
+      listedKeys.add(series.publicKey);
     }
 
     return rows;
@@ -132,7 +125,7 @@ export const getPhaseCounts = viewerQuery({
     publicatie: v.number(),
   }),
   handler: async (ctx, args) => {
-    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
+    const divisionKey = toPublicDivisionKey(args.divisionKey);
     const articles = await ctx.db
       .query("pipelineArticles")
       .withIndex("by_division_and_updatedAt", (q) =>
@@ -179,7 +172,7 @@ export const getActiveResearchRun = viewerQuery({
     v.null(),
   ),
   handler: async (ctx, args) => {
-    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
+    const divisionKey = toPublicDivisionKey(args.divisionKey);
     const active = await findActiveRun(ctx, divisionKey);
     if (active) {
       return {
@@ -223,7 +216,7 @@ export const listIdeas = viewerQuery({
     }),
   ),
   handler: async (ctx, args) => {
-    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
+    const divisionKey = toPublicDivisionKey(args.divisionKey);
     const articles = await ctx.db
       .query("pipelineArticles")
       .withIndex("by_division_and_phase", (q) =>
@@ -355,7 +348,7 @@ export const startResearchRun = editorMutation({
       throw new Error("clientRequestId is ongeldig");
     }
 
-    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
+    const divisionKey = toPublicDivisionKey(args.divisionKey);
     const existingByClient = await ctx.db
       .query("pipelineResearchRuns")
       .withIndex("by_clientRequestId", (q) =>
