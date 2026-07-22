@@ -88,7 +88,7 @@ const divisionSeries = [
   },
 ] as const;
 
-export const divisionOptions = provinceOptions.flatMap(
+const generatedDivisionOptions = provinceOptions.flatMap(
   (province, provinceIndex) =>
     divisionSeries.map((division, divisionIndex) => ({
       key: `${province.key}-${division.keySuffix}`,
@@ -99,7 +99,28 @@ export const divisionOptions = provinceOptions.flatMap(
       level: division.level,
       sortOrder: provinceIndex * 100 + divisionIndex,
     })),
-) satisfies readonly DivisionOption[];
+);
+
+/**
+ * Extra readable keys for Neon series that are not part of the standard
+ * p1/p2/p3 grid. Neon ids stay in neonSeriesMap only.
+ */
+const extraDivisionOptions = [
+  {
+    key: "antwerpen-bva-g1",
+    label: "BvA Heren Groep 1 P1/P2",
+    shortLabel: "BvA",
+    provinceKey: "antwerpen",
+    provinceLabel: "Antwerpen",
+    level: 1,
+    sortOrder: 6,
+  },
+] as const satisfies readonly DivisionOption[];
+
+export const divisionOptions = [
+  ...generatedDivisionOptions,
+  ...extraDivisionOptions,
+] satisfies readonly DivisionOption[];
 
 export const teamOptions = [
   {

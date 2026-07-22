@@ -144,36 +144,22 @@ async function runTaxonomySync(ctx: MutationCtx): Promise<{
     }
   }
 
-  let divisionCursor: string | null = null;
-  let divisionsDone = false;
-  while (!divisionsDone) {
-    const page = await ctx.db
-      .query("divisions")
-      .paginate({ numItems: 200, cursor: divisionCursor });
-    for (const row of page.page) {
-      if (row.active && !catalogDivisionKeys.has(row.externalKey)) {
-        await ctx.db.patch(row._id, { active: false });
-        divisionsDeactivated += 1;
-      }
+  // Divisions/teams are small bounded catalogs — collect is safe and avoids
+  // Convex's single-paginated-query-per-function limit.
+  const allDivisions = await ctx.db.query("divisions").collect();
+  for (const row of allDivisions) {
+    if (row.active && !catalogDivisionKeys.has(row.externalKey)) {
+      await ctx.db.patch(row._id, { active: false });
+      divisionsDeactivated += 1;
     }
-    divisionsDone = page.isDone;
-    divisionCursor = page.isDone ? null : page.continueCursor;
   }
 
-  let teamCursor: string | null = null;
-  let teamsDone = false;
-  while (!teamsDone) {
-    const page = await ctx.db
-      .query("teams")
-      .paginate({ numItems: 200, cursor: teamCursor });
-    for (const row of page.page) {
-      if (row.active && !catalogTeamKeys.has(row.externalKey)) {
-        await ctx.db.patch(row._id, { active: false });
-        teamsDeactivated += 1;
-      }
+  const allTeams = await ctx.db.query("teams").collect();
+  for (const row of allTeams) {
+    if (row.active && !catalogTeamKeys.has(row.externalKey)) {
+      await ctx.db.patch(row._id, { active: false });
+      teamsDeactivated += 1;
     }
-    teamsDone = page.isDone;
-    teamCursor = page.isDone ? null : page.continueCursor;
   }
 
   return {
@@ -225,43 +211,39 @@ async function previewTaxonomySyncData(ctx: MutationCtx | QueryCtx) {
       teamsToCreate += 1;
       continue;
     }
+    const expectedDivisionIds: Id<"divisions">[] = [];
+    for (const divisionKey of option.divisionKeys) {
+      const division = await ctx.db
+        .query("divisions")
+        .withIndex("by_external_key", (q) => q.eq("externalKey", divisionKey))
+        .unique();
+      if (division) expectedDivisionIds.push(division._id);
+    }
+    const sameDivisions =
+      existing.divisionIds.length === expectedDivisionIds.length &&
+      existing.divisionIds.every((id, index) => id === expectedDivisionIds[index]);
     if (
       existing.label !== option.label ||
       existing.provinceKey !== option.provinceKey ||
+      !sameDivisions ||
       !existing.active
     ) {
       teamsToUpdate += 1;
     }
   }
 
-  let divisionCursor: string | null = null;
-  let divisionsDone = false;
-  while (!divisionsDone) {
-    const page = await ctx.db
-      .query("divisions")
-      .paginate({ numItems: 200, cursor: divisionCursor });
-    for (const row of page.page) {
-      if (row.active && !catalogDivisionKeys.has(row.externalKey)) {
-        divisionsToDeactivate += 1;
-      }
+  const allDivisions = await ctx.db.query("divisions").collect();
+  for (const row of allDivisions) {
+    if (row.active && !catalogDivisionKeys.has(row.externalKey)) {
+      divisionsToDeactivate += 1;
     }
-    divisionsDone = page.isDone;
-    divisionCursor = page.isDone ? null : page.continueCursor;
   }
 
-  let teamCursor: string | null = null;
-  let teamsDone = false;
-  while (!teamsDone) {
-    const page = await ctx.db
-      .query("teams")
-      .paginate({ numItems: 200, cursor: teamCursor });
-    for (const row of page.page) {
-      if (row.active && !catalogTeamKeys.has(row.externalKey)) {
-        teamsToDeactivate += 1;
-      }
+  const allTeams = await ctx.db.query("teams").collect();
+  for (const row of allTeams) {
+    if (row.active && !catalogTeamKeys.has(row.externalKey)) {
+      teamsToDeactivate += 1;
     }
-    teamsDone = page.isDone;
-    teamCursor = page.isDone ? null : page.continueCursor;
   }
 
   return {
@@ -345,5 +327,133 @@ export const syncTaxonomyInternal = internalMutation({
   }),
   handler: async (ctx) => {
     return await runTaxonomySync(ctx);
+  },
+});
+
+/**
+ * In-place remap of division externalKeys (and pipeline string keys) to Neon
+ * series.id values. Must run BEFORE catalog sync after keys change, so
+ * subscribers keep their divisionIds on the same rows.
+ */
+export const remapDivisionKeysToNeonInternal = internalMutation({
+  args: {
+    remaps: v.array(
+      v.object({
+        from: v.string(),
+        to: v.string(),
+        label: v.optional(v.string()),
+      }),
+    ),
+  },
+  returns: v.object({
+    divisionsRemapped: v.number(),
+    divisionsAlreadyDone: v.number(),
+    divisionsMissing: v.number(),
+    conflicts: v.array(v.string()),
+    pipelineRunsRemapped: v.number(),
+    pipelineArticlesRemapped: v.number(),
+    contactsRemapped: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    let divisionsRemapped = 0;
+    let divisionsAlreadyDone = 0;
+    let divisionsMissing = 0;
+    const conflicts: string[] = [];
+    let pipelineRunsRemapped = 0;
+    let pipelineArticlesRemapped = 0;
+    let contactsRemapped = 0;
+
+    for (const remap of args.remaps) {
+      if (remap.from === remap.to) continue;
+
+      const fromRow = await ctx.db
+        .query("divisions")
+        .withIndex("by_external_key", (q) => q.eq("externalKey", remap.from))
+        .unique();
+      const toRow = await ctx.db
+        .query("divisions")
+        .withIndex("by_external_key", (q) => q.eq("externalKey", remap.to))
+        .unique();
+
+      if (fromRow && toRow) {
+        conflicts.push(
+          `${remap.from} and ${remap.to} both exist (ids ${fromRow._id}, ${toRow._id}) — merge manually`,
+        );
+      } else if (fromRow && !toRow) {
+        await ctx.db.patch(fromRow._id, {
+          externalKey: remap.to,
+          ...(remap.label ? { label: remap.label } : {}),
+          active: true,
+        });
+        divisionsRemapped += 1;
+      } else if (!fromRow && toRow) {
+        divisionsAlreadyDone += 1;
+      } else {
+        divisionsMissing += 1;
+      }
+
+      const runs = await ctx.db
+        .query("pipelineResearchRuns")
+        .withIndex("by_division_and_startedAt", (q) =>
+          q.eq("divisionKey", remap.from),
+        )
+        .collect();
+      for (const run of runs) {
+        await ctx.db.patch(run._id, { divisionKey: remap.to });
+        pipelineRunsRemapped += 1;
+      }
+
+      const articles = await ctx.db
+        .query("pipelineArticles")
+        .withIndex("by_division_and_updatedAt", (q) =>
+          q.eq("divisionKey", remap.from),
+        )
+        .collect();
+      for (const article of articles) {
+        await ctx.db.patch(article._id, { divisionKey: remap.to });
+        pipelineArticlesRemapped += 1;
+      }
+    }
+
+    const remapMap = new Map(args.remaps.map((r) => [r.from, r.to]));
+    const contacts = await ctx.db.query("contacts").collect();
+    for (const contact of contacts) {
+      let changed = false;
+      const nextKeys: string[] = [];
+      const seen = new Set<string>();
+      for (const key of contact.divisionKeys) {
+        const mapped = remapMap.get(key) ?? key;
+        if (mapped !== key) changed = true;
+        if (!seen.has(mapped)) {
+          seen.add(mapped);
+          nextKeys.push(mapped);
+        } else if (mapped !== key) {
+          changed = true;
+        }
+      }
+      if (changed) {
+        await ctx.db.patch(contact._id, {
+          divisionKeys: nextKeys,
+          updatedAt: Date.now(),
+        });
+        contactsRemapped += 1;
+      }
+    }
+
+    if (conflicts.length > 0) {
+      throw new Error(
+        `Taxonomy remap conflicts: ${conflicts.join("; ")}`,
+      );
+    }
+
+    return {
+      divisionsRemapped,
+      divisionsAlreadyDone,
+      divisionsMissing,
+      conflicts,
+      pipelineRunsRemapped,
+      pipelineArticlesRemapped,
+      contactsRemapped,
+    };
   },
 });

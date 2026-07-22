@@ -5,6 +5,7 @@ items:
   - { key: antwerpen-p3a, label: 3de provinciale A Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 3 }
   - { key: antwerpen-p3b, label: 3de provinciale B Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 4 }
   - { key: antwerpen-p3c, label: 3de provinciale C Antwerpen, provinceKey: antwerpen, level: 3, active: true, sortOrder: 5 }
+  - { key: antwerpen-bva-g1, label: BvA Heren Groep 1 P1/P2, provinceKey: antwerpen, level: 1, active: true, sortOrder: 6 }
   - { key: limburg-p1, label: 1ste provinciale Limburg, provinceKey: limburg, level: 1, active: true, sortOrder: 100 }
   - { key: limburg-p2a, label: 2de provinciale A Limburg, provinceKey: limburg, level: 2, active: true, sortOrder: 101 }
   - { key: limburg-p2b, label: 2de provinciale B Limburg, provinceKey: limburg, level: 2, active: true, sortOrder: 102 }

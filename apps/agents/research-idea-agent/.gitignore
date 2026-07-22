@@ -1,0 +1,8 @@
+.env
+.eve/
+dist/
+node_modules/
+agent/sandbox/workspace/node_modules/
+agent/sandbox/workspace/package-lock.json
+*.log
+.DS_Store

@@ -4,6 +4,7 @@
   "private": true,
   "workspaces": [
     "apps/*",
+    "apps/agents/*",
     "emails"
   ],
   "scripts": {
@@ -15,10 +16,11 @@
     "dev:web": "npm run dev --workspace web",
     "dev:convex": "convex dev",
     "dev:convex:agent": "CONVEX_AGENT_MODE=anonymous convex dev",
+    "dev:research-agent": "npm run dev --workspace voetbalgazet-research-idea",
     "lint": "npm run lint --workspace web && eslint --config eslint.config.mjs convex",
-    "test": "vitest run",
+    "test": "vitest run && npm run test --workspace voetbalgazet-research-idea",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "npm run typecheck --workspace web && tsc --noEmit -p convex/tsconfig.json && tsc --noEmit -p emails/tsconfig.json",
+    "typecheck": "npm run typecheck --workspace web && tsc --noEmit -p convex/tsconfig.json && tsc --noEmit -p emails/tsconfig.json && npm run typecheck --workspace voetbalgazet-research-idea",
     "agent:login": "node scripts/agent-login.mjs"
   },
   "dependencies": {

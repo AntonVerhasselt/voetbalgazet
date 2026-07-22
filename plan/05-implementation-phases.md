@@ -69,6 +69,7 @@ Next Cloud Agent session (Neon secret available):
 
 - WhatsApp / interview / writer / publish  
 - **Optional later:** published-article archive search for story-angle dedupe  
+- **TODO — full Neon series map:** wait for Anton to supply Neon `series.id` for every reeks, then extend `neonSeriesMap` only (public keys stay readable — never `CHP_*` in UI) — see [`06-open-questions.md`](./06-open-questions.md)  
 
 ---
 

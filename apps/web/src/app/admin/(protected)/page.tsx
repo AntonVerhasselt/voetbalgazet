@@ -49,6 +49,14 @@ export default async function AdminOverviewPage({
           )}
         </article>
         <article className="admin-task-card">
+          <p className="eyebrow">AI-journalist</p>
+          <h2>Pipeline</h2>
+          <p>Ideeën genereren, contacten kiezen, interviews en drafts opvolgen.</p>
+          <Link className="admin-task-card__action" href="/admin/pipeline">
+            Open pipeline <span aria-hidden="true">→</span>
+          </Link>
+        </article>
+        <article className="admin-task-card">
           <p className="eyebrow">Nieuwsbrief</p>
           <h2>Nieuwsbrieven</h2>
           <p>Concepten bewerken, publiek kiezen, testen en verzenden.</p>

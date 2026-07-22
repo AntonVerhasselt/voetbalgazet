@@ -1,7 +1,8 @@
 # De Voetbalgazet
 
 Flemish local-football publication: public site (Phase 2) plus Keystatic
-article admin MVP (Phase 3).
+article admin MVP (Phase 3), with an Eve **research idea agent** under
+`apps/agents/research-idea-agent` (Phase C skeleton).
 
 ## Open todos
 
@@ -16,6 +17,8 @@ Remaining manual ops and launch checks live in one place:
 - Keystatic artikeladmin (`/keystatic`) with Git-backed Markdoc + YAML settings
 - Signed draft preview (`/preview/*`) with gate/ungated mobile checks
 - Branded mobile-first `/admin` shell linking to Artikels
+- Eve research idea agent (`apps/agents/research-idea-agent`, model `zai/glm-5.2`)
+  — see [`plan/`](./plan/) and the agent [`README`](./apps/agents/research-idea-agent/README.md)
 - strict TypeScript, Convex ESLint rules, focused unit tests with coverage
   gates (`vitest.config.ts`), and GitHub Actions CI (`.github/workflows/ci.yml`)
 - shared `@devoetbalgazet/emails` package for the TipTap → HTML renderer used by
@@ -41,6 +44,13 @@ npm run dev
 ```bash
 npm run dev:convex
 npm run dev:web
+```
+
+Research idea agent (separate Eve process / Vercel project):
+
+```bash
+npm run dev:research-agent
+# or: cd apps/agents/research-idea-agent && npm run dev
 ```
 
 Use `npx convex dev` for development. Do not use `npx convex deploy` except in

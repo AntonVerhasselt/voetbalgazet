@@ -55,3 +55,20 @@ Only the generate trigger for the **busy division** is disabled. Other divisions
 ## Q19 — model
 
 **`zai/glm-5.2`** via AI Gateway (MIT open-weight, agentic/coding-oriented). Changeable in `agent/agent.ts`.
+
+---
+
+## Follow-up todos
+
+### TODO — Map all Neon series ids (blocked on Anton)
+
+**Owner input needed:** Anton provides the Neon `series.id` values for **all** remaining reeksen (today only Antwerp seed is mapped: `CHP_130005`, `CHP_136335`, `CHP_134688`).
+
+**When those ids arrive, update the mapping only — public keys stay readable:**
+
+1. Extend `KNOWN_NEON_SERIES` in `convex/lib/neonSeriesMap.ts` (`publicKey` ↔ `neonSeriesId`)
+2. Add any missing **readable** catalog/YAML keys if a Neon series has no public key yet (never use `CHP_*` as `externalKey` / signup key / pipeline UI key)
+3. Dry-run → confirm → sync taxonomy labels if needed
+4. Agent SQL / Eve prompts keep using `neonSeriesIdForDivision(publicKey)`
+
+Until then: unmapped reeksen keep readable placeholders without a Neon id.

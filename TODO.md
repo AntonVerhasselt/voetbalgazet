@@ -179,6 +179,37 @@ Env checks:
 
 ---
 
+## 8. AI journalist pipeline
+
+Idea review (generate → edit notes/questions → approve/reject) is implemented.
+Readable reeks keys stay user-facing; Neon `CHP_*` ids are mapping-only.
+Explainer: [`plan/11-pipeline-data-structure-explained.md`](./plan/11-pipeline-data-structure-explained.md).
+
+### Blocking real agent coverage
+
+- [ ] **Supply Neon `series.id` for all remaining reeksen** (today only Antwerp
+  seed is mapped: `CHP_130005`, `CHP_136335`, `CHP_134688`). Then extend only
+  `KNOWN_NEON_SERIES` in `convex/lib/neonSeriesMap.ts`. Public keys stay
+  readable — never use `CHP_*` as UI / signup / pipeline keys.  
+  See [`plan/06-open-questions.md`](./plan/06-open-questions.md).
+- [ ] **Deploy Eve + AI Gateway** and set Convex env for real research:
+  - `EVE_AGENT_URL`
+  - `EVE_INVOKE_TOKEN`
+  - `PIPELINE_RESEARCH_MODE=eve`
+  - Production: `PIPELINE_ENV=production` (fail-closed; no silent fixture fallback)
+  - Agent needs `NEON_DATABASE_URL` (read-only) for SQL
+- [ ] Optional: `AI_GATEWAY_API_KEY` for local/cloud Eve runs outside Vercel AI
+  Gateway wiring
+
+### Later pipeline product (after idea review)
+
+- [ ] WhatsApp / contact-finding flow for `awaiting_contacts` → interview phases
+- [ ] Interview capture → draft writer → draft review
+- [ ] **Publish bridge** from pipeline → Keystatic Markdoc → `published`
+- [ ] (Deferred) story-angle dedupe against already published articles
+
+---
+
 ## Definition of done (Phase 3 ops)
 
 - [ ] Hosted `/keystatic` save creates a Git commit on production
