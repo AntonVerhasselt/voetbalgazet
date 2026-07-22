@@ -40,6 +40,12 @@ describe("pipeline IdeaBatch validation", () => {
     expect(() => validateIdeaBatch(bad)).toThrow(/dubbele interviewkandidaat/);
   });
 
+  it("requires interviewerNotes for each interviewee", () => {
+    const bad = buildFixtureIdeaBatch("antwerpen-p1");
+    bad.ideas[0]!.interviewees[0]!.interviewerNotes = "  ";
+    expect(() => validateIdeaBatch(bad)).toThrow(/mist interviewerNotes|mag niet leeg/);
+  });
+
   it("requires interview questions for each interviewee", () => {
     const bad = buildFixtureIdeaBatch("antwerpen-p1");
     bad.ideas[0]!.interviewees[0]!.questions = [];

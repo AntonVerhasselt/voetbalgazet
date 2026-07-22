@@ -51,6 +51,7 @@ export async function ingestIdeaBatch(
         contactId,
         neonPersonId: interviewee.neonPersonId,
         whyInterview: interviewee.whyInterview,
+        interviewerNotes: interviewee.interviewerNotes,
         questions: interviewee.questions,
         suggestedOrder: order,
         selected: true,

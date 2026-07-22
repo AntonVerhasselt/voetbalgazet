@@ -183,6 +183,7 @@ function validateIdeaProposal(raw: unknown, index: number): IdeaProposalInput {
       "neonClubId",
       "clubName",
       "whyInterview",
+      "interviewerNotes",
     ] as const;
     for (const key of requiredStrings) {
       if (typeof p[key] !== "string" || (p[key] as string).trim().length === 0) {
@@ -197,6 +198,11 @@ function validateIdeaProposal(raw: unknown, index: number): IdeaProposalInput {
       `${prefix}: kandidaat ${personIndex + 1} whyInterview`,
       p.whyInterview as string,
       MAX_MEDIUM,
+    );
+    assertLen(
+      `${prefix}: kandidaat ${personIndex + 1} interviewerNotes`,
+      p.interviewerNotes as string,
+      MAX_LONG,
     );
     const questions = normalizeInterviewQuestions(p.questions, {
       label: `${prefix}: kandidaat ${personIndex + 1}`,
@@ -214,6 +220,7 @@ function validateIdeaProposal(raw: unknown, index: number): IdeaProposalInput {
       ...(typeof p.neonTeamId === "string" ? { neonTeamId: p.neonTeamId } : {}),
       ...(typeof p.teamName === "string" ? { teamName: p.teamName } : {}),
       whyInterview: p.whyInterview as string,
+      interviewerNotes: (p.interviewerNotes as string).trim(),
       questions,
     };
   });
@@ -307,6 +314,7 @@ export const ideaBatchJsonSchema = {
                 "neonClubId",
                 "clubName",
                 "whyInterview",
+                "interviewerNotes",
                 "questions",
               ],
               properties: {
@@ -325,6 +333,11 @@ export const ideaBatchJsonSchema = {
                   type: "string",
                   minLength: 1,
                   maxLength: MAX_MEDIUM,
+                },
+                interviewerNotes: {
+                  type: "string",
+                  minLength: 1,
+                  maxLength: MAX_LONG,
                 },
                 questions: {
                   type: "array",

@@ -501,6 +501,11 @@ export default defineSchema({
     contactId: v.id("contacts"),
     neonPersonId: v.string(),
     whyInterview: v.string(),
+    /**
+     * Briefing for the interviewer: who this person is, why we talk to them,
+     * and the goal of the interview. Editable during idea review.
+     */
+    interviewerNotes: v.optional(v.string()),
     /** Dutch interview questions suggested for this person on this idea. */
     questions: v.array(v.string()),
     suggestedOrder: v.number(),
@@ -522,6 +527,7 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("interviewees_updated"),
       v.literal("questions_updated"),
+      v.literal("notes_updated"),
       v.literal("phase_changed"),
       v.literal("research_started"),
       v.literal("research_succeeded"),

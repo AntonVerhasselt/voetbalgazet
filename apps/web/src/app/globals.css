@@ -3167,6 +3167,12 @@ a {
   margin: 0.35rem 0 0;
 }
 
+.pipeline-contact__why {
+  color: var(--ink-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 .pipeline-contact__toggle {
   min-height: 40px;
 }
@@ -3177,6 +3183,51 @@ a {
   margin-top: 0.75rem;
   padding-top: 0.65rem;
   border-top: 1px dashed var(--rule);
+}
+
+.pipeline-questions__notes-block {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.pipeline-questions__notes-label,
+.pipeline-questions__notes-block > h4 {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pipeline-questions__notes-hint {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.pipeline-questions__notes-input {
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.pipeline-questions__notes-read {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .pipeline-questions__header {
@@ -3511,6 +3562,11 @@ a {
   .pipeline-questions__input {
     font-size: 1rem;
     min-height: 3.25rem;
+  }
+
+  .pipeline-questions__notes-input {
+    font-size: 1rem;
+    min-height: 6.5rem;
   }
 
   .pipeline-detail__actions {

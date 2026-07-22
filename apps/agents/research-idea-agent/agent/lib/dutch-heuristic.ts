@@ -57,6 +57,7 @@ export function ideaBatchLooksDutch(batch: {
     interviewees: Array<{
       whyInterview: string;
       fullName: string;
+      interviewerNotes?: string;
       questions?: string[];
     }>;
     researchSummary?: string;
@@ -85,6 +86,11 @@ export function ideaBatchLooksDutch(batch: {
     idea.interviewees.forEach((person, personIndex) => {
       if (!looksDutch(person.whyInterview)) {
         failures.push(`${prefix}.interviewees[${personIndex}].whyInterview`);
+      }
+      if (person.interviewerNotes && !looksDutch(person.interviewerNotes)) {
+        failures.push(
+          `${prefix}.interviewees[${personIndex}].interviewerNotes`,
+        );
       }
       (person.questions ?? []).forEach((question, questionIndex) => {
         if (!looksDutch(question)) {

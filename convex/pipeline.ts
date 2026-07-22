@@ -283,6 +283,7 @@ export const getIdeaDetail = viewerQuery({
           clubName: v.string(),
           teamName: v.optional(v.string()),
           whyInterview: v.string(),
+          interviewerNotes: v.string(),
           questions: v.array(v.string()),
           selected: v.boolean(),
           suggestedOrder: v.number(),
@@ -313,6 +314,7 @@ export const getIdeaDetail = viewerQuery({
         clubName: contact.clubName,
         teamName: contact.teamName,
         whyInterview: join.whyInterview,
+        interviewerNotes: join.interviewerNotes?.trim() || join.whyInterview,
         questions: join.questions ?? [],
         selected: join.selected,
         suggestedOrder: join.suggestedOrder,
@@ -599,6 +601,54 @@ export const updateIntervieweeQuestions = editorMutation({
   },
 });
 
+/**
+ * Replace interviewer briefing notes for one suggested interviewee.
+ */
+export const updateIntervieweeNotes = editorMutation({
+  args: {
+    articleContactId: v.id("pipelineArticleContacts"),
+    interviewerNotes: v.string(),
+  },
+  returns: v.object({
+    interviewerNotes: v.string(),
+  }),
+  handler: async (ctx, args) => {
+    const join = await ctx.db.get(args.articleContactId);
+    if (!join) throw new Error("Interviewkandidaat niet gevonden");
+    const article = await ctx.db.get(join.articleId);
+    if (!article) throw new Error("Idee niet gevonden");
+    if (article.phase !== "idea_review") {
+      throw new Error(
+        "Interviewnotities kunnen alleen in de ideeënfase worden gewijzigd.",
+      );
+    }
+    const interviewerNotes = args.interviewerNotes.trim();
+    if (interviewerNotes.length === 0) {
+      throw new Error("Interviewnotities mag niet leeg zijn");
+    }
+    if (interviewerNotes.length > 4_000) {
+      throw new Error("Interviewnotities is te lang (max 4000 tekens)");
+    }
+    const now = Date.now();
+    await ctx.db.patch(args.articleContactId, {
+      interviewerNotes,
+      updatedAt: now,
+    });
+    await ctx.db.patch(article._id, { updatedAt: now });
+    await ctx.db.insert("pipelineEvents", {
+      articleId: article._id,
+      type: "notes_updated",
+      actorUserId: ctx.adminUser._id,
+      metadata: JSON.stringify({
+        articleContactId: args.articleContactId,
+        notesLength: interviewerNotes.length,
+      }),
+      createdAt: now,
+    });
+    return { interviewerNotes };
+  },
+});
+
 /** One-shot: ensure legacy join rows have a questions array after schema add. */
 export const backfillArticleContactQuestions = internalMutation({
   args: {},
@@ -612,6 +662,27 @@ export const backfillArticleContactQuestions = internalMutation({
       if (Array.isArray(existing)) continue;
       await ctx.db.patch(join._id, {
         questions: [],
+        updatedAt: now,
+      });
+      patched += 1;
+    }
+    return { patched };
+  },
+});
+
+/** Backfill interviewerNotes from whyInterview when missing. */
+export const backfillArticleContactNotes = internalMutation({
+  args: {},
+  returns: v.object({ patched: v.number() }),
+  handler: async (ctx) => {
+    const joins = await ctx.db.query("pipelineArticleContacts").collect();
+    let patched = 0;
+    const now = Date.now();
+    for (const join of joins) {
+      const existing = (join as { interviewerNotes?: string }).interviewerNotes;
+      if (typeof existing === "string" && existing.trim().length > 0) continue;
+      await ctx.db.patch(join._id, {
+        interviewerNotes: join.whyInterview,
         updatedAt: now,
       });
       patched += 1;

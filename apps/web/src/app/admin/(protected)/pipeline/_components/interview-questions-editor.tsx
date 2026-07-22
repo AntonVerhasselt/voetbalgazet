@@ -14,6 +14,7 @@ type DraftQuestion = {
 
 type Props = {
   articleContactId: Id<"pipelineArticleContacts">;
+  initialNotes: string;
   initialQuestions: string[];
   canEdit: boolean;
   disabled?: boolean;
@@ -28,12 +29,15 @@ function toDraft(questions: string[], idPrefix: string): DraftQuestion[] {
 
 export function InterviewQuestionsEditor({
   articleContactId,
+  initialNotes,
   initialQuestions,
   canEdit,
   disabled = false,
 }: Props) {
   const updateQuestions = useMutation(pipelineApi.updateIntervieweeQuestions);
+  const updateNotes = useMutation(pipelineApi.updateIntervieweeNotes);
   const idPrefix = useId();
+  const [notesDraft, setNotesDraft] = useState(initialNotes);
   const [draft, setDraft] = useState<DraftQuestion[]>(() =>
     toDraft(initialQuestions, idPrefix),
   );
@@ -44,8 +48,15 @@ export function InterviewQuestionsEditor({
 
   const questionsKey = initialQuestions.join("\u0001");
   useEffect(() => {
+    setNotesDraft(initialNotes);
     setDraft(toDraft(initialQuestions, idPrefix));
-  }, [articleContactId, questionsKey, initialQuestions, idPrefix]);
+  }, [
+    articleContactId,
+    questionsKey,
+    initialQuestions,
+    initialNotes,
+    idPrefix,
+  ]);
 
   useEffect(() => {
     const focusId = focusNewIdRef.current;
@@ -58,7 +69,7 @@ export function InterviewQuestionsEditor({
     focusNewIdRef.current = null;
   }, [draft]);
 
-  async function persist(nextTexts: string[]) {
+  async function persistQuestions(nextTexts: string[]) {
     if (!canEdit || disabled) return;
     setSaving(true);
     setError(null);
@@ -73,6 +84,36 @@ export function InterviewQuestionsEditor({
         e instanceof Error ? e.message : "Kon vragen niet opslaan.",
       );
       setDraft(toDraft(initialQuestions, idPrefix));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function persistNotes() {
+    if (!canEdit || disabled) return;
+    const next = notesDraft.trim();
+    if (next === initialNotes.trim()) {
+      setNotesDraft(initialNotes);
+      return;
+    }
+    if (next.length === 0) {
+      setError("Interviewnotities mag niet leeg zijn");
+      setNotesDraft(initialNotes);
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const result = await updateNotes({
+        articleContactId,
+        interviewerNotes: next,
+      });
+      setNotesDraft(result.interviewerNotes);
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Kon notities niet opslaan.",
+      );
+      setNotesDraft(initialNotes);
     } finally {
       setSaving(false);
     }
@@ -95,13 +136,13 @@ export function InterviewQuestionsEditor({
       setDraft(toDraft(initialQuestions, idPrefix));
       return;
     }
-    await persist(nextTexts);
+    await persistQuestions(nextTexts);
   }
 
   async function removeAt(id: string) {
     const next = draft.filter((q) => q.id !== id);
     setDraft(next);
-    await persist(next.map((q) => q.text.trim()).filter(Boolean));
+    await persistQuestions(next.map((q) => q.text.trim()).filter(Boolean));
   }
 
   async function addQuestion() {
@@ -113,17 +154,27 @@ export function InterviewQuestionsEditor({
   }
 
   if (!canEdit) {
-    if (initialQuestions.length === 0) {
-      return (
-        <p className="pipeline-questions__empty">Geen interviewvragen.</p>
-      );
-    }
     return (
-      <ol className="pipeline-questions__list">
-        {initialQuestions.map((question, index) => (
-          <li key={`${index}-${question}`}>{question}</li>
-        ))}
-      </ol>
+      <div className="pipeline-questions">
+        <div className="pipeline-questions__notes-block">
+          <h4>Notities voor de interviewer</h4>
+          <p className="pipeline-questions__notes-read">
+            {initialNotes || "Geen notities."}
+          </p>
+        </div>
+        <div className="pipeline-questions__header">
+          <h4>Interviewvragen</h4>
+        </div>
+        {initialQuestions.length === 0 ? (
+          <p className="pipeline-questions__empty">Geen interviewvragen.</p>
+        ) : (
+          <ol className="pipeline-questions__list">
+            {initialQuestions.map((question, index) => (
+              <li key={`${index}-${question}`}>{question}</li>
+            ))}
+          </ol>
+        )}
+      </div>
     );
   }
 
@@ -131,6 +182,29 @@ export function InterviewQuestionsEditor({
 
   return (
     <div className="pipeline-questions">
+      <div className="pipeline-questions__notes-block">
+        <label
+          className="pipeline-questions__notes-label"
+          htmlFor={`notes-${articleContactId}`}
+        >
+          Notities voor de interviewer
+        </label>
+        <p className="pipeline-questions__notes-hint">
+          Wie is deze persoon, waarom interviewen we hem/haar, en wat is het
+          doel van het gesprek?
+        </p>
+        <textarea
+          id={`notes-${articleContactId}`}
+          className="pipeline-questions__notes-input"
+          rows={4}
+          value={notesDraft}
+          disabled={disabled || saving}
+          onChange={(e) => setNotesDraft(e.target.value)}
+          onBlur={() => void persistNotes()}
+          placeholder="Briefing voor de interviewer…"
+        />
+      </div>
+
       <div className="pipeline-questions__header">
         <h4>Interviewvragen</h4>
         <span className="pipeline-questions__count">

@@ -184,9 +184,12 @@ export default function PipelineIdeaDetailPage() {
                     {c.clubName}
                     {c.teamName ? ` · ${c.teamName}` : ""}
                   </span>
-                  {c.whyInterview ? <p>{c.whyInterview}</p> : null}
+                  {c.whyInterview ? (
+                    <p className="pipeline-contact__why">{c.whyInterview}</p>
+                  ) : null}
                   <InterviewQuestionsEditor
                     articleContactId={c.articleContactId}
+                    initialNotes={c.interviewerNotes}
                     initialQuestions={c.questions}
                     canEdit={canEdit && inIdeaReview}
                     disabled={busy !== null}

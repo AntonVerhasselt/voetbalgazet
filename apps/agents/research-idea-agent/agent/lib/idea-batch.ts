@@ -54,7 +54,11 @@ export const intervieweeSchema = z.object({
     .describe("Optionele teamnaam."),
   whyInterview: dutchString(
     MAX_MEDIUM,
-    "Waarom deze persoon interviewen — in het Nederlands.",
+    "Waarom deze persoon interviewen — korte reden in het Nederlands.",
+  ),
+  interviewerNotes: dutchString(
+    MAX_LONG,
+    "Notities voor de interviewer: wie is deze persoon, waarom interviewen we hem/haar, en wat is het doel van het gesprek (Nederlands).",
   ),
   questions: z
     .array(

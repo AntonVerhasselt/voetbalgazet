@@ -70,6 +70,7 @@ export const ideaIntervieweeValidator = v.object({
   neonTeamId: v.optional(v.string()),
   teamName: v.optional(v.string()),
   whyInterview: v.string(),
+  interviewerNotes: v.string(),
   questions: v.array(v.string()),
 });
 
@@ -92,6 +93,7 @@ export const pipelineEventTypeValidator = v.union(
   v.literal("rejected"),
   v.literal("interviewees_updated"),
   v.literal("questions_updated"),
+  v.literal("notes_updated"),
   v.literal("phase_changed"),
   v.literal("research_started"),
   v.literal("research_succeeded"),
@@ -132,6 +134,7 @@ export type IdeaProposalInput = {
     neonTeamId?: string;
     teamName?: string;
     whyInterview: string;
+    interviewerNotes: string;
     questions: string[];
   }>;
   researchSummary?: string;

@@ -42,6 +42,8 @@ export const sampleIdeaBatch: IdeaBatch = {
           teamName: "Eerste elftal",
           whyInterview:
             "Als trainer kan hij de tactische en mentale omslag duiden achter de cijfermatige opmars.",
+          interviewerNotes:
+            "Jan De Smet is T1-trainer van FC Voorbeeld. Interview hem over de ommekeer na speeldag 5: wat veranderde tactisch en mentaal, en hoe houdt hij de ploeg scherp als koploper. Doel: een data-gedreven portret van de opmars met zijn duiding.",
           questions: [
             "Wat veranderde er in de weekelijkse voorbereiding na speeldag 5?",
             "Welke tactische knop draaide u om toen de zegereeks begon?",
@@ -79,6 +81,8 @@ export const sampleIdeaBatch: IdeaBatch = {
           clubName: "SK Nebula",
           whyInterview:
             "Hij leidt de open-spel ranking en kan vertellen hoe de ploeg kansen creëert.",
+          interviewerNotes:
+            "Lars Peeters is spits bij SK Nebula en topscorer vanuit open spel. Vraag naar kanscreatie, zijn rol in de afronding en hoe bewust hij penaltygoals mijdt. Doel: de spitsenrace scherp maken met zijn perspectief.",
           questions: [
             "Welke type kansen leveren jullie de meeste open-spel goals op?",
             "Hoe bewust vermijd je de penalty als primaire scoringsroute?",
@@ -94,6 +98,8 @@ export const sampleIdeaBatch: IdeaBatch = {
           clubName: "SK Nebula",
           whyInterview:
             "Geeft context over pressing en voorzetpatronen achter de scoringscijfers.",
+          interviewerNotes:
+            "An Vandenberghe is assistent-trainer bij SK Nebula. Gebruik haar voor tactische context: pressing-triggers en voorzetpatronen die de open-spel goals voeden. Doel: de cijfers vertalen naar speelwijze.",
           questions: [
             "Welke pressing-triggers leiden tot die open-spel kansen?",
             "Hoe oefenen jullie afronden vanuit de tweede lijn?",
@@ -149,6 +155,8 @@ export const sampleIdeaBatch: IdeaBatch = {
           teamName: "Eerste elftal",
           whyInterview:
             "Eerste aanspreekpunt voor het verhaal over zijn doorbraak en rol in het elftal.",
+          interviewerNotes:
+            "Yari Maes (18) is middenvelder bij Racing Hemelrijk en speelt bijna alle minuten. Interview over zijn doorbraak van beloften naar basis en zijn opdracht in balverlies. Doel: een herkenbaar jeugdverhaal met concrete speelimpact.",
           questions: [
             "Wanneer wist je dat je een vaste basisplaats zou krijgen?",
             "Wat is het grootste verschil tussen beloften en eerste elftal?",
@@ -184,6 +192,8 @@ export const sampleIdeaBatch: IdeaBatch = {
           clubName: "VV Laagveld",
           whyInterview:
             "Kan de druk op de club en de keuze voor stabiliteit of risico duiden in de slotfase van de heenronde.",
+          interviewerNotes:
+            "Koen Willems is voorzitter van VV Laagveld, midden in de degradatiestrijd. Peil de druk na late tegengoals en of de club rust of versterking zoekt. Doel: bestuurlijke duiding bij de cijfers rond doelsaldo en slotfases.",
           questions: [
             "Hoe voelt de druk in de kleedkamer na die late tegengoals?",
             "Kiest de club voor rust of voor versterking in de winter?",
