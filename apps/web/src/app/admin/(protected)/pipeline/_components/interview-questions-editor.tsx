@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useMutation } from "convex/react";
 import type { Id } from "@convex/_generated/dataModel";
 import { pipelineApi } from "@/lib/pipeline-api";
 
 const MAX_QUESTIONS = 8;
+
+type DraftQuestion = {
+  id: string;
+  text: string;
+};
 
 type Props = {
   articleContactId: Id<"pipelineArticleContacts">;
@@ -14,6 +19,13 @@ type Props = {
   disabled?: boolean;
 };
 
+function toDraft(questions: string[], idPrefix: string): DraftQuestion[] {
+  return questions.map((text, index) => ({
+    id: `${idPrefix}-${index}-${text.slice(0, 24)}`,
+    text,
+  }));
+}
+
 export function InterviewQuestionsEditor({
   articleContactId,
   initialQuestions,
@@ -21,64 +33,83 @@ export function InterviewQuestionsEditor({
   disabled = false,
 }: Props) {
   const updateQuestions = useMutation(pipelineApi.updateIntervieweeQuestions);
-  const [draft, setDraft] = useState<string[]>(initialQuestions);
+  const idPrefix = useId();
+  const [draft, setDraft] = useState<DraftQuestion[]>(() =>
+    toDraft(initialQuestions, idPrefix),
+  );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const focusNewIdRef = useRef<string | null>(null);
+  const textareaRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
 
   const questionsKey = initialQuestions.join("\u0001");
   useEffect(() => {
-    setDraft(initialQuestions);
-  }, [articleContactId, questionsKey, initialQuestions]);
+    setDraft(toDraft(initialQuestions, idPrefix));
+  }, [articleContactId, questionsKey, initialQuestions, idPrefix]);
 
-  async function persist(next: string[]) {
+  useEffect(() => {
+    const focusId = focusNewIdRef.current;
+    if (!focusId) return;
+    const node = textareaRefs.current.get(focusId);
+    if (node) {
+      node.focus();
+      node.select();
+    }
+    focusNewIdRef.current = null;
+  }, [draft]);
+
+  async function persist(nextTexts: string[]) {
     if (!canEdit || disabled) return;
     setSaving(true);
     setError(null);
     try {
       const result = await updateQuestions({
         articleContactId,
-        questions: next,
+        questions: nextTexts,
       });
-      setDraft(result.questions);
+      setDraft(toDraft(result.questions, idPrefix));
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Kon vragen niet opslaan.",
       );
-      setDraft(initialQuestions);
+      setDraft(toDraft(initialQuestions, idPrefix));
     } finally {
       setSaving(false);
     }
   }
 
-  function updateLocal(index: number, value: string) {
-    setDraft((prev) => prev.map((q, i) => (i === index ? value : q)));
+  function updateLocal(id: string, value: string) {
+    setDraft((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, text: value } : q)),
+    );
   }
 
-  async function commitBlur(index: number) {
-    const next = draft
-      .map((q, i) => (i === index ? q.trim() : q.trim()))
+  async function commitBlur(id: string) {
+    const nextTexts = draft
+      .map((q) => (q.id === id ? q.text.trim() : q.text.trim()))
       .filter((q) => q.length > 0);
     const same =
-      next.length === initialQuestions.length &&
-      next.every((q, i) => q === initialQuestions[i]);
+      nextTexts.length === initialQuestions.length &&
+      nextTexts.every((q, i) => q === initialQuestions[i]);
     if (same) {
-      setDraft(initialQuestions);
+      setDraft(toDraft(initialQuestions, idPrefix));
       return;
     }
-    await persist(next);
+    await persist(nextTexts);
   }
 
-  async function removeAt(index: number) {
-    const next = draft.filter((_, i) => i !== index);
+  async function removeAt(id: string) {
+    const next = draft.filter((q) => q.id !== id);
     setDraft(next);
-    await persist(next);
+    await persist(next.map((q) => q.text.trim()).filter(Boolean));
   }
 
   async function addQuestion() {
     if (draft.length >= MAX_QUESTIONS) return;
-    const next = [...draft, ""];
+    const id = `${idPrefix}-new-${Date.now()}`;
+    focusNewIdRef.current = id;
+    const next = [...draft, { id, text: "" }];
     setDraft(next);
-    // Don't persist empty yet — wait for blur/edit.
   }
 
   if (!canEdit) {
@@ -96,12 +127,14 @@ export function InterviewQuestionsEditor({
     );
   }
 
+  const filledCount = draft.filter((q) => q.text.trim()).length;
+
   return (
     <div className="pipeline-questions">
       <div className="pipeline-questions__header">
         <h4>Interviewvragen</h4>
         <span className="pipeline-questions__count">
-          {draft.filter((q) => q.trim()).length}/{MAX_QUESTIONS}
+          {filledCount}/{MAX_QUESTIONS}
         </span>
       </div>
 
@@ -112,16 +145,20 @@ export function InterviewQuestionsEditor({
       ) : (
         <ul className="pipeline-questions__editor">
           {draft.map((question, index) => (
-            <li key={`q-${articleContactId}-${index}`}>
+            <li key={question.id}>
               <label className="pipeline-questions__field">
                 <span className="pipeline-questions__index">{index + 1}</span>
                 <textarea
+                  ref={(node) => {
+                    if (node) textareaRefs.current.set(question.id, node);
+                    else textareaRefs.current.delete(question.id);
+                  }}
                   className="pipeline-questions__input"
                   rows={2}
-                  value={question}
+                  value={question.text}
                   disabled={disabled || saving}
-                  onChange={(e) => updateLocal(index, e.target.value)}
-                  onBlur={() => void commitBlur(index)}
+                  onChange={(e) => updateLocal(question.id, e.target.value)}
+                  onBlur={() => void commitBlur(question.id)}
                   placeholder="Typ een interviewvraag…"
                   aria-label={`Interviewvraag ${index + 1}`}
                 />
@@ -130,7 +167,7 @@ export function InterviewQuestionsEditor({
                 type="button"
                 className="newsletter-action-btn pipeline-questions__remove"
                 disabled={disabled || saving}
-                onClick={() => void removeAt(index)}
+                onClick={() => void removeAt(question.id)}
               >
                 Verwijder
               </button>
