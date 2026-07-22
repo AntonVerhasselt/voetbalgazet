@@ -351,37 +351,19 @@ So: **pipeline = editorial production line**; **Keystatic = public CMS**. They m
 
 ## 10. Your todos (Anton)
 
-### A. Pipeline / research (blocking real agent coverage)
+**Canonical checklist:** root [`TODO.md`](../TODO.md) — especially **§8 AI journalist pipeline**.
 
-- [ ] **Supply Neon `series.id` for all remaining reeksen** (today only Antwerp seed is mapped: `CHP_130005`, `CHP_136335`, `CHP_134688`).  
-  Then we only extend `KNOWN_NEON_SERIES` in `convex/lib/neonSeriesMap.ts`. Public keys stay readable — never use `CHP_*` as UI / signup keys.  
-  See [`06-open-questions.md`](./06-open-questions.md).
+Pipeline items added there:
 
-- [ ] **Deploy Eve + AI Gateway** and set Convex env for real research:
-  - `EVE_AGENT_URL`
-  - `EVE_INVOKE_TOKEN`
-  - `PIPELINE_RESEARCH_MODE=eve`
-  - Production: `PIPELINE_ENV=production` (fail-closed; no silent fixture fallback)
-  - Agent needs `NEON_DATABASE_URL` (read-only) for SQL
+1. Neon `series.id` map for all remaining reeksen  
+2. Eve + AI Gateway Convex env (`EVE_AGENT_URL`, `EVE_INVOKE_TOKEN`, `PIPELINE_RESEARCH_MODE=eve`, prod fail-closed)  
+3. Optional `AI_GATEWAY_API_KEY`  
+4. Later: WhatsApp / interviews / draft writer / publish bridge to Keystatic  
+5. Deferred: story-angle dedupe vs published articles  
 
-- [ ] Optional: `AI_GATEWAY_API_KEY` for local/cloud Eve runs outside Vercel AI Gateway wiring.
+Site/ops items (Vercel preview, Keystatic smoke, production auth, legal mail, mobile CWV) stay in the other sections of `TODO.md`.
 
-### B. Later pipeline product (not blocking idea review)
-
-- [ ] WhatsApp / contact-finding flow for `awaiting_contacts` → interview phases  
-- [ ] Interview capture → draft writer → draft review  
-- [ ] **Publish bridge** from pipeline → Keystatic Markdoc → `published`  
-- [ ] (Deferred) story-angle dedupe against already published articles  
-
-### C. Site / ops (from root `TODO.md` — still open)
-
-- [ ] Confirm Vercel Preview Convex URLs (`NEXT_PUBLIC_CONVEX_URL` + `NEXT_PUBLIC_CONVEX_SITE_URL`) and redeploy if needed  
-- [ ] Finish Keystatic GitHub App smoke (save draft → Git commit; publish → live; Viewer blocked)  
-- [ ] Production smoke: magic-link signup, preferences, `/uitschrijven` (newsletter only, site access stays), Resend bounce/complaint  
-- [ ] Legal / editorial pass on welcome & verification emails  
-- [ ] Mobile a11y / Core Web Vitals smoke on admin + published articles  
-
-### D. Already decided (no action — for memory)
+### Already decided (no action — for memory)
 
 - Approve with **0** interviewees is allowed  
 - All three title proposals are kept on approve (`finalTitle` comes later)  
