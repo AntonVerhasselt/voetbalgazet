@@ -6,10 +6,10 @@
 2. **Ideas are articles in `idea_review`** — not a throwaway table.  
 3. **Neon owns football identity** — Convex stores denormalized labels + foreign ids.  
 4. **Contacts are first-class** — see [`08-contacts-data-model.md`](./08-contacts-data-model.md).  
-5. **Published site archive is indexed in Convex** — see [`07-article-archive-tools.md`](./07-article-archive-tools.md).  
-6. **Human decisions are events** — approvals/rejects/toggles audited.  
-7. **Series scoping everywhere** — Neon-aligned `divisionKey`.  
-8. **Rejected rows stay**; default queries exclude `phase === "rejected"`.
+5. **Human decisions are events** — approvals/rejects/toggles audited.  
+6. **Series scoping everywhere** — Neon-aligned `divisionKey`.  
+7. **Rejected rows stay**; default queries exclude `phase === "rejected"`.  
+8. **Article-archive search is out of scope** for this phase (no `articleArchive` table yet).
 
 ## Pipeline phases
 
@@ -34,7 +34,7 @@ Research-in-progress lives on **`pipelineResearchRuns`**, not as an article phas
 
 ```text
 [Generate for reeks R]
-  → ensure no queued|running run for R
+  → ensure no queued|running run for R  (other reeksen unaffected)
   → insert pipelineResearchRuns (queued → running)
   → Eve or fixtures
   → insert 5 pipelineArticles (idea_review)
@@ -43,7 +43,7 @@ Research-in-progress lives on **`pipelineResearchRuns`**, not as an article phas
 [Toggle interviewee] → update pipelineArticleContacts.selected
 
 [Approve] → phase awaiting_contacts
-          → keep all titleProposals (no selectedTitle required)
+          → keep all titleProposals (no finalTitle required)
           → freeze selected flags (0..3)
           → event approved
 
@@ -65,13 +65,13 @@ Research-in-progress lives on **`pipelineResearchRuns`**, not as an article phas
 | `requestedCount` | `number` | Always 5 |
 | `eveSessionId` | `optional string` | |
 | `startedAt` / `finishedAt` | `number` | |
-| `errorMessage` | `optional string` | Dutch, safe |
+| `errorMessage` | `optional string` | Safe; Dutch for UI if user-facing |
 | `clientRequestId` | `string` | Idempotency |
 | `ideaIds` | `optional Id<"pipelineArticles">[]` | |
 
 Indexes: `by_division_and_status`, `by_clientRequestId`, `by_startedAt`.
 
-**Lock:** at most one `queued|running` per `divisionKey`.
+**Lock:** at most one `queued|running` per `divisionKey` only.
 
 ### `pipelineArticles`
 
@@ -80,13 +80,12 @@ Indexes: `by_division_and_status`, `by_clientRequestId`, `by_startedAt`.
 | `divisionKey` | `string` | |
 | `phase` | phase union | |
 | `researchRunId` | `Id<"pipelineResearchRuns">` | |
-| `ideaTitle` | `string` | Dutch |
+| `ideaTitle` | `string` | Dutch content |
 | `titleProposals` | `string` × 3 | **All kept** through approve |
 | `finalTitle` | `optional string` | Set much later (writer/publish) |
-| `whyInteresting` | `string` | Dutch |
+| `whyInteresting` | `string` | Dutch content |
 | `supportingFacts` | `SupportingFact[]` | |
 | `researchSummary` | `optional string` | |
-| `archiveOverlapNotes` | `optional string` | From agent after tool use |
 | `rejectionReason` | `optional string` | |
 | `approvedAt` / `approvedBy` | optional | |
 | `rejectedAt` / `rejectedBy` | optional | |
@@ -101,24 +100,20 @@ Default Ideeën query: `phase === "idea_review"` only (rejects excluded).
 
 ```ts
 {
-  claim: string;
-  evidence: string;
+  claim: string;      // Dutch prose
+  evidence: string;   // grounded snippet
   sqlFingerprint?: string;
-  source: "neon" | "archive" | "convex";
+  source: "neon" | "convex";
 }
 ```
 
 ### `pipelineArticleContacts` + `contacts`
 
-See [`08-contacts-data-model.md`](./08-contacts-data-model.md). Do **not** rely on embedded-only interviewee arrays long term.
+See [`08-contacts-data-model.md`](./08-contacts-data-model.md).
 
 ### `pipelineEvents`
 
 Audit: `created | approved | rejected | interviewees_updated | phase_changed | …`
-
-### `articleArchive`
-
-See [`07-article-archive-tools.md`](./07-article-archive-tools.md).
 
 ## Taxonomy migration (Neon-first)
 
@@ -131,7 +126,8 @@ Placeholder YAML keys (`antwerpen-p1`, …) are temporary.
 
 ## Relationship to Keystatic site articles
 
-Pipeline ≠ automatically published Markdoc. Publish bridge later. `articleArchive` mirrors **published** site articles for research dedupe only.
+Pipeline ≠ automatically published Markdoc. Publish bridge later.  
+**Published-article search/dedupe is out of scope** for the idea-agent MVP.
 
 ## Validation rules
 
@@ -149,5 +145,4 @@ pipelineResearchRuns 1───* pipelineArticles
 pipelineArticles 1───* pipelineEvents
 pipelineArticles 1───* pipelineArticleContacts *───1 contacts
 contacts indexed by neonPersonId, neonClubId, neonTeamId
-articleArchive (independent; tools read)
 ```

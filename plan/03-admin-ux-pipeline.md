@@ -35,10 +35,11 @@ Compact top bar: **Reeks** + select (Neon-aligned catalog). Persist URL + localS
 
 **Genereer 5 ideeën**
 
-- Disabled when this reeks has `queued|running` research run  
+- Disabled **only** when **this** reeks has `queued|running` research run (Q10)  
+- Other reeksen remain clickable  
 - Spinner copy: **Bezig met research…**  
-- Phase A: creates **fixture** ideas (`source: "fixture"`) — see [`10-fixture-ideas-and-phase-a.md`](./10-fixture-ideas-and-phase-a.md)  
-- Phase D+: real Eve  
+- Phase A: **fixture** ideas — see [`10-fixture-ideas-and-phase-a.md`](./10-fixture-ideas-and-phase-a.md)  
+- Later: real Eve  
 
 ### List
 
@@ -47,7 +48,7 @@ Only `phase === "idea_review"`. Columns: ideetitel, 3-titel hint, contacten gese
 ### Detail
 
 1. Ideetitel  
-2. **Drie titelvoorstellen** (all shown; no forced pick on approve — `Q6`)  
+2. **Drie titelvoorstellen** (all shown; no forced pick on approve)  
 3. Waarom interessant  
 4. Ondersteunende feiten  
 5. Interviewkandidaten (0–3) — toggle selected; cannot add  
@@ -57,7 +58,7 @@ After reject → row leaves default list (still in DB).
 
 ## Empty / errors
 
-Dutch copy. All-or-nothing batches. Retry after failure.
+Dutch UI copy. All-or-nothing batches. Retry after failure.
 
 ## Realtime
 
@@ -65,8 +66,8 @@ Convex queries/mutations. `clientRequestId` on generate.
 
 ## Copy cheat-sheet
 
-| EN concept | NL UI |
-|------------|-------|
+| Concept | NL UI |
+|---------|-------|
 | Pipeline | Pipeline |
 | Generate 5 ideas | Genereer 5 ideeën |
 | Approve | Idee goedkeuren |

@@ -2,7 +2,9 @@
 
 ## Role
 
-Autonomous data journalist for **one** Neon-aligned reeks. Explores Neon in a sandbox, uses **archive tools** to avoid story-angle duplicates, returns **exactly 5** Dutch idea proposals with grounded facts and optional interviewees.
+Autonomous data journalist for **one** Neon-aligned reeks. Explores Neon in a sandbox, returns **exactly 5** idea proposals with grounded facts and optional interviewees.
+
+**Out of scope:** searching / deduping against published site articles (Keystatic/Git archive). Revisit later.
 
 ## Location & deploy
 
@@ -11,20 +13,16 @@ apps/agents/research-idea-agent/     ← Eve project root
   package.json
   agent/
     agent.ts                         ← model zai/glm-5.2
-    instructions.md                  ← Dutch
+    instructions.md                  ← Dutch (sent to model)
     sandbox/
-      sandbox.ts
+      sandbox.ts                     ← English code
       workspace/
-        docs/                        ← Neon schema docs (next session)
+        docs/                        ← Neon schema docs (next session; can be Dutch for the model)
         package.json                 ← pg, tsx
-        lib/db.ts
-    tools/                           ← Dutch tool names
-      zoek_gepubliceerde_artikelen.ts
-      haal_artikel_samenvatting.ts
-      haal_artikel_inhoud.ts
-      lees_sitemap.ts                ← optional
-    skills/                          ← Dutch markdown
-    evals/
+        lib/db.ts                    ← English code
+    tools/                           ← English filenames; Dutch descriptions
+    skills/                          ← Dutch content (loaded into model context)
+    evals/                           ← English code OK
 ```
 
 **Vercel:** separate project, Root Directory `apps/agents/research-idea-agent`.
@@ -37,32 +35,30 @@ import { defineAgent } from "eve";
 export default defineAgent({
   name: "voetbalgazet-research-idea",
   model: "zai/glm-5.2", // MIT open-weight; changeable later
-  // outputSchema via client turn preferred; can also set defaults here
 });
 ```
 
-## Language (hard rule)
+## Language split
 
-**Everything the agent authors or exposes is Dutch:**
+| Surface | Language |
+|---------|----------|
+| TypeScript / function names / Convex fields / JSON **keys** | **English** |
+| `instructions.md`, skills, tool `description` / Zod `.describe()` | **Dutch** (sent to the agent) |
+| Task message from orchestrator | **Dutch** |
+| IdeaBatch **string values** (titles, facts, whyInteresting, …) | **Dutch** |
+| Admin UI copy | Dutch (existing product language) |
 
-- `instructions.md`  
-- skill bodies + frontmatter descriptions  
-- tool `description` and Zod field `.describe(...)`  
-- model-facing error strings where applicable  
-- all IdeaBatch string content (titles, whyInteresting, facts, whyInterview, notes)
+See [`09-dutch-agent-conventions.md`](./09-dutch-agent-conventions.md).
 
-Technical identifiers (`neonPersonId`, SQL, JSON keys) stay as schema requires; **values** for humans are Dutch. See [`09-dutch-agent-conventions.md`](./09-dutch-agent-conventions.md).
-
-## Capabilities split
+## Capabilities
 
 | Concern | Mechanism |
 |---------|-----------|
 | Football stats exploration | Sandbox: write/run TypeScript + `pg` against Neon |
-| Avoid duplicate *stories* | Tools → Convex `articleArchive` (+ optional sitemap) |
-| Avoid duplicate *people rows* | Convex upsert on `neonPersonId` after result ingest |
 | Structured result | Eve `outputSchema` / `result.completed` |
+| Contact identity | Returned Neon person/club/team ids → Convex upsert |
 
-**Do not** give the sandbox unrestricted web crawl as the archive strategy.
+No archive/search tools in this phase.
 
 ## Sandbox
 
@@ -74,7 +70,7 @@ Technical identifiers (`neonPersonId`, SQL, JSON keys) stay as schema requires; 
 
 ## Output schema (IdeaBatch)
 
-Exactly 5 ideas. Content language: Dutch.
+English keys (code), Dutch string values. Exactly 5 ideas.
 
 ```ts
 type IdeaBatch = {
@@ -82,64 +78,57 @@ type IdeaBatch = {
 };
 
 type IdeaProposal = {
-  ideetitel: string;
-  titelVoorstellen: [string, string, string];
-  waaromInteressant: string;
-  ondersteunendeFeiten: Array<{
-    bewering: string;
-    bewijs: string;
-    bron: "neon" | "archief" | "convex";
+  ideaTitle: string;
+  titleProposals: [string, string, string];
+  whyInteresting: string;
+  supportingFacts: Array<{
+    claim: string;
+    evidence: string;
+    source: "neon" | "convex";
   }>;
-  interviewkandidaten: Array<{
-    neonPersoonId: string;
-    volledigeNaam: string;
-    type: "speler" | "staf" | "bestuur" | "andere";
-    typeDetail?: string;
+  interviewees: Array<{
+    neonPersonId: string;
+    fullName: string;
+    contactType: "player" | "staff" | "board" | "other";
+    contactTypeDetail?: string;
     neonClubId: string;
-    clubNaam: string;
+    clubName: string;
     neonTeamId?: string;
-    teamNaam?: string;
-    waaromInterviewen: string;
+    teamName?: string;
+    whyInterview: string;
   }>; // 0–3
-  onderzoeksSamenvatting?: string;
-  archiefOverlapNotities?: string;
+  researchSummary?: string;
 };
 ```
 
-Convex maps Dutch schema → internal field names (`ideaTitle`, `contactType: player|staff|board|other`, …).
-
-## Archive tools
-
-Detailed in [`07-article-archive-tools.md`](./07-article-archive-tools.md). Agent **must** call search before finalizing ideas (enforce via instructions + eval).
+Zod field `.describe(...)` strings for the schema shown to the model are **Dutch**.
 
 ## Input message (from orchestrator)
 
 Dutch task prompt including:
 
-- `reeksId` + label  
-- Recent pipeline idea titles for that reeks  
-- Editorial prefs  
-- Reminder: exactly 5 ideas, grounded facts, archive search, Dutch output  
+- reeks id + label  
+- editorial prefs  
+- Reminder: exactly 5 ideas, grounded facts, Dutch prose in string fields  
 
 ## Result ingest
 
 1. Validate IdeaBatch  
-2. For each interviewkandidaat → upsert `contacts`  
+2. For each interviewee → upsert `contacts`  
 3. Insert 5 `pipelineArticles` + `pipelineArticleContacts`  
 4. Mark run succeeded  
 
 ## Evals (minimum)
 
-1. Shape: 5 ideas, 3 titles, ≤3 kandidaten  
-2. Language: Dutch titles (heuristic / judge)  
-3. Must call `zoek_gepubliceerde_artikelen`  
-4. Grounding fixture against known Neon facts (later)  
+1. Shape: 5 ideas, 3 titles, ≤3 interviewees  
+2. String fields look Dutch (heuristic / judge)  
+3. Grounding fixture against known Neon facts (later)  
 
 ## Local dev
 
 ```bash
 cd apps/agents/research-idea-agent
 npm install && eve link
-# NEON_DATABASE_URL + Convex archive access secret
+# NEON_DATABASE_URL
 eve dev
 ```

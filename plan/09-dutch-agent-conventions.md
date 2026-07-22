@@ -1,63 +1,62 @@
-# Dutch Agent Conventions
+# English Code vs Dutch Agent I/O
 
 ## Rule
 
-All **agent-authored** surfaces for the research-idea-agent are Dutch (Flemish editorial register — clear, concrete, local football).
+| Layer | Language |
+|-------|----------|
+| Application code (TS/TSX), Convex functions, schema field names, JSON **keys**, Eve tool **filenames**, evals, scripts | **English** |
+| Everything **sent to the agent** (instructions, skills, tool descriptions, Zod `.describe()`, orchestrator task messages) | **Dutch** |
+| Agent **output content** (human-readable strings in IdeaBatch) | **Dutch** |
+| Admin UI labels | Dutch (product language) |
 
-Applies to:
+## Examples
 
-| Surface | Language |
-|---------|----------|
-| `instructions.md` | Dutch |
-| `skills/*.md` (body + description frontmatter) | Dutch |
-| `defineTool({ description })` | Dutch |
-| Zod `.describe()` for tool inputs | Dutch |
-| IdeaBatch string values | Dutch |
-| User-visible Eve / run error messages where we control copy | Dutch |
-| Eval descriptions | Dutch or bilingual OK |
+**English (code):**
 
-Does **not** force Dutch on:
+```ts
+export const startResearchRun = editorMutation({ ... });
+type IdeaProposal = { ideaTitle: string; titleProposals: [string, string, string] };
+// tools/get_division_context.ts  (if we add tools later)
+```
 
-- TypeScript identifiers in our app code (`pipelineArticles`, …)  
-- Neon column names / SQL  
-- JSON **keys** in the wire schema (we use Dutch keys in IdeaBatch for model clarity — see below — mapped in Convex)  
-- Third-party log lines  
+**Dutch (sent to / produced by the agent):**
 
-## IdeaBatch keys
+```md
+<!-- agent/instructions.md -->
+Je bent de research- en voorstelagent van De Voetbalgazet …
+```
 
-Prefer Dutch keys in the schema the model fills (`ideetitel`, `waaromInteressant`, …) so the model stays in one language. Convex ingest maps to English/internal field names.
+```ts
+defineTool({
+  description: "Geeft redactionele voorkeuren terug voor een reeks.",
+  inputSchema: z.object({
+    divisionKey: z.string().describe("De Neon-reeks-id waarvoor je research doet"),
+  }),
+});
+```
 
-## Tone
+Task message example: `Genereer precies 5 artikelideeën voor reeks …`
 
-- Local football, not press-agency English calques  
-- Facts before adjectives  
-- Interview questions/whyInterview: practical, respectful  
+## IdeaBatch
 
-## Tool naming
+- Keys: English (`ideaTitle`, `whyInteresting`, …)  
+- Values: Dutch prose  
+- Schema descriptions shown to the model: Dutch  
 
-Dutch snake filenames become tool names, e.g.:
-
-- `zoek_gepubliceerde_artikelen`  
-- `haal_artikel_samenvatting`  
-- `haal_artikel_inhoud`  
-- `lees_sitemap`  
-
-## Instructions skeleton (outline)
+## Instructions skeleton (Dutch content)
 
 ```markdown
 # Identiteit
 Je bent de research- en voorstelagent van De Voetbalgazet …
 
 # Harde regels
-- Enkel Nederlandstalige output …
-- Nooit statistieken verzinnen …
-- Database alleen-lezen …
-- Exact 5 ideeën …
-- Gebruik zoek_gepubliceerde_artikelen vóór finaliseren …
+- Schrijf alle menselijke tekstvelden in het Nederlands
+- Nooit statistieken verzinnen
+- Database alleen-lezen
+- Exact 5 ideeën
 
 # Werkwijze
-1. Lees schema-documentatie
-2. Verken Neon met TypeScript/SQL in de sandbox
-3. Zoek overlappingen in het archief via tools
-4. Lever IdeaBatch
+1. Lees de schema-documentatie in de sandbox
+2. Verken Neon met TypeScript/SQL
+3. Lever een IdeaBatch volgens het schema
 ```
