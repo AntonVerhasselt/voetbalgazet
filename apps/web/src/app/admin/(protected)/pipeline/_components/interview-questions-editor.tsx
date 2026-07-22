@@ -55,10 +55,11 @@ function reconcileDraft(
   });
 }
 
+/** Grow a textarea so wrapped content is fully visible at the current width. */
 function autoSize(el: HTMLTextAreaElement | null) {
   if (!el) return;
-  el.style.height = "0px";
-  el.style.height = `${Math.max(el.scrollHeight, 44)}px`;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
 }
 
 export function InterviewQuestionsEditor({
@@ -83,7 +84,30 @@ export function InterviewQuestionsEditor({
   const focusNewIdRef = useRef<string | null>(null);
   const textareaRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const notesRef = useRef<HTMLTextAreaElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sizeRafRef = useRef<number | null>(null);
+
+  function sizeAllTextareas() {
+    autoSize(notesRef.current);
+    for (const node of textareaRefs.current.values()) {
+      autoSize(node);
+    }
+  }
+
+  /** Remeasure after layout/paint — needed when width or font-size changes. */
+  function scheduleSizeAll() {
+    if (sizeRafRef.current !== null) {
+      cancelAnimationFrame(sizeRafRef.current);
+    }
+    sizeRafRef.current = requestAnimationFrame(() => {
+      sizeAllTextareas();
+      sizeRafRef.current = requestAnimationFrame(() => {
+        sizeAllTextareas();
+        sizeRafRef.current = null;
+      });
+    });
+  }
 
   const questionsKey = initialQuestions.join("\u0001");
   useEffect(() => {
@@ -92,11 +116,8 @@ export function InterviewQuestionsEditor({
   }, [articleContactId, questionsKey, initialQuestions, initialNotes, idPrefix]);
 
   useEffect(() => {
-    for (const q of draft) {
-      autoSize(textareaRefs.current.get(q.id) ?? null);
-    }
-    autoSize(notesRef.current);
-  }, [draft, notesDraft]);
+    scheduleSizeAll();
+  }, [draft, notesDraft, canEdit]);
 
   useEffect(() => {
     const focusId = focusNewIdRef.current;
@@ -110,7 +131,22 @@ export function InterviewQuestionsEditor({
   }, [draft]);
 
   useEffect(() => {
+    const root = rootRef.current;
+    const onResize = () => scheduleSizeAll();
+    window.addEventListener("resize", onResize);
+    window.visualViewport?.addEventListener("resize", onResize);
+
+    let observer: ResizeObserver | null = null;
+    if (root && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => scheduleSizeAll());
+      observer.observe(root);
+    }
+
     return () => {
+      window.removeEventListener("resize", onResize);
+      window.visualViewport?.removeEventListener("resize", onResize);
+      observer?.disconnect();
+      if (sizeRafRef.current !== null) cancelAnimationFrame(sizeRafRef.current);
       if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     };
   }, []);
@@ -268,7 +304,6 @@ export function InterviewQuestionsEditor({
     setDragId(id);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", id);
-    // Firefox needs data set; some browsers need a delay for drag image
     const row = (e.currentTarget as HTMLElement).closest(
       ".pipeline-q-row",
     ) as HTMLElement | null;
@@ -323,7 +358,7 @@ export function InterviewQuestionsEditor({
 
   if (!canEdit) {
     return (
-      <div className="pipeline-questions">
+      <div className="pipeline-questions" ref={rootRef}>
         <section className="pipeline-questions__panel">
           <header className="pipeline-questions__panel-head">
             <h4>Notities voor de interviewer</h4>
@@ -354,7 +389,7 @@ export function InterviewQuestionsEditor({
   }
 
   return (
-    <div className="pipeline-questions">
+    <div className="pipeline-questions" ref={rootRef}>
       <section className="pipeline-questions__panel">
         <header className="pipeline-questions__panel-head">
           <div>
@@ -383,7 +418,13 @@ export function InterviewQuestionsEditor({
         </header>
         <textarea
           id={`notes-${articleContactId}`}
-          ref={notesRef}
+          ref={(node) => {
+            notesRef.current = node;
+            if (node) {
+              autoSize(node);
+              scheduleSizeAll();
+            }
+          }}
           className="pipeline-questions__notes-input"
           rows={3}
           value={notesDraft}
@@ -392,6 +433,7 @@ export function InterviewQuestionsEditor({
             setNotesDraft(e.target.value);
             autoSize(e.currentTarget);
           }}
+          onInput={(e) => autoSize(e.currentTarget)}
           onBlur={() => void persistNotes()}
           placeholder="Briefing: wie, waarom, doel van het gesprek…"
         />
@@ -401,7 +443,7 @@ export function InterviewQuestionsEditor({
         <header className="pipeline-questions__panel-head">
           <div>
             <h4>Interviewvragen</h4>
-            <p className="pipeline-questions__notes-hint">
+            <p className="pipeline-questions__notes-hint pipeline-questions__reorder-hint">
               Sleep om te herschikken, of gebruik de pijltjes.
             </p>
           </div>
@@ -470,18 +512,20 @@ export function InterviewQuestionsEditor({
                       if (node) {
                         textareaRefs.current.set(question.id, node);
                         autoSize(node);
+                        scheduleSizeAll();
                       } else {
                         textareaRefs.current.delete(question.id);
                       }
                     }}
                     className="pipeline-q-row__input"
-                    rows={1}
+                    rows={2}
                     value={question.text}
                     disabled={disabled || saving}
                     onChange={(e) => {
                       updateLocal(question.id, e.target.value);
                       autoSize(e.currentTarget);
                     }}
+                    onInput={(e) => autoSize(e.currentTarget)}
                     onBlur={() => void commitBlur(question.id)}
                     placeholder="Typ een interviewvraag…"
                     aria-label={`Interviewvraag ${index + 1}`}

@@ -3221,8 +3221,10 @@ a {
 }
 
 .pipeline-questions__notes-input {
+  box-sizing: border-box;
   width: 100%;
   min-height: 4.75rem;
+  height: auto;
   padding: 0.7rem 0.8rem;
   border: 1px solid var(--ink);
   border-radius: 0;
@@ -3233,7 +3235,8 @@ a {
   line-height: 1.5;
   resize: none;
   overflow: hidden;
-  field-sizing: content;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .pipeline-questions__notes-input:focus {
@@ -3327,10 +3330,11 @@ a {
   display: grid;
   grid-template-columns: 1.6rem 1.4rem minmax(0, 1fr) auto;
   gap: 0.3rem 0.45rem;
-  align-items: center;
+  align-items: start;
   padding: 0.35rem 0.35rem 0.35rem 0.2rem;
   border: 1px solid var(--rule);
   background: var(--white, #fff);
+  overflow: visible;
   transition:
     border-color 120ms ease,
     box-shadow 120ms ease,
@@ -3358,7 +3362,7 @@ a {
   align-items: center;
   justify-content: center;
   width: 1.6rem;
-  height: 2.4rem;
+  min-height: 2.4rem;
   margin: 0;
   padding: 0;
   border: 0;
@@ -3401,6 +3405,7 @@ a {
   justify-content: center;
   width: 1.4rem;
   height: 1.4rem;
+  margin-top: 0.5rem;
   border: 1px solid var(--ink);
   background: var(--paper-deep);
   color: var(--ink);
@@ -3411,8 +3416,11 @@ a {
 }
 
 .pipeline-q-row__input {
+  box-sizing: border-box;
   width: 100%;
+  min-width: 0;
   min-height: 2.4rem;
+  height: auto;
   padding: 0.5rem 0.65rem;
   border: 1px solid transparent;
   border-bottom-color: var(--rule);
@@ -3424,7 +3432,8 @@ a {
   line-height: 1.45;
   resize: none;
   overflow: hidden;
-  field-sizing: content;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .pipeline-q-row__input:focus {
@@ -3437,6 +3446,7 @@ a {
   display: flex;
   flex-direction: row;
   gap: 0.2rem;
+  margin-top: 0.25rem;
   padding-right: 0.1rem;
 }
 
@@ -3737,7 +3747,7 @@ a {
     padding: 0.7rem 0.7rem 0.8rem;
   }
 
-  .pipeline-questions__panel-head .pipeline-questions__notes-hint {
+  .pipeline-questions__reorder-hint {
     display: none;
   }
 
@@ -3747,32 +3757,34 @@ a {
       "handle index input"
       ". actions actions";
     gap: 0.25rem 0.35rem;
-    align-items: center;
+    align-items: start;
     padding: 0.45rem 0.45rem 0.4rem;
   }
 
   .pipeline-q-row__handle {
     grid-area: handle;
     width: 1.75rem;
-    height: 2.5rem;
+    min-height: 2.5rem;
   }
 
   .pipeline-q-row__index {
     grid-area: index;
+    margin-top: 0.55rem;
   }
 
   .pipeline-q-row__input {
     grid-area: input;
     font-size: 1rem;
-    min-height: 2.5rem;
-    padding: 0.45rem 0.35rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.35rem;
   }
 
   .pipeline-q-row__actions {
     grid-area: actions;
     justify-content: flex-start;
     gap: 0.3rem;
-    padding: 0.1rem 0 0.05rem;
+    margin-top: 0;
+    padding: 0.15rem 0 0.05rem;
   }
 
   .pipeline-q-row__icon-btn {
