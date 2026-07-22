@@ -54,7 +54,11 @@ export function ideaBatchLooksDutch(batch: {
     titleProposals: readonly [string, string, string];
     whyInteresting: string;
     supportingFacts: Array<{ claim: string; evidence: string }>;
-    interviewees: Array<{ whyInterview: string; fullName: string }>;
+    interviewees: Array<{
+      whyInterview: string;
+      fullName: string;
+      questions?: string[];
+    }>;
     researchSummary?: string;
   }>;
 }): { ok: boolean; failures: string[] } {
@@ -82,6 +86,13 @@ export function ideaBatchLooksDutch(batch: {
       if (!looksDutch(person.whyInterview)) {
         failures.push(`${prefix}.interviewees[${personIndex}].whyInterview`);
       }
+      (person.questions ?? []).forEach((question, questionIndex) => {
+        if (!looksDutch(question)) {
+          failures.push(
+            `${prefix}.interviewees[${personIndex}].questions[${questionIndex}]`,
+          );
+        }
+      });
     });
     if (idea.researchSummary && !looksDutch(idea.researchSummary)) {
       failures.push(`${prefix}.researchSummary`);

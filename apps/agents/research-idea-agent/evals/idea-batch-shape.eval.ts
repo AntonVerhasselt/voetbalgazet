@@ -31,6 +31,17 @@ export default defineEval({
         idea.supportingFacts.length >= 1,
         equals(true),
       );
+      for (const [personIndex, person] of idea.interviewees.entries()) {
+        t.check(
+          person.questions.length >= 1 && person.questions.length <= 8,
+          equals(true),
+        );
+        t.check(
+          person.questions.every((q) => q.trim().length > 0),
+          equals(true),
+        );
+        void personIndex;
+      }
     }
   },
 });

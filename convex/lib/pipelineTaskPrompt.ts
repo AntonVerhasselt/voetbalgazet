@@ -36,6 +36,7 @@ ${notes}
 - Exact 5 ideeën, elk met 3 titelvoorstellen
 - Feiten grounded in Neon (alleen-lezen SELECT)
 - Max 3 interviewkandidaten per idee; 0 mag
+- Per kandidaat: 1–8 concrete interviewvragen in \`questions\` (Nederlands)
 - Lever het resultaat als IdeaBatch volgens het outputschema
 `;
 }

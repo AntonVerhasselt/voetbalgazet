@@ -13,7 +13,10 @@ import {
 } from "./lib/neonSeriesMap";
 import { ingestIdeaBatch } from "./lib/pipelineIngest";
 import { buildFixtureIdeaBatch } from "./lib/pipelineFixtures";
-import { validateIdeaBatch } from "./lib/pipelineIdeaBatch";
+import {
+  normalizeInterviewQuestions,
+  validateIdeaBatch,
+} from "./lib/pipelineIdeaBatch";
 import {
   acquireDivisionResearchLock,
   bindDivisionResearchLock,
@@ -22,6 +25,7 @@ import {
 } from "./lib/pipelineLocks";
 import { resolvePipelineResearchMode } from "./lib/pipelineMode";
 import { assertPhaseTransition, phaseStripBucket } from "./lib/pipelinePhases";
+import { MAX_INTERVIEW_QUESTIONS } from "./lib/pipelineValidators";
 import type { PipelinePhase } from "./lib/pipelineValidators";
 
 async function findActiveRun(
@@ -279,6 +283,7 @@ export const getIdeaDetail = viewerQuery({
           clubName: v.string(),
           teamName: v.optional(v.string()),
           whyInterview: v.string(),
+          questions: v.array(v.string()),
           selected: v.boolean(),
           suggestedOrder: v.number(),
         }),
@@ -308,6 +313,7 @@ export const getIdeaDetail = viewerQuery({
         clubName: contact.clubName,
         teamName: contact.teamName,
         whyInterview: join.whyInterview,
+        questions: join.questions ?? [],
         selected: join.selected,
         suggestedOrder: join.suggestedOrder,
       });
@@ -539,6 +545,78 @@ export const toggleIntervieweeSelected = editorMutation({
       createdAt: now,
     });
     return null;
+  },
+});
+
+/**
+ * Replace the interview questions for one suggested interviewee.
+ * Empty list allowed (editor may clear all); max MAX_INTERVIEW_QUESTIONS.
+ */
+export const updateIntervieweeQuestions = editorMutation({
+  args: {
+    articleContactId: v.id("pipelineArticleContacts"),
+    questions: v.array(v.string()),
+  },
+  returns: v.object({
+    questions: v.array(v.string()),
+  }),
+  handler: async (ctx, args) => {
+    const join = await ctx.db.get(args.articleContactId);
+    if (!join) throw new Error("Interviewkandidaat niet gevonden");
+    const article = await ctx.db.get(join.articleId);
+    if (!article) throw new Error("Idee niet gevonden");
+    if (article.phase !== "idea_review") {
+      throw new Error(
+        "Interviewvragen kunnen alleen in de ideeënfase worden gewijzigd.",
+      );
+    }
+    if (args.questions.length > MAX_INTERVIEW_QUESTIONS) {
+      throw new Error(
+        `Maximaal ${MAX_INTERVIEW_QUESTIONS} interviewvragen per kandidaat`,
+      );
+    }
+    const questions = normalizeInterviewQuestions(args.questions, {
+      label: "Interviewvragen",
+      minCount: 0,
+    });
+    const now = Date.now();
+    await ctx.db.patch(args.articleContactId, {
+      questions,
+      updatedAt: now,
+    });
+    await ctx.db.patch(article._id, { updatedAt: now });
+    await ctx.db.insert("pipelineEvents", {
+      articleId: article._id,
+      type: "questions_updated",
+      actorUserId: ctx.adminUser._id,
+      metadata: JSON.stringify({
+        articleContactId: args.articleContactId,
+        questionCount: questions.length,
+      }),
+      createdAt: now,
+    });
+    return { questions };
+  },
+});
+
+/** One-shot: ensure legacy join rows have a questions array after schema add. */
+export const backfillArticleContactQuestions = internalMutation({
+  args: {},
+  returns: v.object({ patched: v.number() }),
+  handler: async (ctx) => {
+    const joins = await ctx.db.query("pipelineArticleContacts").collect();
+    let patched = 0;
+    const now = Date.now();
+    for (const join of joins) {
+      const existing = (join as { questions?: string[] }).questions;
+      if (Array.isArray(existing)) continue;
+      await ctx.db.patch(join._id, {
+        questions: [],
+        updatedAt: now,
+      });
+      patched += 1;
+    }
+    return { patched };
   },
 });
 

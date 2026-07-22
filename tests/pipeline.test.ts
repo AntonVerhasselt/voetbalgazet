@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateIdeaBatch } from "../convex/lib/pipelineIdeaBatch";
+import { normalizeInterviewQuestions } from "../convex/lib/pipelineIdeaBatch";
 import { buildFixtureIdeaBatch } from "../convex/lib/pipelineFixtures";
 import { assertPhaseTransition } from "../convex/lib/pipelinePhases";
 import { resolvePipelineResearchMode } from "../convex/lib/pipelineMode";
@@ -39,10 +40,52 @@ describe("pipeline IdeaBatch validation", () => {
     expect(() => validateIdeaBatch(bad)).toThrow(/dubbele interviewkandidaat/);
   });
 
+  it("requires interview questions for each interviewee", () => {
+    const bad = buildFixtureIdeaBatch("antwerpen-p1");
+    bad.ideas[0]!.interviewees[0]!.questions = [];
+    expect(() => validateIdeaBatch(bad)).toThrow(/minstens 1 interviewvraag/);
+  });
+
+  it("rejects too many interview questions", () => {
+    const bad = buildFixtureIdeaBatch("antwerpen-p1");
+    bad.ideas[0]!.interviewees[0]!.questions = Array.from(
+      { length: 9 },
+      (_, i) => `Vraag nummer ${i + 1} over de wedstrijd?`,
+    );
+    expect(() => validateIdeaBatch(bad)).toThrow(/max 8/);
+  });
+
+  it("keeps normalized questions on fixture interviewees", () => {
+    const batch = validateIdeaBatch(buildFixtureIdeaBatch("antwerpen-p1"));
+    const first = batch.ideas[0]!.interviewees[0]!;
+    expect(first.questions.length).toBeGreaterThanOrEqual(1);
+    expect(first.questions[0]).toMatch(/\?$/);
+  });
+
   it("rejects fewer than 3 title proposals", () => {
     const bad = buildFixtureIdeaBatch("antwerpen-p1");
     bad.ideas[0]!.titleProposals = ["Alleen één titel"];
     expect(() => validateIdeaBatch(bad)).toThrow();
+  });
+});
+
+describe("interview questions normalize", () => {
+  it("trims and drops empties for admin edits", () => {
+    expect(
+      normalizeInterviewQuestions(["  Hoe ging het?  ", " ", "Wat nu?"], {
+        label: "test",
+        minCount: 0,
+      }),
+    ).toEqual(["Hoe ging het?", "Wat nu?"]);
+  });
+
+  it("allows empty list when minCount is 0", () => {
+    expect(
+      normalizeInterviewQuestions(["  ", ""], {
+        label: "test",
+        minCount: 0,
+      }),
+    ).toEqual([]);
   });
 });
 

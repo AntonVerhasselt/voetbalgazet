@@ -1,4 +1,5 @@
 import {
+  MAX_INTERVIEW_QUESTIONS,
   MAX_LONG,
   MAX_MEDIUM,
   MAX_SHORT,
@@ -13,6 +14,59 @@ function assertLen(label: string, value: string, max: number): void {
   if (value.length > max) {
     throw new Error(`${label} is te lang (max ${max} tekens)`);
   }
+}
+
+/**
+ * Normalize interview questions for storage / IdeaBatch validation.
+ * Trims, drops empties, enforces max count and length.
+ */
+export function normalizeInterviewQuestions(
+  raw: unknown,
+  options: {
+    label: string;
+    /** Agent IdeaBatch requires ≥1; admin edits allow 0. */
+    minCount: number;
+    maxCount?: number;
+  },
+): string[] {
+  if (!Array.isArray(raw)) {
+    throw new Error(`${options.label}: questions moet een array zijn`);
+  }
+  const maxCount = options.maxCount ?? MAX_INTERVIEW_QUESTIONS;
+  if (raw.length > maxCount) {
+    throw new Error(
+      `${options.label}: max ${maxCount} interviewvragen`,
+    );
+  }
+  const questions: string[] = [];
+  for (const [index, value] of raw.entries()) {
+    if (typeof value !== "string") {
+      throw new Error(
+        `${options.label}: vraag ${index + 1} is ongeldig`,
+      );
+    }
+    const trimmed = value.trim();
+    if (trimmed.length === 0) continue;
+    assertLen(
+      `${options.label}: vraag ${index + 1}`,
+      trimmed,
+      MAX_MEDIUM,
+    );
+    questions.push(trimmed);
+  }
+  if (questions.length < options.minCount) {
+    throw new Error(
+      options.minCount === 1
+        ? `${options.label}: minstens 1 interviewvraag vereist`
+        : `${options.label}: te weinig interviewvragen`,
+    );
+  }
+  if (questions.length > maxCount) {
+    throw new Error(
+      `${options.label}: max ${maxCount} interviewvragen`,
+    );
+  }
+  return questions;
 }
 
 function asFactSource(value: unknown, label: string): "neon" | "convex" {
@@ -144,6 +198,10 @@ function validateIdeaProposal(raw: unknown, index: number): IdeaProposalInput {
       p.whyInterview as string,
       MAX_MEDIUM,
     );
+    const questions = normalizeInterviewQuestions(p.questions, {
+      label: `${prefix}: kandidaat ${personIndex + 1}`,
+      minCount: 1,
+    });
     return {
       neonPersonId: p.neonPersonId as string,
       fullName: p.fullName as string,
@@ -156,6 +214,7 @@ function validateIdeaProposal(raw: unknown, index: number): IdeaProposalInput {
       ...(typeof p.neonTeamId === "string" ? { neonTeamId: p.neonTeamId } : {}),
       ...(typeof p.teamName === "string" ? { teamName: p.teamName } : {}),
       whyInterview: p.whyInterview as string,
+      questions,
     };
   });
 
@@ -248,6 +307,7 @@ export const ideaBatchJsonSchema = {
                 "neonClubId",
                 "clubName",
                 "whyInterview",
+                "questions",
               ],
               properties: {
                 neonPersonId: { type: "string", minLength: 1, maxLength: 128 },
@@ -265,6 +325,16 @@ export const ideaBatchJsonSchema = {
                   type: "string",
                   minLength: 1,
                   maxLength: MAX_MEDIUM,
+                },
+                questions: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: MAX_INTERVIEW_QUESTIONS,
+                  items: {
+                    type: "string",
+                    minLength: 1,
+                    maxLength: MAX_MEDIUM,
+                  },
                 },
               },
             },

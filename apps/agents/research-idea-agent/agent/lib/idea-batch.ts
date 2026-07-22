@@ -56,6 +56,18 @@ export const intervieweeSchema = z.object({
     MAX_MEDIUM,
     "Waarom deze persoon interviewen — in het Nederlands.",
   ),
+  questions: z
+    .array(
+      dutchString(
+        MAX_MEDIUM,
+        "Concrete interviewvraag in het Nederlands voor deze kandidaat.",
+      ),
+    )
+    .min(1)
+    .max(8)
+    .describe(
+      "1–8 interviewvragen die de redactie aan deze persoon zou stellen (Nederlands).",
+    ),
 });
 
 export const ideaProposalSchema = z.object({

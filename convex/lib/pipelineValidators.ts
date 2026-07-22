@@ -3,6 +3,8 @@ import { v } from "convex/values";
 export const MAX_SHORT = 200;
 export const MAX_MEDIUM = 1_200;
 export const MAX_LONG = 4_000;
+/** Max interview questions per suggested interviewee. */
+export const MAX_INTERVIEW_QUESTIONS = 8;
 
 export const pipelinePhaseValidator = v.union(
   v.literal("idea_review"),
@@ -68,6 +70,7 @@ export const ideaIntervieweeValidator = v.object({
   neonTeamId: v.optional(v.string()),
   teamName: v.optional(v.string()),
   whyInterview: v.string(),
+  questions: v.array(v.string()),
 });
 
 export const ideaProposalValidator = v.object({
@@ -88,6 +91,7 @@ export const pipelineEventTypeValidator = v.union(
   v.literal("approved"),
   v.literal("rejected"),
   v.literal("interviewees_updated"),
+  v.literal("questions_updated"),
   v.literal("phase_changed"),
   v.literal("research_started"),
   v.literal("research_succeeded"),
@@ -128,6 +132,7 @@ export type IdeaProposalInput = {
     neonTeamId?: string;
     teamName?: string;
     whyInterview: string;
+    questions: string[];
   }>;
   researchSummary?: string;
 };

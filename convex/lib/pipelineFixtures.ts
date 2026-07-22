@@ -39,6 +39,11 @@ export function buildFixtureIdeaBatch(divisionKey: string): IdeaBatchInput {
             teamName: "Eerste elftal",
             whyInterview:
               "Als trainer kan hij de tactische en mentale omslag duiden achter de cijfermatige opmars.",
+            questions: [
+              "Wat veranderde er in de weekelijkse voorbereiding na speeldag 5?",
+              "Welke tactische knop draaide u om toen de zegereeks begon?",
+              "Hoe houdt u de groep scherp nu jullie bovenaan staan?",
+            ],
           },
         ],
         researchSummary:
@@ -70,6 +75,11 @@ export function buildFixtureIdeaBatch(divisionKey: string): IdeaBatchInput {
             clubName: "SK Nebula",
             whyInterview:
               "Hij leidt de open-spel ranking en kan vertellen hoe de ploeg kansen creëert.",
+            questions: [
+              "Welke type kansen leveren jullie de meeste open-spel goals op?",
+              "Hoe bewust vermijd je de penalty als primaire scoringsroute?",
+              "Wie is jouw belangrijkste aangever dit seizoen?",
+            ],
           },
           {
             neonPersonId: "fixture:person:2003",
@@ -80,6 +90,10 @@ export function buildFixtureIdeaBatch(divisionKey: string): IdeaBatchInput {
             clubName: "SK Nebula",
             whyInterview:
               "Geeft context over pressing en voorzetpatronen achter de scoringscijfers.",
+            questions: [
+              "Welke pressing-triggers leiden tot die open-spel kansen?",
+              "Hoe oefenen jullie afronden vanuit de tweede lijn?",
+            ],
           },
         ],
       },
@@ -131,6 +145,11 @@ export function buildFixtureIdeaBatch(divisionKey: string): IdeaBatchInput {
             teamName: "Eerste elftal",
             whyInterview:
               "Eerste aanspreekpunt voor het verhaal over zijn doorbraak en rol in het elftal.",
+            questions: [
+              "Wanneer wist je dat je een vaste basisplaats zou krijgen?",
+              "Wat is het grootste verschil tussen beloften en eerste elftal?",
+              "Welke opdracht krijg je van de coach in balverlies?",
+            ],
           },
         ],
       },
@@ -161,6 +180,11 @@ export function buildFixtureIdeaBatch(divisionKey: string): IdeaBatchInput {
             clubName: "VV Laagveld",
             whyInterview:
               "Kan de druk op de club en de keuze voor stabiliteit of risico duiden in de slotfase van de heenronde.",
+            questions: [
+              "Hoe voelt de druk in de kleedkamer na die late tegengoals?",
+              "Kiest de club voor rust of voor versterking in de winter?",
+              "Wat zegt het doelsaldo over jullie speelwijze onder druk?",
+            ],
           },
         ],
       },

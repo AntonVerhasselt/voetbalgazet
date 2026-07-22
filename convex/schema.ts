@@ -501,6 +501,8 @@ export default defineSchema({
     contactId: v.id("contacts"),
     neonPersonId: v.string(),
     whyInterview: v.string(),
+    /** Dutch interview questions suggested for this person on this idea. */
+    questions: v.array(v.string()),
     suggestedOrder: v.number(),
     selected: v.boolean(),
     createdAt: v.number(),
@@ -519,6 +521,7 @@ export default defineSchema({
       v.literal("approved"),
       v.literal("rejected"),
       v.literal("interviewees_updated"),
+      v.literal("questions_updated"),
       v.literal("phase_changed"),
       v.literal("research_started"),
       v.literal("research_succeeded"),

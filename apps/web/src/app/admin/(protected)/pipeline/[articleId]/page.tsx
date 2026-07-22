@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "convex/react";
 import type { Id } from "@convex/_generated/dataModel";
 import { pipelineApi } from "@/lib/pipeline-api";
 import { usePipelineDivision } from "../_components/pipeline-division-context";
+import { InterviewQuestionsEditor } from "../_components/interview-questions-editor";
 
 const CONTACT_TYPE_LABELS: Record<string, string> = {
   player: "Speler",
@@ -184,6 +185,12 @@ export default function PipelineIdeaDetailPage() {
                     {c.teamName ? ` · ${c.teamName}` : ""}
                   </span>
                   {c.whyInterview ? <p>{c.whyInterview}</p> : null}
+                  <InterviewQuestionsEditor
+                    articleContactId={c.articleContactId}
+                    initialQuestions={c.questions}
+                    canEdit={canEdit && inIdeaReview}
+                    disabled={busy !== null}
+                  />
                 </div>
                 <button
                   type="button"

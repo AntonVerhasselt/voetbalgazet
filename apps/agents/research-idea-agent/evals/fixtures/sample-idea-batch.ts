@@ -24,7 +24,8 @@ export const sampleIdeaBatch: IdeaBatch = {
           sqlFingerprint: "fixture:win-streak-example",
         },
         {
-          claim: "De ploeg scoorde in die reeks gemiddeld meer dan twee goals per wedstrijd.",
+          claim:
+            "De ploeg scoorde in die reeks gemiddeld meer dan twee goals per wedstrijd.",
           evidence: "Voorbeelddata: 13 goals in 6 wedstrijden (2,17 per match).",
           source: "convex",
         },
@@ -41,6 +42,11 @@ export const sampleIdeaBatch: IdeaBatch = {
           teamName: "Eerste elftal",
           whyInterview:
             "Als trainer kan hij de tactische en mentale omslag duiden achter de cijfermatige opmars.",
+          questions: [
+            "Wat veranderde er in de weekelijkse voorbereiding na speeldag 5?",
+            "Welke tactische knop draaide u om toen de zegereeks begon?",
+            "Hoe houdt u de groep scherp nu jullie bovenaan staan?",
+          ],
         },
       ],
       researchSummary:
@@ -58,7 +64,8 @@ export const sampleIdeaBatch: IdeaBatch = {
       supportingFacts: [
         {
           claim: "Drie spelers scoorden minstens acht keer vanuit open spel.",
-          evidence: "Voorbeelddata: spitsen A/B/C met 11, 9 en 8 open-spel goals.",
+          evidence:
+            "Voorbeelddata: spitsen A/B/C met 11, 9 en 8 open-spel goals.",
           source: "convex",
         },
       ],
@@ -72,6 +79,11 @@ export const sampleIdeaBatch: IdeaBatch = {
           clubName: "SK Nebula",
           whyInterview:
             "Hij leidt de open-spel ranking en kan vertellen hoe de ploeg kansen creëert.",
+          questions: [
+            "Welke type kansen leveren jullie de meeste open-spel goals op?",
+            "Hoe bewust vermijd je de penalty als primaire scoringsroute?",
+            "Wie is jouw belangrijkste aangever dit seizoen?",
+          ],
         },
         {
           neonPersonId: "fixture:person:2003",
@@ -82,6 +94,10 @@ export const sampleIdeaBatch: IdeaBatch = {
           clubName: "SK Nebula",
           whyInterview:
             "Geeft context over pressing en voorzetpatronen achter de scoringscijfers.",
+          questions: [
+            "Welke pressing-triggers leiden tot die open-spel kansen?",
+            "Hoe oefenen jullie afronden vanuit de tweede lijn?",
+          ],
         },
       ],
     },
@@ -96,7 +112,8 @@ export const sampleIdeaBatch: IdeaBatch = {
         "Een extreme split tussen thuis- en uitvorm is redactioneel spannend en meetbaar.",
       supportingFacts: [
         {
-          claim: "Union Nord pakte 90% van de thuispunten maar minder dan 15% uit.",
+          claim:
+            "Union Nord pakte 90% van de thuispunten maar minder dan 15% uit.",
           evidence: "Voorbeelddata: 18/20 thuispunten, 3/21 uitpunten.",
           source: "convex",
         },
@@ -114,7 +131,8 @@ export const sampleIdeaBatch: IdeaBatch = {
         "Jeugdige doorbraken raken lezers lokaal; speelminuten en impact zijn objectiveerbaar.",
       supportingFacts: [
         {
-          claim: "Yari Maes speelde de laatste acht speeldagen meer dan 80% van de minuten.",
+          claim:
+            "Yari Maes speelde de laatste acht speeldagen meer dan 80% van de minuten.",
           evidence: "Voorbeelddata: 630/720 minuten sinds speeldag 8.",
           source: "convex",
         },
@@ -131,6 +149,11 @@ export const sampleIdeaBatch: IdeaBatch = {
           teamName: "Eerste elftal",
           whyInterview:
             "Eerste aanspreekpunt voor het verhaal over zijn doorbraak en rol in het elftal.",
+          questions: [
+            "Wanneer wist je dat je een vaste basisplaats zou krijgen?",
+            "Wat is het grootste verschil tussen beloften en eerste elftal?",
+            "Welke opdracht krijg je van de coach in balverlies?",
+          ],
         },
       ],
     },
@@ -145,7 +168,8 @@ export const sampleIdeaBatch: IdeaBatch = {
         "Een krappe degradatiestrijd met late goals is spannend en volledig te staven met wedstrijdevents.",
       supportingFacts: [
         {
-          claim: "Drie clubs binnen drie punten van de dropzone kregen samen vijf tegengoals na minuut 80.",
+          claim:
+            "Drie clubs binnen drie punten van de dropzone kregen samen vijf tegengoals na minuut 80.",
           evidence: "Voorbeelddata: events na 80' in speeldagen 10–14.",
           source: "convex",
         },
@@ -160,6 +184,11 @@ export const sampleIdeaBatch: IdeaBatch = {
           clubName: "VV Laagveld",
           whyInterview:
             "Kan de druk op de club en de keuze voor stabiliteit of risico duiden in de slotfase van de heenronde.",
+          questions: [
+            "Hoe voelt de druk in de kleedkamer na die late tegengoals?",
+            "Kiest de club voor rust of voor versterking in de winter?",
+            "Wat zegt het doelsaldo over jullie speelwijze onder druk?",
+          ],
         },
       ],
     },
