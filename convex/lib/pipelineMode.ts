@@ -5,6 +5,9 @@ export type PipelineResearchMode = "fixture" | "eve";
  * - Explicit PIPELINE_RESEARCH_MODE wins
  * - Else: eve when EVE_AGENT_URL + EVE_INVOKE_TOKEN are set
  * - Production fail-closed: never silently fall back to fixtures
+ *
+ * Important: do NOT use NODE_ENV. Convex/"use node" actions often run with
+ * NODE_ENV=production even on the development deployment.
  */
 export function resolvePipelineResearchMode(): {
   mode: PipelineResearchMode;
@@ -16,8 +19,8 @@ export function resolvePipelineResearchMode(): {
   const eveToken = process.env.EVE_INVOKE_TOKEN?.trim();
   const eveConfigured = Boolean(eveUrl && eveToken);
   const isProd =
-    process.env.VERCEL_ENV === "production" ||
-    process.env.NODE_ENV === "production";
+    process.env.PIPELINE_ENV?.trim().toLowerCase() === "production" ||
+    process.env.VERCEL_ENV === "production";
 
   if (explicit === "fixture") {
     if (isProd) {

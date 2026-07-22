@@ -38,6 +38,7 @@ import type * as lib_pipelineContacts from "../lib/pipelineContacts.js";
 import type * as lib_pipelineFixtures from "../lib/pipelineFixtures.js";
 import type * as lib_pipelineIdeaBatch from "../lib/pipelineIdeaBatch.js";
 import type * as lib_pipelineIngest from "../lib/pipelineIngest.js";
+import type * as lib_pipelineLocks from "../lib/pipelineLocks.js";
 import type * as lib_pipelineMode from "../lib/pipelineMode.js";
 import type * as lib_pipelinePhases from "../lib/pipelinePhases.js";
 import type * as lib_pipelineTaskPrompt from "../lib/pipelineTaskPrompt.js";
@@ -101,6 +102,7 @@ declare const fullApi: ApiFromModules<{
   "lib/pipelineFixtures": typeof lib_pipelineFixtures;
   "lib/pipelineIdeaBatch": typeof lib_pipelineIdeaBatch;
   "lib/pipelineIngest": typeof lib_pipelineIngest;
+  "lib/pipelineLocks": typeof lib_pipelineLocks;
   "lib/pipelineMode": typeof lib_pipelineMode;
   "lib/pipelinePhases": typeof lib_pipelinePhases;
   "lib/pipelineTaskPrompt": typeof lib_pipelineTaskPrompt;

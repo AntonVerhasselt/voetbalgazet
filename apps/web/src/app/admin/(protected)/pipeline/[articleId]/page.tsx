@@ -108,6 +108,7 @@ export default function PipelineIdeaDetailPage() {
   const sortedContacts = [...contacts].sort(
     (a, b) => a.suggestedOrder - b.suggestedOrder,
   );
+  const inIdeaReview = article.phase === "idea_review";
 
   return (
     <div className="pipeline-detail">
@@ -118,6 +119,12 @@ export default function PipelineIdeaDetailPage() {
       </p>
 
       <h2 className="pipeline-detail__title">{article.ideaTitle}</h2>
+
+      {!inIdeaReview && (
+        <p className="admin-notice">
+          Dit idee is niet meer in review (fase: {article.phase}).
+        </p>
+      )}
 
       <section className="pipeline-detail__section">
         <h3>Drie titelvoorstellen</h3>
@@ -181,7 +188,11 @@ export default function PipelineIdeaDetailPage() {
                 <button
                   type="button"
                   className="newsletter-action-btn"
-                  disabled={!canEdit || busy === c.articleContactId}
+                  disabled={
+                    !canEdit ||
+                    !inIdeaReview ||
+                    busy === c.articleContactId
+                  }
                   onClick={() =>
                     handleToggle(c.articleContactId, c.selected)
                   }
@@ -196,7 +207,7 @@ export default function PipelineIdeaDetailPage() {
 
       {error && <p className="admin-error">{error}</p>}
 
-      {canEdit ? (
+      {canEdit && inIdeaReview ? (
         <div className="pipeline-detail__actions">
           <button
             type="button"
@@ -230,12 +241,12 @@ export default function PipelineIdeaDetailPage() {
             </button>
           </div>
         </div>
-      ) : (
+      ) : !canEdit ? (
         <p className="admin-notice">
           Je hebt alleen leesrechten. Goedkeuren of afwijzen is niet
           beschikbaar.
         </p>
-      )}
+      ) : null}
     </div>
   );
 }

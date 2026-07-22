@@ -8,6 +8,7 @@ import { getEveAgentConfig } from "./lib/pipelineMode";
 import { buildResearchTaskMessage } from "./lib/pipelineTaskPrompt";
 
 const WAIT_TIMEOUT_MS = 8 * 60 * 1000;
+const CREATE_TIMEOUT_MS = 60 * 1000;
 const POLL_IDLE_MS = 400;
 
 type StreamEvent = {
@@ -90,6 +91,7 @@ export const runResearchWaiter = internalAction({
           mode: "task",
           outputSchema: ideaBatchJsonSchema,
         }),
+        signal: AbortSignal.timeout(CREATE_TIMEOUT_MS),
       });
 
       if (!createResponse.ok) {

@@ -1,12 +1,13 @@
 /**
- * Placeholder YAML keys ↔ Neon series.id mapping (Phase B).
- * Canonical Pipeline divisionKey target: Neon `series.id` (e.g. CHP_130005).
- * Until taxonomy migration executes, Pipeline accepts both forms.
+ * Placeholder YAML keys ↔ Neon series.id mapping.
+ * Canonical divisionKey / externalKey: Neon `series.id` (e.g. CHP_130005).
+ * Legacy placeholders remain as read aliases (localStorage, old content, agent).
  */
 
 export type NeonSeriesRef = {
   neonSeriesId: string;
   neonSeriesName: string;
+  /** Legacy catalog key before Neon remap; kept for dual-read aliases. */
   placeholderKey: string | null;
 };
 
@@ -44,6 +45,27 @@ export function resolveSeriesRef(divisionKey: string): NeonSeriesRef | null {
 
 export function neonSeriesIdForDivision(divisionKey: string): string | null {
   return resolveSeriesRef(divisionKey)?.neonSeriesId ?? null;
+}
+
+/** Prefer Neon series.id whenever a mapping exists; otherwise keep the key. */
+export function canonicalizeDivisionKey(divisionKey: string): string {
+  return neonSeriesIdForDivision(divisionKey) ?? divisionKey;
+}
+
+/** Legacy placeholder → Neon id remaps for taxonomy migration. */
+export function legacyPlaceholderRemaps(): ReadonlyArray<{
+  from: string;
+  to: string;
+  neonSeriesName: string;
+}> {
+  return KNOWN_NEON_SERIES.filter(
+    (series): series is NeonSeriesRef & { placeholderKey: string } =>
+      series.placeholderKey !== null,
+  ).map((series) => ({
+    from: series.placeholderKey,
+    to: series.neonSeriesId,
+    neonSeriesName: series.neonSeriesName,
+  }));
 }
 
 export function labelForDivisionKey(

@@ -439,6 +439,14 @@ export default defineSchema({
     .index("by_researchRun", ["researchRunId"])
     .index("by_phase_and_updatedAt", ["phase", "updatedAt"]),
 
+  /** Per-reeks mutex for research generate (OCC via patch on shared row). */
+  pipelineDivisionLocks: defineTable({
+    divisionKey: v.string(),
+    busy: v.boolean(),
+    runId: v.optional(v.id("pipelineResearchRuns")),
+    updatedAt: v.number(),
+  }).index("by_division", ["divisionKey"]),
+
   contacts: defineTable({
     neonPersonId: v.string(),
     fullName: v.string(),

@@ -7,11 +7,19 @@ import { editorMutation, viewerQuery } from "./lib/adminAuth";
 import { divisionOptions } from "./lib/preferenceCatalog";
 import {
   KNOWN_NEON_SERIES,
+  canonicalizeDivisionKey,
   labelForDivisionKey,
+  resolveSeriesRef,
 } from "./lib/neonSeriesMap";
 import { ingestIdeaBatch } from "./lib/pipelineIngest";
 import { buildFixtureIdeaBatch } from "./lib/pipelineFixtures";
 import { validateIdeaBatch } from "./lib/pipelineIdeaBatch";
+import {
+  acquireDivisionResearchLock,
+  bindDivisionResearchLock,
+  isDivisionResearchBusy,
+  releaseDivisionResearchLock,
+} from "./lib/pipelineLocks";
 import { resolvePipelineResearchMode } from "./lib/pipelineMode";
 import { assertPhaseTransition, phaseStripBucket } from "./lib/pipelinePhases";
 import type { PipelinePhase } from "./lib/pipelineValidators";
@@ -20,16 +28,26 @@ async function findActiveRun(
   ctx: QueryCtx | MutationCtx,
   divisionKey: string,
 ): Promise<Doc<"pipelineResearchRuns"> | null> {
+  const canonical = canonicalizeDivisionKey(divisionKey);
   for (const status of ["queued", "running"] as const) {
     const run = await ctx.db
       .query("pipelineResearchRuns")
       .withIndex("by_division_and_status", (q) =>
-        q.eq("divisionKey", divisionKey).eq("status", status),
+        q.eq("divisionKey", canonical).eq("status", status),
       )
       .first();
     if (run) return run;
   }
   return null;
+}
+
+async function divisionIsBusy(
+  ctx: QueryCtx | MutationCtx,
+  divisionKey: string,
+): Promise<boolean> {
+  const canonical = canonicalizeDivisionKey(divisionKey);
+  if (await isDivisionResearchBusy(ctx, canonical)) return true;
+  return (await findActiveRun(ctx, canonical)) !== null;
 }
 
 export const listDivisionsForPipeline = viewerQuery({
@@ -60,10 +78,8 @@ export const listDivisionsForPipeline = viewerQuery({
           q.eq("divisionKey", division.key).eq("phase", "idea_review"),
         )
         .collect();
-      const neon = KNOWN_NEON_SERIES.find(
-        (s) => s.placeholderKey === division.key,
-      );
-      const busy = (await findActiveRun(ctx, division.key)) !== null;
+      const neon = resolveSeriesRef(division.key);
+      const busy = await divisionIsBusy(ctx, division.key);
       rows.push({
         key: division.key,
         label: division.label,
@@ -73,8 +89,12 @@ export const listDivisionsForPipeline = viewerQuery({
       });
     }
 
-    // Neon-only series without placeholder mapping
+    // Neon-only series without a catalog entry (placeholder or neon id).
+    const listedKeys = new Set(rows.map((row) => row.key));
     for (const series of KNOWN_NEON_SERIES) {
+      if (listedKeys.has(series.neonSeriesId)) {
+        continue;
+      }
       if (
         series.placeholderKey &&
         placeholderKeys.has(series.placeholderKey)
@@ -87,8 +107,7 @@ export const listDivisionsForPipeline = viewerQuery({
           q.eq("divisionKey", series.neonSeriesId).eq("phase", "idea_review"),
         )
         .collect();
-      const busy =
-        (await findActiveRun(ctx, series.neonSeriesId)) !== null;
+      const busy = await divisionIsBusy(ctx, series.neonSeriesId);
       rows.push({
         key: series.neonSeriesId,
         label: series.neonSeriesName,
@@ -96,6 +115,7 @@ export const listDivisionsForPipeline = viewerQuery({
         researchBusy: busy,
         neonSeriesId: series.neonSeriesId,
       });
+      listedKeys.add(series.neonSeriesId);
     }
 
     return rows;
@@ -112,10 +132,11 @@ export const getPhaseCounts = viewerQuery({
     publicatie: v.number(),
   }),
   handler: async (ctx, args) => {
+    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
     const articles = await ctx.db
       .query("pipelineArticles")
       .withIndex("by_division_and_updatedAt", (q) =>
-        q.eq("divisionKey", args.divisionKey),
+        q.eq("divisionKey", divisionKey),
       )
       .collect();
     const counts = {
@@ -158,7 +179,8 @@ export const getActiveResearchRun = viewerQuery({
     v.null(),
   ),
   handler: async (ctx, args) => {
-    const active = await findActiveRun(ctx, args.divisionKey);
+    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
+    const active = await findActiveRun(ctx, divisionKey);
     if (active) {
       return {
         _id: active._id,
@@ -172,7 +194,7 @@ export const getActiveResearchRun = viewerQuery({
     const latest = await ctx.db
       .query("pipelineResearchRuns")
       .withIndex("by_division_and_startedAt", (q) =>
-        q.eq("divisionKey", args.divisionKey),
+        q.eq("divisionKey", divisionKey),
       )
       .order("desc")
       .first();
@@ -201,10 +223,11 @@ export const listIdeas = viewerQuery({
     }),
   ),
   handler: async (ctx, args) => {
+    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
     const articles = await ctx.db
       .query("pipelineArticles")
       .withIndex("by_division_and_phase", (q) =>
-        q.eq("divisionKey", args.divisionKey).eq("phase", "idea_review"),
+        q.eq("divisionKey", divisionKey).eq("phase", "idea_review"),
       )
       .collect();
     articles.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -327,25 +350,29 @@ export const startResearchRun = editorMutation({
     reused: v.boolean(),
   }),
   handler: async (ctx, args) => {
+    const clientRequestId = args.clientRequestId.trim();
+    if (clientRequestId.length < 8) {
+      throw new Error("clientRequestId is ongeldig");
+    }
+
+    const divisionKey = canonicalizeDivisionKey(args.divisionKey);
     const existingByClient = await ctx.db
       .query("pipelineResearchRuns")
       .withIndex("by_clientRequestId", (q) =>
-        q.eq("clientRequestId", args.clientRequestId),
+        q.eq("clientRequestId", clientRequestId),
       )
       .unique();
     if (existingByClient) {
+      if (existingByClient.divisionKey !== divisionKey) {
+        throw new Error(
+          "clientRequestId is al gebruikt voor een andere reeks",
+        );
+      }
       return {
         runId: existingByClient._id,
         mode: existingByClient.source,
         reused: true,
       };
-    }
-
-    const active = await findActiveRun(ctx, args.divisionKey);
-    if (active) {
-      throw new Error(
-        "Er loopt al research voor deze reeks. Wacht tot die klaar is.",
-      );
     }
 
     const modeResolution = resolvePipelineResearchMode();
@@ -355,16 +382,20 @@ export const startResearchRun = editorMutation({
     const mode = modeResolution.mode;
     const now = Date.now();
 
+    // OCC mutex: concurrent starts for the same reeks serialize on this row.
+    const lockId = await acquireDivisionResearchLock(ctx, divisionKey);
+
     if (mode === "fixture") {
       const runId = await ctx.db.insert("pipelineResearchRuns", {
-        divisionKey: args.divisionKey,
+        divisionKey,
         status: "running",
         source: "fixture",
         triggeredBy: ctx.adminUser._id,
         requestedCount: 5,
         startedAt: now,
-        clientRequestId: args.clientRequestId,
+        clientRequestId,
       });
+      await bindDivisionResearchLock(ctx, lockId, runId);
       await ctx.db.insert("pipelineEvents", {
         researchRunId: runId,
         type: "research_started",
@@ -373,36 +404,41 @@ export const startResearchRun = editorMutation({
         createdAt: now,
       });
 
-      const batch = validateIdeaBatch(buildFixtureIdeaBatch(args.divisionKey));
-      const ideaIds = await ingestIdeaBatch(ctx, {
-        runId,
-        divisionKey: args.divisionKey,
-        batch,
-        actorUserId: ctx.adminUser._id,
-      });
-      await ctx.db.patch(runId, {
-        status: "succeeded",
-        finishedAt: Date.now(),
-        ideaIds,
-      });
-      await ctx.db.insert("pipelineEvents", {
-        researchRunId: runId,
-        type: "research_succeeded",
-        actorUserId: ctx.adminUser._id,
-        createdAt: Date.now(),
-      });
+      try {
+        const batch = validateIdeaBatch(buildFixtureIdeaBatch(divisionKey));
+        const ideaIds = await ingestIdeaBatch(ctx, {
+          runId,
+          divisionKey,
+          batch,
+          actorUserId: ctx.adminUser._id,
+        });
+        await ctx.db.patch(runId, {
+          status: "succeeded",
+          finishedAt: Date.now(),
+          ideaIds,
+        });
+        await ctx.db.insert("pipelineEvents", {
+          researchRunId: runId,
+          type: "research_succeeded",
+          actorUserId: ctx.adminUser._id,
+          createdAt: Date.now(),
+        });
+      } finally {
+        await releaseDivisionResearchLock(ctx, divisionKey, runId);
+      }
       return { runId, mode, reused: false };
     }
 
     const runId = await ctx.db.insert("pipelineResearchRuns", {
-      divisionKey: args.divisionKey,
+      divisionKey,
       status: "queued",
       source: "eve",
       triggeredBy: ctx.adminUser._id,
       requestedCount: 5,
       startedAt: now,
-      clientRequestId: args.clientRequestId,
+      clientRequestId,
     });
+    await bindDivisionResearchLock(ctx, lockId, runId);
     await ctx.db.insert("pipelineEvents", {
       researchRunId: runId,
       type: "research_started",
@@ -414,6 +450,12 @@ export const startResearchRun = editorMutation({
       0,
       internal.pipelineResearchActions.runResearchWaiter,
       { runId },
+    );
+    // Safety net: free the reeks if the waiter never settles (~8.5 min).
+    await ctx.scheduler.runAfter(
+      8.5 * 60 * 1000,
+      internal.pipeline.failStaleResearchRuns,
+      { maxAgeMs: 8.5 * 60 * 1000 },
     );
     return { runId, mode, reused: false };
   },
@@ -539,6 +581,7 @@ export const completeResearchRun = internalMutation({
         metadata: JSON.stringify({ error: message }),
         createdAt: Date.now(),
       });
+      await releaseDivisionResearchLock(ctx, run.divisionKey, args.runId);
       return null;
     }
 
@@ -561,6 +604,7 @@ export const completeResearchRun = internalMutation({
       actorUserId: run.triggeredBy,
       createdAt: Date.now(),
     });
+    await releaseDivisionResearchLock(ctx, run.divisionKey, args.runId);
     return null;
   },
 });
@@ -590,6 +634,7 @@ export const failResearchRun = internalMutation({
       metadata: JSON.stringify({ error: args.errorMessage.slice(0, 500) }),
       createdAt: Date.now(),
     });
+    await releaseDivisionResearchLock(ctx, run.divisionKey, args.runId);
     return null;
   },
 });
@@ -617,6 +662,42 @@ export const markResearchRunRunning = internalMutation({
       divisionKey: run.divisionKey,
       divisionLabel: labelForDivisionKey(run.divisionKey),
     };
+  },
+});
+
+/** Fail orphaned queued/running runs older than maxAgeMs and release locks. */
+export const failStaleResearchRuns = internalMutation({
+  args: {
+    maxAgeMs: v.number(),
+  },
+  returns: v.object({ failedCount: v.number() }),
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const cutoff = now - args.maxAgeMs;
+    let failedCount = 0;
+    const recent = await ctx.db
+      .query("pipelineResearchRuns")
+      .withIndex("by_startedAt")
+      .order("desc")
+      .take(200);
+    for (const run of recent) {
+      if (run.status !== "queued" && run.status !== "running") continue;
+      if (run.startedAt > cutoff) continue;
+      await ctx.db.patch(run._id, {
+        status: "failed",
+        finishedAt: now,
+        errorMessage: "Research time-out — run automatisch vrijgegeven",
+      });
+      await ctx.db.insert("pipelineEvents", {
+        researchRunId: run._id,
+        type: "research_failed",
+        metadata: JSON.stringify({ error: "stale_timeout" }),
+        createdAt: now,
+      });
+      await releaseDivisionResearchLock(ctx, run.divisionKey, run._id);
+      failedCount += 1;
+    }
+    return { failedCount };
   },
 });
 

@@ -10,6 +10,7 @@ import {
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "convex/react";
+import { canonicalizeDivisionKey } from "@convex/lib/neonSeriesMap";
 import {
   pipelineApi,
   type PipelineDivisionRow,
@@ -84,10 +85,12 @@ export function PipelineDivisionProvider({
   const urlKey = searchParams.get("reeks");
 
   const divisionKey = useMemo(() => {
-    const candidate = urlKey ?? storedKey ?? divisions?.[0]?.key ?? null;
-    if (!candidate) return null;
+    const raw = urlKey ?? storedKey ?? divisions?.[0]?.key ?? null;
+    if (!raw) return null;
+    const candidate = canonicalizeDivisionKey(raw);
     if (!divisions) return candidate;
     if (divisions.some((d) => d.key === candidate)) return candidate;
+    if (divisions.some((d) => d.key === raw)) return raw;
     return divisions[0]?.key ?? null;
   }, [urlKey, storedKey, divisions]);
 

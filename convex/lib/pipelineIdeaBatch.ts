@@ -159,6 +159,16 @@ function validateIdeaProposal(raw: unknown, index: number): IdeaProposalInput {
     };
   });
 
+  const seenPersonIds = new Set<string>();
+  for (const person of interviewees) {
+    if (seenPersonIds.has(person.neonPersonId)) {
+      throw new Error(
+        `${prefix}: dubbele interviewkandidaat (${person.neonPersonId})`,
+      );
+    }
+    seenPersonIds.add(person.neonPersonId);
+  }
+
   return {
     ideaTitle: idea.ideaTitle,
     titleProposals: [...titleProposals],

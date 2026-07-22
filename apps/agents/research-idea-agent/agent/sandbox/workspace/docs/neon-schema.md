@@ -24,9 +24,9 @@ Neon owns series identity via `series.id` (e.g. `CHP_130005`).
 | `CHP_136335` | 2 Provinciaal Antw A | `antwerpen-p2a` |
 | `CHP_134688` | BvA Heren Groep 1 P1/P2 | _(none — Neon-only)_ |
 
-**Target:** Pipeline `divisionKey` = Neon `series.id`. Until taxonomy migration
-runs, the app accepts both placeholder keys and Neon ids (see
-`convex/lib/neonSeriesMap.ts`).
+**Target:** Pipeline `divisionKey` / catalog `externalKey` = Neon `series.id`
+for series that exist in Neon. Legacy placeholders (`antwerpen-p1`, …) remain
+aliases via `convex/lib/neonSeriesMap.ts` for dual-read.
 
 Discover series:
 
