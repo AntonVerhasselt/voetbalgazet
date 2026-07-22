@@ -46,7 +46,7 @@ export default defineSandbox<Record<string, never>, NeonSessionOpts>({
       env: neonSandboxEnv(),
     },
   }) as SandboxBackend<Record<string, never>, NeonSessionOpts>,
-  revalidationKey: () => "research-idea-sandbox-v1",
+  revalidationKey: () => "research-idea-sandbox-v2-neon-docs",
   async bootstrap({ use }) {
     const sandbox = await use();
     // Workspace package.json + lib/ are seeded from agent/sandbox/workspace.

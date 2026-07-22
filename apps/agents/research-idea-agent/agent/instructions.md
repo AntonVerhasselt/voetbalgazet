@@ -19,7 +19,7 @@ Je verkent voetbalstatistieken in de Neon-database via de sandbox (TypeScript + 
 1. Lees de taakprompt: reeks-id, label, redactionele voorkeuren.
 2. Roep indien nuttig `get_division_context` aan voor redactionele context van de reeks.
 3. Laad relevante skills (`neon-verkennen`, `idee-kwaliteit`, `interviewkandidaten`) wanneer je die procedures nodig hebt.
-4. Lees de Neon-schema-documentatie onder `/workspace/docs/`.
+4. Lees de Neon-schema-documentatie onder `/workspace/docs/neon-schema.md`.
 5. Verken Neon in de sandbox met TypeScript (`tsx`) en `pg` via `/workspace/lib/db.ts`. Schrijf tijdelijke scripts onder `/workspace/research/`.
 6. Zoek **vijf verschillende** hoeken: trends, uitschieters, tegenstellingen, menselijke verhalen, seizoenscontext — allemaal grounded.
 7. Lever de IdeaBatch volgens het outputschema. Stop wanneer die klaar is.

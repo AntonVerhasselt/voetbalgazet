@@ -1,6 +1,5 @@
 /**
- * Editorial context stubs for known placeholder division keys.
- * Neon-aligned keys replace these in Phase B; keep labels Dutch.
+ * Editorial context for known placeholder + Neon series keys.
  */
 
 export type DivisionContext = {
@@ -8,6 +7,7 @@ export type DivisionContext = {
   label: string;
   provinceKey: string | null;
   level: number | null;
+  neonSeriesId: string | null;
   editorialPrefs: string[];
   audienceNotes: string;
 };
@@ -17,43 +17,42 @@ const GENERIC_PREFS = [
   "Cijfers altijd in context van de reeks (tegenstanders, speeldag, seizoensfase).",
   "Geef de voorkeur aan hoeken die een interview waard zijn, ook als 0 kandidaten oké is.",
   "Vermijd transfergeruchten zonder data; focus op speelmomenten, stand, vorm, jeugd.",
+  "Gebruik Neon series.id in SQL (zie /workspace/docs/neon-schema.md).",
 ];
 
 const KNOWN: Record<
   string,
-  Omit<DivisionContext, "divisionKey" | "editorialPrefs" | "audienceNotes"> & {
-    editorialPrefs?: string[];
-  }
+  Omit<DivisionContext, "divisionKey" | "editorialPrefs" | "audienceNotes">
 > = {
   "antwerpen-p1": {
     label: "1ste provinciale Antwerpen",
     provinceKey: "antwerpen",
     level: 1,
+    neonSeriesId: "CHP_130005",
   },
   "antwerpen-p2a": {
     label: "2de provinciale A Antwerpen",
     provinceKey: "antwerpen",
     level: 2,
+    neonSeriesId: "CHP_136335",
   },
-  "limburg-p1": {
-    label: "1ste provinciale Limburg",
-    provinceKey: "limburg",
+  CHP_130005: {
+    label: "1 Provinciaal Antw",
+    provinceKey: "antwerpen",
     level: 1,
+    neonSeriesId: "CHP_130005",
   },
-  "oost-vlaanderen-p1": {
-    label: "1ste provinciale Oost-Vlaanderen",
-    provinceKey: "oost-vlaanderen",
-    level: 1,
+  CHP_136335: {
+    label: "2 Provinciaal Antw A",
+    provinceKey: "antwerpen",
+    level: 2,
+    neonSeriesId: "CHP_136335",
   },
-  "vlaams-brabant-p1": {
-    label: "1ste provinciale Vlaams-Brabant",
-    provinceKey: "vlaams-brabant",
-    level: 1,
-  },
-  "west-vlaanderen-p1": {
-    label: "1ste provinciale West-Vlaanderen",
-    provinceKey: "west-vlaanderen",
-    level: 1,
+  CHP_134688: {
+    label: "BvA Heren Groep 1 P1/P2",
+    provinceKey: "antwerpen",
+    level: null,
+    neonSeriesId: "CHP_134688",
   },
 };
 
@@ -65,7 +64,8 @@ export function getDivisionContext(divisionKey: string): DivisionContext {
       label: known.label,
       provinceKey: known.provinceKey,
       level: known.level,
-      editorialPrefs: [...GENERIC_PREFS, ...(known.editorialPrefs ?? [])],
+      neonSeriesId: known.neonSeriesId,
+      editorialPrefs: [...GENERIC_PREFS],
       audienceNotes:
         "Lezers volgen vooral hun eigen club en buurclubs in deze provinciale reeks.",
     };
@@ -76,8 +76,9 @@ export function getDivisionContext(divisionKey: string): DivisionContext {
     label: divisionKey,
     provinceKey: null,
     level: null,
+    neonSeriesId: divisionKey.startsWith("CHP_") ? divisionKey : null,
     editorialPrefs: [...GENERIC_PREFS],
     audienceNotes:
-      "Onbekende of Neon-native reeks-sleutel: behandel de meegegeven label in de taakprompt als leidend. Taxonomy wordt later Neon-aligned.",
+      "Onbekende reeks-sleutel: behandel de meegegeven label in de taakprompt als leidend. Zoek series.id in Neon.",
   };
 }

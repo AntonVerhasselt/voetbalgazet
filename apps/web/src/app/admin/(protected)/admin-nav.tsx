@@ -66,6 +66,9 @@ export function AdminNav({ canEditArticles, isAdmin }: AdminNavProps) {
           <NavLabel full="Artikels" short="Artikels" />
         </span>
       )}
+      <NavLink href="/admin/pipeline" label="Pipeline">
+        <NavLabel full="Pipeline" short="Pipe" />
+      </NavLink>
       <NavLink href="/admin/nieuwsbrieven" label="Nieuwsbrieven">
         <NavLabel full="Nieuwsbrieven" short="Brieven" />
       </NavLink>

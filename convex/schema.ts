@@ -368,4 +368,159 @@ export default defineSchema({
   })
     .index("by_campaign_and_createdAt", ["campaignId", "createdAt"])
     .index("by_createdAt", ["createdAt"]),
+
+  // --- AI journalist pipeline ---
+
+  pipelineResearchRuns: defineTable({
+    divisionKey: v.string(),
+    status: v.union(
+      v.literal("queued"),
+      v.literal("running"),
+      v.literal("succeeded"),
+      v.literal("failed"),
+      v.literal("cancelled"),
+    ),
+    source: v.union(v.literal("fixture"), v.literal("eve")),
+    triggeredBy: v.id("users"),
+    requestedCount: v.number(),
+    eveSessionId: v.optional(v.string()),
+    startedAt: v.number(),
+    finishedAt: v.optional(v.number()),
+    errorMessage: v.optional(v.string()),
+    clientRequestId: v.string(),
+    ideaIds: v.optional(v.array(v.id("pipelineArticles"))),
+  })
+    .index("by_division_and_status", ["divisionKey", "status"])
+    .index("by_division_and_startedAt", ["divisionKey", "startedAt"])
+    .index("by_clientRequestId", ["clientRequestId"])
+    .index("by_startedAt", ["startedAt"]),
+
+  pipelineArticles: defineTable({
+    divisionKey: v.string(),
+    phase: v.union(
+      v.literal("idea_review"),
+      v.literal("awaiting_contacts"),
+      v.literal("interview_scheduling"),
+      v.literal("interview_ready"),
+      v.literal("interviewing"),
+      v.literal("interview_complete"),
+      v.literal("drafting"),
+      v.literal("draft_review"),
+      v.literal("ready_to_publish"),
+      v.literal("published"),
+      v.literal("rejected"),
+      v.literal("failed"),
+    ),
+    researchRunId: v.id("pipelineResearchRuns"),
+    ideaTitle: v.string(),
+    titleProposals: v.array(v.string()),
+    finalTitle: v.optional(v.string()),
+    whyInteresting: v.string(),
+    supportingFacts: v.array(
+      v.object({
+        claim: v.string(),
+        evidence: v.string(),
+        source: v.union(v.literal("neon"), v.literal("convex")),
+        sqlFingerprint: v.optional(v.string()),
+      }),
+    ),
+    researchSummary: v.optional(v.string()),
+    rejectionReason: v.optional(v.string()),
+    approvedAt: v.optional(v.number()),
+    approvedBy: v.optional(v.id("users")),
+    rejectedAt: v.optional(v.number()),
+    rejectedBy: v.optional(v.id("users")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    schemaVersion: v.number(),
+  })
+    .index("by_division_and_phase", ["divisionKey", "phase"])
+    .index("by_division_and_updatedAt", ["divisionKey", "updatedAt"])
+    .index("by_researchRun", ["researchRunId"])
+    .index("by_phase_and_updatedAt", ["phase", "updatedAt"]),
+
+  contacts: defineTable({
+    neonPersonId: v.string(),
+    fullName: v.string(),
+    contactType: v.union(
+      v.literal("player"),
+      v.literal("staff"),
+      v.literal("board"),
+      v.literal("other"),
+    ),
+    contactTypeDetail: v.optional(v.string()),
+    neonClubId: v.string(),
+    clubName: v.string(),
+    neonTeamId: v.optional(v.string()),
+    teamName: v.optional(v.string()),
+    divisionKeys: v.array(v.string()),
+    neonSeasonId: v.optional(v.string()),
+    dateOfBirth: v.optional(v.string()),
+    shirtNumber: v.optional(v.number()),
+    isActive: v.boolean(),
+    notes: v.optional(v.string()),
+    preferredChannel: v.optional(
+      v.union(
+        v.literal("whatsapp"),
+        v.literal("phone"),
+        v.literal("email"),
+        v.literal("unknown"),
+      ),
+    ),
+    phoneE164: v.optional(v.string()),
+    email: v.optional(v.string()),
+    whatsappJid: v.optional(v.string()),
+    source: v.union(
+      v.literal("research_agent"),
+      v.literal("whatsapp_agent"),
+      v.literal("manual"),
+      v.literal("import"),
+    ),
+    firstSeenAt: v.number(),
+    lastSeenAt: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    schemaVersion: v.number(),
+  })
+    .index("by_neon_person", ["neonPersonId"])
+    .index("by_neon_club", ["neonClubId"])
+    .index("by_neon_team", ["neonTeamId"])
+    .index("by_contact_type", ["contactType"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  pipelineArticleContacts: defineTable({
+    articleId: v.id("pipelineArticles"),
+    contactId: v.id("contacts"),
+    neonPersonId: v.string(),
+    whyInterview: v.string(),
+    suggestedOrder: v.number(),
+    selected: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_article", ["articleId"])
+    .index("by_contact", ["contactId"])
+    .index("by_article_and_contact", ["articleId", "contactId"])
+    .index("by_article_and_selected", ["articleId", "selected"]),
+
+  pipelineEvents: defineTable({
+    articleId: v.optional(v.id("pipelineArticles")),
+    researchRunId: v.optional(v.id("pipelineResearchRuns")),
+    type: v.union(
+      v.literal("created"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("interviewees_updated"),
+      v.literal("phase_changed"),
+      v.literal("research_started"),
+      v.literal("research_succeeded"),
+      v.literal("research_failed"),
+    ),
+    actorUserId: v.optional(v.id("users")),
+    metadata: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_article_and_createdAt", ["articleId", "createdAt"])
+    .index("by_researchRun_and_createdAt", ["researchRunId", "createdAt"])
+    .index("by_createdAt", ["createdAt"]),
 });
