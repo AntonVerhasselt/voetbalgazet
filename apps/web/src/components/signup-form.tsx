@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { teamOptions } from "@convex/lib/preferenceCatalog";
 import { DivisionSelector } from "@/components/division-selector";
+import { TeamCombobox } from "@/components/team-combobox";
 import { authClient } from "@/lib/auth-client";
 import { capturePublicEvent, capturePublicException } from "@/lib/analytics";
 import { CONSENT_VERSION } from "@/lib/site-config";
@@ -84,18 +85,15 @@ export function SignupForm({
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>([]);
-  const [teamQuery, setTeamQuery] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
 
-  const availableTeams = useMemo(() => {
-    const normalizedQuery = teamQuery.trim().toLocaleLowerCase("nl-BE");
-    return teamOptions.filter(
-      (team) =>
-        team.divisionKeys.some((key) => selectedDivisions.includes(key)) &&
-        (!normalizedQuery ||
-          team.label.toLocaleLowerCase("nl-BE").includes(normalizedQuery)),
-    );
-  }, [selectedDivisions, teamQuery]);
+  const availableTeams = useMemo(
+    () =>
+      teamOptions.filter((team) =>
+        team.divisionKeys.some((key) => selectedDivisions.includes(key)),
+      ),
+    [selectedDivisions],
+  );
 
   function validateEmailStep(): string | null {
     const normalizedEmail = email.trim();
@@ -305,48 +303,30 @@ export function SignupForm({
         </fieldset>
 
         <div className="team-picker">
-          <label htmlFor={`${inputId}-team-search`}>
+          <label htmlFor={`${inputId}-team`}>
             Favoriete club <span>(optioneel)</span>
           </label>
-          <input
-            id={`${inputId}-team-search`}
-            type="search"
-            value={teamQuery}
-            onChange={(event) => {
-              setTeamQuery(event.target.value);
+          <TeamCombobox
+            id={`${inputId}-team`}
+            options={availableTeams}
+            value={selectedTeam}
+            onChange={setSelectedTeam}
+            disabled={selectedDivisions.length === 0}
+            placeholder="Zoek of kies een club"
+            disabledPlaceholder="Kies eerst een reeks"
+            maxResults={5}
+            onSearch={(query, resultCount) => {
               capturePublicEvent("team_search_used", {
-                query_length: event.target.value.length,
-                result_count: availableTeams.length,
+                query_length: query.length,
+                result_count: resultCount,
               });
             }}
-            placeholder={
-              selectedDivisions.length
-                ? "Zoek een club"
-                : "Kies eerst een reeks"
-            }
-            disabled={selectedDivisions.length === 0}
+            onSelect={(teamKey) => {
+              capturePublicEvent("favorite_team_selected", {
+                team_id: teamKey,
+              });
+            }}
           />
-          {selectedDivisions.length > 0 && (
-            <select
-              aria-label="Kies je favoriete club"
-              value={selectedTeam}
-              onChange={(event) => {
-                setSelectedTeam(event.target.value);
-                if (event.target.value) {
-                  capturePublicEvent("favorite_team_selected", {
-                    team_id: event.target.value,
-                  });
-                }
-              }}
-            >
-              <option value="">Geen favoriete club</option>
-              {availableTeams.map((team) => (
-                <option key={team.key} value={team.key}>
-                  {team.label}
-                </option>
-              ))}
-            </select>
-          )}
         </div>
 
         <p className="consent-copy">

@@ -986,8 +986,191 @@ a {
   margin-bottom: 0.75rem;
 }
 
-.team-picker input {
-  border-color: currentColor;
+.team-combobox {
+  position: relative;
+  z-index: 1;
+}
+
+.team-combobox.is-open {
+  z-index: 5;
+}
+
+.team-combobox__field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: stretch;
+  min-height: 48px;
+  border: 1px solid currentColor;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.team-combobox.is-disabled .team-combobox__field {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.team-combobox.is-open .team-combobox__field {
+  border-bottom-color: transparent;
+}
+
+.team-combobox__input {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0.7rem 0.85rem;
+  border: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-family: var(--font-ui);
+  font-size: 1rem; /* avoid iOS focus zoom */
+  line-height: 1.3;
+}
+
+.team-combobox__input:focus {
+  outline: none;
+}
+
+.team-combobox__input:disabled {
+  cursor: not-allowed;
+}
+
+.team-combobox__field:focus-within {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.team-combobox__clear,
+.team-combobox__chevron {
+  display: grid;
+  width: 44px;
+  min-height: 48px;
+  place-items: center;
+  padding: 0 !important;
+  border: 0 !important;
+  border-left: 1px solid var(--rule) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.team-combobox__clear:hover,
+.team-combobox__chevron:hover:not(:disabled) {
+  background: var(--paper-deep) !important;
+}
+
+.team-combobox__chevron:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.team-combobox__menu {
+  position: absolute;
+  top: calc(100% - 1px);
+  right: 0;
+  left: 0;
+  z-index: 6;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  border: 1px solid currentColor;
+  border-top: 1px solid var(--rule);
+  background: var(--white);
+  box-shadow: 0 0.85rem 1.6rem rgb(23 21 17 / 12%);
+  max-height: min(50dvh, 280px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.team-combobox__option {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.team-combobox__option.is-active,
+.team-combobox__option:hover {
+  background: var(--paper-deep);
+}
+
+.team-combobox__option.is-selected {
+  font-weight: 700;
+}
+
+.team-combobox__option.is-clear {
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--rule);
+}
+
+.team-combobox__option-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.team-combobox__option-check {
+  flex: none;
+  color: var(--accent-dark);
+  font-size: 0.95rem;
+}
+
+.team-combobox__empty,
+.team-combobox__hint {
+  padding: 0.65rem 0.85rem;
+  color: var(--ink-muted);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.signup-form--dark .team-combobox__field,
+.signup-form--dark .team-combobox__menu {
+  border-color: rgb(255 253 248 / 55%);
+  background: rgb(23 21 17 / 55%);
+  color: var(--white);
+}
+
+.signup-form--dark .team-combobox__clear,
+.signup-form--dark .team-combobox__chevron {
+  border-left-color: rgb(255 253 248 / 28%) !important;
+}
+
+.signup-form--dark .team-combobox__clear:hover,
+.signup-form--dark .team-combobox__chevron:hover:not(:disabled),
+.signup-form--dark .team-combobox__option.is-active,
+.signup-form--dark .team-combobox__option:hover {
+  background: rgb(255 253 248 / 10%) !important;
+}
+
+.signup-form--dark .team-combobox__option.is-clear {
+  border-bottom-color: rgb(255 253 248 / 22%);
+  color: #d8d1c6;
+}
+
+.signup-form--dark .team-combobox__empty,
+.signup-form--dark .team-combobox__hint {
+  color: #d8d1c6;
+}
+
+.signup-form--dark .team-combobox__field:focus-within {
+  outline-color: #f1d7a4;
+}
+
+.signup-form--paper .team-combobox__field,
+.signup-form--paper .team-combobox__menu {
+  border-color: var(--ink);
+  background: var(--white);
+  color: var(--ink);
 }
 
 .consent-copy {
@@ -2544,6 +2727,11 @@ a {
     width: 44px;
     height: 44px;
   }
+
+  .team-combobox__menu {
+    /* Keep suggestions usable above the soft keyboard. */
+    max-height: min(40dvh, 240px);
+  }
 }
 
 @media (min-width: 1100px) {
@@ -2609,8 +2797,13 @@ a {
     gap: 0.3rem;
   }
 
-  .gate-sheet--preferences .team-picker input,
-  .gate-sheet--preferences .team-picker select,
+  .gate-sheet--preferences .team-combobox__field,
+  .gate-sheet--preferences .team-combobox__input,
+  .gate-sheet--preferences .team-combobox__clear,
+  .gate-sheet--preferences .team-combobox__chevron {
+    min-height: 44px;
+  }
+
   .gate-sheet--preferences .signup-form__primary {
     min-height: 40px;
   }
