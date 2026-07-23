@@ -1,67 +1,4891 @@
 items:
-  - key: kfc-duffel
-    label: KFC Duffel
-    divisionKeys: [antwerpen-p1]
+  - key: aa-rekem-a
+    label: "AA Rekem A"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: achel-vv-b
+    label: "Achel VV B"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: alberta-fc-schilde
+    label: "Alberta FC Schilde"
+    divisionKeys: [antwerpen-p4e]
     provinceKey: antwerpen
     active: true
     aliases: []
-  - key: ksv-aartselaar
-    label: KSV Aartselaar
-    divisionKeys: [antwerpen-p1]
-    provinceKey: antwerpen
+  - key: as-niel-utd-b
+    label: "As-Niel Utd. B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
     active: true
     aliases: []
-  - key: tor-deurne-pirates
-    label: TOR Deurne Pirates
-    divisionKeys: [antwerpen-p2a]
-    provinceKey: antwerpen
+  - key: atlas-linter
+    label: "Atlas Linter"
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
     active: true
     aliases: []
-  - key: fc-landen
-    label: FC Landen
+  - key: belisia-bilzen-sv-b
+    label: "Belisia Bilzen SV B"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: beringen-f-c
+    label: "Beringen F.C."
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: bl-otegem
+    label: "Bl. Otegem"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: bocholter-v-v-b
+    label: "Bocholter V.V. B"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: boka-united-a
+    label: "BOKA United A"
     divisionKeys: [vlaams-brabant-p1]
     provinceKey: vlaams-brabant
     active: true
     aliases: []
-  - key: kvc-kessel-lo
-    label: KVC Kessel-Lo
-    divisionKeys: [vlaams-brabant-p2a]
+  - key: boka-united-b
+    label: "BOKA United B"
+    divisionKeys: [vlaams-brabant-p3a]
     provinceKey: vlaams-brabant
     active: true
     aliases: []
-  - key: kfc-merelbeke
-    label: KFC Merelbeke
-    divisionKeys: [oost-vlaanderen-p1]
-    provinceKey: oost-vlaanderen
-    active: true
-    aliases: []
-  - key: kfc-heusden-sport
-    label: KFC Heusden Sport
-    divisionKeys: [oost-vlaanderen-p2a]
-    provinceKey: oost-vlaanderen
-    active: true
-    aliases: []
-  - key: kfc-helson
-    label: KFC Helson
-    divisionKeys: [limburg-p1]
+  - key: bokrijk-sport
+    label: "Bokrijk Sport"
+    divisionKeys: [limburg-p4e]
     provinceKey: limburg
     active: true
     aliases: []
-  - key: kfc-paal-tervant
-    label: KFC Paal-Tervant
+  - key: bolderberg-fc
+    label: "Bolderberg FC"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: boorsem-sport-a
+    label: "Boorsem Sport A"
     divisionKeys: [limburg-p2a]
     provinceKey: limburg
     active: true
     aliases: []
-  - key: kfc-varsenaere
-    label: KFC Varsenaere
+  - key: boorsem-sport-b
+    label: "Boorsem Sport B"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: boutersem-united-a
+    label: "Boutersem United A"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: boutersem-united-b
+    label: "Boutersem United B"
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: bs-geluveld
+    label: "BS Geluveld"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: club-roeselare
+    label: "Club Roeselare"
     divisionKeys: [west-vlaanderen-p1]
     provinceKey: west-vlaanderen
     active: true
     aliases: []
-  - key: kfc-lendelede-sport
-    label: KFC Lendelede Sport
+  - key: cr-vissenaken
+    label: Cr.Vissenaken
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: dar-brugge
+    label: "Dar. Brugge"
     divisionKeys: [west-vlaanderen-p2a]
     provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: daring-maria-aalter
+    label: "Daring Maria-Aalter"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: dc-wezembeek-oppem
+    label: "DC Wezembeek-Oppem"
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: dosko-kanegem
+    label: "Dosko Kanegem"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: e-buggenhout-a
+    label: "E Buggenhout A"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: e-vinkt
+    label: "E Vinkt"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: e-brugge
+    label: "E. Brugge"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: e-houthalen
+    label: "E. Houthalen"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: e-jonkershove
+    label: "E. Jonkershove"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: e-louwel-a
+    label: "E. Louwel A"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: e-louwel-b
+    label: "E. Louwel B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: e-mechelen-a-d-maas-a
+    label: "E. Mechelen a/d Maas A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: e-mechelen-a-d-maas-b
+    label: "E. Mechelen a/d Maas B"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: e-stevoort
+    label: "E. Stevoort"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: e-mech-bovelingen-opheers
+    label: "E.Mech Bovelingen Opheers"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ec-oudenhove-a
+    label: "EC Oudenhove A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ec-oudenhove-b
+    label: "EC Oudenhove B"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: eendr-elene-grotenberge-b
+    label: "Eendr Elene-Grotenberge B"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: eendr-moortsele
+    label: "Eendr Moortsele"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: eendr-eizer
+    label: Eendr.Eizer
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: eendr-hekelgem-a
+    label: "Eendr.Hekelgem A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: eendr-hekelgem-b
+    label: "Eendr.Hekelgem B"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: eendr-mazenzele-opwijk-a
+    label: "Eendr.Mazenzele Opwijk A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ekeren-fc-a
+    label: "Ekeren FC A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ekeren-fc-b
+    label: "Ekeren FC B"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: emi-essene-a
+    label: "Emi.Essene A"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: erc-hoeilaart-a
+    label: "ERC.Hoeilaart A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: erc-hoeilaart-b
+    label: "ERC.Hoeilaart B"
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: esperanza-pelt-b
+    label: "Esperanza Pelt B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: evergem-2020
+    label: "Evergem 2020"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: exc-fc-essen
+    label: "Exc. FC Essen"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: excelsior-mariaburg-a
+    label: "Excelsior Mariaburg A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: excelsior-mariaburg-b
+    label: "Excelsior Mariaburg B"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: excelsior-nieuwkerken
+    label: "Excelsior Nieuwkerken"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: f-c-alken-united
+    label: "F.C. Alken United"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: f-c-habo-borgloon-a
+    label: "F.C. Habo-Borgloon A"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: f-c-habo-borgloon-b
+    label: "F.C. Habo-Borgloon B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: f-c-kleit-a
+    label: "F.C. Kleit A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: f-c-kleit-b
+    label: "F.C. Kleit B"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: f-c-passendale
+    label: "F.C. Passendale"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: f-c-warriors-antwerpen
+    label: "F.C. Warriors Antwerpen"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fa-nieuwpoort-a
+    label: "FA Nieuwpoort A"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fa-nieuwpoort-b
+    label: "FA Nieuwpoort B"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-alken
+    label: "FC Alken"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-assenede
+    label: "FC Assenede"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-averbode-testelt-okselaar-b
+    label: "FC Averbode Testelt Okselaar B"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-beaufort-middelkerke-b
+    label: "FC Beaufort Middelkerke B"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-blaasveld
+    label: "FC Blaasveld"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-dadizele-sport-a
+    label: "FC Dadizele Sport A"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-dadizele-sport-b
+    label: "FC Dadizele Sport B"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-diepenbeek-a
+    label: "FC Diepenbeek A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-diepenbeek-b
+    label: "FC Diepenbeek B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-eksel-a
+    label: "FC Eksel A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-eksel-b
+    label: "FC Eksel B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-gavere-asper-a
+    label: "FC Gavere-Asper A"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-genclerbirligi-zele
+    label: "FC Genclerbirligi Zele"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-herderen-millen
+    label: "FC Herderen-Millen"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-inkad-diegem-a
+    label: "FC Inkad Diegem A"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-inkad-diegem-b
+    label: "FC Inkad Diegem B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-kaprijke-bentille
+    label: "FC Kaprijke-Bentille"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-landen-a
+    label: "FC Landen A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-landen-b
+    label: "FC Landen B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-lembeke
+    label: "FC Lembeke"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-maasland-no-a
+    label: "FC Maasland NO A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-maasland-no-b
+    label: "FC Maasland NO B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-merksem-a
+    label: "FC Merksem A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-merksem-b
+    label: "FC Merksem B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-oppuurs-a
+    label: "FC Oppuurs A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-oppuurs-b
+    label: "FC Oppuurs B"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-oxaco-boechout
+    label: "FC Oxaco-Boechout"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-oxford-hemiksem
+    label: "FC Oxford Hemiksem"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-paal-tervant-b
+    label: "FC Paal-Tervant B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-poesele-a
+    label: "FC Poesele A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-poesele-b
+    label: "FC Poesele B"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-punt-larum
+    label: "FC Punt-Larum"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-smetlede-a
+    label: "FC Smetlede A"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-smetlede-b
+    label: "FC Smetlede B"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-sp-heestert-a
+    label: "FC Sp. Heestert A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-united-borgerhout
+    label: "FC United Borgerhout"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-veldwezelt
+    label: "FC Veldwezelt"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-velzeke
+    label: "FC Velzeke"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-vliermaal
+    label: "FC Vliermaal"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-westouter
+    label: "FC Westouter"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-wezel-sport-b
+    label: "FC Wezel Sport B"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fc-winterslag
+    label: "FC Winterslag"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: fc-zeebrugge
+    label: "FC Zeebrugge"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-zegelsem
+    label: "FC Zegelsem"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fc-binkom-a
+    label: "FC.Binkom A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-dworp
+    label: FC.Dworp
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-galmaarden-a
+    label: "FC.Galmaarden A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-galmaarden-b
+    label: "FC.Galmaarden B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-geetbets
+    label: FC.Geetbets
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-herne-a
+    label: "FC.Herne A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-herne-b
+    label: "FC.Herne B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-moorsel-a
+    label: "FC.Moorsel A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-negenmanneke
+    label: FC.Negenmanneke
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fc-schepdaal-a
+    label: "FC.Schepdaal A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fca-gent
+    label: "FCA Gent"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fcdkg-beervelde
+    label: "FCDKG Beervelde"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fcm-hallaar-a
+    label: "FCM Hallaar A"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fcm-hallaar-b
+    label: "FCM Hallaar B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fcs-mariekerke-branst-a
+    label: "FCS Mariekerke-Branst A"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fcs-mariekerke-branst-b
+    label: "FCS Mariekerke-Branst B"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: fcsj-sleidinge
+    label: "FCSJ Sleidinge"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fcskv-overmere
+    label: "FCSKV Overmere"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fcsm-latem-a
+    label: "FCSM Latem A"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: fenixx-beigem-humbeek-a
+    label: "Fenixx Beigem Humbeek A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fenixx-beigem-humbeek-b
+    label: "Fenixx Beigem Humbeek B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: fl-termolen
+    label: "Fl. Termolen"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kfc-duffel
+    label: "Football Club Duffel A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: football-club-duffel-b
+    label: "Football Club Duffel B"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: football-club-kortenberg-united
+    label: "Football Club Kortenberg United"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: football-club-kortenberg-united-b
+    label: "Football Club Kortenberg United B"
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: football-club-ronse
+    label: "Football Club Ronse"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: future-football-stars-genk
+    label: "Future Football Stars Genk"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: gd-ingooigem
+    label: "GD Ingooigem"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: genk-vv-a
+    label: "Genk VV A"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: genk-vv-b
+    label: "Genk VV B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: gl-ruiselede
+    label: "GL Ruiselede"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: godsheide-vv
+    label: "Godsheide VV"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: gr-vossem-a
+    label: "Gr.Vossem A"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: gs-bree-beek-b
+    label: "GS Bree-Beek B"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: gs-voormezele
+    label: "GS Voormezele"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: gt-lommel-kol
+    label: "GT Lommel Kol."
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: h-wijshagen
+    label: "H. Wijshagen"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: hechtel-fc-a
+    label: "Hechtel FC A"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: hechtel-fc-b
+    label: "Hechtel FC B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: heers-vv
+    label: "Heers VV"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: herk-sport
+    label: "Herk Sport"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: herk-sport-b
+    label: "Herk Sport B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: herk-de-stad-fc-a
+    label: "Herk-De-Stad FC A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: herk-de-stad-fc-b
+    label: "Herk-De-Stad FC B"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: hih-hoepertingen-a
+    label: "HIH Hoepertingen A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: hih-hoepertingen-b
+    label: "HIH Hoepertingen B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ho-heide-hasselt
+    label: "HO Heide Hasselt"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ho-molenbeersel
+    label: "HO Molenbeersel"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ho-bierbeek-a
+    label: "HO.Bierbeek A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ho-bierbeek-b
+    label: "HO.Bierbeek B"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ho-wolvertem-merchtem
+    label: "HO.Wolvertem Merchtem"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: horendonk-fc
+    label: "Horendonk FC"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: houthalen-vv
+    label: "Houthalen VV"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: hrs-haasdonk-a
+    label: "HRS Haasdonk A"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: hrs-haasdonk-b
+    label: "HRS Haasdonk B"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: hsc-beringen
+    label: "HSC Beringen"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: hulste-sp
+    label: "Hulste Sp."
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: infinity-fc-vilvoorde
+    label: "Infinity FC.Vilvoorde"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: j-v-lo-reninge
+    label: "J.V. Lo-Reninge"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: jago-st-a-berg
+    label: "Jago St.-A'berg"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: jb-eigenbilzen-a
+    label: "JB Eigenbilzen A"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: jb-eigenbilzen-b
+    label: "JB Eigenbilzen B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: jong-anzegem
+    label: "Jong Anzegem"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: jong-fc-opwijk
+    label: "Jong FC Opwijk"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: jong-helkijn
+    label: "Jong Helkijn"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: jong-male-k-v-v
+    label: "Jong Male K.V.V."
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: jong-vijve
+    label: "Jong Vijve"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: jong-zulte
+    label: "Jong Zulte"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: juve-hasselt-a
+    label: "Juve Hasselt A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: juve-hasselt-b
+    label: "Juve Hasselt B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: jv-de-pinte-a
+    label: "JV De Pinte A"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: jv-de-pinte-b
+    label: "JV De Pinte B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-olsene-sp
+    label: "K Olsene Sp"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-peer-sv
+    label: "K Peer SV"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-sp-waasmunster
+    label: "K Sp Waasmunster"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-ternesse-vv
+    label: "K Ternesse VV"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-witgoor-sp-dessel-a
+    label: "K Witgoor Sp Dessel A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-witgoor-sp-dessel-b
+    label: "K Witgoor Sp Dessel B"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-achterbroek-vv
+    label: "K. Achterbroek VV"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-bevel-fc
+    label: "K. Bevel FC"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-bo-beerzel-fc
+    label: "K. BO Beerzel FC"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-brecht-sk
+    label: "K. Brecht SK"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-breugel-herkol-sv
+    label: "K. Breugel-Herkol SV"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-brielen-sport
+    label: "K. Brielen Sport"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-dar-ruddervoorde-a
+    label: "K. Dar. Ruddervoorde A"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-dar-ruddervoorde-b
+    label: "K. Dar. Ruddervoorde B"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-dosko-beveren
+    label: "K. Dosko Beveren"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-e-de-haan
+    label: "K. E. De Haan"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-eendr-wervik-a
+    label: "K. Eendr. Wervik A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-eendr-wervik-b
+    label: "K. Eendr. Wervik B"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-eendr-zoersel-a
+    label: "K. Eendr. Zoersel A"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-eg-gistel
+    label: "K. EG Gistel"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-exc-zedelgem-a
+    label: "K. Exc. Zedelgem A"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-exc-zedelgem-b
+    label: "K. Exc. Zedelgem B"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-heist-a
+    label: "K. FC Heist A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-lendelede-sport
+    label: "K. FC Lendelede Sport"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-lissewege
+    label: "K. FC Lissewege"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-marke-a
+    label: "K. FC Marke A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-marke-b
+    label: "K. FC Marke B"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-pulle
+    label: "K. FC Pulle"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-fc-sint-joris-sp
+    label: "K. FC Sint-Joris Sp."
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-meulebeke
+    label: "K. FC. Meulebeke"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-gooreind-vv-a
+    label: "K. Gooreind VV A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-heibos-sv-a
+    label: "K. Heibos SV A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-heibos-sv-b
+    label: "K. Heibos SV B"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-kalmthout-sk-a
+    label: "K. Kalmthout SK A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-kontich-fc-a
+    label: "K. Kontich FC A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-kontich-fc-b
+    label: "K. Kontich FC B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-lindelhoeven-vv-a
+    label: "K. Lindelhoeven VV A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-lindelhoeven-vv-b
+    label: "K. Lindelhoeven VV B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-meerle-fc
+    label: "K. Meerle FC"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-merksplas-sk
+    label: "K. Merksplas SK"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-nieuwmoer-fc-b
+    label: "K. Nieuwmoer FC B"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-noordstar-vv
+    label: "K. Noordstar VV"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-ramsel-fc
+    label: "K. Ramsel FC"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-rc-bissegem
+    label: "K. RC Bissegem"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sassp-boezinge-a
+    label: "K. Sassp. Boezinge A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-schelle-sp-a
+    label: "K. Schelle Sp. A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-sint-job-fc-a
+    label: "K. Sint Job FC A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-sint-job-fc-b
+    label: "K. Sint Job FC B"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-sint-eloois-winkel-sp
+    label: "K. Sint-Eloois-Winkel Sp."
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sk-beveren-leie-b
+    label: "K. SK Beveren-Leie B"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sk-geluwe
+    label: "K. SK Geluwe"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sk-wenduine
+    label: "K. SK Wenduine"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-skv-zwevezele
+    label: "K. SKV Zwevezele"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sp-club-blankenberge-b
+    label: "K. Sp. Club Blankenberge B"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sp-tisselt-a
+    label: "K. Sp. Tisselt A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-sv-bredene-b
+    label: "K. SV Bredene B"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sv-de-ruiter-roes-a
+    label: "K. SV De Ruiter Roes. A"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sv-de-ruiter-roes-b
+    label: "K. SV De Ruiter Roes. B"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sv-jabbeke-a
+    label: "K. SV Jabbeke A"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sv-jabbeke-b
+    label: "K. SV Jabbeke B"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sv-moorsele-a
+    label: "K. SV Moorsele A"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sv-veurne-a
+    label: "K. SV Veurne A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sv-veurne-b
+    label: "K. SV Veurne B"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-tub-borgerhout
+    label: "K. Tub. Borgerhout"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-vc-ardooie-a
+    label: "K. VC Ardooie A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-vc-wingene-a
+    label: "K. VC Wingene A"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-vc-wingene-b
+    label: "K. VC Wingene B"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-velm-vv-a
+    label: "K. Velm VV A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-velm-vv-b
+    label: "K. Velm VV B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-vk-avelgem-a
+    label: "K. VK Avelgem A"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-vk-avelgem-b
+    label: "K. VK Avelgem B"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-vlimmeren-sp
+    label: "K. Vlimmeren Sp."
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-vp-gits
+    label: "K. VP Gits"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-vrijh-herselt
+    label: "K. Vrijh. Herselt"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-vv-aartrijke
+    label: "K. VV Aartrijke"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-wijnegem-vc-a
+    label: "K. Wijnegem VC A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-wijnegem-vc-b
+    label: "K. Wijnegem VC B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-ws-houthulst-b
+    label: "K. WS Houthulst B"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-ws-oudenburg
+    label: "K. WS Oudenburg"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-wuustwezel-fc-a
+    label: "K. Wuustwezel FC A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-wuustwezel-fc-b
+    label: "K. Wuustwezel FC B"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-z-dentergem
+    label: "K. Z. Dentergem"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-zandhoven-sk-a
+    label: "K. Zandhoven SK A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-zandhoven-sk-b
+    label: "K. Zandhoven SK B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-zwal-olmen
+    label: "K. Zwal. Olmen"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-b-s-k-retie
+    label: "K.B.S.K. Retie"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-del-londerzeel-a
+    label: "K.Del.Londerzeel A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-del-londerzeel-b
+    label: "K.Del.Londerzeel B"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-dns-heule-b
+    label: "K.dNS Heule B"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-esk-leopoldsburg-a
+    label: "K.ESK Leopoldsburg A"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-esk-leopoldsburg-b
+    label: "K.ESK Leopoldsburg B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-eur-90-kraainem-a
+    label: "K.Eur.90 Kraainem A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-f-smeermaas
+    label: "K.F. Smeermaas"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-f-c-arendonk-sport
+    label: "K.F.C. Arendonk Sport"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-f-c-eeklo
+    label: "K.F.C. Eeklo"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-f-c-houtvenne-b
+    label: "K.F.C. Houtvenne B"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-f-c-moen
+    label: "K.F.C. Moen"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-f-c-putte-a
+    label: "K.F.C. Putte A"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-f-c-putte-b
+    label: "K.F.C. Putte B"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-f-c-zammel
+    label: "K.F.C. Zammel"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-fc-aarsele
+    label: "K.FC Aarsele"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-anadol-a
+    label: "K.FC Anadol A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-fc-anadol-b
+    label: "K.FC Anadol B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-fc-hamont-99-a
+    label: "K.FC Hamont 99 A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-fc-hamont-99-b
+    label: "K.FC Hamont 99 B"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-fc-lichtervelde
+    label: "K.FC Lichtervelde"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-fc-poppel
+    label: "K.FC Poppel"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-halle-vv
+    label: "K.Halle VV."
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-ol-wijgmaal-a
+    label: "K.Ol.Wijgmaal A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-ol-wijgmaal-b
+    label: "K.Ol.Wijgmaal B"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-r-c-waregem-a
+    label: "K.R.C. Waregem A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-r-c-waregem-b
+    label: "K.R.C. Waregem B"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-c-mechelen
+    label: "K.S.C. Mechelen"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-s-c-wielsbeke
+    label: "K.S.C. Wielsbeke"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-vlamertinge-a
+    label: "K.S.K Vlamertinge A"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-vlamertinge-b
+    label: "K.S.K Vlamertinge B"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-beveren
+    label: "K.S.K. Beveren"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-meldert
+    label: "K.S.K. Meldert"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-s-k-oostnieuwkerke
+    label: "K.S.K. Oostnieuwkerke"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-oudegem-a
+    label: "K.S.K. Oudegem A"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-sint-amands-a
+    label: "K.S.K. Sint-Amands A"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-s-k-sint-amands-b
+    label: "K.S.K. Sint-Amands B"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-s-k-snaaskerke
+    label: "K.S.K. Snaaskerke"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-united-geraardsbergen
+    label: "K.S.K. United Geraardsbergen"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-k-wavria-a
+    label: "K.S.K. Wavria A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-s-k-wavria-b
+    label: "K.S.K. Wavria B"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-s-v-oostkamp-b
+    label: "K.S.V. Oostkamp B"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-s-v-pittem
+    label: "K.S.V. Pittem"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-sp-wijchmaal
+    label: "K.Sp. Wijchmaal"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-st-elen-a
+    label: "K.St. Elen A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-st-elen-b
+    label: "K.St. Elen B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-st-drieslinter-a
+    label: "K.St.Drieslinter A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-st-drieslinter-b
+    label: "K.St.Drieslinter B"
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-st-haasrode-a
+    label: "K.St.Haasrode A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-st-haasrode-b
+    label: "K.St.Haasrode B"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: k-v-v-vlug-en-vrij-stokkem-a
+    label: "K.V.V. Vlug & Vrij Stokkem A"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-v-v-vlug-en-vrij-stokkem-b
+    label: "K.V.V. Vlug & Vrij Stokkem B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-vc-deerlijk-sport
+    label: "K.VC Deerlijk Sport"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-vv-duffel
+    label: "K.VV Duffel"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: k-w-s-club-lauwe-b
+    label: "K.W.S. Club Lauwe B"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: k-waterloos-voorshoven-vv
+    label: "K.Waterloos-Voorshoven VV"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-wik-eine-a
+    label: "K.WIK Eine A"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-wik-eine-b
+    label: "K.WIK Eine B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: k-zw-fc-wiemismeer-zutend-a
+    label: "K.Zw.FC.Wiemismeer Zutend A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: k-zw-fc-wiemismeer-zutend-b
+    label: "K.Zw.FC.Wiemismeer Zutend B"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ka-goetsenhoven
+    label: KA.Goetsenhoven
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kab-opglabbeek-a
+    label: "Kab. Opglabbeek A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kac-betekom-b
+    label: "KAC.Betekom B"
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kadijk-sk-a
+    label: "Kadijk SK A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kadijk-sk-b
+    label: "Kadijk SK B"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kattenbos-sport
+    label: "Kattenbos Sport"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kaulille-fc
+    label: "Kaulille FC"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kav-dendermonde
+    label: "KAV Dendermonde"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kcs-machelen-a
+    label: "KCS.Machelen A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kcvv-elewijt-b
+    label: "KCVV.Elewijt B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kesa-bottelare
+    label: "KESA Bottelare"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kessel-united
+    label: "Kessel United"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfac-waarschoot
+    label: "KFAC Waarschoot"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-aalbeke-sport-a
+    label: "KFC Aalbeke Sport A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-aalbeke-sport-b
+    label: "KFC Aalbeke Sport B"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-antonia-a
+    label: "KFC Antonia A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-antonia-b
+    label: "KFC Antonia B"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-berendrecht-sp
+    label: "KFC Berendrecht Sp."
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-berlaar-heikant-b
+    label: "KFC Berlaar-Heikant B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-broechem
+    label: "KFC Broechem"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-damme
+    label: "KFC Damme"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-de-kempen-tl-b
+    label: "KFC De Kempen TL B"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-dessel-sp-b
+    label: "KFC Dessel Sp. B"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-doomkerke
+    label: "KFC Doomkerke"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-edeboys
+    label: "KFC Edeboys"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-eendr-zele
+    label: "KFC Eendr Zele"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-eksaarde
+    label: "KFC Eksaarde"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-evergem-center
+    label: "KFC Evergem Center"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-exc-bouwel
+    label: "KFC Exc. Bouwel"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-ezaart-sp
+    label: "KFC Ezaart Sp."
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-flandria
+    label: "KFC Flandria"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-grobbendonk
+    label: "KFC Grobbendonk"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-ham-united
+    label: "KFC Ham United"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kfc-heidebl-pulderbos
+    label: "KFC Heidebl. Pulderbos"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-heikant-zele-a
+    label: "KFC Heikant Zele A"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-helson-helchteren-a
+    label: "KFC Helson Helchteren A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kfc-helson-helchteren-b
+    label: "KFC Helson Helchteren B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kfc-heultje
+    label: "KFC Heultje"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-kerksken-haaltert
+    label: "KFC Kerksken-Haaltert"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-kluisbergen
+    label: "KFC Kluisbergen"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-lentezon-beerse
+    label: "KFC Lentezon Beerse"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-lint
+    label: "KFC Lint"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-meer
+    label: "KFC Meer"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-moerbeke
+    label: "KFC Moerbeke"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-mol
+    label: "KFC Mol"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-nijlen-b
+    label: "KFC Nijlen B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-petegem-a-schelde
+    label: "KFC Petegem a Schelde"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-poperinge
+    label: "KFC Poperinge"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-ranst-a
+    label: "KFC Ranst A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-ranst-b
+    label: "KFC Ranst B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-sp-st-gillis-waas
+    label: "KFC Sp St-Gillis Waas"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-st-kruis-w
+    label: "KFC St-Kruis-W"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-st-mart-halle
+    label: "KFC St. Mart. Halle"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-verbr-alberta
+    label: "KFC Verbr. Alberta"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-volh-wintam-a
+    label: "KFC Volh. Wintam A"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-voorde-appelterre-b
+    label: "KFC Voorde-Appelterre B"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-vrasene
+    label: "KFC Vrasene"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfc-wambeek-ternat-b
+    label: "KFC Wambeek Ternat B"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-wechelderzande
+    label: "KFC Wechelderzande"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-zwarte-leeuw-a
+    label: "KFC Zwarte Leeuw A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-zwarte-leeuw-b
+    label: "KFC Zwarte Leeuw B"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-av-lembeek-a
+    label: "KFC.Av.Lembeek A"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-baal-a
+    label: "KFC.Baal A"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-eppegem-a
+    label: "KFC.Eppegem A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-eppegem-b
+    label: "KFC.Eppegem B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-herent-b
+    label: "KFC.Herent B"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-ko-begijnendijk
+    label: KFC.KO.Begijnendijk
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-lennik-a
+    label: "KFC.Lennik A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-lennik-b
+    label: "KFC.Lennik B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-meise-a
+    label: "KFC.Meise A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-meise-b
+    label: "KFC.Meise B"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-muizen
+    label: KFC.Muizen
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kfc-mz-tollembeek
+    label: KFC.MZ.Tollembeek
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-rap-wezemaal
+    label: KFC.Rap.Wezemaal
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-rhodienne-de-hoek-a
+    label: "KFC.Rhodienne-De Hoek A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-rhodienne-de-hoek-b
+    label: "KFC.Rhodienne-De Hoek B"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-werchter-a
+    label: "KFC.Werchter A"
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfc-werchter-b
+    label: "KFC.Werchter B"
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kfcb-lierde-everbeek-a
+    label: "KFCB Lierde-Everbeek A"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfcb-lierde-everbeek-b
+    label: "KFCB Lierde-Everbeek B"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfce-balgerhoeke
+    label: "KFCE Balgerhoeke"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfce-belzele-evergem
+    label: "KFCE Belzele Evergem"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfch-sinaai
+    label: "KFCH Sinaai"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfcho-kalken-b
+    label: "KFCHO Kalken B"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfcj-schoonaarde-b
+    label: "KFCJ Schoonaarde B"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfcjv-kruibeke-a
+    label: "KFCJV Kruibeke A"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kfv-hedes-heusden-destelbergen-a
+    label: "KFV HEDES Heusden-Destelbergen A"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kho-huizingen-a
+    label: "KHO.Huizingen A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kho-huizingen-b
+    label: "KHO.Huizingen B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kluisbergen-sp
+    label: "Kluisbergen Sp"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kluisbergen-sp-b
+    label: "Kluisbergen Sp B"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: km-torhout-b
+    label: "KM Torhout B"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kmr-biesen-a
+    label: "KMR Biesen A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kmr-biesen-b
+    label: "KMR Biesen B"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: knv-keerbergen
+    label: KNV.Keerbergen
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kofc-rupelmonde
+    label: "KOFC Rupelmonde"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: koninklijke-fff-haren
+    label: "Koninklijke FFF Haren"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: koninklijke-haacht-united-a
+    label: "Koninklijke Haacht United A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: koninklijke-haacht-united-b
+    label: "Koninklijke Haacht United B"
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: korbeek-sp
+    label: "Korbeek Sp."
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kortessemse-vv-a
+    label: "Kortessemse VV A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kortessemse-vv-b
+    label: "Kortessemse VV B"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: krc-peer-a
+    label: "KRC Peer A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: krc-peer-b
+    label: "KRC Peer B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ksc-maccabi
+    label: "KSC Maccabi"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksc-grimbergen-a
+    label: "KSC.Grimbergen A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ksc-grimbergen-b
+    label: "KSC.Grimbergen B"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ksc-keerbergen
+    label: KSC.Keerbergen
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kscds-moorsel
+    label: "KSCDS Moorsel"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksce-mariakerke
+    label: "KSCE Mariakerke"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kscw-hofstade
+    label: "KSCW Hofstade"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksk-ekeren-donk
+    label: "KSK Ekeren Donk"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksk-heist-b
+    label: "KSK Heist B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksk-kallo
+    label: "KSK Kallo"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksk-kasterlee
+    label: "KSK Kasterlee"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksk-kieldrecht
+    label: "KSK Kieldrecht"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksk-klinge
+    label: "KSK Klinge"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksk-meeuwen-a
+    label: "KSK Meeuwen A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ksk-meeuwen-b
+    label: "KSK Meeuwen B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ksk-oelegem
+    label: "KSK Oelegem"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksk-oosthoven
+    label: "KSK Oosthoven"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksk-vlierzele
+    label: "KSK Vlierzele"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksk-weelde
+    label: "KSK Weelde"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksk-zingem-a
+    label: "KSK Zingem A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksk-zingem-b
+    label: "KSK Zingem B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksks-herentals
+    label: "KSKS Herentals"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksoc-maria-ter-heide
+    label: "KSOC Maria Ter Heide"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kssv-denderleeuw
+    label: "KSSV Denderleeuw"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksv-bornem-a
+    label: "KSV Bornem A"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksv-bornem-b
+    label: "KSV Bornem B"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksv-kortrijk
+    label: "KSV Kortrijk"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: ksv-maarkedal-b
+    label: "KSV Maarkedal B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ksv-oud-turnhout
+    label: "KSV Oud Turnhout"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksv-schriek
+    label: "KSV Schriek"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksv-wildert
+    label: "KSV Wildert"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: ksvk-maldegem
+    label: "KSVK Maldegem"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kv-bonheiden-b
+    label: "KV Bonheiden B"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kv-koksijde-oostduinkerke-a
+    label: "KV Koksijde Oostduinkerke A"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: kv-sint-gillis
+    label: "KV Sint-Gillis"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kv-tervuren-duisburg-a
+    label: "KV.Tervuren-Duisburg A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kv-tervuren-duisburg-b
+    label: "KV.Tervuren-Duisburg B"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kv-tremelo
+    label: KV.Tremelo
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kv-woluwe-zaventem-b
+    label: "KV.Woluwe-Zaventem B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kv-zuun-a
+    label: "KV.Zuun A"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kv-zuun-b
+    label: "KV.Zuun B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvc-booischot
+    label: "KVC Booischot"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvc-lille-united-b
+    label: "KVC Lille United B"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvc-melle
+    label: "KVC Melle"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvc-oostmalle
+    label: "KVC Oostmalle"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvc-wilrijk-b
+    label: "KVC Wilrijk B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvc-asse-terheide-a
+    label: "KVC.Asse-Terheide A"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvc-kessel-lo-2000-b
+    label: "KVC.Kessel-Lo 2000 B"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvc-langdorp
+    label: KVC.Langdorp
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvc-linkebeek
+    label: KVC.Linkebeek
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvc-sterrebeek-a
+    label: "KVC.Sterrebeek A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvc-sterrebeek-b
+    label: "KVC.Sterrebeek B"
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvcdt-borsbeke
+    label: "KVCDT Borsbeke"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvce-nieuwerkerken
+    label: "KVCE Nieuwerkerken"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kve-drongen-b
+    label: "KVE Drongen B"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kve-winnik-a
+    label: "KVE Winnik A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kve-winnik-b
+    label: "KVE Winnik B"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvk-hingene
+    label: "KVK Hingene"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvk-robur-hamme-moerzeke
+    label: "KVK Robur Hamme-Moerzeke"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvk-westmalle
+    label: "KVK Westmalle"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvk-wemmel-b
+    label: "KVK.Wemmel B"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvks-melsele-a
+    label: "KVKS Melsele A"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvks-melsele-b
+    label: "KVKS Melsele B"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvv-heusden-zolder-a
+    label: "KVV Heusden-Zolder A"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kvv-heusden-zolder-b
+    label: "KVV Heusden-Zolder B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kvv-laarne-kalken-a
+    label: "KVV Laarne-Kalken A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvv-laarne-kalken-b
+    label: "KVV Laarne-Kalken B"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvv-og-vorselaar-a
+    label: "KVV OG Vorselaar A"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvv-og-vorselaar-b
+    label: "KVV OG Vorselaar B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvv-rauw-sp
+    label: "KVV Rauw Sp."
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: kvv-st-denijs-sp-b
+    label: "KVV St-Denijs Sp B"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvv-windeke
+    label: "KVV Windeke"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvv-zepperen-brustem-b
+    label: "KVV Zepperen-Brustem B"
+    divisionKeys: [limburg-p4a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: kvv-zomergem
+    label: "KVV Zomergem"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvv-kester-gooik-a
+    label: "KVV.Kester-Gooik A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvv-kester-gooik-b
+    label: "KVV.Kester-Gooik B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: kvve-massemen-a
+    label: "KVVE Massemen A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvvht-zwijnaarde-a
+    label: "KVVHT Zwijnaarde A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvvht-zwijnaarde-b
+    label: "KVVHT Zwijnaarde B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvvk-bassevelde
+    label: "KVVK Bassevelde"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvvs-sersk-schellebelle-a
+    label: "KVVS Sersk-Schellebelle A"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvvs-sersk-schellebelle-b
+    label: "KVVS Sersk-Schellebelle B"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: kvz-glabbeek-zuurbemde
+    label: "KVZ.Glabbeek Zuurbemde"
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: l-teralfene-a
+    label: "L.Teralfene A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: lanaken-vv-a
+    label: "Lanaken VV A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: lanaken-vv-b
+    label: "Lanaken VV B"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: lanklaar-vv
+    label: "Lanklaar VV"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: leeuw-brucom-a
+    label: "Leeuw Brucom A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: leeuw-brucom-b
+    label: "Leeuw Brucom B"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: loenhout-sk-a
+    label: "Loenhout SK A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: loenhout-sk-b
+    label: "Loenhout SK B"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: londerzeel-united
+    label: "Londerzeel United"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ls-leut
+    label: "LS Leut"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ls-merendree-a
+    label: "LS Merendree A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ls-merendree-b
+    label: "LS Merendree B"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: lutlommel-vv-a
+    label: "Lutlommel VV A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: lutlommel-vv-b
+    label: "Lutlommel VV B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: md-halen
+    label: "MD Halen"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: meensel-kiezegem
+    label: Meensel-Kiezegem
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: membruggen-v-en-v
+    label: "Membruggen V&V"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: merchtem-united-a
+    label: "Merchtem United A"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: merchtem-united-b
+    label: "Merchtem United B"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: merkem-sp
+    label: "Merkem Sp."
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: minderhout-vv-a
+    label: "Minderhout VV A"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: minderhout-vv-b
+    label: "Minderhout VV B"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: n-gruitrode-a
+    label: "N. Gruitrode A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: n-gruitrode-b
+    label: "N. Gruitrode B"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: neeroeteren-fc-a
+    label: "Neeroeteren FC A"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: neeroeteren-fc-b
+    label: "Neeroeteren FC B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: nielse-sv
+    label: "Nielse SV"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: nova-asse-mollem-a
+    label: "NOVA Asse-Mollem A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: nsvd-handzame
+    label: "NSVD Handzame"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: og-stasegem
+    label: "OG Stasegem"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: ohr-huldenberg-b
+    label: "OHR.Huldenberg B"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ol-ledegem
+    label: "Ol. Ledegem"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: olsa-nederbrakel
+    label: "Olsa Nederbrakel"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: oostakker-azalea
+    label: "Oostakker - Azalea"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: opitter-fc
+    label: "Opitter FC"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: park-houthalen-a
+    label: "Park Houthalen A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: park-houthalen-b
+    label: "Park Houthalen B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: pd-kruibeke
+    label: "PD Kruibeke"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: perk-steenokkerzeel-v-1820-a
+    label: "Perk Steenokkerzeel V. 1820 A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: perk-steenokkerzeel-v-1820-b
+    label: "Perk Steenokkerzeel V. 1820 B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: peutie-fc
+    label: "Peutie FC"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: r-cappellen-fc-b
+    label: "R. Cappellen FC B"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: r-dottignies-sp
+    label: "R. Dottignies Sp."
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: r-three-stars-club-proven
+    label: "R. Three Stars Club Proven"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: r-f-c-goalgetters-sint-laureins-a
+    label: "R.F.C. Goalgetters Sint-Laureins A"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: r-f-c-goalgetters-sint-laureins-b
+    label: "R.F.C. Goalgetters Sint-Laureins B"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: r-j-h-comines-b
+    label: "R.J.H. Comines B"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: rangers-opdorp-b
+    label: "Rangers Opdorp B"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: rb-elzestraat
+    label: "RB Elzestraat"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: rc-hades-kiewit-b
+    label: "RC Hades Kiewit B"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: rc-lauwe
+    label: "RC Lauwe"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: rc-butsel
+    label: RC.Butsel
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: rc-meldert
+    label: RC.Meldert
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: rd-zoutleeuw-a
+    label: "RD.Zoutleeuw A"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: rd-zoutleeuw-b
+    label: "RD.Zoutleeuw B"
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: rdk-gravelo
+    label: "RDK Gravelo"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: rfc-zwaneven
+    label: "RFC Zwaneven"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: riemst-v
+    label: "Riemst V."
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ritterklub-jette-a
+    label: "Ritterklub Jette A"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ritterklub-jette-b
+    label: "Ritterklub Jette B"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: rr-breivelde-zottegem-a
+    label: "RR Breivelde-Zottegem A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: rr-breivelde-zottegem-b
+    label: "RR Breivelde-Zottegem B"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: rupel-boom-b
+    label: "Rupel-Boom B"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: rvc-hoboken
+    label: "RVC Hoboken"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: rw-hollebeke
+    label: "RW Hollebeke"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: rwl-sport-b
+    label: "RWL.Sport B"
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: s-c-t-menen
+    label: "S.C.T. Menen"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: s-k-beersel
+    label: "S.K. Beersel"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: s-k-eernegem-a
+    label: "S.K. Eernegem A"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: s-k-eernegem-b
+    label: "S.K. Eernegem B"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: s-v-wevelgem-city-a
+    label: "S.V. Wevelgem City A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: s-v-wevelgem-city-b
+    label: "S.V. Wevelgem City B"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: s-v-d-kortemark
+    label: "S.V.D. Kortemark"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sc-city-pirates-antwerpen-b
+    label: "SC City Pirates Antwerpen B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sc-oostrozebeke
+    label: "SC Oostrozebeke"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sc-zonnebeke-a
+    label: "SC Zonnebeke A"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sc-zonnebeke-b
+    label: "SC Zonnebeke B"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sc-aarschot-a
+    label: "SC.Aarschot A"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sc-out-hoegaarden-a
+    label: "SC.Out-Hoegaarden A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sc-out-hoegaarden-b
+    label: "SC.Out-Hoegaarden B"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-aaigem
+    label: "SK Aaigem"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-bellem
+    label: "SK Bellem"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-berlare
+    label: "SK Berlare"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-denderhoutem
+    label: "SK Denderhoutem"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-elverdinge
+    label: "SK Elverdinge"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-erembodegem
+    label: "SK Erembodegem"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-herdersem
+    label: "SK Herdersem"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-heusden-06
+    label: "SK Heusden 06"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sk-laar
+    label: "SK Laar"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-lochristi
+    label: "SK Lochristi"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-moelingen
+    label: "SK Moelingen"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sk-munkzwalm-a
+    label: "SK Munkzwalm A"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-munkzwalm-b
+    label: "SK Munkzwalm B"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-munsterbilzen
+    label: "SK Munsterbilzen"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sk-nieuwkapelle
+    label: "SK Nieuwkapelle"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-nieuwkerke
+    label: "SK Nieuwkerke"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-opbrakel
+    label: "SK Opbrakel"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-reningelst
+    label: "SK Reningelst"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-rita-berlaar
+    label: "SK Rita Berlaar"
+    divisionKeys: [antwerpen-p3a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sk-sgravenwezel-schilde-a
+    label: "SK sGravenwezel-Schilde A"
+    divisionKeys: [antwerpen-p2a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sk-sgravenwezel-schilde-b
+    label: "SK sGravenwezel-Schilde B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sk-staden
+    label: "SK Staden"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-vinderhoute
+    label: "SK Vinderhoute"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-vlaamse-ardennen-a
+    label: "SK Vlaamse Ardennen A"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-vlaamse-ardennen-b
+    label: "SK Vlaamse Ardennen B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-vliermaalroot
+    label: "SK Vliermaalroot"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sk-wachtebeke
+    label: "SK Wachtebeke"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-westrozebeke
+    label: "SK Westrozebeke"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-wichelen
+    label: "SK Wichelen"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-zillebeke
+    label: "SK Zillebeke"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sk-deurne
+    label: SK.Deurne
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-nossegem-a
+    label: "SK.Nossegem A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-nossegem-b
+    label: "SK.Nossegem B"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-oetingen-vc-a
+    label: "SK.Oetingen VC A"
+    divisionKeys: [vlaams-brabant-p3a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-oetingen-vc-b
+    label: "SK.Oetingen VC B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-pepingen-halle-a
+    label: "SK.Pepingen-Halle A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-pepingen-halle-b
+    label: "SK.Pepingen-Halle B"
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-plenke-werchter
+    label: "SK.Plenke Werchter"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-rummen
+    label: SK.Rummen
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-steenhuffel-a
+    label: "SK.Steenhuffel A"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-steenhuffel-b
+    label: "SK.Steenhuffel B"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-vlezenbeek
+    label: SK.Vlezenbeek
+    divisionKeys: [vlaams-brabant-p4a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sk-waanrode
+    label: SK.Waanrode
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: skl-doorslaar-a
+    label: "SKL Doorslaar A"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: skl-doorslaar-b
+    label: "SKL Doorslaar B"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: slw-maaseik-a
+    label: "SLW Maaseik A"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: slw-maaseik-b
+    label: "SLW Maaseik B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sms-lubbeek-a
+    label: "SMS.Lubbeek A"
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sms-lubbeek-b
+    label: "SMS.Lubbeek B"
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sp-moerbeke-g-bergen
+    label: "Sp Moerbeke-G'bergen"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sp-wortegem
+    label: "Sp Wortegem"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sp-burcht-fc
+    label: "Sp. Burcht FC"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sp-dikkebus
+    label: "Sp. Dikkebus"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sp-ellikom
+    label: "Sp. Ellikom"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sp-grote-brogel
+    label: "Sp. Grote Brogel"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sp-kolmont
+    label: "Sp. Kolmont"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sp-kruiseke
+    label: "Sp. Kruiseke"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sp-lille
+    label: "Sp. Lille"
+    divisionKeys: [limburg-p4c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sp-budingen
+    label: Sp.Budingen
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sp-eizeringen
+    label: Sp.Eizeringen
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sp-erps-kwerps
+    label: Sp.Erps-Kwerps
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sp-grote-heide
+    label: "Sp.Grote Heide"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sp-molenbeek
+    label: Sp.Molenbeek
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sp-rotselaar-b
+    label: "Sp.Rotselaar B"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sparta-melsbroek
+    label: "Sparta Melsbroek"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sparta-petegem-deinze-b
+    label: "Sparta Petegem Deinze B"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sparta-schaffen
+    label: "Sparta Schaffen"
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: spartak-buggenhout
+    label: "Spartak Buggenhout"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sporting-calcio-genk
+    label: "Sporting Calcio Genk"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: sporting-club-antwerpen
+    label: "Sporting Club Antwerpen"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sporting-club-schoten
+    label: "Sporting Club Schoten"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sporting-kampenhout-a
+    label: "Sporting Kampenhout A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: sporting-kampenhout-b
+    label: "Sporting Kampenhout B"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: ssd-opoeteren
+    label: "SSD Opoeteren"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: st-michelbeke-a
+    label: "St Michelbeke A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: st-michelbeke-b
+    label: "St Michelbeke B"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: st-muide-gent
+    label: "St Muide Gent"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: st-jozef
+    label: "St. Jozef"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: st-lenaarts-b
+    label: "St. Lenaarts B"
+    divisionKeys: [antwerpen-p4e]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: stal-sport
+    label: "Stal Sport"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ksv-aartselaar
+    label: "SV Aartselaar A"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sv-aartselaar-b
+    label: "SV Aartselaar B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sv-blauw-wit-temse-a
+    label: "SV Blauw Wit Temse A"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-blauw-wit-temse-b
+    label: "SV Blauw Wit Temse B"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-grasheide
+    label: "SV Grasheide"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sv-ingelmunster-a
+    label: "SV Ingelmunster A"
+    divisionKeys: [west-vlaanderen-p1]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-ingelmunster-b
+    label: "SV Ingelmunster B"
+    divisionKeys: [west-vlaanderen-p4e]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-loppem
+    label: "SV Loppem"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-moorslede
+    label: "SV Moorslede"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-noorse
+    label: "SV Noorse"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: sv-sint-antelinks-a
+    label: "SV Sint-Antelinks A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-sottegem-a
+    label: "SV Sottegem A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-sottegem-b
+    label: "SV Sottegem B"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sv-zaffelare
+    label: "SV Zaffelare"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: sve-bazel
+    label: "SVE Bazel"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: svh-waasmunster-a
+    label: "SVH Waasmunster A"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: svh-waasmunster-b
+    label: "SVH Waasmunster B"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: t-bunsbeek
+    label: T.Bunsbeek
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: t-relegem
+    label: T.Relegem
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: thes-sport-tessenderlo-b
+    label: "Thes Sport Tessenderlo B"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: tielt-winge-3000
+    label: "Tielt-Winge 3000"
+    divisionKeys: [vlaams-brabant-p4e]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: tor-deurne-pirates
+    label: "TOR Deurne Pirates"
+    divisionKeys: [antwerpen-p1]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: torpedo-hasselt
+    label: "Torpedo Hasselt"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: turkse-fc-a
+    label: "Turkse FC A"
+    divisionKeys: [limburg-p2a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: turkse-fc-b
+    label: "Turkse FC B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: turkse-rangers
+    label: "Turkse Rangers"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: uikhoven-vc
+    label: "Uikhoven VC"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: umitspor-maasmechelen-b
+    label: "Umitspor Maasmechelen B"
+    divisionKeys: [limburg-p4e]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: unico-tongeren-a
+    label: "UNICO Tongeren A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: unico-tongeren-b
+    label: "UNICO Tongeren B"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: us-ploegsteert
+    label: "US Ploegsteert"
+    divisionKeys: [west-vlaanderen-p4d]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: v-s-herenelderen-a
+    label: "V. 's Herenelderen A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: v-s-herenelderen-b
+    label: "V. 's Herenelderen B"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: v-hofstade
+    label: V.Hofstade
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: v-v-cercle-beernem-a
+    label: "V.V. Cercle Beernem A"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: v-v-cercle-beernem-b
+    label: "V.V. Cercle Beernem B"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: v-v-emelgem-kachtem
+    label: "V.V. Emelgem-Kachtem"
+    divisionKeys: [west-vlaanderen-p2b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-den-boskant-peizegem-a
+    label: "VC Den Boskant Peizegem A"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vc-den-boskant-peizegem-b
+    label: "VC Den Boskant Peizegem B"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vc-herentals
+    label: "VC Herentals"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vc-herzele-ressegem-a
+    label: "VC Herzele-Ressegem A"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-herzele-ressegem-b
+    label: "VC Herzele-Ressegem B"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-immer-oost-oosterwijk
+    label: "VC Immer Oost-Oosterwijk"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vc-jong-lede
+    label: "VC Jong Lede"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-kesselt
+    label: "VC Kesselt"
+    divisionKeys: [limburg-p3c]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vc-mortsel-og-a
+    label: "VC Mortsel OG A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vc-mortsel-og-b
+    label: "VC Mortsel OG B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vc-nazareth-eke-a
+    label: "VC Nazareth-Eke A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-nazareth-eke-b
+    label: "VC Nazareth-Eke B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-nokere-kruishoutem-a
+    label: "VC Nokere-Kruishoutem A"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-nokere-kruishoutem-b
+    label: "VC Nokere-Kruishoutem B"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-olympic-burst-2026
+    label: "VC Olympic Burst 2026"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-rijmenam
+    label: "VC Rijmenam"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vc-westerlo-kemphanen
+    label: "VC Westerlo Kemphanen"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vc-zevergem-sp
+    label: "VC Zevergem Sp"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-zwijnaarde-b
+    label: "VC Zwijnaarde B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vc-bekkevoort
+    label: VC.Bekkevoort
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vc-bertem-leefdaal-a
+    label: "VC.Bertem-Leefdaal A"
+    divisionKeys: [vlaams-brabant-p2b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vc-bertem-leefdaal-b
+    label: "VC.Bertem-Leefdaal B"
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vc-houtem-oplinter
+    label: VC.Houtem-Oplinter
+    divisionKeys: [vlaams-brabant-p4f]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vce-deftinge-a
+    label: "VCE Deftinge A"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vce-deftinge-b
+    label: "VCE Deftinge B"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vce-houtem-a
+    label: "VCE Houtem A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vce-houtem-b
+    label: "VCE Houtem B"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vce-huise-ouwegem
+    label: "VCE Huise-Ouwegem"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vco-meerbeke
+    label: "VCO Meerbeke"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vco-meerbeke-b
+    label: "VCO Meerbeke B"
+    divisionKeys: [oost-vlaanderen-p4e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: verbr-balen
+    label: "Verbr. Balen"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: verbr-lommel
+    label: "Verbr. Lommel"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: verbr-zwijndrecht-a
+    label: "Verbr. Zwijndrecht A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: verbr-zwijndrecht-b
+    label: "Verbr. Zwijndrecht B"
+    divisionKeys: [antwerpen-p4b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: verbroedering-loksbergen
+    label: "Verbroedering Loksbergen"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vilvoorde-city
+    label: "Vilvoorde City"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vj-baardegem
+    label: "VJ Baardegem"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-dudzele
+    label: "VK Dudzele"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-knesselare
+    label: "VK Knesselare"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-langemark-poelkapelle
+    label: "VK Langemark-Poelkapelle"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-nederhasselt-a
+    label: "VK Nederhasselt A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-nederhasselt-b
+    label: "VK Nederhasselt B"
+    divisionKeys: [oost-vlaanderen-p3d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-ninove-b
+    label: "VK Ninove B"
+    divisionKeys: [oost-vlaanderen-p1]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-tielrode
+    label: "VK Tielrode"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-white-boys-sn
+    label: "VK White Boys SN"
+    divisionKeys: [oost-vlaanderen-p2c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-zerkegem-a
+    label: "VK Zerkegem A"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-zerkegem-b
+    label: "VK Zerkegem B"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vk-berg-op
+    label: VK.Berg-Op
+    divisionKeys: [vlaams-brabant-p3c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vk-holsbeek-a
+    label: "VK.Holsbeek A"
+    divisionKeys: [vlaams-brabant-p1]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vk-liedekerke-a
+    label: "VK.Liedekerke A"
+    divisionKeys: [vlaams-brabant-p2a]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vk-liedekerke-b
+    label: "VK.Liedekerke B"
+    divisionKeys: [vlaams-brabant-p4b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vk-linden-b
+    label: "VK.Linden B"
+    divisionKeys: [vlaams-brabant-p4d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vks-hamme-zogge
+    label: "VKS Hamme-Zogge"
+    divisionKeys: [oost-vlaanderen-p3e]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vkw-vleteren
+    label: "VKW Vleteren"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vlijtingen-vv
+    label: "Vlijtingen VV"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vna-wortel
+    label: "VNA Wortel"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vosselaar-vv
+    label: "Vosselaar VV"
+    divisionKeys: [antwerpen-p2b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vroenhoven-vv
+    label: "Vroenhoven VV"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vs-kortenaken
+    label: VS.Kortenaken
+    divisionKeys: [vlaams-brabant-p3d]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vsv-gent-a
+    label: "VSV Gent A"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vsv-gent-b
+    label: "VSV Gent B"
+    divisionKeys: [oost-vlaanderen-p4d]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-alveringem
+    label: "VV Alveringem"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-groot-kapelle-a
+    label: "VV Groot Kapelle A"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vv-groot-kapelle-b
+    label: "VV Groot Kapelle B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: vv-hoeselt-a
+    label: "VV Hoeselt A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vv-hoeselt-b
+    label: "VV Hoeselt B"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vv-koekelare-a
+    label: "VV Koekelare A"
+    divisionKeys: [west-vlaanderen-p2a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-koekelare-b
+    label: "VV Koekelare B"
+    divisionKeys: [west-vlaanderen-p4b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-lummen-a
+    label: "VV Lummen A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vv-lummen-b
+    label: "VV Lummen B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vv-nieuwerkerken
+    label: "VV Nieuwerkerken"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: vv-sp-ursel
+    label: "VV Sp Ursel"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-volkegem-a
+    label: "VV Volkegem A"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-volkegem-b
+    label: "VV Volkegem B"
+    divisionKeys: [oost-vlaanderen-p4b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-westkapelle-a
+    label: "VV Westkapelle A"
+    divisionKeys: [west-vlaanderen-p3a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-westkapelle-b
+    label: "VV Westkapelle B"
+    divisionKeys: [west-vlaanderen-p4c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: vv-next-laakdal-a
+    label: "VV-NEXT Laakdal A"
+    divisionKeys: [antwerpen-p4g]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vv-next-laakdal-b
+    label: "VV-NEXT Laakdal B"
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vve-hansbeke-a
+    label: "VVE Hansbeke A"
+    divisionKeys: [oost-vlaanderen-p3a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vvh-lippelo
+    label: "VVH Lippelo"
+    divisionKeys: [antwerpen-p4a]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: vvsm-horebeke
+    label: "VVSM Horebeke"
+    divisionKeys: [oost-vlaanderen-p2b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: vw-gijzel-oosterzele
+    label: "VW Gijzel-Oosterzele"
+    divisionKeys: [oost-vlaanderen-p3c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: w-idegem
+    label: "W Idegem"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: w-koersel-a
+    label: "W. Koersel A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: w-koersel-b
+    label: "W. Koersel B"
+    divisionKeys: [limburg-p3b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: waterheide-schorvoort-zevendonk
+    label: "Waterheide Schorvoort Zevendonk"
+    divisionKeys: [antwerpen-p3c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: wiekevorst-sp
+    label: "Wiekevorst Sp."
+    divisionKeys: [antwerpen-p4f]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: wik-boekel
+    label: "WIK Boekel"
+    divisionKeys: [oost-vlaanderen-p3b]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: wk-st-goriks
+    label: "WK St-Goriks"
+    divisionKeys: [oost-vlaanderen-p4c]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ws-bellegem
+    label: "WS Bellegem"
+    divisionKeys: [west-vlaanderen-p3c]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: ws-bulskamp
+    label: "WS Bulskamp"
+    divisionKeys: [west-vlaanderen-p4a]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
+  - key: ws-linkhout-a
+    label: "WS Linkhout A"
+    divisionKeys: [limburg-p2b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ws-linkhout-b
+    label: "WS Linkhout B"
+    divisionKeys: [limburg-p4b]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: ws-meerdonk
+    label: "WS Meerdonk"
+    divisionKeys: [oost-vlaanderen-p4f]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: ws-schoonbeek-bilzen-b
+    label: "WS Schoonbeek-Bilzen B"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: wsl-lotenhulle
+    label: "WSL Lotenhulle"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: zandvliet-sport-a
+    label: "Zandvliet Sport A"
+    divisionKeys: [antwerpen-p3b]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: zandvliet-sport-b
+    label: "Zandvliet Sport B"
+    divisionKeys: [antwerpen-p4c]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: zemst-sp-a
+    label: "Zemst Sp. A"
+    divisionKeys: [vlaams-brabant-p3b]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: zemst-sp-b
+    label: "Zemst Sp. B"
+    divisionKeys: [vlaams-brabant-p4c]
+    provinceKey: vlaams-brabant
+    active: true
+    aliases: []
+  - key: zenn-hombeek
+    label: "Zenn. Hombeek"
+    divisionKeys: [antwerpen-p4d]
+    provinceKey: antwerpen
+    active: true
+    aliases: []
+  - key: zeveren-sp-a
+    label: "Zeveren Sp A"
+    divisionKeys: [oost-vlaanderen-p2a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: zeveren-sp-b
+    label: "Zeveren Sp B"
+    divisionKeys: [oost-vlaanderen-p4a]
+    provinceKey: oost-vlaanderen
+    active: true
+    aliases: []
+  - key: zonhoven-united-a
+    label: "Zonhoven United A"
+    divisionKeys: [limburg-p1]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: zutendaal-vv-a
+    label: "Zutendaal VV A"
+    divisionKeys: [limburg-p3a]
+    provinceKey: limburg
+    active: true
+    aliases: []
+  - key: zutendaal-vv-b
+    label: "Zutendaal VV B"
+    divisionKeys: [limburg-p4d]
+    provinceKey: limburg
     active: true
     aliases: []

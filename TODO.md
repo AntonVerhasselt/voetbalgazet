@@ -187,10 +187,10 @@ Explainer: [`plan/11-pipeline-data-structure-explained.md`](./plan/11-pipeline-d
 
 ### Blocking real agent coverage
 
-- [ ] **Supply Neon `series.id` for all remaining reeksen** (today only Antwerp
-  seed is mapped: `CHP_130005`, `CHP_136335`, `CHP_134688`). Then extend only
-  `KNOWN_NEON_SERIES` in `convex/lib/neonSeriesMap.ts`. Public keys stay
-  readable — never use `CHP_*` as UI / signup / pipeline keys.  
+- [x] **Supply Neon `series.id` for all remaining reeksen** — imported from Neon
+  (63 provincial + 76 cup/other mapped). Signup catalog = provincial only;
+  research map = all series. Script: `scripts/import-neon-taxonomy.ts`.
+  Public keys stay readable — never use `CHP_*` as UI / signup / pipeline keys.
   See [`plan/06-open-questions.md`](./plan/06-open-questions.md).
 - [ ] **Deploy Eve + AI Gateway** and set Convex env for real research:
   - `EVE_AGENT_URL`

@@ -60,15 +60,15 @@ Only the generate trigger for the **busy division** is disabled. Other divisions
 
 ## Follow-up todos
 
-### TODO — Map all Neon series ids (blocked on Anton)
+### TODO — Map all Neon series ids ✅ done (2026-07-22)
 
-**Owner input needed:** Anton provides the Neon `series.id` values for **all** remaining reeksen (today only Antwerp seed is mapped: `CHP_130005`, `CHP_136335`, `CHP_134688`).
+Neon seed imported via `scripts/import-neon-taxonomy.ts`:
+- Signup / preference catalog: **63 provincial** competitions (cups excluded)
+- Research map (`KNOWN_NEON_SERIES`): **all 139** Neon series with readable public keys
+- Teams: **815** provincial `series_teams` rows → Convex `teams`
 
-**When those ids arrive, update the mapping only — public keys stay readable:**
-
-1. Extend `KNOWN_NEON_SERIES` in `convex/lib/neonSeriesMap.ts` (`publicKey` ↔ `neonSeriesId`)
-2. Add any missing **readable** catalog/YAML keys if a Neon series has no public key yet (never use `CHP_*` as `externalKey` / signup key / pipeline UI key)
-3. Dry-run → confirm → sync taxonomy labels if needed
-4. Agent SQL / Eve prompts keep using `neonSeriesIdForDivision(publicKey)`
-
-Until then: unmapped reeksen keep readable placeholders without a Neon id.
+Re-run after Neon changes:
+```bash
+npx tsx scripts/import-neon-taxonomy.ts --dry-run
+CONFIRM_NEON_TAXONOMY_IMPORT=1 npx tsx scripts/import-neon-taxonomy.ts --execute --sync-convex
+```

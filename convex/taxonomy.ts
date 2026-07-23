@@ -457,3 +457,298 @@ export const remapDivisionKeysToNeonInternal = internalMutation({
     };
   },
 });
+
+/**
+ * Hard-delete inactive divisions/teams that are no longer in the catalog,
+ * after scrubbing subscriber / audience / contact / pipeline references.
+ *
+ * Dry-run (default): report what would be removed.
+ * Execute: CONFIRM_TAXONOMY_PURGE=1 via CLI script, or pass execute:true.
+ */
+export const purgeInactiveTaxonomyInternal = internalMutation({
+  args: {
+    execute: v.boolean(),
+  },
+  returns: v.object({
+    execute: v.boolean(),
+    inactiveDivisions: v.array(
+      v.object({
+        id: v.id("divisions"),
+        externalKey: v.string(),
+        label: v.string(),
+      }),
+    ),
+    inactiveTeams: v.array(
+      v.object({
+        id: v.id("teams"),
+        externalKey: v.string(),
+        label: v.string(),
+      }),
+    ),
+    subscribersScrubbed: v.number(),
+    preferenceRowsDeleted: v.number(),
+    audienceDefsScrubbed: v.number(),
+    activeTeamsDivisionIdsScrubbed: v.number(),
+    contactsScrubbed: v.number(),
+    pipelineRunsScrubbed: v.number(),
+    pipelineArticlesScrubbed: v.number(),
+    divisionsDeleted: v.number(),
+    teamsDeleted: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    const catalogDivisionKeys: ReadonlySet<string> = new Set(
+      divisionOptions.map((d) => d.key),
+    );
+    const catalogTeamKeys: ReadonlySet<string> = new Set(
+      teamOptions.map((t) => t.key),
+    );
+
+    const allDivisions = await ctx.db.query("divisions").collect();
+    const allTeams = await ctx.db.query("teams").collect();
+
+    // Inactive OR orphaned (active but no longer in catalog — should not happen
+    // after sync, but include for safety).
+    const doomedDivisions = allDivisions.filter(
+      (row) => !row.active || !catalogDivisionKeys.has(row.externalKey),
+    );
+    const doomedTeams = allTeams.filter(
+      (row) => !row.active || !catalogTeamKeys.has(row.externalKey),
+    );
+
+    const doomedDivisionIds = new Set(doomedDivisions.map((d) => d._id));
+    const doomedTeamIds = new Set(doomedTeams.map((t) => t._id));
+    const doomedDivisionKeys = new Set(
+      doomedDivisions.map((d) => d.externalKey),
+    );
+
+    const inactiveDivisions = doomedDivisions.map((d) => ({
+      id: d._id,
+      externalKey: d.externalKey,
+      label: d.label,
+    }));
+    const inactiveTeams = doomedTeams.map((t) => ({
+      id: t._id,
+      externalKey: t.externalKey,
+      label: t.label,
+    }));
+
+    let subscribersScrubbed = 0;
+    let preferenceRowsDeleted = 0;
+    let audienceDefsScrubbed = 0;
+    let activeTeamsDivisionIdsScrubbed = 0;
+    let contactsScrubbed = 0;
+    let pipelineRunsScrubbed = 0;
+    let pipelineArticlesScrubbed = 0;
+    let divisionsDeleted = 0;
+    let teamsDeleted = 0;
+
+    if (!args.execute) {
+      // Estimate subscriber impact without writes
+      const subscribers = await ctx.db.query("subscribers").collect();
+      for (const subscriber of subscribers) {
+        const hasDoomedDivision = subscriber.divisionIds.some((id) =>
+          doomedDivisionIds.has(id),
+        );
+        const hasDoomedTeam =
+          subscriber.favoriteTeamId !== undefined &&
+          doomedTeamIds.has(subscriber.favoriteTeamId);
+        if (hasDoomedDivision || hasDoomedTeam) {
+          subscribersScrubbed += 1;
+        }
+      }
+      const prefs = await ctx.db
+        .query("subscriberDivisionPreferences")
+        .collect();
+      for (const pref of prefs) {
+        if (doomedDivisionIds.has(pref.divisionId)) {
+          preferenceRowsDeleted += 1;
+        }
+      }
+      return {
+        execute: false,
+        inactiveDivisions,
+        inactiveTeams,
+        subscribersScrubbed,
+        preferenceRowsDeleted,
+        audienceDefsScrubbed: 0,
+        activeTeamsDivisionIdsScrubbed: 0,
+        contactsScrubbed: 0,
+        pipelineRunsScrubbed: 0,
+        pipelineArticlesScrubbed: 0,
+        divisionsDeleted: 0,
+        teamsDeleted: 0,
+      };
+    }
+
+    // 1) Scrub subscribers
+    const subscribers = await ctx.db.query("subscribers").collect();
+    for (const subscriber of subscribers) {
+      const nextDivisionIds = subscriber.divisionIds.filter(
+        (id) => !doomedDivisionIds.has(id),
+      );
+      const clearFavorite =
+        subscriber.favoriteTeamId !== undefined &&
+        doomedTeamIds.has(subscriber.favoriteTeamId);
+      const divisionsChanged =
+        nextDivisionIds.length !== subscriber.divisionIds.length;
+      if (divisionsChanged || clearFavorite) {
+        await ctx.db.patch(subscriber._id, {
+          divisionIds: nextDivisionIds,
+          ...(clearFavorite ? { favoriteTeamId: undefined } : {}),
+        });
+        subscribersScrubbed += 1;
+      }
+    }
+
+    // 2) Delete preference projection rows
+    const prefs = await ctx.db
+      .query("subscriberDivisionPreferences")
+      .collect();
+    for (const pref of prefs) {
+      if (doomedDivisionIds.has(pref.divisionId)) {
+        await ctx.db.delete(pref._id);
+        preferenceRowsDeleted += 1;
+      }
+    }
+
+    // 3) Scrub newsletter audience definitions
+    const audiences = await ctx.db
+      .query("newsletterAudienceDefinitions")
+      .collect();
+    for (const audience of audiences) {
+      const nextDivisionIds = audience.divisionIds.filter(
+        (id) => !doomedDivisionIds.has(id),
+      );
+      const nextTeamIds = audience.favoriteTeamIds.filter(
+        (id) => !doomedTeamIds.has(id),
+      );
+      let ruleGroupsChanged = false;
+      const nextRuleGroups = audience.ruleGroups?.map((group) => {
+        const nextConditions = group.conditions.map((condition) => {
+          if (condition.field === "division") {
+            const filtered = condition.divisionIds.filter(
+              (id) => !doomedDivisionIds.has(id),
+            );
+            if (filtered.length !== condition.divisionIds.length) {
+              ruleGroupsChanged = true;
+              return { ...condition, divisionIds: filtered };
+            }
+          }
+          if (condition.field === "favorite_team") {
+            const filtered = condition.teamIds.filter(
+              (id) => !doomedTeamIds.has(id),
+            );
+            if (filtered.length !== condition.teamIds.length) {
+              ruleGroupsChanged = true;
+              return { ...condition, teamIds: filtered };
+            }
+          }
+          return condition;
+        });
+        return { ...group, conditions: nextConditions };
+      });
+      const legacyChanged =
+        nextDivisionIds.length !== audience.divisionIds.length ||
+        nextTeamIds.length !== audience.favoriteTeamIds.length;
+      if (legacyChanged || ruleGroupsChanged) {
+        await ctx.db.patch(audience._id, {
+          divisionIds: nextDivisionIds,
+          favoriteTeamIds: nextTeamIds,
+          ...(nextRuleGroups ? { ruleGroups: nextRuleGroups } : {}),
+          updatedAt: Date.now(),
+        });
+        audienceDefsScrubbed += 1;
+      }
+    }
+
+    // 4) Strip doomed division ids from active teams that remain
+    for (const team of allTeams) {
+      if (doomedTeamIds.has(team._id)) continue;
+      const nextDivisionIds = team.divisionIds.filter(
+        (id) => !doomedDivisionIds.has(id),
+      );
+      if (nextDivisionIds.length !== team.divisionIds.length) {
+        await ctx.db.patch(team._id, { divisionIds: nextDivisionIds });
+        activeTeamsDivisionIdsScrubbed += 1;
+      }
+    }
+
+    // 5) Scrub contacts.divisionKeys (string public keys)
+    const contacts = await ctx.db.query("contacts").collect();
+    for (const contact of contacts) {
+      const nextKeys = contact.divisionKeys.filter(
+        (key) => !doomedDivisionKeys.has(key),
+      );
+      if (nextKeys.length !== contact.divisionKeys.length) {
+        await ctx.db.patch(contact._id, {
+          divisionKeys: nextKeys,
+          updatedAt: Date.now(),
+        });
+        contactsScrubbed += 1;
+      }
+    }
+
+    // 6) Pipeline runs / articles keyed by doomed public keys — clear to ""
+    //    is not allowed; leave them but count for the report. Prefer remap
+    //    only when a destination exists; otherwise leave orphan strings
+    //    (no FK). We only scrub when the key is a doomed catalog key.
+    for (const division of doomedDivisions) {
+      const runs = await ctx.db
+        .query("pipelineResearchRuns")
+        .withIndex("by_division_and_startedAt", (q) =>
+          q.eq("divisionKey", division.externalKey),
+        )
+        .collect();
+      pipelineRunsScrubbed += runs.length;
+      // Do not delete pipeline history — leave orphan string keys.
+
+      const articles = await ctx.db
+        .query("pipelineArticles")
+        .withIndex("by_division_and_updatedAt", (q) =>
+          q.eq("divisionKey", division.externalKey),
+        )
+        .collect();
+      pipelineArticlesScrubbed += articles.length;
+    }
+
+    // 7) Hard-delete doomed teams then divisions
+    for (const team of doomedTeams) {
+      await ctx.db.delete(team._id);
+      teamsDeleted += 1;
+    }
+    for (const division of doomedDivisions) {
+      await ctx.db.delete(division._id);
+      divisionsDeleted += 1;
+    }
+
+    await ctx.db.insert("newsletterAuditEvents", {
+      action: "taxonomy_purged",
+      metadata: JSON.stringify({
+        divisionsDeleted,
+        teamsDeleted,
+        subscribersScrubbed,
+        preferenceRowsDeleted,
+        audienceDefsScrubbed,
+        contactsScrubbed,
+        inactiveDivisionKeys: inactiveDivisions.map((d) => d.externalKey),
+        inactiveTeamKeys: inactiveTeams.map((t) => t.externalKey),
+      }),
+      createdAt: Date.now(),
+    });
+
+    return {
+      execute: true,
+      inactiveDivisions,
+      inactiveTeams,
+      subscribersScrubbed,
+      preferenceRowsDeleted,
+      audienceDefsScrubbed,
+      activeTeamsDivisionIdsScrubbed,
+      contactsScrubbed,
+      pipelineRunsScrubbed,
+      pipelineArticlesScrubbed,
+      divisionsDeleted,
+      teamsDeleted,
+    };
+  },
+});
