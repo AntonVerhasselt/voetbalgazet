@@ -188,60 +188,6 @@ export function SignupForm({
     }
   }
 
-  async function handleReturningReader(): Promise<void> {
-    const normalizedEmail = validateEmailStep();
-    if (!normalizedEmail) {
-      return;
-    }
-    setStatus({ state: "submitting" });
-    capturePublicEvent("gate_email_submitted", {
-      article_id: articleId,
-      source,
-      is_returning_flow: true,
-    });
-
-    try {
-      await postSignup({
-        action: "returning",
-        email: normalizedEmail,
-        website,
-      });
-      const { sessionStarted, verificationLinkSent } =
-        await startReaderSession(normalizedEmail);
-      setStep("success");
-      onStepChange?.("success");
-      setStatus({
-        state: "success",
-        message: sessionStarted
-          ? verificationLinkSent
-            ? "Je kunt verder lezen. Als dit adres al bij ons bekend is, ontvang je ook een veilige bevestigingslink."
-            : "Je kunt verder lezen. De bevestigingsmail kon niet worden verstuurd; probeer die later opnieuw via Voorkeuren."
-          : "Je kunt nu verder lezen. We konden je toegang op dit apparaat nog niet bewaren.",
-      });
-      capturePublicEvent("subscription_succeeded", {
-        article_id: articleId,
-        source,
-        access_level: sessionStarted ? "reader" : "temporary_reader",
-        is_returning_flow: true,
-      });
-      onUnlocked?.();
-    } catch (error) {
-      setStatus({
-        state: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Dat lukte niet. Controleer je e-mailadres en probeer opnieuw.",
-      });
-      capturePublicEvent("subscription_failed", {
-        article_id: articleId,
-        source,
-        error_code: "returning_step_failed",
-        step: "email",
-      });
-    }
-  }
-
   function toggleDivision(key: string): void {
     setSelectedDivisions((current) => {
       const next = current.includes(key)
@@ -463,16 +409,6 @@ export function SignupForm({
           {status.state === "submitting" ? "Even geduld…" : "Ga verder"}
         </button>
       </div>
-      <button
-        className="signup-form__secondary"
-        type="button"
-        disabled={status.state === "submitting"}
-        onClick={() => {
-          void handleReturningReader();
-        }}
-      >
-        Al abonnee? Lees verder
-      </button>
       <div className="signup-form__honeypot" aria-hidden="true">
         <label htmlFor={`${inputId}-website`}>Website</label>
         <input

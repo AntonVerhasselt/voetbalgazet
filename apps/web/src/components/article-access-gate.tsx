@@ -12,36 +12,37 @@ import { capturePublicEvent, bucketDurationMs } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
 import { hasReaderAccess } from "@/lib/reader-access";
 
-function restoreScrollPosition(scrollY: number): void {
-  // Two-arg form stays instant even when html has scroll-behavior: smooth.
-  window.scrollTo(0, scrollY);
-}
-
 export function ArticleAccessGate({
   articleId,
   leadLength,
   preview,
   children,
+  demoMode = false,
 }: {
   articleId: string;
   leadLength: number;
   preview: ReactNode;
   children: ReactNode;
+  /** Always show the gate (ignores reader session). For local UX demos only. */
+  demoMode?: boolean;
 }) {
   const { data: session, isPending } = authClient.useSession();
   const [locallyUnlocked, setLocallyUnlocked] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [signupStep, setSignupStep] = useState<
     "email" | "preferences" | "success"
   >("email");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const reopenRef = useRef<HTMLButtonElement>(null);
   const impressionCaptured = useRef(false);
   const sessionCaptured = useRef(false);
   const sessionCheckStartedAt = useRef<number | null>(null);
-  const lockedScrollY = useRef(0);
-  const didLockScroll = useRef(false);
   // Soft gate: only anonymous readers, verified e-mail sessions, or a fresh
-  // local signup unlock the article body.
-  const unlocked = hasReaderAccess(session?.user) || locallyUnlocked;
+  // local signup unlock the article body. Demo mode ignores existing sessions
+  // so the gate always appears, but still unlocks after a local signup.
+  const unlocked =
+    locallyUnlocked || (!demoMode && hasReaderAccess(session?.user));
+  const showGate = !unlocked && (demoMode || !isPending);
 
   useEffect(() => {
     if (sessionCheckStartedAt.current === null) {
@@ -50,7 +51,7 @@ export function ArticleAccessGate({
   }, []);
 
   useEffect(() => {
-    if (isPending || sessionCaptured.current) {
+    if (demoMode || isPending || sessionCaptured.current) {
       return;
     }
     sessionCaptured.current = true;
@@ -59,125 +60,98 @@ export function ArticleAccessGate({
       access_level: unlocked ? "reader" : "none",
       duration_bucket: bucketDurationMs(performance.now() - startedAt),
     });
-  }, [isPending, unlocked]);
+  }, [demoMode, isPending, unlocked]);
 
   useEffect(() => {
-    if (isPending || unlocked) {
+    if (!showGate || dismissed || impressionCaptured.current) {
       return;
     }
-    if (!impressionCaptured.current) {
-      impressionCaptured.current = true;
-      capturePublicEvent("gate_impression", {
-        article_id: articleId,
-        gate_variant: "mandatory_sheet_v1",
-        lead_length: leadLength,
-      });
-    }
-
-    lockedScrollY.current = window.scrollY;
-    didLockScroll.current = true;
-    const { body, documentElement } = document;
-    const previousOverflow = body.style.overflow;
-    const previousPosition = body.style.position;
-    const previousTop = body.style.top;
-    const previousWidth = body.style.width;
-    const previousPaddingRight = body.style.paddingRight;
-    const scrollbarGap = window.innerWidth - documentElement.clientWidth;
-
-    body.style.overflow = "hidden";
-    body.style.position = "fixed";
-    body.style.top = `-${lockedScrollY.current}px`;
-    body.style.width = "100%";
-    if (scrollbarGap > 0) {
-      body.style.paddingRight = `${scrollbarGap}px`;
-    }
-
-    headingRef.current?.focus({ preventScroll: true });
-
-    return () => {
-      body.style.overflow = previousOverflow;
-      body.style.position = previousPosition;
-      body.style.top = previousTop;
-      body.style.width = previousWidth;
-      body.style.paddingRight = previousPaddingRight;
-      restoreScrollPosition(lockedScrollY.current);
-      // Re-apply after paint in case focus/layout shifts the viewport.
-      requestAnimationFrame(() => {
-        restoreScrollPosition(lockedScrollY.current);
-      });
-    };
-  }, [articleId, isPending, leadLength, unlocked]);
-
-  useEffect(() => {
-    if (!unlocked || !didLockScroll.current) {
-      return;
-    }
-    restoreScrollPosition(lockedScrollY.current);
-    requestAnimationFrame(() => {
-      restoreScrollPosition(lockedScrollY.current);
+    impressionCaptured.current = true;
+    capturePublicEvent("gate_impression", {
+      article_id: articleId,
+      gate_variant: "inline_sheet_v1",
+      lead_length: leadLength,
     });
-  }, [unlocked]);
+    headingRef.current?.focus({ preventScroll: true });
+  }, [articleId, dismissed, leadLength, showGate]);
 
-  function keepFocusInside(event: KeyboardEvent<HTMLDivElement>): void {
-    // Mandatory sheet: Escape must not dismiss (soft-gate UX).
+  useEffect(() => {
+    if (!dismissed) {
+      return;
+    }
+    reopenRef.current?.focus({ preventScroll: true });
+  }, [dismissed]);
+
+  function dismiss(): void {
+    setDismissed(true);
+    capturePublicEvent("gate_dismissed", {
+      article_id: articleId,
+      gate_variant: "inline_sheet_v1",
+      signup_step: signupStep,
+    });
+  }
+
+  function reopen(): void {
+    setDismissed(false);
+    capturePublicEvent("gate_reopened", {
+      article_id: articleId,
+      gate_variant: "inline_sheet_v1",
+    });
+  }
+
+  function onGateKeyDown(event: KeyboardEvent<HTMLElement>): void {
     if (event.key === "Escape") {
       event.preventDefault();
-      return;
-    }
-    if (event.key !== "Tab") {
-      return;
-    }
-
-    const focusable = event.currentTarget.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    if (focusable.length === 0) {
-      return;
-    }
-    const first = focusable.item(0);
-    const last = focusable.item(focusable.length - 1);
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last?.focus({ preventScroll: true });
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus({ preventScroll: true });
+      dismiss();
     }
   }
 
   function unlock(): void {
     setLocallyUnlocked(true);
-    capturePublicEvent("article_body_unlocked", {
-      article_id: articleId,
-      unlock_source: "signup",
-      access_level: "reader",
-    });
+    if (!demoMode) {
+      capturePublicEvent("article_body_unlocked", {
+        article_id: articleId,
+        unlock_source: "signup",
+        access_level: "reader",
+      });
+    }
   }
 
+  const accessState =
+    !demoMode && isPending
+      ? "checking"
+      : unlocked
+        ? "unlocked"
+        : dismissed
+          ? "dismissed"
+          : "locked";
+
   return (
-    <div
-      className={`article-access article-access--${
-        isPending ? "checking" : unlocked ? "unlocked" : "locked"
-      }`}
-    >
+    <div className={`article-access article-access--${accessState}`}>
       <div className="article-lead">{preview}</div>
       {children}
-      {isPending && (
+      {!demoMode && isPending && (
         <div className="gate-placeholder" role="status">
           Leestoegang controleren…
         </div>
       )}
-      {!isPending && !unlocked && (
-        <div className="gate-layer">
-          <div className="gate-layer__fade" aria-hidden="true" />
-          <div
+      {showGate && !dismissed && (
+        <div className="gate-inline">
+          <div className="gate-inline__fade" aria-hidden="true" />
+          <section
             className={`gate-sheet gate-sheet--${signupStep}`}
-            role="dialog"
-            aria-modal="true"
             aria-labelledby="gate-heading"
-            onKeyDown={keepFocusInside}
+            onKeyDown={onGateKeyDown}
           >
             <div className="gate-sheet__inner">
+              <button
+                className="gate-sheet__close"
+                type="button"
+                onClick={dismiss}
+                aria-label="Sluit inschrijfformulier"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
               <p className="eyebrow">Gratis voor abonnees</p>
               <h2 id="gate-heading" ref={headingRef} tabIndex={-1}>
                 {signupStep === "preferences"
@@ -197,7 +171,15 @@ export function ArticleAccessGate({
                 variant="paper"
               />
             </div>
-          </div>
+          </section>
+        </div>
+      )}
+      {showGate && dismissed && (
+        <div className="gate-reopen">
+          <p>Abonneer gratis om het volledige artikel te lezen.</p>
+          <button ref={reopenRef} type="button" onClick={reopen}>
+            Toon inschrijving
+          </button>
         </div>
       )}
     </div>
