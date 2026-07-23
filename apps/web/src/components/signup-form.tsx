@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { teamOptions } from "@convex/lib/preferenceCatalog";
 import { DivisionSelector } from "@/components/division-selector";
+import { TeamCombobox } from "@/components/team-combobox";
 import { authClient } from "@/lib/auth-client";
 import { capturePublicEvent, capturePublicException } from "@/lib/analytics";
 import { CONSENT_VERSION } from "@/lib/site-config";
@@ -84,18 +85,15 @@ export function SignupForm({
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>([]);
-  const [teamQuery, setTeamQuery] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
 
-  const availableTeams = useMemo(() => {
-    const normalizedQuery = teamQuery.trim().toLocaleLowerCase("nl-BE");
-    return teamOptions.filter(
-      (team) =>
-        team.divisionKeys.some((key) => selectedDivisions.includes(key)) &&
-        (!normalizedQuery ||
-          team.label.toLocaleLowerCase("nl-BE").includes(normalizedQuery)),
-    );
-  }, [selectedDivisions, teamQuery]);
+  const availableTeams = useMemo(
+    () =>
+      teamOptions.filter((team) =>
+        team.divisionKeys.some((key) => selectedDivisions.includes(key)),
+      ),
+    [selectedDivisions],
+  );
 
   function validateEmailStep(): string | null {
     const normalizedEmail = email.trim();
@@ -184,60 +182,6 @@ export function SignupForm({
       capturePublicException(error, {
         error_code: "subscription_email_step_failed",
         source,
-      });
-    }
-  }
-
-  async function handleReturningReader(): Promise<void> {
-    const normalizedEmail = validateEmailStep();
-    if (!normalizedEmail) {
-      return;
-    }
-    setStatus({ state: "submitting" });
-    capturePublicEvent("gate_email_submitted", {
-      article_id: articleId,
-      source,
-      is_returning_flow: true,
-    });
-
-    try {
-      await postSignup({
-        action: "returning",
-        email: normalizedEmail,
-        website,
-      });
-      const { sessionStarted, verificationLinkSent } =
-        await startReaderSession(normalizedEmail);
-      setStep("success");
-      onStepChange?.("success");
-      setStatus({
-        state: "success",
-        message: sessionStarted
-          ? verificationLinkSent
-            ? "Je kunt verder lezen. Als dit adres al bij ons bekend is, ontvang je ook een veilige bevestigingslink."
-            : "Je kunt verder lezen. De bevestigingsmail kon niet worden verstuurd; probeer die later opnieuw via Voorkeuren."
-          : "Je kunt nu verder lezen. We konden je toegang op dit apparaat nog niet bewaren.",
-      });
-      capturePublicEvent("subscription_succeeded", {
-        article_id: articleId,
-        source,
-        access_level: sessionStarted ? "reader" : "temporary_reader",
-        is_returning_flow: true,
-      });
-      onUnlocked?.();
-    } catch (error) {
-      setStatus({
-        state: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Dat lukte niet. Controleer je e-mailadres en probeer opnieuw.",
-      });
-      capturePublicEvent("subscription_failed", {
-        article_id: articleId,
-        source,
-        error_code: "returning_step_failed",
-        step: "email",
       });
     }
   }
@@ -359,48 +303,30 @@ export function SignupForm({
         </fieldset>
 
         <div className="team-picker">
-          <label htmlFor={`${inputId}-team-search`}>
+          <label htmlFor={`${inputId}-team`}>
             Favoriete club <span>(optioneel)</span>
           </label>
-          <input
-            id={`${inputId}-team-search`}
-            type="search"
-            value={teamQuery}
-            onChange={(event) => {
-              setTeamQuery(event.target.value);
+          <TeamCombobox
+            id={`${inputId}-team`}
+            options={availableTeams}
+            value={selectedTeam}
+            onChange={setSelectedTeam}
+            disabled={selectedDivisions.length === 0}
+            placeholder="Zoek of kies een club"
+            disabledPlaceholder="Kies eerst een reeks"
+            maxResults={5}
+            onSearch={(query, resultCount) => {
               capturePublicEvent("team_search_used", {
-                query_length: event.target.value.length,
-                result_count: availableTeams.length,
+                query_length: query.length,
+                result_count: resultCount,
               });
             }}
-            placeholder={
-              selectedDivisions.length
-                ? "Zoek een club"
-                : "Kies eerst een reeks"
-            }
-            disabled={selectedDivisions.length === 0}
+            onSelect={(teamKey) => {
+              capturePublicEvent("favorite_team_selected", {
+                team_id: teamKey,
+              });
+            }}
           />
-          {selectedDivisions.length > 0 && (
-            <select
-              aria-label="Kies je favoriete club"
-              value={selectedTeam}
-              onChange={(event) => {
-                setSelectedTeam(event.target.value);
-                if (event.target.value) {
-                  capturePublicEvent("favorite_team_selected", {
-                    team_id: event.target.value,
-                  });
-                }
-              }}
-            >
-              <option value="">Geen favoriete club</option>
-              {availableTeams.map((team) => (
-                <option key={team.key} value={team.key}>
-                  {team.label}
-                </option>
-              ))}
-            </select>
-          )}
         </div>
 
         <p className="consent-copy">
@@ -463,16 +389,6 @@ export function SignupForm({
           {status.state === "submitting" ? "Even geduld…" : "Ga verder"}
         </button>
       </div>
-      <button
-        className="signup-form__secondary"
-        type="button"
-        disabled={status.state === "submitting"}
-        onClick={() => {
-          void handleReturningReader();
-        }}
-      >
-        Al abonnee? Lees verder
-      </button>
       <div className="signup-form__honeypot" aria-hidden="true">
         <label htmlFor={`${inputId}-website`}>Website</label>
         <input

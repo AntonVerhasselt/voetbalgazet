@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { teamOptions } from "@convex/lib/preferenceCatalog";
 import { DivisionSelector } from "@/components/division-selector";
+import { TeamCombobox } from "@/components/team-combobox";
 import { capturePublicEvent } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
 
@@ -13,6 +14,7 @@ type Preferences = {
 };
 
 export function PreferencesForm() {
+  const teamInputId = useId();
   const [loading, setLoading] = useState(true);
   const [requiresVerification, setRequiresVerification] = useState(false);
   const [divisions, setDivisions] = useState<string[]>([]);
@@ -217,17 +219,21 @@ export function PreferencesForm() {
         <legend>Mijn reeksen</legend>
         <DivisionSelector selected={divisions} onToggle={toggleDivision} />
       </fieldset>
-      <label>
-        Favoriete club (optioneel)
-        <select value={team} onChange={(event) => setTeam(event.target.value)}>
-          <option value="">Geen favoriete club</option>
-          {availableTeams.map((option) => (
-            <option key={option.key} value={option.key}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="team-picker">
+        <label htmlFor={teamInputId}>
+          Favoriete club <span>(optioneel)</span>
+        </label>
+        <TeamCombobox
+          id={teamInputId}
+          options={availableTeams}
+          value={team}
+          onChange={setTeam}
+          disabled={divisions.length === 0}
+          placeholder="Zoek of kies een club"
+          disabledPlaceholder="Kies eerst een reeks"
+          maxResults={5}
+        />
+      </div>
       <button type="submit" disabled={saving}>
         {saving ? "Opslaan…" : "Voorkeuren opslaan"}
       </button>
