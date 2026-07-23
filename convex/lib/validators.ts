@@ -138,6 +138,7 @@ export const auditActionValidator = v.union(
   v.literal("suppression_cleared"),
   v.literal("failed_recipients_recovered"),
   v.literal("taxonomy_synced"),
+  v.literal("taxonomy_purged"),
   v.literal("kill_switch_toggled"),
   v.literal("admin_send_alert_sent"),
 );

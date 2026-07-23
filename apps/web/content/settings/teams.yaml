@@ -2483,8 +2483,8 @@ items:
     provinceKey: vlaams-brabant
     active: true
     aliases: []
-  - key: kluisbergen-sp-a
-    label: "Kluisbergen Sp A"
+  - key: kluisbergen-sp
+    label: "Kluisbergen Sp"
     divisionKeys: [oost-vlaanderen-p2b]
     provinceKey: oost-vlaanderen
     active: true
@@ -3329,6 +3329,12 @@ items:
     provinceKey: west-vlaanderen
     active: true
     aliases: []
+  - key: r-three-stars-club-proven
+    label: "R. Three Stars Club Proven"
+    divisionKeys: [west-vlaanderen-p3b]
+    provinceKey: west-vlaanderen
+    active: true
+    aliases: []
   - key: r-f-c-goalgetters-sint-laureins-a
     label: "R.F.C. Goalgetters Sint-Laureins A"
     divisionKeys: [oost-vlaanderen-p3a]
@@ -3344,12 +3350,6 @@ items:
   - key: r-j-h-comines-b
     label: "R.J.H. Comines B"
     divisionKeys: [west-vlaanderen-p4d]
-    provinceKey: west-vlaanderen
-    active: true
-    aliases: []
-  - key: r-t-s-c-proven
-    label: "R.T.S.C. Proven"
-    divisionKeys: [west-vlaanderen-p3b]
     provinceKey: west-vlaanderen
     active: true
     aliases: []
@@ -3569,8 +3569,8 @@ items:
     provinceKey: oost-vlaanderen
     active: true
     aliases: []
-  - key: sk-denderhoutem-a
-    label: "SK Denderhoutem A"
+  - key: sk-denderhoutem
+    label: "SK Denderhoutem"
     divisionKeys: [oost-vlaanderen-p1]
     provinceKey: oost-vlaanderen
     active: true
@@ -4421,8 +4421,8 @@ items:
     provinceKey: oost-vlaanderen
     active: true
     aliases: []
-  - key: vco-meerbeke-a
-    label: "VCO Meerbeke A"
+  - key: vco-meerbeke
+    label: "VCO Meerbeke"
     divisionKeys: [oost-vlaanderen-p2b]
     provinceKey: oost-vlaanderen
     active: true
