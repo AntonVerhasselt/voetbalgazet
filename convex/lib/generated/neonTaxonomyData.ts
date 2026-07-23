@@ -5,7 +5,6 @@
  * Signup divisions = provincial competitions only (cups excluded).
  * Series map = every Neon series for research SQL.
  */
-/* eslint-disable */
 
 export type GeneratedNeonSeriesRef = {
   neonSeriesId: string;

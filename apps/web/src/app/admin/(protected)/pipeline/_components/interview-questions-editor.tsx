@@ -109,14 +109,21 @@ export function InterviewQuestionsEditor({
     });
   }
 
+  // Reset local drafts when the server-provided contact/questions change.
+  // Adjust during render (React-recommended) instead of setState in an effect.
   const questionsKey = initialQuestions.join("\u0001");
-  useEffect(() => {
+  const syncKey = `${articleContactId}\u0001${questionsKey}\u0001${initialNotes}\u0001${idPrefix}`;
+  const [prevSyncKey, setPrevSyncKey] = useState(syncKey);
+  if (syncKey !== prevSyncKey) {
+    setPrevSyncKey(syncKey);
     setNotesDraft(initialNotes);
     setDraft(toDraft(initialQuestions, idPrefix));
-  }, [articleContactId, questionsKey, initialQuestions, initialNotes, idPrefix]);
+  }
 
   useEffect(() => {
     scheduleSizeAll();
+    // scheduleSizeAll only touches refs; omit from deps to avoid re-subscribe noise.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sizing helper is ref-stable
   }, [draft, notesDraft, canEdit]);
 
   useEffect(() => {
@@ -149,6 +156,7 @@ export function InterviewQuestionsEditor({
       if (sizeRafRef.current !== null) cancelAnimationFrame(sizeRafRef.current);
       if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount/unmount only; sizing via refs
   }, []);
 
   function flashSaved() {
