@@ -1,0 +1,32 @@
+
+  query GetSeriesRankings ($seriesId: ID!, $language: Language!) {
+    seriesRankings(seriesId: $seriesId, language: $language) {
+      id
+      name
+      channel
+      visibility {
+        showRanking
+        showFairplay
+      }
+      rankings {
+        type
+        teams {
+          teamId
+          name
+          position
+          clubId
+          logo
+          clubRegistrationNumber
+          points
+          matchesPlayed
+          matchesWon
+          matchesLost
+          matchesDrawn
+          goalsFor
+          goalsAgainst
+          goalDifference
+          fairplayPercentage
+        }
+      }
+    }
+  }

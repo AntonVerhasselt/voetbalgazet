@@ -1,0 +1,41 @@
+
+  query GetSeriesCalendarSmall($seriesId: ID!, $language: Language!, $getUpcomingGames: Boolean!) {
+    seriesCalendarSmall(seriesId: $seriesId, language: $language, getUpcomingGames: $getUpcomingGames) {
+      id
+      state
+      startTime
+      channel
+      homeTeam {
+        id
+        name
+        clubId
+        logo
+      }
+      awayTeam {
+        id
+        name
+        clubId
+        logo
+      }
+      outcome {
+        status
+        homeTeamGoals
+        homeTeamPenaltiesScored
+        awayTeamGoals
+        awayTeamPenaltiesScored
+        subscript
+      }
+      series {
+        id
+        name
+      }
+      officials {
+        lastName
+        firstName
+        status
+        personAssigned
+      }
+      showScore
+      startDateTimeInThePassed
+    }
+  }

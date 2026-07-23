@@ -1,0 +1,40 @@
+
+  query GetUpcomingMatch ($teamId: ID!, $language: Language!) {
+    upcomingMatch(teamId: $teamId, language: $language) {
+      id
+      startTime
+      homeTeam {
+        id
+        name
+        logo
+        clubId
+      }
+      awayTeam {
+        id
+        name
+        logo
+        clubId
+      }
+      outcome {
+        status
+        homeTeamGoals
+        homeTeamPenaltiesScored
+        awayTeamGoals
+        awayTeamPenaltiesScored
+        subscript
+      }
+      series {
+        id
+        name
+      }
+      officials {
+        lastName
+        firstName
+        status
+        personAssigned
+      }
+      showScore
+      state
+      startDateTimeInThePassed
+    }
+  }

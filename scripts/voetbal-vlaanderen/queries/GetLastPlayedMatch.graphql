@@ -1,0 +1,35 @@
+
+  query GetLastPlayedMatch ($teamId: ID!, $language: Language!) {
+    lastPlayedMatch(teamId: $teamId, language: $language) {
+      id
+      startTime
+      homeTeam {
+        id
+        name
+        logo
+        clubId
+      }
+      awayTeam {
+        id
+        name
+        logo
+        clubId
+      }
+      outcome {
+        status
+        homeTeamGoals
+        homeTeamPenaltiesScored
+        awayTeamGoals
+        awayTeamPenaltiesScored
+        subscript
+      }
+      series {
+        id
+        name
+      }
+      showScore
+      state
+      startDateTimeInThePassed
+      ageGroup
+    }
+  }

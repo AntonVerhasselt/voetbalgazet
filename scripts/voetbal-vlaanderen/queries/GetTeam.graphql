@@ -1,0 +1,10 @@
+
+  query GetTeam ($teamId: ID!, $language: Language!) {
+    team(teamId: $teamId, language: $language) {
+      id
+      name
+      clubName
+      clubId
+      logo
+    }
+  }

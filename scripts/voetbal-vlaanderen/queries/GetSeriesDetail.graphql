@@ -1,0 +1,12 @@
+
+  query GetSeriesDetail($seriesId: ID!, $language: Language!) {
+    series(seriesId: $seriesId, language: $language) {
+      id
+      name
+      channel
+      showRanking
+      showScore
+      ageGroup
+      hasFairplayRanking
+    }
+  }
